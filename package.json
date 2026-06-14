@@ -7,7 +7,9 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:lms-platform": "node dist/lms-platform/server/server.mjs"
+    "serve:ssr:lms-platform": "node dist/lms-platform/server/server.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "private": true,
   "packageManager": "npm@11.8.0",
@@ -20,9 +22,12 @@
     "@angular/platform-server": "^21.2.0",
     "@angular/router": "^21.2.0",
     "@angular/ssr": "^21.2.15",
+    "@primeng/themes": "^21.0.4",
     "@tailwindcss/postcss": "^4.3.0",
     "express": "^5.1.0",
     "postcss": "^8.5.15",
+    "primeicons": "^7.0.0",
+    "primeng": "^21.1.9",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.0",
     "tslib": "^2.3.0"

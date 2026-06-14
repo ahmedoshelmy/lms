@@ -1,16 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet],
-  template: `
-    <div>
-      <h1>Main Layout</h1>
-      <router-outlet></router-outlet>
-    </div>
-  `,
-  styles: ''
+  imports: [RouterOutlet, SidebarComponent],
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss',
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent {
+  isSidebarOpen = signal(true);
+
+  toggleSidebar() {
+    this.isSidebarOpen.set(!this.isSidebarOpen());
+  }
+}
