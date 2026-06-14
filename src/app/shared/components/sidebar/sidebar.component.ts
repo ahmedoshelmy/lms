@@ -1,18 +1,12 @@
 import { Component, input, output, model } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
-interface MenuItem {
-  label: string;
-  icon: string;
-  route: string;
-}
+import { MenuItem } from '../../../core/interfaces/MenuItem';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [RouterModule],
   templateUrl: './sidebar.component.html',
-  // You can now safely delete sidebar.component.scss
 })
 export class SidebarComponent {
   isOpen = model(true);
@@ -37,6 +31,6 @@ export class SidebarComponent {
   }
 
   toggleSidebar() {
-    this.isOpen.update(v => !v);
+    this.isOpen.update((v) => !v);
   }
 }

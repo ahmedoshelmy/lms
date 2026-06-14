@@ -1,57 +1,88 @@
-<aside 
-  class="flex flex-col h-screen bg-[linear-gradient(180deg,#1e2a5c_0%,#16224d_100%)] text-white transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] relative z-[999] shadow-[4px_0_24px_rgba(0,0,0,0.15)]"
+<aside
+  class="flex flex-col h-screen bg-[linear-gradient(180deg,#1e2a5c_0%,#16224d_100%)] text-white transition-all duration-400 ease-in-out relative z-999 shadow-[4px_0_24px_rgba(0,0,0,0.15)]"
   [class.w-[250px]]="isOpen()"
   [class.w-[80px]]="!isOpen()"
 >
-  <button 
-    class="absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-8 bg-[#16224d] border border-white/10 rounded-full flex items-center justify-center text-[#a8b0d3] hover:text-white hover:bg-[#2a3a7c] hover:scale-110 active:scale-95 transition-all duration-200 shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-[1000] cursor-pointer"
+  <button
+    class="absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-8 bg-[#16224d] border border-white/10 rounded-full flex items-center justify-center text-[#a8b0d3] hover:text-white hover:bg-[#2a3a7c] hover:scale-110 active:scale-95 transition-all duration-200 shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-1000 cursor-pointer"
     (click)="toggleSidebar()"
   >
-    <i class="text-sm transition-transform duration-300" [class]="isOpen() ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"></i>
+    <i
+      class="text-sm transition-transform duration-300"
+      [class]="isOpen() ? 'pi pi-chevron-left' : 'pi pi-chevron-right'"
+    ></i>
   </button>
 
   <div class="flex items-center gap-3 py-7 px-5 border-b border-white/10">
-    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1cd39c] to-[#15a87a] flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(28,211,156,0.3)] text-xl">
+    <div
+      class="w-11 h-11 rounded-xl bg-linear-to-br from-[#1cd39c] to-[#15a87a] flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(28,211,156,0.3)] text-xl"
+    >
       <i class="pi pi-graduation-cap"></i>
     </div>
-    <div class="flex flex-col transition-all duration-200 whitespace-nowrap" [class.opacity-0]="!isOpen()" [class.invisible]="!isOpen()">
+    <div
+      class="flex flex-col transition-all duration-200 whitespace-nowrap"
+      [class.opacity-0]="!isOpen()"
+      [class.invisible]="!isOpen()"
+    >
       <h3 class="m-0 text-lg font-bold tracking-tight">Mindvalley</h3>
-      <span class="text-[11px] text-[#a8b0d3] tracking-[1.5px] font-medium uppercase">Management</span>
+      <span class="text-[11px] text-[#a8b0d3] tracking-[1.5px] font-medium uppercase"
+        >Management</span
+      >
     </div>
   </div>
 
-  <div class="mx-5 my-5 w-fit py-2 px-4 bg-gradient-to-br from-[#5a4bb6] to-[#473c9f] rounded-lg text-[11px] font-bold tracking-[1.5px] whitespace-nowrap uppercase text-[#f0f0ff] shadow-[0_2px_8px_rgba(71,60,159,0.4)] transition-all duration-200"
-       [class.opacity-0]="!isOpen()" [class.invisible]="!isOpen()">
+  <div
+    class="mx-5 my-5 w-fit py-2 px-4 bg-linear-to-br from-[#5a4bb6] to-[#473c9f] rounded-lg text-[11px] font-bold tracking-[1.5px] whitespace-nowrap uppercase text-[#f0f0ff] shadow-[0_2px_8px_rgba(71,60,159,0.4)] transition-all duration-200"
+    [class.opacity-0]="!isOpen()"
+    [class.invisible]="!isOpen()"
+  >
     STUDENT
   </div>
 
-  <nav class="flex-1 py-3 px-3 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-sm">
+  <nav
+    class="flex-1 py-3 px-3 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-sm"
+  >
     @for (item of menuItems; track item.route) {
       <a
-        class="group flex items-center gap-3.5 py-3.5 px-4 rounded-xl mb-1.5 text-[#c6cce5] no-underline cursor-pointer transition-all duration-300 relative overflow-hidden hover:bg-white/10 hover:text-white hover:translate-x-1 before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-3/5 before:bg-gradient-to-b before:from-[#1cd39c] before:to-[#15a87a] before:rounded-r-sm before:transition-transform before:duration-300 before:scale-y-0 group-hover:before:scale-y-100 [&.active]:bg-[#1cd39c]/15 [&.active]:text-[#1cd39c] [&.active]:font-semibold [&.active::before]:scale-y-100"
+        class="group flex items-center gap-3.5 py-3.5 px-4 rounded-xl mb-1.5 text-[#c6cce5] no-underline cursor-pointer transition-all duration-300 relative overflow-hidden hover:bg-white/10 hover:text-white hover:translate-x-1 before:content-[''] before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-3/5 before:bg-linear-to-b before:from-[#1cd39c] before:to-[#15a87a] before:rounded-r-sm before:transition-transform before:duration-300 before:scale-y-0 group-hover:before:scale-y-100 [&.active]:bg-[#1cd39c]/15 [&.active]:text-[#1cd39c] [&.active]:font-semibold [&.active::before]:scale-y-100"
         [routerLink]="item.route"
         routerLinkActive="active"
         (click)="onMenuItemClick()"
       >
         <i [class]="item.icon + ' text-xl shrink-0'"></i>
-        <span class="transition-all duration-200 whitespace-nowrap" [class.opacity-0]="!isOpen()" [class.invisible]="!isOpen()">
+        <span
+          class="transition-all duration-200 whitespace-nowrap"
+          [class.opacity-0]="!isOpen()"
+          [class.invisible]="!isOpen()"
+        >
           {{ item.label }}
         </span>
         @if (item.label === 'Overview') {
-          <i class="pi pi-angle-right ml-auto text-base opacity-60 group-hover:opacity-100 transition-all duration-200" [class.opacity-0]="!isOpen()" [class.invisible]="!isOpen()"></i>
+          <i
+            class="pi pi-angle-right ml-auto text-base opacity-60 group-hover:opacity-100 transition-all duration-200"
+            [class.opacity-0]="!isOpen()"
+            [class.invisible]="!isOpen()"
+          ></i>
         }
       </a>
     }
   </nav>
 
   <div class="border-t border-white/10 p-5 flex items-center gap-3.5 bg-black/10">
-    <div class="w-[46px] h-[46px] rounded-full bg-gradient-to-br from-[#7453ff] to-[#5a4bb6] flex items-center justify-center font-bold shrink-0 text-base shadow-[0_4px_12px_rgba(116,83,255,0.3)]">
+    <div
+      class="w-[46px] h-[46px] rounded-full bg-linear-to-br from-[#7453ff] to-[#5a4bb6] flex items-center justify-center font-bold shrink-0 text-base shadow-[0_4px_12px_rgba(116,83,255,0.3)]"
+    >
       {{ student.initials }}
     </div>
-    <div class="flex flex-col transition-all duration-200 whitespace-nowrap" [class.opacity-0]="!isOpen()" [class.invisible]="!isOpen()">
+    <div
+      class="flex flex-col transition-all duration-200 whitespace-nowrap"
+      [class.opacity-0]="!isOpen()"
+      [class.invisible]="!isOpen()"
+    >
       <h4 class="m-0 text-sm font-semibold tracking-tight">{{ student.name }}</h4>
       <p class="m-0 mt-1 text-xs text-[#9ea9d8]">
-        {{ student.group }} · <span class="text-[#1cd39c] font-semibold">Streak 🔥 {{ student.streak }}</span>
+        {{ student.group }} ·
+        <span class="text-[#1cd39c] font-semibold">Streak 🔥 {{ student.streak }}</span>
       </p>
     </div>
   </div>
