@@ -209,7 +209,7 @@ import { DialogModule } from 'primeng/dialog';
               pInputText 
               type="url" 
               [(ngModel)]="settingsApiUrl" 
-              placeholder="e.g. https://mindvalley-uhf4n.ondigitalocean.app/api" 
+              placeholder="e.g. https://mv-api.inite.tech/api" 
               class="w-full" />
             <span class="text-[11px] text-[#94a3b8]">Active Base API Endpoint: <code>{{ currentApiUrl }}</code></span>
           </div>
