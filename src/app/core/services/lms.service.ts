@@ -36,7 +36,7 @@ export interface Enrollment {
 export class LmsService {
   private http = inject(HttpClient);
   
-  private defaultApiUrl = 'https://mv-api.inite.tech/api';
+  private defaultApiUrl = 'https://mindvalley-uhf4n.ondigitalocean.app/api';
   private apiUrlSubject = new BehaviorSubject<string>(
     (typeof window !== 'undefined' ? localStorage.getItem('lms_api_url') : null) || this.defaultApiUrl
   );
