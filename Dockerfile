@@ -1,14 +1,24 @@
-# Use official lightweight Nginx image
+# Stage 1: Build the Angular application
+FROM node:20-alpine AS build
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy codebase and build
+COPY . .
+RUN npm run build -- --configuration production
+
+# Stage 2: Serve the application using Nginx
 FROM nginx:alpine
 
-# Remove default nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
+# Copy nginx fallback routing configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy our static assets (index.html, styles.css, app.js) to Nginx web root
-COPY . /usr/share/nginx/html
+# Copy build artifacts to Nginx doc root
+COPY --from=build /app/dist/lms-platform/browser /usr/share/nginx/html
 
-# Expose port 80 to mapping
 EXPOSE 80
 
-# Start Nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]

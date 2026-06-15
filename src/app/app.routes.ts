@@ -14,6 +14,16 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then((c) => c.DashboardComponent),
       },
       {
+        path: 'courses',
+        loadComponent: () =>
+          import('./features/courses/courses.component').then((c) => c.CoursesComponent),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/users/users.component').then((c) => c.UsersComponent),
+      },
+      {
         path: 'progress',
         loadComponent: () =>
           import('./features/progress/progress.component').then((c) => c.ProgressComponent),

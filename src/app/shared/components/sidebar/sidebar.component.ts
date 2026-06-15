@@ -14,6 +14,8 @@ export class SidebarComponent {
 
   menuItems: MenuItem[] = [
     { label: 'Overview', icon: 'pi pi-th-large', route: '/dashboard' },
+    { label: 'Courses', icon: 'pi pi-book', route: '/courses' },
+    { label: 'Users & Staff', icon: 'pi pi-users', route: '/users' },
     { label: 'Progress', icon: 'pi pi-chart-line', route: '/progress' },
     { label: 'Attendance', icon: 'pi pi-calendar', route: '/attendance' },
     { label: 'Resources', icon: 'pi pi-folder', route: '/resources' },
