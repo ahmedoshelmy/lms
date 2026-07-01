@@ -1,2 +1,55 @@
 @import 'tailwindcss';
 @import "primeicons/primeicons.css";
+
+
+@theme {
+  /* =========================================
+     1. MAIN BRAND COLORS
+     ========================================= */
+  --color-primary: #1A2B4C;
+  --color-primary-hover: #254479;
+  --color-primary-content: #FFFFFF;
+
+  /* Secondary*/
+  --color-secondary: #3e6db5;
+  --color-secondary-hover: #2d5594;
+  --color-secondary-content: #FFFFFF;
+
+  /* =========================================
+     2. BACKGROUNDS & SURFACES
+     ========================================= */
+  /* Background: The main workspace canvas behind the cards (The Cream) */
+  --color-background: #F7F4EF;
+  --color-background-alt: #EAE5D9;
+
+  /* Surface: The background of cards, tables, and the top navbar (Usually White) */
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F9FAFB;
+
+  /* =========================================
+     3. TEXT & BORDERS
+     ========================================= */
+  --color-text-main: #111827;      /* Standard reading text */
+  --color-text-muted: #6B7280;     /* Subtitles, icons, placeholder text */
+  --color-border: #E5E7EB;         /* Subtle lines between table rows or sections */
+
+  /* =========================================
+     4. SEMANTIC STATUSES (For Sessions)
+     ========================================= */
+  --color-success: #10B981;        /* 'Running' sessions */
+  --color-warning: #F59E0B;        /* 'Pending' changes/vacations */
+  --color-danger: #EF4444;         /* 'Canceled' sessions */
+  --color-disabled: #D1D5DB;       /* Inactive UI elements */
+
+  /* Fonts */
+  --font-sans: "Inter", "Segoe UI", sans-serif;
+}
+
+/* Base global layer styling */
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-main);
+    -webkit-font-smoothing: antialiased;
+  }
+}
