@@ -1,0 +1,41 @@
+.auth-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.auth-shell__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.auth-shell__glow--left {
+  width: 320px;
+  height: 320px;
+  top: -80px;
+  left: -80px;
+  background: #1cd39c;
+}
+
+.auth-shell__glow--right {
+  width: 400px;
+  height: 400px;
+  bottom: -120px;
+  right: -100px;
+  background: #7453ff;
+}
+
+.auth-shell__content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+}

@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { afterNextRender, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { ToastModule } from 'primeng/toast';
+
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -12,7 +13,25 @@ import { ToastModule } from 'primeng/toast';
 export class MainLayoutComponent {
   isSidebarOpen = signal(true);
 
-  toggleSidebar() {
-    this.isSidebarOpen.set(!this.isSidebarOpen());
+  constructor() {
+    afterNextRender(() => {
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        this.isSidebarOpen.set(false);
+      }
+    });
+  }
+
+  openSidebar(): void {
+    this.isSidebarOpen.set(true);
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen.set(false);
+  }
+
+  onMenuItemClicked(): void {
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      this.closeSidebar();
+    }
   }
 }

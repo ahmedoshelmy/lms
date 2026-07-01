@@ -1,0 +1,96 @@
+<div class="auth-card">
+  <div class="auth-card__header">
+    <div class="auth-card__logo">
+      <i class="pi pi-user-plus" aria-hidden="true"></i>
+    </div>
+    <h1 class="auth-card__title">Create account</h1>
+    <p class="auth-card__subtitle">Join as a student to start learning</p>
+  </div>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="form-field">
+      <label for="name">Full name</label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        autocomplete="name"
+        placeholder="Your full name"
+        [class.invalid]="submitted && name.invalid"
+      />
+      @if (submitted && name.hasError('required')) {
+        <span class="field-error">Name is required</span>
+      }
+      @if (submitted && name.hasError('minlength')) {
+        <span class="field-error">Name must be at least 2 characters</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+        placeholder="you@example.com"
+        [class.invalid]="submitted && email.invalid"
+      />
+      @if (submitted && email.hasError('required')) {
+        <span class="field-error">Email is required</span>
+      }
+      @if (submitted && email.hasError('email')) {
+        <span class="field-error">Enter a valid email address</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="new-password"
+        placeholder="At least 6 characters"
+        [class.invalid]="submitted && password.invalid"
+      />
+      @if (submitted && password.hasError('required')) {
+        <span class="field-error">Password is required</span>
+      }
+      @if (submitted && password.hasError('minlength')) {
+        <span class="field-error">Password must be at least 6 characters</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="confirmPassword">Confirm password</label>
+      <input
+        id="confirmPassword"
+        type="password"
+        formControlName="confirmPassword"
+        autocomplete="new-password"
+        placeholder="Repeat your password"
+        [class.invalid]="submitted && (confirmPassword.invalid || passwordMismatch)"
+      />
+      @if (submitted && confirmPassword.hasError('required')) {
+        <span class="field-error">Please confirm your password</span>
+      }
+      @if (passwordMismatch) {
+        <span class="field-error">Passwords do not match</span>
+      }
+    </div>
+
+    <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+      @if (isSubmitting) {
+        Creating account...
+      } @else {
+        Create account
+      }
+    </button>
+  </form>
+
+  <p class="auth-card__footer">
+    Already have an account?
+    <a routerLink="/auth/login">Sign in</a>
+  </p>
+</div>

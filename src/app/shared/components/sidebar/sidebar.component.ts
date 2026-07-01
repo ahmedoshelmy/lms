@@ -1,38 +1,65 @@
-import { Component, input, output, model } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, computed, inject, model, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterModule, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
+import { Role } from '../../../core/interfaces/Role';
+import { AuthService } from '../../../core/services/auth.service';
+import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
   isOpen = model(true);
   menuItemClicked = output<void>();
 
-  menuItems: MenuItem[] = [
-    { label: 'Overview', icon: 'pi pi-th-large', route: '/dashboard' },
-    { label: 'Courses', icon: 'pi pi-book', route: '/courses' },
-    { label: 'Users & Staff', icon: 'pi pi-users', route: '/users' },
-    { label: 'Progress', icon: 'pi pi-chart-line', route: '/progress' },
-    { label: 'Attendance', icon: 'pi pi-calendar', route: '/attendance' },
-    { label: 'Resources', icon: 'pi pi-folder', route: '/resources' },
-  ];
+  private readonly currentUser = toSignal(this.authService.currentUser$, {
+    initialValue: this.authService.currentUser,
+  });
 
-  student = {
-    initials: 'MO',
-    name: 'Muhammad Osama',
-    group: 'Group A1',
-    streak: 14,
-  };
+  readonly menuItems = computed<MenuItem[]>(() => {
+    const user = this.currentUser();
+    return user ? getMenuItemsForRole(user.role) : [];
+  });
 
-  onMenuItemClick() {
+  readonly userProfile = computed(() => {
+    const user = this.currentUser();
+    return {
+      initials: this.getUserInitials(user?.name ?? 'User'),
+      name: user?.name ?? 'User',
+      email: user?.email ?? '',
+    };
+  });
+
+  readonly currentRole = computed(() => this.currentUser()?.role ?? Role.Student);
+
+  onMenuItemClick(): void {
     this.menuItemClicked.emit();
   }
 
-  toggleSidebar() {
-    this.isOpen.update((v) => !v);
+  toggleSidebar(): void {
+    this.isOpen.update((value) => !value);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
+  }
+
+  private getUserInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 }

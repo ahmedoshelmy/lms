@@ -1,0 +1,37 @@
+<div class="auth-card">
+  <div class="auth-card__header">
+    <div class="auth-card__logo">
+      <i class="pi pi-graduation-cap" aria-hidden="true"></i>
+    </div>
+    <h1 class="auth-card__title">Mindvalley</h1>
+    <p class="auth-card__subtitle">Sign in to your account</p>
+  </div>
+
+  <p class="auth-card__hint">Demo mode — select a role to continue</p>
+
+  <div class="role-buttons" role="list">
+    @for (roleItem of roles; track roleItem.role) {
+      <button
+        type="button"
+        class="role-btn"
+        [class]="roleItem.role.toLowerCase()"
+        [class.is-loading]="loadingRole === roleItem.role"
+        [disabled]="loadingRole !== null"
+        [attr.aria-label]="'Sign in as ' + roleItem.name"
+        (click)="loginAs(roleItem.role)"
+      >
+        <i class="pi" [class]="getRoleIcon(roleItem.role)" aria-hidden="true"></i>
+        <span class="role-name">{{ roleItem.name }}</span>
+        <span class="role-desc">{{ roleItem.description }}</span>
+        @if (loadingRole === roleItem.role) {
+          <span class="role-loading">Signing in...</span>
+        }
+      </button>
+    }
+  </div>
+
+  <p class="auth-card__footer">
+    New here?
+    <a routerLink="/auth/register">Create an account</a>
+  </p>
+</div>
