@@ -1,0 +1,14 @@
+name: lms-frontend
+region: nyc
+services:
+  - name: web
+    github:
+      repo: ahmedoshelmy/lms
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 80
+    routes:
+      - path: /

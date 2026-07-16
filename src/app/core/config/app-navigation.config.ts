@@ -59,6 +59,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     roles: ALL_ROLES,
     showInMenu: true,
   },
+  {
+    path: 'schedule',
+    label: 'Weekly Schedule',
+    icon: 'pi pi-calendar-clock',
+    roles: ALL_ROLES,
+    showInMenu: true,
+  },
 ];
 
 export function getRolesForPath(path: string): Role[] {

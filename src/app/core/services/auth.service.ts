@@ -18,6 +18,11 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  getUserId(): string | null {
+    const user = this.currentUser;
+    return user ? user.id.toString() : null;
+  }
+
   isLoggedIn(): boolean {
     return !!this.currentUser && !!this.getToken();
   }

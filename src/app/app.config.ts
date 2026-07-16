@@ -12,6 +12,7 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { NotificationService } from './core/services/notification.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { userIdInterceptor } from './core/interceptors/user-id.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,6 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: { preset: Aura, options: { darkModeSelector: '.p-dark' } },
     }),
-    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
+    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor, userIdInterceptor])),
   ],
 };

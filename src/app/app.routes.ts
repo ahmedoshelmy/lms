@@ -56,6 +56,13 @@ export const routes: Routes = [
           import('./features/resources/resources.component').then((c) => c.ResourcesComponent),
       },
       {
+        path: 'schedule',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('schedule') },
+        loadComponent: () =>
+          import('./features/schedule/schedule.component').then((c) => c.ScheduleComponent),
+      },
+      {
         path: 'profile',
         canActivate: [authGuard],
         loadComponent: () =>

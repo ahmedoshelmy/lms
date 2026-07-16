@@ -55,6 +55,25 @@ export interface Resource {
   addedBy?: string;
 }
 
+export interface ScheduleSession {
+  id: string;
+  courseTitle: string;
+  groupName: string;
+  groupId: string;
+  topic: string;
+  startsAt: string;
+  endsAt: string;
+  durationMinutes: number;
+  instructorId: string;
+  instructorName: string;
+  location?: string;
+  status: string;
+  orderIndex: number;
+  currentSessionNumber: number;
+  currentLessonNumber: number;
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -222,5 +241,22 @@ export class LmsService {
   deleteResource(id: string): void {
     const resources = this.getResources().filter(r => r.id !== id);
     this.saveResources(resources);
+  }
+
+  // ─── Schedule ────────────────────────────────────────────────────────────
+
+  getSchedule(from?: Date, to?: Date): Observable<ScheduleSession[]> {
+    let url = `${this.getApiUrl()}/schedule`;
+    const params: string[] = [];
+    if (from) {
+      params.push(`from=${from.toISOString()}`);
+    }
+    if (to) {
+      params.push(`to=${to.toISOString()}`);
+    }
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
+    }
+    return this.http.get<ScheduleSession[]>(url);
   }
 }
