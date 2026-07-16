@@ -13,6 +13,7 @@ export const routes: Routes = [
         (c) => c.MainLayoutComponent
       ),
     children: [
+      /*
       {
         path: 'dashboard',
         canActivate: [roleGuard],
@@ -55,6 +56,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/resources/resources.component').then((c) => c.ResourcesComponent),
       },
+      */
       {
         path: 'schedule',
         canActivate: [roleGuard],
@@ -70,7 +72,7 @@ export const routes: Routes = [
       },
       {
         path: '',
-        redirectTo: 'dashboard',
+        redirectTo: 'schedule',
         pathMatch: 'full',
       },
     ],
