@@ -1,7 +1,7 @@
 import { Role } from '../interfaces/Role';
 import { MenuItem } from '../interfaces/MenuItem';
 
-export const ALL_ROLES: Role[] = [Role.Admin, Role.Operation, Role.Instructor, Role.Student];
+export const ALL_ROLES: Role[] = [Role.Admin, Role.Instructor, Role.Student];
 
 export interface RoutePermission {
   path: string;
@@ -30,7 +30,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'users',
     label: 'Users & Staff',
     icon: 'pi pi-users',
-    roles: [Role.Admin, Role.Operation],
+    roles: [Role.Admin],
     showInMenu: false,
   },
   {
@@ -44,7 +44,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'attendance',
     label: 'Attendance',
     icon: 'pi pi-calendar',
-    roles: [Role.Admin, Role.Operation, Role.Instructor],
+    roles: [Role.Admin, Role.Instructor],
     showInMenu: false,
   },
   {

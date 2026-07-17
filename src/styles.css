@@ -1,6 +1,5 @@
 @import 'tailwindcss';
-@import "primeicons/primeicons.css";
-
+@import 'primeicons/primeicons.css';
 
 /* =========================================
    CENTRALIZED COLOR THEME (light + dark)
@@ -10,88 +9,88 @@
    ========================================= */
 :root {
   /* Brand */
-  --color-primary: #1A2B4C;
+  --color-primary: #1a2b4c;
   --color-primary-hover: #254479;
   --color-primary-active: #16223f;
-  --color-primary-content: #FFFFFF;
+  --color-primary-content: #ffffff;
 
   /* Secondary */
   --color-secondary: #3e6db5;
   --color-secondary-hover: #2d5594;
-  --color-secondary-content: #FFFFFF;
+  --color-secondary-content: #ffffff;
 
   /* Backgrounds & Surfaces */
-  --color-background: #F7F4EF;
-  --color-background-alt: #EAE5D9;
-  --color-surface: #FFFFFF;
-  --color-surface-hover: #F9FAFB;
-  --color-surface-secondary: #F2F4F7;
+  --color-background: #f7f4ef;
+  --color-background-alt: #eae5d9;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f9fafb;
+  --color-surface-secondary: #f2f4f7;
 
   /* Text & Borders */
   --color-text-primary: #111827;
   --color-text-secondary: #475467;
-  --color-text-muted: #6B7280;
-  --color-border: #E5E7EB;
-  --color-disabled: #D1D5DD;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-disabled: #d1d5dd;
 
   /* Semantic statuses (sessions) */
-  --color-success: #10B981;
-  --color-success-background: #ECFDF3;
-  --color-success-foreground: #027A48;
+  --color-success: #10b981;
+  --color-success-background: #ecfdf3;
+  --color-success-foreground: #027a48;
 
-  --color-warning: #F59E0B;
-  --color-warning-background: #FFFAEB;
-  --color-warning-foreground: #B54708;
+  --color-warning: #f59e0b;
+  --color-warning-background: #fffaeb;
+  --color-warning-foreground: #b54708;
 
-  --color-error: #EF4444;
-  --color-error-background: #FEF3F2;
-  --color-error-foreground: #B42318;
+  --color-error: #ef4444;
+  --color-error-background: #fef3f2;
+  --color-error-foreground: #b42318;
 
   --color-info: #3e6db5;
-  --color-info-background: #EFF8FF;
+  --color-info-background: #eff8ff;
   --color-info-foreground: #2d5594;
 
   /* Fonts */
-  --font-sans: "Inter", "Segoe UI", sans-serif;
+  --font-sans: 'Inter', 'Segoe UI', sans-serif;
 }
 
-[data-theme="dark"] {
-  --color-primary: #2A3F6B;
+[data-theme='dark'] {
+  --color-primary: #2a3f6b;
   --color-primary-hover: #3a5494;
   --color-primary-active: #1f3056;
-  --color-primary-content: #FFFFFF;
+  --color-primary-content: #ffffff;
 
   --color-secondary: #5a8fd6;
   --color-secondary-hover: #6fa0e0;
-  --color-secondary-content: #0B1220;
+  --color-secondary-content: #0b1220;
 
-  --color-background: #0F1115;
-  --color-background-alt: #1A1D23;
-  --color-surface: #1A1D23;
-  --color-surface-hover: #23272F;
-  --color-surface-secondary: #23272F;
+  --color-background: #0f1115;
+  --color-background-alt: #1a1d23;
+  --color-surface: #1a1d23;
+  --color-surface-hover: #23272f;
+  --color-surface-secondary: #23272f;
 
-  --color-text-primary: #F2F4F7;
-  --color-text-secondary: #CBD2DC;
-  --color-text-muted: #98A2B3;
-  --color-border: #2B2F37;
-  --color-disabled: #3A3F4A;
+  --color-text-primary: #f2f4f7;
+  --color-text-secondary: #cbd2dc;
+  --color-text-muted: #98a2b3;
+  --color-border: #2b2f37;
+  --color-disabled: #3a3f4a;
 
-  --color-success: #34D399;
-  --color-success-background: #0E2B1E;
-  --color-success-foreground: #6CE9A6;
+  --color-success: #34d399;
+  --color-success-background: #0e2b1e;
+  --color-success-foreground: #6ce9a6;
 
-  --color-warning: #FBBF24;
-  --color-warning-background: #2E2010;
-  --color-warning-foreground: #FEC84B;
+  --color-warning: #fbbf24;
+  --color-warning-background: #2e2010;
+  --color-warning-foreground: #fec84b;
 
-  --color-error: #F87171;
-  --color-error-background: #2E1211;
-  --color-error-foreground: #FDA29B;
+  --color-error: #f87171;
+  --color-error-background: #2e1211;
+  --color-error-foreground: #fda29b;
 
   --color-info: #5a8fd6;
-  --color-info-background: #0C1E33;
-  --color-info-foreground: #84CAFF;
+  --color-info-background: #0c1e33;
+  --color-info-foreground: #84caff;
 }
 
 @layer base {

@@ -318,14 +318,14 @@ export class LoginComponent {
   // Demo accounts for previewing role-based views during demos.
   // Passwords are sequential 1..8. Replace with real auth once wired.
   demoAccounts: DemoAccount[] = [
-    { name: 'LMS Admin', email: 'admin@lms.com', password: '1', role: Role.Admin },
-    { name: 'John Doe', email: 'john.doe@lms.com', password: '2', role: Role.Instructor },
-    { name: 'Sarah Connor', email: 'sarah.connor@lms.com', password: '3', role: Role.Instructor },
-    { name: 'Mohamed Adel', email: 'mohamed.adel@lms.com', password: '4', role: Role.Instructor },
-    { name: 'Jane Smith', email: 'jane.smith@lms.com', password: '5', role: Role.Student },
-    { name: 'Alice Johnson', email: 'alice.johnson@lms.com', password: '6', role: Role.Student },
-    { name: 'Bob Williams', email: 'bob.williams@lms.com', password: '7', role: Role.Student },
-    { name: 'Ahmed Osama', email: 'ahmed237@mindvalley.com', password: '8', role: Role.Student },
+    { name: 'LMS Admin', email: 'admin@lms.com', password: '12345678', role: Role.Admin },
+    { name: 'John Doe', email: 'john.doe@lms.com', password: '12345678', role: Role.Instructor },
+    { name: 'Sarah Connor', email: 'sarah.connor@lms.com', password: '12345678', role: Role.Instructor },
+    { name: 'Mohamed Adel', email: 'mohamed.adel@lms.com', password: '12345678', role: Role.Instructor },
+    { name: 'Jane Smith', email: 'jane.smith@lms.com', password: '12345678', role: Role.Student },
+    { name: 'Alice Johnson', email: 'alice.johnson@lms.com', password: '12345678', role: Role.Student },
+    { name: 'Bob Williams', email: 'bob.williams@lms.com', password: '12345678', role: Role.Student },
+    { name: 'Ahmed Osama', email: 'ahmed237@mindvalley.com', password: '12345678', role: Role.Student },
   ];
 
   loading = signal(false);
