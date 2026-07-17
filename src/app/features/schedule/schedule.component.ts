@@ -6,7 +6,7 @@ import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
-import { LmsService, ScheduleSession, Group } from '../../core/services/lms.service';
+import { LmsService, ScheduleSession, User } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -34,27 +34,27 @@ import { Role } from '../../core/interfaces/Role';
           </h1>
           <p class="text-sm text-[var(--color-text-muted)] mt-1">
             @if (isAdmin) {
-              Select a cohort to view their weekly schedule
+              Select an instructor to view their weekly schedule
             } @else {
               Your weekly schedule
             }
           </p>
         </div>
 
-        <!-- Group/Cohort Select (Admin only) & Week Navigator -->
+        <!-- Instructor Select (Admin only) & Week Navigator -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           @if (isAdmin) {
             <div class="flex items-center gap-2">
               <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap"
-                >Cohort:</label
+                >Instructor:</label
               >
               <p-select
-                [options]="groups"
-                [(ngModel)]="selectedGroupId"
-                (onChange)="onGroupChange()"
+                [options]="instructors"
+                [(ngModel)]="selectedInstructorId"
+                (onChange)="onInstructorChange()"
                 optionLabel="name"
                 optionValue="id"
-                placeholder="Select Cohort"
+                placeholder="Select Instructor"
                 class="w-[220px]"
                 [filter]="true"
                 filterBy="name"
@@ -126,8 +126,8 @@ export class ScheduleComponent implements OnInit {
   private http = inject(HttpClient);
 
   sessions: ScheduleSession[] = [];
-  groups: Group[] = [];
-  selectedGroupId: string = '';
+  instructors: User[] = [];
+  selectedInstructorId: string = '';
   currentWeekStart: Date = new Date();
   loading = false;
 
@@ -139,10 +139,11 @@ export class ScheduleComponent implements OnInit {
     this.calculateWeekStart();
 
     if (this.isAdmin) {
-      this.loadGroups();
+      this.loadInstructors();
     } else {
       const userId = this.auth.getUserId();
       if (userId) {
+        this.selectedInstructorId = userId;
         this.loadSchedule();
       } else {
         this.notify.showError('Could not determine the current user.');
@@ -159,54 +160,59 @@ export class ScheduleComponent implements OnInit {
     this.currentWeekStart.setHours(0, 0, 0, 0);
   }
 
-  loadGroups(): void {
+  loadInstructors(): void {
     this.loading = true;
-    this.lmsService.getGroups().subscribe({
-      next: (groups) => {
-        this.groups = groups;
-        if (this.groups.length > 0) {
-          // Find group that has a default instructor (not empty/null/zero GUID)
-          const defaultGroup = this.groups.find(
-            (g) => g.defaultInstructorId && g.defaultInstructorId !== '00000000-0000-0000-0000-000000000000'
-          );
-          this.selectedGroupId = defaultGroup ? defaultGroup.id : this.groups[0].id;
+    this.lmsService.getUsers().subscribe({
+      next: (users) => {
+        this.instructors = users.filter((u) => u.role === Role.Instructor);
+        if (this.instructors.length > 0) {
+          this.selectedInstructorId = this.instructors[0].id;
           this.loadSchedule();
         } else {
           this.loading = false;
         }
       },
       error: (err) => {
-        this.notify.showError(`Failed to load cohorts list: ${err.message || 'Server error'}`);
+        this.notify.showError(`Failed to load instructors list: ${err.message || 'Server error'}`);
         this.loading = false;
       },
     });
   }
 
   loadSchedule(): void {
+    if (!this.selectedInstructorId) {
+      this.sessions = [];
+      return;
+    }
+
     this.loading = true;
     const fromDate = new Date(this.currentWeekStart);
     const toDate = new Date(this.currentWeekStart);
     toDate.setDate(toDate.getDate() + 7);
 
-    let url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
+    // For admin-selected instructors we override X-User-Id explicitly.
+    // For other roles the userIdInterceptor already attaches the user's own id.
+    const isOwnSchedule = !this.isAdmin;
+    const url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
 
-    if (this.isAdmin && this.selectedGroupId) {
-      url += `&groupId=${this.selectedGroupId}`;
-    }
-
-    this.http.get<ScheduleSession[]>(url).subscribe({
-      next: (res) => {
-        this.sessions = res;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
-        this.loading = false;
-      },
-    });
+    this.http
+      .get<ScheduleSession[]>(
+        url,
+        isOwnSchedule ? {} : { headers: { 'X-User-Id': this.selectedInstructorId } }
+      )
+      .subscribe({
+        next: (res) => {
+          this.sessions = res;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
+          this.loading = false;
+        },
+      });
   }
 
-  onGroupChange(): void {
+  onInstructorChange(): void {
     this.loadSchedule();
   }
 
