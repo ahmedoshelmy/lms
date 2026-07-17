@@ -125,13 +125,13 @@ export class LmsService {
   // ─── Auth ────────────────────────────────────────────────────────────────
 
   login(payload: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.getApiUrl()}/login`, payload, {
+    return this.http.post<LoginResponse>(`${this.getApiUrl()}/auth/login`, payload, {
       withCredentials: true,
     });
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.getApiUrl()}/logout`, {}, {
+    return this.http.post<void>(`${this.getApiUrl()}/auth/logout`, {}, {
       withCredentials: true,
     });
   }
