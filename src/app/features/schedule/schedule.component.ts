@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -59,9 +59,9 @@ import { Role } from '../../core/interfaces/Role';
                 >Instructor:</label
               >
               <p-select
-                [options]="instructors"
-                [(ngModel)]="selectedInstructorId"
-                (onChange)="onInstructorChange()"
+                [options]="instructors()"
+                [ngModel]="selectedInstructorId()"
+                (ngModelChange)="selectedInstructorId.set($event); onInstructorChange()"
                 optionLabel="name"
                 optionValue="id"
                 placeholder="Select Instructor"
@@ -104,12 +104,12 @@ import { Role } from '../../core/interfaces/Role';
       </div>
 
       <!-- Main Schedule content -->
-      @if (loading) {
+      @if (loading()) {
         <div class="flex justify-center items-center py-20">
           <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
         </div>
       } @else {
-        <app-weekly-schedule [sessions]="sessions" [currentWeekStart]="currentWeekStart" />
+        <app-weekly-schedule [sessions]="sessions()" [currentWeekStart]="currentWeekStart()" />
       }
     </div>
   `,
@@ -135,11 +135,11 @@ export class ScheduleComponent implements OnInit {
   private auth = inject(AuthService);
   private http = inject(HttpClient);
 
-  sessions: ScheduleSession[] = [];
-  instructors: User[] = [];
-  selectedInstructorId: string = '';
-  currentWeekStart: Date = new Date();
-  loading = false;
+  sessions = signal<ScheduleSession[]>([]);
+  instructors = signal<User[]>([]);
+  selectedInstructorId = signal<string>('');
+  currentWeekStart = signal<Date>(new Date());
+  loading = signal(false);
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
@@ -164,7 +164,7 @@ export class ScheduleComponent implements OnInit {
     } else {
       const userId = this.auth.getUserId();
       if (userId) {
-        this.selectedInstructorId = userId;
+        this.selectedInstructorId.set(userId);
         this.loadSchedule();
       } else {
         this.notify.showError('Could not determine the current user.');
@@ -177,38 +177,42 @@ export class ScheduleComponent implements OnInit {
     const dayOfWeek = today.getDay();
     const saturdayOffset = (dayOfWeek + 1) % 7;
     const diff = today.getDate() - saturdayOffset;
-    this.currentWeekStart = new Date(today.setDate(diff));
-    this.currentWeekStart.setHours(0, 0, 0, 0);
+    const weekStart = new Date(today.setDate(diff));
+    weekStart.setHours(0, 0, 0, 0);
+    this.currentWeekStart.set(weekStart);
   }
 
   loadInstructors(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.lmsService.getUsers().subscribe({
       next: (users) => {
-        this.instructors = users.filter((u) => u.role === Role.Instructor);
-        if (this.instructors.length > 0) {
-          this.selectedInstructorId = this.instructors[0].id;
+        const filtered = (users || []).filter((u) => u.role === Role.Instructor);
+        this.instructors.set(filtered);
+        if (filtered.length > 0) {
+          this.selectedInstructorId.set(filtered[0].id);
           this.loadSchedule();
         } else {
-          this.loading = false;
+          this.loading.set(false);
         }
       },
       error: (err) => {
         this.notify.showError(`Failed to load instructors list: ${err.message || 'Server error'}`);
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
 
   loadSchedule(): void {
-    if (!this.selectedInstructorId) {
-      this.sessions = [];
+    const instructorId = this.selectedInstructorId();
+    if (!instructorId) {
+      this.sessions.set([]);
+      this.loading.set(false);
       return;
     }
 
-    this.loading = true;
-    const fromDate = new Date(this.currentWeekStart);
-    const toDate = new Date(this.currentWeekStart);
+    this.loading.set(true);
+    const fromDate = new Date(this.currentWeekStart());
+    const toDate = new Date(this.currentWeekStart());
     toDate.setDate(toDate.getDate() + 7);
 
     // For admin-selected instructors we override X-User-Id explicitly.
@@ -217,18 +221,15 @@ export class ScheduleComponent implements OnInit {
     const url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
 
     this.http
-      .get<ScheduleSession[]>(
-        url,
-        isOwnSchedule ? {} : { headers: { 'X-User-Id': this.selectedInstructorId } }
-      )
+      .get<ScheduleSession[]>(url, isOwnSchedule ? {} : { headers: { 'X-User-Id': instructorId } })
       .subscribe({
         next: (res) => {
-          this.sessions = res;
-          this.loading = false;
+          this.sessions.set(res || []);
+          this.loading.set(false);
         },
         error: (err) => {
           this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
-          this.loading = false;
+          this.loading.set(false);
         },
       });
   }
@@ -238,22 +239,22 @@ export class ScheduleComponent implements OnInit {
   }
 
   previousWeek(): void {
-    const newDate = new Date(this.currentWeekStart);
+    const newDate = new Date(this.currentWeekStart());
     newDate.setDate(newDate.getDate() - 7);
-    this.currentWeekStart = newDate;
+    this.currentWeekStart.set(newDate);
     this.loadSchedule();
   }
 
   nextWeek(): void {
-    const newDate = new Date(this.currentWeekStart);
+    const newDate = new Date(this.currentWeekStart());
     newDate.setDate(newDate.getDate() + 7);
-    this.currentWeekStart = newDate;
+    this.currentWeekStart.set(newDate);
     this.loadSchedule();
   }
 
   getWeekRangeString(): string {
-    const start = new Date(this.currentWeekStart);
-    const end = new Date(this.currentWeekStart);
+    const start = new Date(this.currentWeekStart());
+    const end = new Date(this.currentWeekStart());
     end.setDate(end.getDate() + 6);
 
     const formatOptions: Intl.DateTimeFormatOptions = {

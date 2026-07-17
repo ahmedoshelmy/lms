@@ -178,6 +178,7 @@ Verify configurations and run the development app using these commands from the 
       // Safe to access localStorage/window here
     }
     ```
+
 - > [!IMPORTANT]
   - **Duplicate Notifications:** Avoid triggering manual toast alerts for failed HTTP operations inside components. The global `errorInterceptor` automatically handles displaying error messages.
 - > [!NOTE]

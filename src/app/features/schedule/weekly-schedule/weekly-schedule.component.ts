@@ -1,4 +1,4 @@
-import { Component, Input, computed } from '@angular/core';
+import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
@@ -241,12 +241,12 @@ interface DayColumn {
   `,
 })
 export class WeeklyScheduleComponent {
-  @Input() sessions: ScheduleSession[] = [];
-  @Input() currentWeekStart: Date = new Date();
+  sessions = input<ScheduleSession[]>([]);
+  currentWeekStart = input<Date>(new Date());
 
   // Create columns for 7 days starting from Saturday
   dayColumns = computed<DayColumn[]>(() => {
-    const startOfWeek = new Date(this.currentWeekStart);
+    const startOfWeek = new Date(this.currentWeekStart());
     startOfWeek.setHours(0, 0, 0, 0);
 
     const days: DayColumn[] = [];
@@ -257,7 +257,7 @@ export class WeeklyScheduleComponent {
       currentDate.setDate(startOfWeek.getDate() + i);
 
       // Filter sessions for this specific day
-      const daySessions = this.sessions.filter((session) => {
+      const daySessions = (this.sessions() || []).filter((session) => {
         const sessionDate = new Date(session.startsAt);
         return (
           sessionDate.getFullYear() === currentDate.getFullYear() &&

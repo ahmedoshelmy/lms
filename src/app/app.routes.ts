@@ -8,8 +8,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () =>
-      import('./features/home/home.component').then((c) => c.HomeComponent),
+    loadComponent: () => import('./features/home/home.component').then((c) => c.HomeComponent),
   },
   {
     path: 'unauthorized',
