@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Role, ROLE_LABELS } from '../../../core/interfaces/Role';
@@ -16,7 +16,7 @@ interface DemoAccount {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="auth-shell">
       <div class="auth-shell__glow auth-shell__glow--left"></div>
@@ -67,11 +67,7 @@ interface DemoAccount {
               <span class="field-error">{{ error() }}</span>
             }
 
-            <button
-              type="submit"
-              class="submit-btn"
-              [disabled]="form.invalid || loading()"
-            >
+            <button type="submit" class="submit-btn" [disabled]="form.invalid || loading()">
               @if (loading()) {
                 <i class="pi pi-spinner pi-spin" aria-hidden="true"></i> Signing in…
               } @else {
@@ -84,11 +80,7 @@ interface DemoAccount {
             <p class="demo-title">Demo accounts — pick one to preview a role</p>
             <div class="demo-grid">
               @for (account of demoAccounts; track account.email) {
-                <button
-                  type="button"
-                  class="demo-btn"
-                  (click)="useDemo(account)"
-                >
+                <button type="button" class="demo-btn" (click)="useDemo(account)">
                   <span class="demo-name">{{ account.name }}</span>
                   <span class="demo-role">{{ roleLabel(account.role) }}</span>
                   <span class="demo-cred">pw: {{ account.password }}</span>
@@ -203,7 +195,9 @@ interface DemoAccount {
       font-size: 14px;
       background: var(--color-surface);
       color: var(--color-text-primary);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
       box-sizing: border-box;
     }
 
@@ -235,7 +229,9 @@ interface DemoAccount {
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
       box-shadow: 0 4px 12px rgba(26, 43, 76, 0.3);
     }
 
@@ -286,7 +282,9 @@ interface DemoAccount {
       color: var(--color-text-primary);
       cursor: pointer;
       text-align: left;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     .demo-btn:hover {

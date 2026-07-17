@@ -1,12 +1,7 @@
 import { Role } from '../interfaces/Role';
 import { MenuItem } from '../interfaces/MenuItem';
 
-export const ALL_ROLES: Role[] = [
-  Role.Admin,
-  Role.Operation,
-  Role.Instructor,
-  Role.Student,
-];
+export const ALL_ROLES: Role[] = [Role.Admin, Role.Operation, Role.Instructor, Role.Student];
 
 export interface RoutePermission {
   path: string;
@@ -73,12 +68,12 @@ export function getRolesForPath(path: string): Role[] {
 }
 
 export function getMenuItemsForRole(role: Role): MenuItem[] {
-  return ROUTE_PERMISSIONS.filter(
-    (route) => route.showInMenu && route.roles.includes(role),
-  ).map(({ label, icon, roles, path }) => ({
-    label,
-    icon,
-    route: `/${path}`,
-    roles,
-  }));
+  return ROUTE_PERMISSIONS.filter((route) => route.showInMenu && route.roles.includes(role)).map(
+    ({ label, icon, roles, path }) => ({
+      label,
+      icon,
+      route: `/${path}`,
+      roles,
+    })
+  );
 }

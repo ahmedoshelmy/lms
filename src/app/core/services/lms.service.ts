@@ -86,7 +86,6 @@ export interface ScheduleSession {
   currentLessonNumber: number;
 }
 
-
 @Injectable({
   providedIn: 'root',
 })
@@ -95,7 +94,8 @@ export class LmsService {
 
   private defaultApiUrl = 'https://mv-api.inite.tech/api';
   private apiUrlSubject = new BehaviorSubject<string>(
-    (typeof window !== 'undefined' ? localStorage.getItem('lms_api_url') : null) || this.defaultApiUrl
+    (typeof window !== 'undefined' ? localStorage.getItem('lms_api_url') : null) ||
+      this.defaultApiUrl
   );
 
   apiUrl$ = this.apiUrlSubject.asObservable();
@@ -131,9 +131,13 @@ export class LmsService {
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.getApiUrl()}/auth/logout`, {}, {
-      withCredentials: true,
-    });
+    return this.http.post<void>(
+      `${this.getApiUrl()}/auth/logout`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   // ─── Users ───────────────────────────────────────────────────────────────

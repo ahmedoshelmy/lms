@@ -15,13 +15,23 @@ import { Role } from '../../core/interfaces/Role';
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ProgressSpinnerModule, WeeklyScheduleComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    CardModule,
+    SelectModule,
+    ProgressSpinnerModule,
+    WeeklyScheduleComponent,
+  ],
   template: `
     <div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
       <!-- Page Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">Weekly Schedule</h1>
+          <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+            Weekly Schedule
+          </h1>
           <p class="text-sm text-[var(--color-text-muted)] mt-1">
             @if (isAdmin) {
               Select an instructor to view their weekly schedule
@@ -35,43 +45,50 @@ import { Role } from '../../core/interfaces/Role';
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           @if (isAdmin) {
             <div class="flex items-center gap-2">
-              <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap">Instructor:</label>
-              <p-select 
-                [options]="instructors" 
-                [(ngModel)]="selectedInstructorId" 
+              <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap"
+                >Instructor:</label
+              >
+              <p-select
+                [options]="instructors"
+                [(ngModel)]="selectedInstructorId"
                 (onChange)="onInstructorChange()"
-                optionLabel="name" 
-                optionValue="id" 
+                optionLabel="name"
+                optionValue="id"
                 placeholder="Select Instructor"
                 class="w-[220px]"
                 [filter]="true"
-                filterBy="name">
+                filterBy="name"
+              >
               </p-select>
             </div>
           }
 
-          <div class="flex items-center justify-between gap-3 bg-[var(--color-surface)] p-2 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-            <button 
-              pButton 
-              type="button" 
-              icon="pi pi-chevron-left" 
+          <div
+            class="flex items-center justify-between gap-3 bg-[var(--color-surface)] p-2 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+          >
+            <button
+              pButton
+              type="button"
+              icon="pi pi-chevron-left"
               class="p-button-text p-button-secondary p-button-sm cursor-pointer"
               (click)="previousWeek()"
-              aria-label="Previous week">
-            </button>
-            
-            <span class="text-sm font-bold text-[var(--color-text-primary)] px-2 min-w-[180px] text-center">
+              aria-label="Previous week"
+            ></button>
+
+            <span
+              class="text-sm font-bold text-[var(--color-text-primary)] px-2 min-w-[180px] text-center"
+            >
               {{ getWeekRangeString() }}
             </span>
 
-            <button 
-              pButton 
-              type="button" 
-              icon="pi pi-chevron-right" 
+            <button
+              pButton
+              type="button"
+              icon="pi pi-chevron-right"
               class="p-button-text p-button-secondary p-button-sm cursor-pointer"
               (click)="nextWeek()"
-              aria-label="Next week">
-            </button>
+              aria-label="Next week"
+            ></button>
           </div>
         </div>
       </div>
@@ -82,10 +99,7 @@ import { Role } from '../../core/interfaces/Role';
           <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
         </div>
       } @else {
-        <app-weekly-schedule 
-          [sessions]="sessions" 
-          [currentWeekStart]="currentWeekStart" 
-        />
+        <app-weekly-schedule [sessions]="sessions" [currentWeekStart]="currentWeekStart" />
       }
     </div>
   `,
@@ -103,7 +117,7 @@ import { Role } from '../../core/interfaces/Role';
         border-radius: 10px;
       }
     }
-  `
+  `,
 })
 export class ScheduleComponent implements OnInit {
   private lmsService = inject(LmsService);
@@ -149,7 +163,7 @@ export class ScheduleComponent implements OnInit {
   loadInstructors(): void {
     this.lmsService.getUsers().subscribe({
       next: (users) => {
-        this.instructors = users.filter(u => u.role === Role.Instructor);
+        this.instructors = users.filter((u) => u.role === Role.Instructor);
         if (this.instructors.length > 0) {
           this.selectedInstructorId = this.instructors[0].id;
           this.loadSchedule();
@@ -157,7 +171,7 @@ export class ScheduleComponent implements OnInit {
       },
       error: (err) => {
         this.notify.showError(`Failed to load instructors list: ${err.message || 'Server error'}`);
-      }
+      },
     });
   }
 
@@ -177,19 +191,20 @@ export class ScheduleComponent implements OnInit {
     const isOwnSchedule = !this.isAdmin;
     const url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
 
-    this.http.get<ScheduleSession[]>(url, isOwnSchedule
-      ? {}
-      : { headers: { 'X-User-Id': this.selectedInstructorId } }
-    ).subscribe({
-      next: (res) => {
-        this.sessions = res;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
-        this.loading = false;
-      }
-    });
+    this.http
+      .get<
+        ScheduleSession[]
+      >(url, isOwnSchedule ? {} : { headers: { 'X-User-Id': this.selectedInstructorId } })
+      .subscribe({
+        next: (res) => {
+          this.sessions = res;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
+          this.loading = false;
+        },
+      });
   }
 
   onInstructorChange(): void {
@@ -215,7 +230,11 @@ export class ScheduleComponent implements OnInit {
     const end = new Date(this.currentWeekStart);
     end.setDate(end.getDate() + 6);
 
-    const formatOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+    const formatOptions: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    };
     return `${start.toLocaleDateString('en-US', formatOptions)} - ${end.toLocaleDateString('en-US', formatOptions)}`;
   }
 }

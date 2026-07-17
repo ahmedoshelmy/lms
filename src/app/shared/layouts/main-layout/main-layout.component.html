@@ -13,10 +13,7 @@
     ></button>
   }
 
-  <app-sidebar
-    [(isOpen)]="isSidebarOpen"
-    (menuItemClicked)="onMenuItemClicked()"
-  />
+  <app-sidebar [(isOpen)]="isSidebarOpen" (menuItemClicked)="onMenuItemClicked()" />
 
   <div class="content-wrapper">
     <header class="mobile-header">

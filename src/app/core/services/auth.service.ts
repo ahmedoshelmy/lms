@@ -33,9 +33,7 @@ export class AuthService {
   }
 
   login(payload: LoginRequest): ReturnType<LmsService['login']> {
-    return this.lmsService.login(payload).pipe(
-      tap((user) => this.setStoredUser(user)),
-    );
+    return this.lmsService.login(payload).pipe(tap((user) => this.setStoredUser(user)));
   }
 
   logout(): void {

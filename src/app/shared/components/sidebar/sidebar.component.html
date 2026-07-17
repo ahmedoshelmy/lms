@@ -38,7 +38,14 @@
     }
   </nav>
 
-  <a routerLink="/" routerLinkActive="active" class="user-section" aria-label="My Profile" (click)="onMenuItemClick()" style="text-decoration: none; cursor: pointer; display: flex; align-items: center;">
+  <a
+    routerLink="/"
+    routerLinkActive="active"
+    class="user-section"
+    aria-label="My Profile"
+    (click)="onMenuItemClick()"
+    style="text-decoration: none; cursor: pointer; display: flex; align-items: center"
+  >
     <div class="avatar" aria-hidden="true">
       {{ userProfile().initials }}
     </div>

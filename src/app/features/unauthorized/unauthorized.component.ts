@@ -45,7 +45,11 @@ import { RouterLink } from '@angular/router';
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-foreground) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--color-error) 0%,
+        var(--color-error-foreground) 100%
+      );
       display: flex;
       align-items: center;
       justify-content: center;
