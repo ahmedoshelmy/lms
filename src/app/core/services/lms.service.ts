@@ -11,6 +11,13 @@ export interface User {
   createdAt?: string;
 }
 
+export interface Group {
+  id: string;
+  name: string;
+  defaultInstructorId: string;
+  location?: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -144,6 +151,10 @@ export class LmsService {
 
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/users`);
+  }
+
+  getGroups(): Observable<Group[]> {
+    return this.http.get<Group[]>(`${this.getApiUrl()}/groups`);
   }
 
   // ─── Schedule ────────────────────────────────────────────────────────────
