@@ -2,47 +2,104 @@
 @import "primeicons/primeicons.css";
 
 
-@theme {
-  /* =========================================
-     1. MAIN BRAND COLORS
-     ========================================= */
+/* =========================================
+   CENTRALIZED COLOR THEME (light + dark)
+   Every color is defined once here as a CSS custom property.
+   Dark mode overrides the SAME variable names inside [data-theme="dark"].
+   Components must only reference var(--color-*), never hardcode a color.
+   ========================================= */
+:root {
+  /* Brand */
   --color-primary: #1A2B4C;
   --color-primary-hover: #254479;
+  --color-primary-active: #16223f;
   --color-primary-content: #FFFFFF;
 
-  /* Secondary*/
+  /* Secondary */
   --color-secondary: #3e6db5;
   --color-secondary-hover: #2d5594;
   --color-secondary-content: #FFFFFF;
 
-  /* =========================================
-     2. BACKGROUNDS & SURFACES
-     ========================================= */
-  /* Background: The main workspace canvas behind the cards (The Cream) */
+  /* Backgrounds & Surfaces */
   --color-background: #F7F4EF;
   --color-background-alt: #EAE5D9;
-
-  /* Surface: The background of cards, tables, and the top navbar (Usually White) */
   --color-surface: #FFFFFF;
   --color-surface-hover: #F9FAFB;
+  --color-surface-secondary: #F2F4F7;
 
-  /* =========================================
-     3. TEXT & BORDERS
-     ========================================= */
-  --color-text-main: #111827;      /* Standard reading text */
-  --color-text-muted: #6B7280;     /* Subtitles, icons, placeholder text */
-  --color-border: #E5E7EB;         /* Subtle lines between table rows or sections */
+  /* Text & Borders */
+  --color-text-primary: #111827;
+  --color-text-secondary: #475467;
+  --color-text-muted: #6B7280;
+  --color-border: #E5E7EB;
+  --color-disabled: #D1D5DD;
 
-  /* =========================================
-     4. SEMANTIC STATUSES (For Sessions)
-     ========================================= */
-  --color-success: #10B981;        /* 'Running' sessions */
-  --color-warning: #F59E0B;        /* 'Pending' changes/vacations */
-  --color-danger: #EF4444;         /* 'Canceled' sessions */
-  --color-disabled: #D1D5DB;       /* Inactive UI elements */
+  /* Semantic statuses (sessions) */
+  --color-success: #10B981;
+  --color-success-background: #ECFDF3;
+  --color-success-foreground: #027A48;
+
+  --color-warning: #F59E0B;
+  --color-warning-background: #FFFAEB;
+  --color-warning-foreground: #B54708;
+
+  --color-error: #EF4444;
+  --color-error-background: #FEF3F2;
+  --color-error-foreground: #B42318;
+
+  --color-info: #3e6db5;
+  --color-info-background: #EFF8FF;
+  --color-info-foreground: #2d5594;
 
   /* Fonts */
   --font-sans: "Inter", "Segoe UI", sans-serif;
+}
+
+[data-theme="dark"] {
+  --color-primary: #2A3F6B;
+  --color-primary-hover: #3a5494;
+  --color-primary-active: #1f3056;
+  --color-primary-content: #FFFFFF;
+
+  --color-secondary: #5a8fd6;
+  --color-secondary-hover: #6fa0e0;
+  --color-secondary-content: #0B1220;
+
+  --color-background: #0F1115;
+  --color-background-alt: #1A1D23;
+  --color-surface: #1A1D23;
+  --color-surface-hover: #23272F;
+  --color-surface-secondary: #23272F;
+
+  --color-text-primary: #F2F4F7;
+  --color-text-secondary: #CBD2DC;
+  --color-text-muted: #98A2B3;
+  --color-border: #2B2F37;
+  --color-disabled: #3A3F4A;
+
+  --color-success: #34D399;
+  --color-success-background: #0E2B1E;
+  --color-success-foreground: #6CE9A6;
+
+  --color-warning: #FBBF24;
+  --color-warning-background: #2E2010;
+  --color-warning-foreground: #FEC84B;
+
+  --color-error: #F87171;
+  --color-error-background: #2E1211;
+  --color-error-foreground: #FDA29B;
+
+  --color-info: #5a8fd6;
+  --color-info-background: #0C1E33;
+  --color-info-foreground: #84CAFF;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
 /* Base global layer styling */

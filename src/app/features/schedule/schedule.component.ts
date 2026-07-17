@@ -19,14 +19,14 @@ import { HttpClient } from '@angular/common/http';
       <!-- Page Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 class="text-3xl font-extrabold text-[#1e293b] tracking-tight">Weekly Schedule</h1>
-          <p class="text-sm text-[#64748b] mt-1">Select an instructor to view their weekly schedule</p>
+          <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">Weekly Schedule</h1>
+          <p class="text-sm text-[var(--color-text-muted)] mt-1">Select an instructor to view their weekly schedule</p>
         </div>
 
         <!-- Instructor Select & Week Navigator -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           <div class="flex items-center gap-2">
-            <label class="text-sm font-semibold text-[#64748b] whitespace-nowrap">Instructor:</label>
+            <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap">Instructor:</label>
             <p-select 
               [options]="instructors" 
               [(ngModel)]="selectedInstructorId" 
@@ -40,7 +40,7 @@ import { HttpClient } from '@angular/common/http';
             </p-select>
           </div>
 
-          <div class="flex items-center justify-between gap-3 bg-white p-2 border border-[#e2e8f0] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+          <div class="flex items-center justify-between gap-3 bg-[var(--color-surface)] p-2 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
             <button 
               pButton 
               type="button" 
@@ -50,7 +50,7 @@ import { HttpClient } from '@angular/common/http';
               aria-label="Previous week">
             </button>
             
-            <span class="text-sm font-bold text-[#1e293b] px-2 min-w-[180px] text-center">
+            <span class="text-sm font-bold text-[var(--color-text-primary)] px-2 min-w-[180px] text-center">
               {{ getWeekRangeString() }}
             </span>
 
@@ -87,7 +87,7 @@ import { HttpClient } from '@angular/common/http';
     :host ::ng-deep {
       .p-select {
         border-radius: 10px;
-        border-color: #cbd5e1;
+        border-color: var(--color-border);
       }
       .p-button {
         border-radius: 10px;

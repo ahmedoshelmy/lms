@@ -101,6 +101,25 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
 
 ---
 
+## 4.5. Color Theme System (Light + Dark)
+
+All colors are centralized as CSS custom properties in `src/styles.css`:
+
+* **Light values** are defined on `:root`.
+* **Dark values** override the **same variable names** inside the `[data-theme="dark"]` block.
+* There is one shared theme for all roles (Student, Instructor, Admin) — no per-role colors.
+
+### Rules
+* Every color is defined **once** as a `--color-*` token. To rebrand, only edit `--color-primary` (and its hover/active/content variants) — no component file should ever need to change.
+* **No component may hardcode a hex, `rgb()`, or `rgba()` color** in SCSS, templates, or inline styles. Always reference `var(--color-*)`. If no token fits, add a new `--color-*` token to `styles.css` (never a literal in a component).
+* Generic shadows using `rgba(0,0,0,...)` are acceptable; semantic/tinted colors must use tokens.
+
+### ThemeService
+* `ThemeService` toggles `data-theme="light" | "dark"` on `<html>`, persists the choice in `localStorage`, and defaults to the OS preference (`prefers-color-scheme`) on first load.
+* Use `inject(ThemeService)` and call `toggleTheme()` / read `theme$` rather than manipulating `data-theme` manually.
+
+---
+
 ## 5. Routing Conventions
 
 Routes are configured in `src/app/app.routes.ts`.
@@ -162,4 +181,5 @@ Verify configurations and run the development app using these commands from the 
 3. **Keep Changes Minimal:** Apply changes in a highly localized manner. Do not refactor styles or layouts that are unrelated to your current task.
 4. **Avoid Unnecessary Dependencies:** Do not add third-party styling packages, icon packs, or HTTP wrappers. Stick to Tailwind CSS v4, PrimeNG, and native Angular features.
 5. **Preserve Compatibility:** Maintain backward compatibility for users, storage structures, and models. Always use platform checks when touching browser-specific APIs (SSR compliance).
+6. **Colors via Tokens Only:** Never hardcode hex/`rgb`/`rgba` colors in any component. Use the centralized `--color-*` tokens from `src/styles.css` (see §4.5). Add new tokens there instead of literals in components.
 6. **Keep Documentation Up-to-Date:** Update feature routing and type definitions if you add components, services, or pages.
