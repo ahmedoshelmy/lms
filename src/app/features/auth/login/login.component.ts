@@ -319,7 +319,13 @@ export class LoginComponent {
   // Passwords are sequential 1..8. Replace with real auth once wired.
   demoAccounts: DemoAccount[] = [
     { name: 'LMS Admin', email: 'admin@lms.com', password: 'pass2word', role: Role.Admin },
-    { name: 'John Doe', email: 'john.doe@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Mohamed Adel', email: 'mohamed.adel@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Tasneem', email: 'tasneem@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Ahmed Saeed', email: 'ahmed.saeed@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Othman', email: 'othman@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Mahmoud Khalaf', email: 'mahmoud.khalaf@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Salma', email: 'salma@lms.com', password: 'pass2word', role: Role.Instructor },
+    { name: 'Mahmoud Khaled', email: 'mahmoud.khaled@lms.com', password: 'pass2word', role: Role.Instructor },
   ];
 
   loading = signal(false);
