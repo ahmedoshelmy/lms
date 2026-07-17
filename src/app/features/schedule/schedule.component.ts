@@ -8,7 +8,9 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
 import { LmsService, ScheduleSession, User } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { Role } from '../../core/interfaces/Role';
 
 @Component({
   selector: 'app-schedule',
@@ -20,25 +22,33 @@ import { HttpClient } from '@angular/common/http';
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
           <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">Weekly Schedule</h1>
-          <p class="text-sm text-[var(--color-text-muted)] mt-1">Select an instructor to view their weekly schedule</p>
+          <p class="text-sm text-[var(--color-text-muted)] mt-1">
+            @if (isAdmin) {
+              Select an instructor to view their weekly schedule
+            } @else {
+              Your weekly schedule
+            }
+          </p>
         </div>
 
-        <!-- Instructor Select & Week Navigator -->
+        <!-- Instructor Select (Admin only) & Week Navigator -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-          <div class="flex items-center gap-2">
-            <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap">Instructor:</label>
-            <p-select 
-              [options]="instructors" 
-              [(ngModel)]="selectedInstructorId" 
-              (onChange)="onInstructorChange()"
-              optionLabel="name" 
-              optionValue="id" 
-              placeholder="Select Instructor"
-              class="w-[220px]"
-              [filter]="true"
-              filterBy="name">
-            </p-select>
-          </div>
+          @if (isAdmin) {
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap">Instructor:</label>
+              <p-select 
+                [options]="instructors" 
+                [(ngModel)]="selectedInstructorId" 
+                (onChange)="onInstructorChange()"
+                optionLabel="name" 
+                optionValue="id" 
+                placeholder="Select Instructor"
+                class="w-[220px]"
+                [filter]="true"
+                filterBy="name">
+              </p-select>
+            </div>
+          }
 
           <div class="flex items-center justify-between gap-3 bg-[var(--color-surface)] p-2 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
             <button 
@@ -98,6 +108,7 @@ import { HttpClient } from '@angular/common/http';
 export class ScheduleComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
+  private auth = inject(AuthService);
   private http = inject(HttpClient);
 
   sessions: ScheduleSession[] = [];
@@ -106,9 +117,24 @@ export class ScheduleComponent implements OnInit {
   currentWeekStart: Date = new Date();
   loading = false;
 
+  get isAdmin(): boolean {
+    return this.auth.hasRole(Role.Admin);
+  }
+
   ngOnInit(): void {
     this.calculateWeekStart();
-    this.loadInstructors();
+
+    if (this.isAdmin) {
+      this.loadInstructors();
+    } else {
+      const userId = this.auth.getUserId();
+      if (userId) {
+        this.selectedInstructorId = userId;
+        this.loadSchedule();
+      } else {
+        this.notify.showError('Could not determine the current user.');
+      }
+    }
   }
 
   calculateWeekStart(): void {
@@ -123,8 +149,7 @@ export class ScheduleComponent implements OnInit {
   loadInstructors(): void {
     this.lmsService.getUsers().subscribe({
       next: (users) => {
-        // Role 2 is Instructor
-        this.instructors = users.filter(u => u.role === 2);
+        this.instructors = users.filter(u => u.role === Role.Instructor);
         if (this.instructors.length > 0) {
           this.selectedInstructorId = this.instructors[0].id;
           this.loadSchedule();
@@ -147,14 +172,15 @@ export class ScheduleComponent implements OnInit {
     const toDate = new Date(this.currentWeekStart);
     toDate.setDate(toDate.getDate() + 7);
 
-    // Call schedule API with customized X-User-Id header overriding the interceptor value
+    // For admin-selected instructors we override X-User-Id explicitly.
+    // For other roles the userIdInterceptor already attaches the user's own id.
+    const isOwnSchedule = !this.isAdmin;
     const url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
-    
-    this.http.get<ScheduleSession[]>(url, {
-      headers: {
-        'X-User-Id': this.selectedInstructorId
-      }
-    }).subscribe({
+
+    this.http.get<ScheduleSession[]>(url, isOwnSchedule
+      ? {}
+      : { headers: { 'X-User-Id': this.selectedInstructorId } }
+    ).subscribe({
       next: (res) => {
         this.sessions = res;
         this.loading = false;
@@ -187,7 +213,7 @@ export class ScheduleComponent implements OnInit {
   getWeekRangeString(): string {
     const start = new Date(this.currentWeekStart);
     const end = new Date(this.currentWeekStart);
-    end.setDate(end.getDate() + 4);
+    end.setDate(end.getDate() + 6);
 
     const formatOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
     return `${start.toLocaleDateString('en-US', formatOptions)} - ${end.toLocaleDateString('en-US', formatOptions)}`;

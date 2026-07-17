@@ -1,13 +1,26 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, of, catchError } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { Role } from '../interfaces/Role';
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: number; // 1: Student, 2: Instructor
-  createdAt: string;
+  role: Role;
+  createdAt?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
 }
 
 export interface Course {
@@ -107,6 +120,20 @@ export class LmsService {
       localStorage.removeItem('lms_api_url');
     }
     this.apiUrlSubject.next(this.defaultApiUrl);
+  }
+
+  // ─── Auth ────────────────────────────────────────────────────────────────
+
+  login(payload: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.getApiUrl()}/login`, payload, {
+      withCredentials: true,
+    });
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(`${this.getApiUrl()}/logout`, {}, {
+      withCredentials: true,
+    });
   }
 
   // ─── Users ───────────────────────────────────────────────────────────────

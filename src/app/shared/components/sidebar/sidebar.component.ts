@@ -1,10 +1,10 @@
 import { Component, computed, inject, model, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
-import { Role } from '../../../core/interfaces/Role';
+import { ROLE_LABELS } from '../../../core/interfaces/Role';
 import { AuthService } from '../../../core/services/auth.service';
+import { LmsService } from '../../../core/services/lms.service';
 import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
 
 @Component({
@@ -16,14 +16,13 @@ import { getMenuItemsForRole } from '../../../core/config/app-navigation.config'
 })
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
+  private readonly lmsService = inject(LmsService);
   private readonly router = inject(Router);
 
   isOpen = model(true);
   menuItemClicked = output<void>();
 
-  private readonly currentUser = toSignal(this.authService.currentUser$, {
-    initialValue: this.authService.currentUser,
-  });
+  private readonly currentUser = this.authService.currentUser;
 
   readonly menuItems = computed<MenuItem[]>(() => {
     const user = this.currentUser();
@@ -39,7 +38,10 @@ export class SidebarComponent {
     };
   });
 
-  readonly currentRole = computed(() => this.currentUser()?.role ?? Role.Student);
+  readonly currentRole = computed(() => {
+    const role = this.currentUser()?.role;
+    return role ? ROLE_LABELS[role] : 'Guest';
+  });
 
   onMenuItemClick(): void {
     this.menuItemClicked.emit();
@@ -50,6 +52,13 @@ export class SidebarComponent {
   }
 
   logout(): void {
+    this.lmsService.logout().subscribe({
+      next: () => this.finishLogout(),
+      error: () => this.finishLogout(),
+    });
+  }
+
+  private finishLogout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }

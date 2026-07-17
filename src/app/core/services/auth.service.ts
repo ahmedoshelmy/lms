@@ -1,54 +1,45 @@
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/User';
 import { Role } from '../interfaces/Role';
+import { LmsService, LoginRequest } from '../services/lms.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly TOKEN_KEY = 'auth_token';
+  private readonly lmsService = inject(LmsService);
   private readonly USER_KEY = 'auth_user';
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getStoredUser());
-  currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  get currentUser(): User | null {
-    return this.currentUserSubject.value;
-  }
+  private currentUserSignal = signal<User | null>(this.getStoredUser());
+  readonly currentUser$ = this.currentUserSignal.asReadonly();
+  readonly currentUser = this.currentUserSignal;
+  readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
+  readonly currentRole = computed<Role | null>(() => this.currentUserSignal()?.role ?? null);
 
   getUserId(): string | null {
-    const user = this.currentUser;
-    return user ? user.id.toString() : null;
-  }
-
-  isLoggedIn(): boolean {
-    return !!this.currentUser && !!this.getToken();
-  }
-
-  getToken(): string | null {
-    return this.getStoredToken();
+    return this.currentUserSignal()?.id ?? null;
   }
 
   hasRole(role: Role): boolean {
-    return this.currentUser?.role === role;
+    return this.currentUserSignal()?.role === role;
   }
 
   hasAnyRole(roles: Role[]): boolean {
-    return !!this.currentUser && roles.includes(this.currentUser.role);
+    const user = this.currentUserSignal();
+    return !!user && roles.includes(user.role);
   }
 
-  login(user: User, token: string = 'demo_token'): void {
-    this.setToken(token);
-    this.setStoredUser(user);
-    this.currentUserSubject.next(user);
+  login(payload: LoginRequest): ReturnType<LmsService['login']> {
+    return this.lmsService.login(payload).pipe(
+      tap((user) => this.setStoredUser(user)),
+    );
   }
 
   logout(): void {
-    this.removeToken();
     this.removeStoredUser();
-    this.currentUserSubject.next(null);
+    this.currentUserSignal.set(null);
   }
 
   private getStoredUser(): User | null {
@@ -58,23 +49,9 @@ export class AuthService {
 
     try {
       const userString = localStorage.getItem(this.USER_KEY);
-      return userString ? JSON.parse(userString) : null;
+      return userString ? (JSON.parse(userString) as User) : null;
     } catch {
       return null;
-    }
-  }
-
-  private getStoredToken(): string | null {
-    if (!isPlatformBrowser(this.platformId)) {
-      return null;
-    }
-
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  private setToken(token: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(this.TOKEN_KEY, token);
     }
   }
 
@@ -82,12 +59,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
-  }
-
-  private removeToken(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(this.TOKEN_KEY);
-    }
+    this.currentUserSignal.set(user);
   }
 
   private removeStoredUser(): void {
