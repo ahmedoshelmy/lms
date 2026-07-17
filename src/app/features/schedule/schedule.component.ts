@@ -114,7 +114,8 @@ export class ScheduleComponent implements OnInit {
   calculateWeekStart(): void {
     const today = new Date();
     const dayOfWeek = today.getDay();
-    const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    const saturdayOffset = (dayOfWeek + 1) % 7;
+    const diff = today.getDate() - saturdayOffset;
     this.currentWeekStart = new Date(today.setDate(diff));
     this.currentWeekStart.setHours(0, 0, 0, 0);
   }

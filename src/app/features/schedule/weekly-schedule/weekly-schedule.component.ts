@@ -18,7 +18,7 @@ interface DayColumn {
   template: `
     <div class="weekly-schedule-wrapper">
       <!-- Desktop View: Grid -->
-      <div class="hidden md:grid grid-cols-5 gap-4 border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+      <div class="hidden md:grid grid-cols-7 gap-4 border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
         @for (col of dayColumns(); track col.dayName) {
           <div class="day-column flex flex-col border-r last:border-r-0 border-[var(--color-border)] pr-2 last:pr-0">
             <!-- Day Header -->
@@ -196,21 +196,19 @@ export class WeeklyScheduleComponent {
   @Input() sessions: ScheduleSession[] = [];
   @Input() currentWeekStart: Date = new Date();
 
-  // Create columns for Monday to Friday
+  // Create columns for 7 days starting from Saturday
   dayColumns = computed<DayColumn[]>(() => {
     const startOfWeek = new Date(this.currentWeekStart);
-    
-    // Ensure we start at Monday
-    const dayOfWeek = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-    const monday = new Date(startOfWeek.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
 
     const days: DayColumn[] = [];
-    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const weekdays = [
+      'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+    ];
 
-    for (let i = 0; i < 5; i++) {
-      const currentDate = new Date(monday);
-      currentDate.setDate(monday.getDate() + i);
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startOfWeek);
+      currentDate.setDate(startOfWeek.getDate() + i);
 
       // Filter sessions for this specific day
       const daySessions = this.sessions.filter(session => {
