@@ -1,23 +1,15 @@
 import { Routes } from '@angular/router';
-import { getRolesForPath } from './core/config/app-navigation.config';
-import { authGuard } from './core/guards/auth.guard';
-import { roleGuard } from './core/guards/role.guard';
-import { guestGuard } from './core/guards/guest.guard';
-import { Role } from './core/interfaces/Role';
 
 export const routes: Routes = [
   {
     path: 'auth/login',
-    canActivate: [guestGuard],
-    loadComponent: () =>
-      import('./features/auth/login/login.component').then((c) => c.LoginComponent),
+    redirectTo: '',
+    pathMatch: 'full',
   },
   {
     path: '',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: getRolesForPath('schedule') },
     loadComponent: () =>
-      import('./features/schedule/schedule.component').then((c) => c.ScheduleComponent),
+      import('./features/home/home.component').then((c) => c.HomeComponent),
   },
   {
     path: 'unauthorized',
