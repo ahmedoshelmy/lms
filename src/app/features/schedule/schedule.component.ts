@@ -29,9 +29,19 @@ import { Role } from '../../core/interfaces/Role';
       <!-- Page Header -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
-            Weekly Schedule
-          </h1>
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+              Weekly Schedule
+            </h1>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-sign-out"
+              label="Sign out"
+              class="p-button-outlined p-button-secondary p-button-sm cursor-pointer"
+              (click)="logout()"
+            ></button>
+          </div>
           <p class="text-sm text-[var(--color-text-muted)] mt-1">
             @if (isAdmin) {
               Select an instructor to view their weekly schedule
@@ -133,6 +143,17 @@ export class ScheduleComponent implements OnInit {
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
+  }
+
+  logout(): void {
+    this.lmsService.logout().subscribe({
+      next: () => this.finishLogout(),
+      error: () => this.finishLogout(),
+    });
+  }
+
+  private finishLogout(): void {
+    this.auth.logout();
   }
 
   ngOnInit(): void {
