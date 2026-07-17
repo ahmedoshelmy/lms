@@ -24,7 +24,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     label: 'Courses',
     icon: 'pi pi-book',
     roles: ALL_ROLES,
-    showInMenu: false,
+    showInMenu: true,
   },
   {
     path: 'users',
@@ -53,6 +53,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     icon: 'pi pi-folder',
     roles: ALL_ROLES,
     showInMenu: false,
+  },
+  {
+    path: 'groups',
+    label: 'Groups',
+    icon: 'pi pi-users',
+    roles: ALL_ROLES,
+    showInMenu: true,
   },
   {
     path: 'schedule',

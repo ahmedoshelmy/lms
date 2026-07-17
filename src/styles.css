@@ -50,6 +50,16 @@
   --color-info-background: #eff8ff;
   --color-info-foreground: #2d5594;
 
+  /* Session Types */
+  --color-session-group-background: #eff8ff;
+  --color-session-group-foreground: #2d5594;
+
+  --color-session-makeup-background: #faf5ff;
+  --color-session-makeup-foreground: #7e22ce;
+
+  --color-session-trial-background: #fffbeb;
+  --color-session-trial-foreground: #b45309;
+
   /* Fonts */
   --font-sans: 'Inter', 'Segoe UI', sans-serif;
 }
@@ -91,6 +101,16 @@
   --color-info: #5a8fd6;
   --color-info-background: #0c1e33;
   --color-info-foreground: #84caff;
+
+  /* Session Types */
+  --color-session-group-background: #0c1e33;
+  --color-session-group-foreground: #84caff;
+
+  --color-session-makeup-background: #2a113d;
+  --color-session-makeup-foreground: #e9d5ff;
+
+  --color-session-trial-background: #2e2010;
+  --color-session-trial-foreground: #fec84b;
 }
 
 @layer base {

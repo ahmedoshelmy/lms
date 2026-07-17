@@ -27,10 +27,35 @@ export interface Course {
   id: string;
   title: string;
   description: string;
-  instructorId: string;
-  instructorName?: string;
+  topic: string;
+  level: string;
+  sessionCount: string;
   createdAt: string;
-  enrollments?: Enrollment[];
+  groupCount: number;
+  studentCount: number;
+}
+
+export interface GroupCourse {
+  courseId: string;
+  title: string;
+  topic: string;
+  level: string;
+  sessionCount: string;
+  orderIndex: number;
+  currentSessionNumber: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  location?: string;
+  defaultInstructorId: string;
+  defaultInstructorName: string;
+  studentCount: number;
+  courses: GroupCourse[];
 }
 
 export interface Enrollment {
@@ -83,7 +108,8 @@ export interface ScheduleSession {
   status: string;
   orderIndex: number;
   currentSessionNumber: number;
-  currentLessonNumber: number;
+  totalSessions: number;
+  type: string;
 }
 
 @Injectable({
@@ -144,6 +170,20 @@ export class LmsService {
 
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/users`);
+  }
+
+  // ─── Courses ─────────────────────────────────────────────────────────────
+
+  getCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.getApiUrl()}/courses`);
+  }
+
+  getGroups(): Observable<Group[]> {
+    return this.http.get<Group[]>(`${this.getApiUrl()}/groups`);
+  }
+
+  getGroup(id: string): Observable<Group> {
+    return this.http.get<Group>(`${this.getApiUrl()}/groups/${id}`);
   }
 
   // ─── Schedule ────────────────────────────────────────────────────────────

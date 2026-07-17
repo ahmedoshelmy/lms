@@ -9,6 +9,7 @@ import { LmsService, ScheduleSession } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-schedule',
@@ -103,6 +104,7 @@ export class ScheduleComponent implements OnInit {
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
   private http = inject(HttpClient);
+  private router = inject(Router);
 
   sessions = signal<ScheduleSession[]>([]);
   selectedInstructorId = signal<string>('');
@@ -118,6 +120,7 @@ export class ScheduleComponent implements OnInit {
 
   private finishLogout(): void {
     this.auth.logout();
+    this.router.navigate(['/']);
   }
 
   ngOnInit(): void {

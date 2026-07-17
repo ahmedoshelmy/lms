@@ -44,15 +44,23 @@ interface DayColumn {
                 >
                   <div>
                     <!-- Header Info -->
-                    <div class="flex items-center justify-between gap-2 mb-1.5">
-                      <span
-                        class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                        [ngClass]="getStatusBadgeClass(session.status)"
-                      >
-                        {{ session.status }}
-                      </span>
+                    <div class="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                      <div class="flex gap-1 flex-wrap">
+                        <span
+                          class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
+                          [ngClass]="getStatusBadgeClass(session.status)"
+                        >
+                          {{ session.status }}
+                        </span>
+                        <span
+                          class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
+                          [ngClass]="getTypeBadgeClass(session.type)"
+                        >
+                          {{ session.type }}
+                        </span>
+                      </div>
                       <span class="text-[10px] text-[var(--color-text-muted)] font-bold">
-                        S{{ session.currentSessionNumber }} L{{ session.currentLessonNumber }}
+                        Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
                       </span>
                     </div>
 
@@ -142,12 +150,20 @@ interface DayColumn {
                 >
                   <div class="flex items-start justify-between gap-4">
                     <div>
-                      <span
-                        class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-1.5"
-                        [ngClass]="getStatusBadgeClass(session.status)"
-                      >
-                        {{ session.status }}
-                      </span>
+                      <div class="flex gap-1 flex-wrap mb-1.5">
+                        <span
+                          class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                          [ngClass]="getStatusBadgeClass(session.status)"
+                        >
+                          {{ session.status }}
+                        </span>
+                        <span
+                          class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                          [ngClass]="getTypeBadgeClass(session.type)"
+                        >
+                          {{ session.type }}
+                        </span>
+                      </div>
                       <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
                         {{ session.topic }}
                       </h4>
@@ -158,8 +174,8 @@ interface DayColumn {
                         {{ session.groupName }}
                       </p>
                     </div>
-                    <span class="text-xs text-[var(--color-text-muted)] font-bold">
-                      S{{ session.currentSessionNumber }} L{{ session.currentLessonNumber }}
+                    <span class="text-xs text-[var(--color-text-muted)] font-bold whitespace-nowrap">
+                      Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
                     </span>
                   </div>
 
@@ -238,6 +254,19 @@ interface DayColumn {
       background-color: rgba(239, 68, 68, 0.08);
       color: var(--color-error, #ef4444);
     }
+
+    .type-group-badge {
+      background-color: var(--color-session-group-background);
+      color: var(--color-session-group-foreground);
+    }
+    .type-makeup-badge {
+      background-color: var(--color-session-makeup-background);
+      color: var(--color-session-makeup-foreground);
+    }
+    .type-trial-badge {
+      background-color: var(--color-session-trial-background);
+      color: var(--color-session-trial-foreground);
+    }
   `,
 })
 export class WeeklyScheduleComponent {
@@ -291,6 +320,13 @@ export class WeeklyScheduleComponent {
     if (normStatus.includes('completed')) return 'status-completed-badge';
     if (normStatus.includes('cancel')) return 'status-cancelled-badge';
     return 'status-scheduled-badge';
+  }
+
+  getTypeBadgeClass(type: string): string {
+    const normType = (type ?? '').toLowerCase();
+    if (normType.includes('makeup')) return 'type-makeup-badge';
+    if (normType.includes('trial')) return 'type-trial-badge';
+    return 'type-group-badge';
   }
 
   formatTime(isoString: string): string {

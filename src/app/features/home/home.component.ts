@@ -1,19 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LoginComponent } from '../auth/login/login.component';
-import { ScheduleComponent } from '../schedule/schedule.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, LoginComponent, ScheduleComponent],
+  imports: [CommonModule, LoginComponent],
   template: `
-    @if (auth.isLoggedIn()) {
-      <app-schedule></app-schedule>
-    } @else {
-      <app-login></app-login>
-    }
+    <app-login></app-login>
   `,
   styles: `
     :host {
@@ -23,6 +19,13 @@ import { ScheduleComponent } from '../schedule/schedule.component';
     }
   `,
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   protected auth = inject(AuthService);
+  private router = inject(Router);
+
+  ngOnInit(): void {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/schedule']);
+    }
+  }
 }
