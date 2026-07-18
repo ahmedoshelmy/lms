@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Role, ROLE_LABELS } from '../../../core/interfaces/Role';
@@ -314,6 +314,7 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private notify = inject(NotificationService);
+  private route = inject(ActivatedRoute);
 
   // Demo accounts for previewing role-based views during demos.
   // Passwords are sequential 1..8. Replace with real auth once wired.
@@ -386,7 +387,8 @@ export class LoginComponent {
       next: (user) => {
         this.loading.set(false);
         this.notify.showSuccess(`Welcome back, ${user.name}`);
-        this.router.navigate(['/']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/schedule';
+        this.router.navigateByUrl(returnUrl);
       },
       error: (err) => {
         this.loading.set(false);
