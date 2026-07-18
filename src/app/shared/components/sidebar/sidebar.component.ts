@@ -60,7 +60,7 @@ export class SidebarComponent {
 
   private finishLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/login']);
   }
 
   private getUserInitials(name: string): string {

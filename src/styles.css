@@ -50,6 +50,30 @@
   --color-info-background: #eff8ff;
   --color-info-foreground: #2d5594;
 
+  /* Accent (sidebar logo, active state highlight) */
+  --color-accent: #1cd39c;
+  --color-accent-hover: #15a87a;
+  --color-accent-glow: rgba(28, 211, 156, 0.3);
+
+  /* Role badge */
+  --color-role-badge-bg: #5a4bb6;
+  --color-role-badge-text: #f0f0ff;
+
+  /* Avatar */
+  --color-avatar-from: #7453ff;
+  --color-avatar-to: #5a4bb6;
+  --color-avatar-glow: rgba(116, 83, 255, 0.3);
+
+  /* Sidebar specifics */
+  --color-sidebar-bg-from: #1e2a5c;
+  --color-sidebar-bg-to: #16224d;
+  --color-sidebar-text: #c6cce5;
+  --color-sidebar-subtext: #a8b0d3;
+  --color-sidebar-user-email: #9ea9d8;
+  --color-sidebar-border: rgba(255, 255, 255, 0.08);
+  --color-sidebar-item-hover: rgba(255, 255, 255, 0.08);
+  --color-sidebar-item-active: rgba(28, 211, 156, 0.15);
+
   /* Fonts */
   --font-sans: 'Inter', 'Segoe UI', sans-serif;
 }
@@ -91,21 +115,37 @@
   --color-info: #5a8fd6;
   --color-info-background: #0c1e33;
   --color-info-foreground: #84caff;
+
+  /* Accent */
+  --color-accent: #1cd39c;
+  --color-accent-hover: #15a87a;
+  --color-accent-glow: rgba(28, 211, 156, 0.25);
+
+  /* Role badge */
+  --color-role-badge-bg: #3d3185;
+  --color-role-badge-text: #d4d0ff;
+
+  /* Avatar */
+  --color-avatar-from: #5a3fd6;
+  --color-avatar-to: #3d2fa0;
+  --color-avatar-glow: rgba(90, 63, 214, 0.3);
+
+  /* Sidebar specifics */
+  --color-sidebar-bg-from: #12183a;
+  --color-sidebar-bg-to: #0d1230;
+  --color-sidebar-text: #a8b0d3;
+  --color-sidebar-subtext: #6b7494;
+  --color-sidebar-user-email: #6b7494;
+  --color-sidebar-border: rgba(255, 255, 255, 0.06);
+  --color-sidebar-item-hover: rgba(255, 255, 255, 0.06);
+  --color-sidebar-item-active: rgba(28, 211, 156, 0.12);
 }
 
 @layer base {
   body {
     background-color: var(--color-background);
     color: var(--color-text-primary);
-    -webkit-font-smoothing: antialiased;
-  }
-}
-
-/* Base global layer styling */
-@layer base {
-  body {
-    background-color: var(--color-background);
-    color: var(--color-text-main);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 }

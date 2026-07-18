@@ -1,11 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
+import { SessionDetailPanelComponent } from './session-detail-panel/session-detail-panel.component';
 import { LmsService, ScheduleSession, User } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -23,96 +25,9 @@ import { Role } from '../../core/interfaces/Role';
     SelectModule,
     ProgressSpinnerModule,
     WeeklyScheduleComponent,
+    SessionDetailPanelComponent,
   ],
-  template: `
-    <div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
-      <!-- Page Header -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-        <div>
-          <div class="flex items-center gap-3">
-            <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
-              Weekly Schedule
-            </h1>
-            <button
-              pButton
-              type="button"
-              icon="pi pi-sign-out"
-              label="Sign out"
-              class="p-button-outlined p-button-secondary p-button-sm cursor-pointer"
-              (click)="logout()"
-            ></button>
-          </div>
-          <p class="text-sm text-[var(--color-text-muted)] mt-1">
-            @if (isAdmin) {
-              Select an instructor to view their weekly schedule
-            } @else {
-              Your weekly schedule
-            }
-          </p>
-        </div>
-
-        <!-- Instructor Select (Admin only) & Week Navigator -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-          @if (isAdmin) {
-            <div class="flex items-center gap-2">
-              <label class="text-sm font-semibold text-[var(--color-text-muted)] whitespace-nowrap"
-                >Instructor:</label
-              >
-              <p-select
-                [options]="instructors()"
-                [ngModel]="selectedInstructorId()"
-                (ngModelChange)="selectedInstructorId.set($event); onInstructorChange()"
-                optionLabel="name"
-                optionValue="id"
-                placeholder="Select Instructor"
-                class="w-[220px]"
-                [filter]="true"
-                filterBy="name"
-              >
-              </p-select>
-            </div>
-          }
-
-          <div
-            class="flex items-center justify-between gap-3 bg-[var(--color-surface)] p-2 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-          >
-            <button
-              pButton
-              type="button"
-              icon="pi pi-chevron-left"
-              class="p-button-text p-button-secondary p-button-sm cursor-pointer"
-              (click)="previousWeek()"
-              aria-label="Previous week"
-            ></button>
-
-            <span
-              class="text-sm font-bold text-[var(--color-text-primary)] px-2 min-w-[180px] text-center"
-            >
-              {{ getWeekRangeString() }}
-            </span>
-
-            <button
-              pButton
-              type="button"
-              icon="pi pi-chevron-right"
-              class="p-button-text p-button-secondary p-button-sm cursor-pointer"
-              (click)="nextWeek()"
-              aria-label="Next week"
-            ></button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Schedule content -->
-      @if (loading()) {
-        <div class="flex justify-center items-center py-20">
-          <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
-        </div>
-      } @else {
-        <app-weekly-schedule [sessions]="sessions()" [currentWeekStart]="currentWeekStart()" />
-      }
-    </div>
-  `,
+  templateUrl: './schedule.component.html',
   styles: `
     :host {
       display: block;
@@ -140,20 +55,21 @@ export class ScheduleComponent implements OnInit {
   selectedInstructorId = signal<string>('');
   currentWeekStart = signal<Date>(new Date());
   loading = signal(false);
+  selectedSession = signal<ScheduleSession | null>(null);
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
   }
 
-  logout(): void {
-    this.lmsService.logout().subscribe({
-      next: () => this.finishLogout(),
-      error: () => this.finishLogout(),
-    });
+  get totalSessionsThisWeek(): number {
+    return this.sessions().length;
   }
+
+  private readonly router = inject(Router);
 
   private finishLogout(): void {
     this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   ngOnInit(): void {
@@ -180,6 +96,11 @@ export class ScheduleComponent implements OnInit {
     const weekStart = new Date(today.setDate(diff));
     weekStart.setHours(0, 0, 0, 0);
     this.currentWeekStart.set(weekStart);
+  }
+
+  goToCurrentWeek(): void {
+    this.calculateWeekStart();
+    this.loadSchedule();
   }
 
   loadInstructors(): void {
@@ -263,5 +184,13 @@ export class ScheduleComponent implements OnInit {
       year: 'numeric',
     };
     return `${start.toLocaleDateString('en-US', formatOptions)} - ${end.toLocaleDateString('en-US', formatOptions)}`;
+  }
+
+  onSessionSelected(session: ScheduleSession): void {
+    this.selectedSession.set(session);
+  }
+
+  onPanelClosed(): void {
+    this.selectedSession.set(null);
   }
 }

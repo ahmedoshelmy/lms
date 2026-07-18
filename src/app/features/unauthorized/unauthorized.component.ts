@@ -5,18 +5,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-unauthorized',
   standalone: true,
   imports: [RouterLink],
-  template: `
-    <div class="unauthorized-shell">
-      <div class="unauthorized-card">
-        <div class="icon">
-          <i class="pi pi-lock" aria-hidden="true"></i>
-        </div>
-        <h1>Access Denied</h1>
-        <p>You don't have permission to view this page.</p>
-        <a routerLink="/" class="btn btn-primary">Back to Schedule</a>
-      </div>
-    </div>
-  `,
+  templateUrl: './unauthorized.component.html',
   styles: `
     :host {
       display: block;

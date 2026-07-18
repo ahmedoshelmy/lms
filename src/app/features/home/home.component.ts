@@ -8,13 +8,7 @@ import { ScheduleComponent } from '../schedule/schedule.component';
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, LoginComponent, ScheduleComponent],
-  template: `
-    @if (auth.isLoggedIn()) {
-      <app-schedule></app-schedule>
-    } @else {
-      <app-login></app-login>
-    }
-  `,
+  templateUrl: './home.component.html',
   styles: `
     :host {
       display: block;

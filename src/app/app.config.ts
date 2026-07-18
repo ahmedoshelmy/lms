@@ -20,7 +20,8 @@ export const appConfig: ApplicationConfig = {
     MessageService,
     NotificationService,
     providePrimeNG({
-      theme: { preset: Aura, options: { darkModeSelector: '.p-dark' } },
+      // Use data-theme="dark" so PrimeNG and the CSS token system stay in sync
+      theme: { preset: Aura, options: { darkModeSelector: '[data-theme="dark"]' } },
     }),
     provideHttpClient(withInterceptors([errorInterceptor, authInterceptor, userIdInterceptor])),
   ],

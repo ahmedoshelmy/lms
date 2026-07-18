@@ -2,12 +2,7 @@
   display: flex;
   min-height: 100vh;
   position: relative;
-  overflow: visible;
-  background-color: #f8f9fb;
-}
-
-.content-wrapper {
-  overflow: visible;
+  background-color: var(--color-background);
 }
 
 .content-wrapper {
@@ -15,11 +10,12 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  overflow-x: clip; /* clip so the sidebar toggle bleed doesn't scroll */
 }
 
 .content {
   flex: 1;
-  overflow: visible;
 }
 
 .mobile-header {
@@ -36,8 +32,8 @@
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -46,7 +42,7 @@
   .mobile-header__title {
     font-size: 16px;
     font-weight: 700;
-    color: #1e2a5c;
+    color: var(--color-primary);
   }
 
   .mobile-menu-btn {
@@ -55,10 +51,10 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     border-radius: 10px;
-    background: white;
-    color: #1e2a5c;
+    background: var(--color-surface);
+    color: var(--color-primary);
     cursor: pointer;
     font-size: 18px;
   }

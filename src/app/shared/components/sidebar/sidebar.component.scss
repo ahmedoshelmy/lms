@@ -1,7 +1,7 @@
 .sidebar {
   width: 250px;
   height: 100vh;
-  background: linear-gradient(180deg, #1e2a5c 0%, #16224d 100%);
+  background: linear-gradient(180deg, var(--color-sidebar-bg-from) 0%, var(--color-sidebar-bg-to) 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -9,9 +9,14 @@
     transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
-  position: relative;
+  /* Stick to viewport top as the page content scrolls */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  /* Allow the toggle button to bleed right; layout clips the overflow */
   overflow: visible;
+  flex-shrink: 0;
 }
 
 .sidebar.closed {
@@ -36,9 +41,9 @@
   top: 50%;
   right: -20px;
   transform: translateY(-50%);
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  color: #4b5563;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -57,19 +62,19 @@
 }
 
 .toggle-btn:hover {
-  background: #f9fafb;
-  color: #1cd39c;
+  background: var(--color-surface-hover);
+  color: var(--color-accent);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transform: translateY(-50%) scale(1.05);
 }
 
 .toggle-btn:active {
-  background: #f3f4f6;
+  background: var(--color-surface-secondary);
   transform: translateY(-50%) scale(0.95);
 }
 
 .sidebar.closed .toggle-btn {
-  right: -14px;
+  right: -16px;
 }
 
 .logo-section {
@@ -77,19 +82,19 @@
   align-items: center;
   gap: 12px;
   padding: 28px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-sidebar-border);
 }
 
 .logo-icon {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #1cd39c 0%, #15a87a 100%);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(28, 211, 156, 0.3);
+  box-shadow: 0 4px 12px var(--color-accent-glow);
   font-size: 20px;
 }
 
@@ -102,7 +107,7 @@
 
 .logo-text span {
   font-size: 11px;
-  color: #a8b0d3;
+  color: var(--color-sidebar-subtext);
   letter-spacing: 1.5px;
   font-weight: 500;
   text-transform: uppercase;
@@ -112,15 +117,15 @@
   margin: 20px 20px;
   width: fit-content;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #5a4bb6 0%, #473c9f 100%);
+  background: var(--color-role-badge-bg);
   border-radius: 8px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
   white-space: nowrap;
   text-transform: uppercase;
-  color: #f0f0ff;
-  box-shadow: 0 2px 8px rgba(71, 60, 159, 0.4);
+  color: var(--color-role-badge-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .menu {
@@ -150,7 +155,7 @@
   padding: 14px 16px;
   border-radius: 12px;
   margin-bottom: 6px;
-  color: #c6cce5;
+  color: var(--color-sidebar-text);
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -166,13 +171,13 @@
   transform: translateY(-50%) scaleY(0);
   width: 4px;
   height: 60%;
-  background: linear-gradient(180deg, #1cd39c 0%, #15a87a 100%);
+  background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
   border-radius: 0 2px 2px 0;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-sidebar-item-hover);
   color: white;
   transform: translateX(4px);
 }
@@ -182,8 +187,8 @@
 }
 
 .menu-item.active {
-  background: rgba(28, 211, 156, 0.15);
-  color: #1cd39c;
+  background: var(--color-sidebar-item-active);
+  color: var(--color-accent);
   font-weight: 600;
 }
 
@@ -212,8 +217,9 @@
   opacity: 1;
 }
 
+/* ── User section ─────────────────────────────────────────────────── */
 .user-section {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-sidebar-border);
   padding: 20px;
   display: flex;
   align-items: center;
@@ -225,14 +231,14 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7453ff 0%, #5a4bb6 100%);
+  background: linear-gradient(135deg, var(--color-avatar-from) 0%, var(--color-avatar-to) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   flex-shrink: 0;
   font-size: 16px;
-  box-shadow: 0 4px 12px rgba(116, 83, 255, 0.3);
+  box-shadow: 0 4px 12px var(--color-avatar-glow);
 }
 
 .user-info h4 {
@@ -246,7 +252,7 @@
 .user-info p {
   margin: 4px 0 0;
   font-size: 12px;
-  color: #9ea9d8;
+  color: var(--color-sidebar-user-email);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -262,15 +268,15 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: transparent;
-  color: #e53e3e;
+  color: var(--color-error);
   cursor: pointer;
   font-size: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .logout-btn:hover {
-  background: rgba(229, 62, 62, 0.1);
-  color: #fc8181;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-error-foreground);
 }
 
 @media (max-width: 768px) {
