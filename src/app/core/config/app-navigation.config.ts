@@ -55,6 +55,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'groups',
+    label: 'Groups',
+    icon: 'pi pi-sitemap',
+    roles: [Role.Admin, Role.Instructor],
+    showInMenu: true,
+  },
+  {
     path: 'users',
     label: 'Users & Staff',
     icon: 'pi pi-users',

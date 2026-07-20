@@ -35,17 +35,23 @@ import { NotificationService } from '../../core/services/notification.service';
         <div class="flex items-center gap-3 text-[var(--color-text-muted)] text-sm py-10">
           <i class="pi pi-spinner pi-spin"></i> Loading users…
         </div>
-      } @else if (filteredUsers().length === 0 && users().length === 0) {
+      } @else if (users().length === 0) {
         <div class="empty-state">
           <i class="pi pi-users text-4xl mb-3 opacity-40"></i>
           <p class="font-semibold">No users found</p>
+        </div>
+      } @else if (filteredUsers().length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-search text-4xl mb-3 opacity-40"></i>
+          <p class="font-semibold">No results for "{{ searchQuery() }}"</p>
+          <p class="text-sm mt-1">Try a different name, email, or role.</p>
         </div>
       } @else {
         <!-- Summary chips -->
         <div class="flex gap-3 mb-6 flex-wrap">
           @for (chip of roleChips(); track chip.role) {
-            <span class="role-chip" [style.--chip-color]="chip.color">
-              <i [class]="chip.icon + ' mr-1.5'"></i>
+            <span class="role-chip">
+              <i [class]="chip.icon + ' mr-1.5'" [style.color]="chip.color"></i>
               {{ chip.count }} {{ chip.label }}{{ chip.count !== 1 ? 's' : '' }}
             </span>
           }
@@ -116,9 +122,9 @@ import { NotificationService } from '../../core/services/notification.service';
       display: inline-flex; padding: 3px 10px; border-radius: 99px;
       font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .badge-admin { background: rgba(26,43,76,0.08); color: var(--color-primary); }
-    .badge-instructor { background: rgba(62,109,181,0.08); color: var(--color-secondary); }
-    .badge-student { background: rgba(16,185,129,0.08); color: var(--color-success); }
+    .badge-admin { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
+    .badge-instructor { background: color-mix(in srgb, var(--color-secondary) 10%, transparent); color: var(--color-secondary); }
+    .badge-student { background: color-mix(in srgb, var(--color-success) 10%, transparent); color: var(--color-success); }
 
     .role-chip {
       display: inline-flex; align-items: center; padding: 6px 14px;

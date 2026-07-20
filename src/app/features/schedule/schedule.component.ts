@@ -1,9 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
@@ -20,8 +19,8 @@ import { Role } from '../../core/interfaces/Role';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     ButtonModule,
-    CardModule,
     SelectModule,
     ProgressSpinnerModule,
     WeeklyScheduleComponent,
@@ -65,13 +64,6 @@ export class ScheduleComponent implements OnInit {
     return this.sessions().length;
   }
 
-  private readonly router = inject(Router);
-
-  private finishLogout(): void {
-    this.auth.logout();
-    this.router.navigate(['/login']);
-  }
-
   ngOnInit(): void {
     this.calculateWeekStart();
 
@@ -108,9 +100,13 @@ export class ScheduleComponent implements OnInit {
     this.lmsService.getUsers().subscribe({
       next: (users) => {
         const filtered = (users || []).filter((u) => u.role === Role.Instructor);
-        this.instructors.set(filtered);
-        if (filtered.length > 0) {
-          this.selectedInstructorId.set(filtered[0].id);
+        const options: User[] = [
+          { id: 'all', name: 'All Instructors', email: '', role: Role.Instructor },
+          ...filtered,
+        ];
+        this.instructors.set(options);
+        if (options.length > 0) {
+          this.selectedInstructorId.set(options[0].id);
           this.loadSchedule();
         } else {
           this.loading.set(false);
@@ -124,28 +120,43 @@ export class ScheduleComponent implements OnInit {
   }
 
   loadSchedule(): void {
-    const instructorId = this.selectedInstructorId();
-    if (!instructorId) {
-      this.sessions.set([]);
-      this.loading.set(false);
-      return;
-    }
+    const userId = this.selectedInstructorId();
 
     this.loading.set(true);
     const fromDate = new Date(this.currentWeekStart());
     const toDate = new Date(this.currentWeekStart());
     toDate.setDate(toDate.getDate() + 7);
 
-    // For admin-selected instructors we override X-User-Id explicitly.
-    // For other roles the userIdInterceptor already attaches the user's own id.
-    const isOwnSchedule = !this.isAdmin;
-    const url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
+    let url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
+    if (userId && userId !== 'all') {
+      url += `&instructorId=${userId}&userId=${userId}`;
+    }
+
+    const headers: Record<string, string> = {};
+    if (userId && userId !== 'all' && this.isAdmin) {
+      headers['X-User-Id'] = userId;
+    }
 
     this.http
-      .get<ScheduleSession[]>(url, isOwnSchedule ? {} : { headers: { 'X-User-Id': instructorId } })
+      .get<ScheduleSession[]>(url, { headers })
       .subscribe({
         next: (res) => {
-          this.sessions.set(res || []);
+          let sessions = res || [];
+          if (userId && userId !== 'all') {
+            const selectedInst = this.instructors().find((i) => i.id === userId);
+            const filtered = sessions.filter((s) => {
+              if (s.instructorId === userId) return true;
+              if (selectedInst && s.instructorName) {
+                return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
+              }
+              return false;
+            });
+            // Apply client-side filtering if backend returned unfiltered items
+            if (filtered.length > 0 || sessions.some((s) => s.instructorId && s.instructorId !== userId)) {
+              sessions = filtered;
+            }
+          }
+          this.sessions.set(sessions);
           this.loading.set(false);
         },
         error: (err) => {

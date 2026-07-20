@@ -54,7 +54,7 @@
                     {{ session.status }}
                   </span>
                   <span class="text-[10px] text-[var(--color-text-muted)] font-bold">
-                    S{{ session.currentSessionNumber }} L{{ session.currentLessonNumber }}
+                    S{{ session.currentSessionNumber }} / {{ session.totalSessions }}
                   </span>
                 </div>
 
@@ -185,7 +185,7 @@
                   </p>
                 </div>
                 <span class="text-xs text-[var(--color-text-muted)] font-bold">
-                  S{{ session.currentSessionNumber }} L{{ session.currentLessonNumber }}
+                  S{{ session.currentSessionNumber }} / {{ session.totalSessions }}
                 </span>
               </div>
 

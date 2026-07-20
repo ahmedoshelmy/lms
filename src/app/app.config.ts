@@ -12,7 +12,6 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { NotificationService } from './core/services/notification.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { userIdInterceptor } from './core/interceptors/user-id.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +22,6 @@ export const appConfig: ApplicationConfig = {
       // Use data-theme="dark" so PrimeNG and the CSS token system stay in sync
       theme: { preset: Aura, options: { darkModeSelector: '[data-theme="dark"]' } },
     }),
-    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor, userIdInterceptor])),
+    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
   ],
 };

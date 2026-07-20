@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LmsService, ScheduleSession } from '../../core/services/lms.service';
-import { HttpClient } from '@angular/common/http';
 import { Role } from '../../core/interfaces/Role';
-import { NotificationService } from '../../core/services/notification.service';
 
 interface StatCard {
   label: string;
@@ -13,6 +11,7 @@ interface StatCard {
   icon: string;
   color: string;
   link?: string;
+  loading?: boolean;
 }
 
 @Component({
@@ -43,7 +42,13 @@ interface StatCard {
             <div class="stat-icon">
               <i [class]="card.icon"></i>
             </div>
-            <p class="stat-value">{{ card.value }}</p>
+            @if (card.loading) {
+              <p class="stat-value text-[var(--color-text-muted)]">
+                <i class="pi pi-spin pi-spinner text-xl"></i>
+              </p>
+            } @else {
+              <p class="stat-value">{{ card.value }}</p>
+            }
             <p class="stat-label">{{ card.label }}</p>
           </a>
         }
@@ -174,11 +179,13 @@ interface StatCard {
 export class DashboardComponent implements OnInit {
   private auth = inject(AuthService);
   private lms = inject(LmsService);
-  private http = inject(HttpClient);
-  private notify = inject(NotificationService);
 
   loadingUpcoming = signal(false);
+  loadingCounts = signal(false);
   upcomingSessions = signal<ScheduleSession[]>([]);
+  courseCount = signal<number | '—'>('—');
+  userCount = signal<number | '—'>('—');
+  groupCount = signal<number | '—'>('—');
 
   readonly userName = computed(() => this.auth.currentUser()?.name ?? 'User');
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
@@ -193,20 +200,36 @@ export class DashboardComponent implements OnInit {
         icon: 'pi pi-calendar-clock',
         color: 'var(--color-secondary)',
         link: '/schedule',
+        loading: this.loadingUpcoming(),
       },
       {
         label: 'Courses',
-        value: '—',
+        value: this.courseCount(),
         icon: 'pi pi-book',
         color: 'var(--color-success)',
         link: '/courses',
+        loading: this.loadingCounts(),
       },
     ];
 
     if (this.isAdmin()) {
       cards.push(
-        { label: 'Total Users', value: '—', icon: 'pi pi-users', color: 'var(--color-warning)', link: '/users' },
-        { label: 'Settings', value: '', icon: 'pi pi-cog', color: 'var(--color-primary)', link: '/settings' }
+        {
+          label: 'Total Users',
+          value: this.userCount(),
+          icon: 'pi pi-users',
+          color: 'var(--color-warning)',
+          link: '/users',
+          loading: this.loadingCounts(),
+        },
+        {
+          label: 'Total Groups',
+          value: this.groupCount(),
+          icon: 'pi pi-sitemap',
+          color: 'var(--color-primary)',
+          link: '/groups',
+          loading: this.loadingCounts(),
+        }
       );
     } else {
       cards.push(
@@ -227,6 +250,7 @@ export class DashboardComponent implements OnInit {
     ];
     if (this.isAdmin() || this.isInstructor()) {
       links.push({ label: 'Attendance', description: 'Mark & review attendance', icon: 'pi pi-calendar', route: '/attendance', color: 'var(--color-warning)' });
+      links.push({ label: 'Groups', description: 'View all groups', icon: 'pi pi-sitemap', route: '/groups', color: 'var(--color-primary)' });
     }
     if (this.isAdmin()) {
       links.push({ label: 'Users & Staff', description: 'Manage accounts', icon: 'pi pi-users', route: '/users', color: 'var(--color-primary)' });
@@ -236,6 +260,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUpcoming();
+    this.loadCounts();
   }
 
   private loadUpcoming(): void {
@@ -248,8 +273,8 @@ export class DashboardComponent implements OnInit {
     const to = new Date();
     to.setDate(to.getDate() + 7);
 
-    const url = `${this.lms.getApiUrl()}/schedule?from=${from.toISOString()}&to=${to.toISOString()}`;
-    this.http.get<ScheduleSession[]>(url).subscribe({
+    // Use LmsService instead of raw HttpClient
+    this.lms.getSchedule(from, to).subscribe({
       next: (sessions) => {
         const upcoming = (sessions || [])
           .filter((s) => new Date(s.startsAt) > new Date())
@@ -262,6 +287,31 @@ export class DashboardComponent implements OnInit {
         this.loadingUpcoming.set(false);
       },
     });
+  }
+
+  private loadCounts(): void {
+    this.loadingCounts.set(true);
+
+    // Fetch courses count for everyone
+    this.lms.getCourses().subscribe({
+      next: (courses) => {
+        this.courseCount.set(courses?.length ?? 0);
+        this.loadingCounts.set(false);
+      },
+      error: () => this.loadingCounts.set(false),
+    });
+
+    // Admin-only: fetch users + groups counts
+    if (this.isAdmin()) {
+      this.lms.getUsers().subscribe({
+        next: (users) => this.userCount.set(users?.length ?? 0),
+        error: () => {},
+      });
+      this.lms.getGroups().subscribe({
+        next: (groups) => this.groupCount.set(groups?.length ?? 0),
+        error: () => {},
+      });
+    }
   }
 
   formatTime(iso: string): string {

@@ -22,8 +22,8 @@ export const routes: Routes = [
         (c) => c.MainLayoutComponent
       ),
     children: [
-      // Default redirect → schedule (the only fully-built page)
-      { path: '', redirectTo: 'schedule', pathMatch: 'full' },
+      // Default redirect → dashboard (overview page)
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
       {
         path: 'schedule',
@@ -72,7 +72,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/resources/resources.component').then((c) => c.ResourcesComponent),
       },
-
+      {
+        path: 'groups',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('groups') },
+        loadComponent: () =>
+          import('./features/groups/groups.component').then((c) => c.GroupsComponent),
+      },
       {
         path: 'users',
         canActivate: [roleGuard],
@@ -95,9 +101,7 @@ export const routes: Routes = [
   {
     path: 'unauthorized',
     loadComponent: () =>
-      import('./features/unauthorized/unauthorized.component').then(
-        (c) => c.UnauthorizedComponent
-      ),
+      import('./features/unauthorized/unauthorized.component').then((c) => c.UnauthorizedComponent),
   },
 
   // ── Catch-all ─────────────────────────────────────────────────────────────

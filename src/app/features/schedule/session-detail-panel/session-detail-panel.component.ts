@@ -49,7 +49,7 @@ import { ScheduleSession } from '../../../core/services/lms.service';
             <span
               class="px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)]"
             >
-              Session {{ s.currentSessionNumber }} · Lesson {{ s.currentLessonNumber }}
+              Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}
             </span>
           </div>
 
