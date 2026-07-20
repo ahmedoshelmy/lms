@@ -68,6 +68,25 @@ export interface Enrollment {
   progressPercentage: number;
 }
 
+export enum AttendanceStatus {
+  Absent = 0,
+  Present = 1,
+  Late = 2,
+  Excused = 3,
+}
+
+export interface CreateAttendanceDto {
+  sessionId: string;
+  studentId: string;
+  status: AttendanceStatus;
+}
+
+export interface UpdateAttendanceDto {
+  sessionId: string;
+  studentId: string;
+  status: AttendanceStatus;
+}
+
 export interface AttendanceSession {
   id: string;
   courseId: string;
@@ -79,7 +98,8 @@ export interface AttendanceSession {
 export interface AttendanceRecord {
   studentId: string;
   studentName?: string;
-  present: boolean;
+  status: AttendanceStatus;
+  recordId?: string;
 }
 
 export interface Resource {
@@ -201,5 +221,15 @@ export class LmsService {
       url += `?${params.join('&')}`;
     }
     return this.http.get<ScheduleSession[]>(url);
+  }
+
+  // ─── Attendance ───────────────────────────────────────────────────────────
+
+  createAttendance(payload: CreateAttendanceDto): Observable<any> {
+    return this.http.post(`${this.getApiUrl()}/Attendance`, payload);
+  }
+
+  updateAttendance(id: string, payload: UpdateAttendanceDto): Observable<any> {
+    return this.http.put(`${this.getApiUrl()}/Attendance/${id}`, payload);
   }
 }
