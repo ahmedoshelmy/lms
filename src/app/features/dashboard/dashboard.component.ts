@@ -76,20 +76,20 @@ interface StatCard {
         </div>
       </div>
 
-      <!-- Upcoming Sessions preview -->
+      <!-- Sessions This Week preview -->
       <div>
         <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">
-          Upcoming This Week
+          Sessions This Week
           <span class="ml-2 text-sm font-normal text-[var(--color-text-muted)]">(from schedule)</span>
         </h2>
         @if (loadingUpcoming()) {
           <div class="flex items-center gap-3 text-[var(--color-text-muted)] text-sm py-6">
-            <i class="pi pi-spinner pi-spin"></i> Loading upcoming sessions…
+            <i class="pi pi-spinner pi-spin"></i> Loading weekly sessions…
           </div>
         } @else if (upcomingSessions().length === 0) {
           <div class="empty-state">
             <i class="pi pi-calendar text-4xl mb-3 opacity-40"></i>
-            <p class="font-semibold">No upcoming sessions this week</p>
+            <p class="font-semibold">No sessions scheduled this week</p>
             <p class="text-sm mt-1">Your schedule appears to be clear.</p>
           </div>
         } @else {
@@ -104,7 +104,12 @@ interface StatCard {
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-bold text-[var(--color-text-primary)] truncate">{{ s.topic }}</p>
-                  <p class="text-xs text-[var(--color-text-muted)] truncate">{{ s.courseTitle }} · {{ s.groupName }}</p>
+                  <p class="text-xs text-[var(--color-text-muted)] truncate">
+                    {{ s.courseTitle }} · {{ s.groupName }}
+                    @if (s.instructorName) {
+                      · {{ s.instructorName }}
+                    }
+                  </p>
                 </div>
                 <div class="text-right flex-shrink-0">
                   <p class="text-xs font-bold text-[var(--color-secondary)]">{{ formatTime(s.startsAt) }}</p>
@@ -264,23 +269,25 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadUpcoming(): void {
-    const userId = this.auth.getUserId();
-    if (!userId) return;
-
     this.loadingUpcoming.set(true);
 
-    const from = new Date();
-    const to = new Date();
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const saturdayOffset = (dayOfWeek + 1) % 7;
+    const diff = today.getDate() - saturdayOffset;
+    const from = new Date(today.setDate(diff));
+    from.setHours(0, 0, 0, 0);
+
+    const to = new Date(from);
     to.setDate(to.getDate() + 7);
 
-    // Use LmsService instead of raw HttpClient
+    // Use LmsService to fetch all sessions for all instructors for the entire current week
     this.lms.getSchedule(from, to).subscribe({
       next: (sessions) => {
-        const upcoming = (sessions || [])
-          .filter((s) => new Date(s.startsAt) > new Date())
-          .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())
-          .slice(0, 5);
-        this.upcomingSessions.set(upcoming);
+        const sorted = (sessions || []).sort(
+          (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+        );
+        this.upcomingSessions.set(sorted);
         this.loadingUpcoming.set(false);
       },
       error: () => {
