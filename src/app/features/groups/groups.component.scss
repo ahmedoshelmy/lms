@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.group-avatar {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.filter-btn {
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.filter-btn:hover {
+  background: var(--color-background-alt);
+  color: var(--color-text-primary);
+}
+.filter-active {
+  background: var(--color-secondary) !important;
+  color: #fff !important;
+}
+
+.status-running {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+}
+.status-stopped {
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
+}
+.status-completed {
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  color: var(--color-text-muted);
+}
+.status-archived {
+  background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+  color: var(--color-text-muted);
+}
+
+.level-1 {
+  background: color-mix(in srgb, var(--color-secondary) 12%, transparent);
+  color: var(--color-secondary);
+}
+.level-2 {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+}
+.level-default {
+  background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+  color: var(--color-text-muted);
+}

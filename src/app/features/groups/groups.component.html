@@ -1,0 +1,190 @@
+<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+    <div>
+      <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+        Groups
+      </h1>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">
+        Overview of all groups, their instructors, courses, and students
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3 flex-wrap">
+      <!-- Status Filter -->
+      <div
+        class="flex rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)]"
+      >
+        @for (s of statusFilters; track s) {
+          <button
+            (click)="statusFilter.set(s)"
+            [class.filter-active]="statusFilter() === s"
+            class="filter-btn px-3 py-2 text-xs font-semibold transition-all duration-200"
+          >
+            {{ s }}
+          </button>
+        }
+      </div>
+
+      <!-- Search -->
+      <div class="relative w-full md:w-72">
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search groups..."
+          class="w-full pl-10 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
+        />
+        <i
+          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+        ></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-20">
+      <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
+    </div>
+  } @else {
+    <!-- Stats row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div
+        class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+      >
+        <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+          >Total Groups</span
+        >
+        <span class="text-2xl font-extrabold text-[var(--color-text-primary)]">{{
+          groups().length
+        }}</span>
+      </div>
+      <div
+        class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+      >
+        <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+          >Running</span
+        >
+        <span class="text-2xl font-extrabold text-[var(--color-success)]">{{
+          countByStatus('Running')
+        }}</span>
+      </div>
+      <div
+        class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+      >
+        <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+          >Total Students</span
+        >
+        <span class="text-2xl font-extrabold text-[var(--color-secondary)]">{{
+          totalStudents()
+        }}</span>
+      </div>
+      <div
+        class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+      >
+        <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+          >Completed</span
+        >
+        <span class="text-2xl font-extrabold text-[var(--color-text-muted)]">{{
+          countByStatus('Completed')
+        }}</span>
+      </div>
+    </div>
+
+    <!-- Groups Table/Cards -->
+    <div class="flex flex-col gap-4">
+      @for (group of filteredGroups(); track group.id) {
+        <div
+          class="group-card p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-[0_8px_24px_rgba(62,109,181,0.07)] transition-all duration-300"
+        >
+          <!-- Header row -->
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+            <div class="flex items-start gap-3">
+              <div
+                class="group-avatar rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-lg font-black text-white"
+              >
+                {{ group.name.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-[var(--color-text-primary)] leading-tight">
+                  {{ group.name }}
+                </h2>
+                <div
+                  class="flex items-center gap-1.5 mt-0.5 text-xs text-[var(--color-text-muted)]"
+                >
+                  <i class="pi pi-user text-[10px]"></i>
+                  {{ group.defaultInstructorName }}
+                  @if (group.location) {
+                    <span class="mx-1">·</span>
+                    <i class="pi pi-map-marker text-[10px]"></i>
+                    {{ group.location }}
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 flex-shrink-0 flex-wrap">
+              <span
+                class="status-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold"
+                [ngClass]="getStatusCss(group.status)"
+              >
+                <i [ngClass]="'pi ' + getStatusIcon(group.status)"></i>
+                {{ group.status }}
+              </span>
+              <span
+                class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]"
+              >
+                <i class="pi pi-users text-[var(--color-secondary)]"></i>
+                {{ group.studentCount }} student{{ group.studentCount !== 1 ? 's' : '' }}
+              </span>
+              <span class="text-xs text-[var(--color-text-muted)]">
+                {{ group.startDate | date: 'MMM y' }} – {{ group.endDate | date: 'MMM y' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Courses row -->
+          @if (group.courses.length > 0) {
+            <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
+              @for (course of group.courses; track course.courseId) {
+                <div
+                  class="course-chip flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-xs"
+                >
+                  <span class="font-semibold text-[var(--color-text-primary)]">{{
+                    course.title
+                  }}</span>
+                  <span class="text-[var(--color-text-muted)]">·</span>
+                  <span class="text-[var(--color-text-secondary)]"
+                    >S{{ course.currentSessionNumber }} / {{ course.sessionCount }}</span
+                  >
+                  <span
+                    class="ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold"
+                    [ngClass]="getLevelBadgeClass(course.level)"
+                  >
+                    L{{ course.level }}
+                  </span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p
+              class="text-xs text-[var(--color-text-muted)] mt-2 pt-2 border-t border-[var(--color-border)]"
+            >
+              No courses assigned yet.
+            </p>
+          }
+        </div>
+      } @empty {
+        <div
+          class="text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"
+        >
+          <i class="pi pi-users text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
+          <p class="text-[var(--color-text-secondary)] font-medium">
+            No groups found matching your criteria
+          </p>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -5,4 +5,9 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  phone?: string;
+  bio?: string;
+  avatarUrl?: string;
+  location?: string;
+  title?: string;
 }

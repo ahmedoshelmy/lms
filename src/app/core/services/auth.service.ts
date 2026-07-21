@@ -41,6 +41,14 @@ export class AuthService {
     this.currentUserSignal.set(null);
   }
 
+  updateProfile(partialUser: Partial<User>): void {
+    const current = this.currentUserSignal();
+    if (current) {
+      const updated = { ...current, ...partialUser };
+      this.setStoredUser(updated);
+    }
+  }
+
   private getStoredUser(): User | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null;

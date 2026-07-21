@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  width: 100%;
+}
+.topic-py-badge {
+  background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+  color: var(--color-secondary);
+}
+.topic-ma-badge {
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  color: var(--color-warning);
+}
+.topic-wd-badge {
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: var(--color-success);
+}
+.topic-ai-badge {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-accent);
+}
+.topic-default-badge {
+  background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+  color: var(--color-text-muted);
+}
+.course-card {
+  position: relative;
+  overflow: hidden;
+}
