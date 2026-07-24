@@ -12,3 +12,23 @@ export interface Group {
   studentCount: number;
   courses: GroupCourse[];
 }
+
+
+export interface CreateGroupPayload {
+  name: string;
+  startDate: string;
+  endDate: string;
+  defaultInstructorId: string;
+  status?: number;
+  location?: string;
+  courseIds?: string[];
+}
+
+export interface UpdateGroupPayload {
+  name: string;
+  startDate: string;
+  endDate: string;
+  defaultInstructorId: string;
+  status: number;
+  location?: string;
+}

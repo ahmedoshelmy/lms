@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { LmsService, User, Group } from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
+import { Group } from '../../core/interfaces/Group';
+import { User } from '../../core/interfaces/User';
 
 @Component({
   selector: 'app-students',
