@@ -66,6 +66,36 @@
       Sessions This Week
       <span class="ml-2 text-sm font-normal text-[var(--color-text-muted)]">(from schedule)</span>
     </h2>
+
+    @if (!loadingUpcoming() && upcomingSessions().length > 0) {
+      <!-- Status breakdown chips -->
+      <div class="flex flex-wrap gap-2 mb-5">
+        @if (scheduledCount() > 0) {
+          <span class="status-chip status-chip--scheduled">
+            <span class="status-chip__dot"></span>
+            {{ scheduledCount() }} Scheduled
+          </span>
+        }
+        @if (ongoingCount() > 0) {
+          <span class="status-chip status-chip--ongoing">
+            <span class="status-chip__dot"></span>
+            {{ ongoingCount() }} Ongoing
+          </span>
+        }
+        @if (completedCount() > 0) {
+          <span class="status-chip status-chip--completed">
+            <span class="status-chip__dot"></span>
+            {{ completedCount() }} Completed
+          </span>
+        }
+        @if (cancelledCount() > 0) {
+          <span class="status-chip status-chip--cancelled">
+            <span class="status-chip__dot"></span>
+            {{ cancelledCount() }} Cancelled
+          </span>
+        }
+      </div>
+    }
     @if (loadingUpcoming()) {
       <div class="flex items-center gap-3 text-[var(--color-text-muted)] text-sm py-6">
         <i class="pi pi-spinner pi-spin"></i> Loading weekly sessions…
@@ -104,6 +134,9 @@
                 {{ formatTime(s.startsAt) }}
               </p>
               <p class="text-[10px] text-[var(--color-text-muted)]">{{ formatDate(s.startsAt) }}</p>
+              <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">
+                {{ s.status }}
+              </span>
             </div>
           </a>
         }

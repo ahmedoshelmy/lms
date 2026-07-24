@@ -24,6 +24,18 @@ export class AuthService {
     return this.currentUserSignal()?.id ?? null;
   }
 
+  getAccessToken(): string | null {
+    return this.currentUserSignal()?.accessToken ?? null;
+  }
+
+  setAccessToken(token: string): void {
+    const current = this.currentUserSignal();
+    if (current) {
+      const updated = { ...current, accessToken: token };
+      this.setStoredUser(updated);
+    }
+  }
+
   hasRole(role: Role): boolean {
     return this.currentUserSignal()?.role === role;
   }

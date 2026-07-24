@@ -1,17 +1,155 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { User } from '../interfaces/User';
-import { LoginRequest, LoginResponse } from '../interfaces/Login';
-import { Course } from '../interfaces/Course';
-import {
-  AttendanceResponseDto,
-  CreateAttendanceDto,
-  UpdateAttendanceDto,
-} from '../interfaces/Attendance';
-import { Group } from '../interfaces/Group';
-import { ScheduleSession } from '../interfaces/ScheduleSession';
-import { AttendanceStatus } from '../enums/AttendanceStatus';
+import { Role } from '../interfaces/Role';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  createdAt?: string;
+  groupId?: string;
+  groupName?: string;
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+  groupId?: string;
+}
+
+export interface UpdateUserPayload {
+  name: string;
+  email: string;
+  password?: string;
+  role: Role;
+  groupId?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  accessToken?: string;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  topic: string;
+  level: string;
+  sessionCount: string;
+  createdAt: string;
+  groupCount: number;
+  studentCount: number;
+}
+
+export interface GroupCourse {
+  courseId: string;
+  title: string;
+  topic: string;
+  level: string;
+  sessionCount: string;
+  orderIndex: number;
+  currentSessionNumber: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  location?: string;
+  defaultInstructorId: string;
+  defaultInstructorName: string;
+  studentCount: number;
+  courses: GroupCourse[];
+}
+
+export interface Enrollment {
+  id: string;
+  courseId: string;
+  courseTitle?: string;
+  studentId: string;
+  studentName?: string;
+  enrollmentDate: string;
+  progressPercentage: number;
+}
+
+export enum AttendanceStatus {
+  Absent = 0,
+  Present = 1,
+  Late = 2,
+  Excused = 3,
+}
+
+export interface CreateAttendanceDto {
+  sessionId: string;
+  studentId: string;
+  status: AttendanceStatus;
+}
+
+export interface UpdateAttendanceDto {
+  sessionId: string;
+  studentId: string;
+  status: AttendanceStatus;
+}
+
+export interface AttendanceSession {
+  id: string;
+  courseId: string;
+  courseTitle?: string;
+  date: string; // ISO date string
+  records: AttendanceRecord[];
+}
+
+export interface AttendanceRecord {
+  studentId: string;
+  studentName?: string;
+  status: AttendanceStatus;
+  recordId?: string;
+}
+
+export interface Resource {
+  id: string;
+  courseId: string;
+  courseTitle?: string;
+  title: string;
+  url: string;
+  type: 'link' | 'video' | 'document' | 'other';
+  addedAt: string;
+  addedBy?: string;
+}
+
+export interface ScheduleSession {
+  id: string;
+  courseTitle: string;
+  groupName: string;
+  groupId: string;
+  topic: string;
+  startsAt: string;
+  endsAt: string;
+  durationMinutes: number;
+  instructorId: string;
+  instructorName: string;
+  location?: string;
+  status: string;
+  orderIndex: number;
+  currentSessionNumber: number;
+  totalSessions: number;
+  type: string;
+}
 
 export interface CreateGroupPayload {
   name: string;
@@ -97,8 +235,24 @@ export class LmsService {
     return this.http.get<User[]>(`${this.getApiUrl()}/users`);
   }
 
+  getStudents(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.getApiUrl()}/students`);
+  }
+
   getInstructors(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/instructors`);
+  }
+
+  createUser(payload: CreateUserPayload): Observable<User> {
+    return this.http.post<User>(`${this.getApiUrl()}/users`, payload);
+  }
+
+  updateUser(id: string, payload: UpdateUserPayload): Observable<User> {
+    return this.http.put<User>(`${this.getApiUrl()}/users/${id}`, payload);
+  }
+
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/users/${id}`);
   }
 
   // ─── Courses ─────────────────────────────────────────────────────────────

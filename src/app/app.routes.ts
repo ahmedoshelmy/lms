@@ -78,12 +78,22 @@ export const routes: Routes = [
           import('./features/groups/groups.component').then((c) => c.GroupsComponent),
       },
       {
-        path: 'users',
+        path: 'students',
         canActivate: [roleGuard],
-        data: { roles: getRolesForPath('users') },
+        data: { roles: getRolesForPath('students') },
         loadComponent: () =>
-          import('./features/users/users.component').then((c) => c.UsersComponent),
+          import('./features/students/students.component').then((c) => c.StudentsComponent),
       },
+      {
+        path: 'instructors',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('instructors') },
+        loadComponent: () =>
+          import('./features/instructors/instructors.component').then(
+            (c) => c.InstructorsComponent
+          ),
+      },
+      { path: 'users', redirectTo: 'students', pathMatch: 'full' },
 
       {
         path: 'settings',

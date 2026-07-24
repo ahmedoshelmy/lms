@@ -33,6 +33,31 @@ export class DashboardComponent implements OnInit {
   userCount = signal<number | '—'>('—');
   groupCount = signal<number | '—'>('—');
 
+  readonly scheduledCount = computed(
+    () =>
+      this.upcomingSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('scheduled')
+      ).length
+  );
+  readonly ongoingCount = computed(
+    () =>
+      this.upcomingSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('ongoing')
+      ).length
+  );
+  readonly completedCount = computed(
+    () =>
+      this.upcomingSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('completed')
+      ).length
+  );
+  readonly cancelledCount = computed(
+    () =>
+      this.upcomingSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('cancel')
+      ).length
+  );
+
   readonly userName = computed(() => this.auth.currentUser()?.name ?? 'User');
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
@@ -230,5 +255,13 @@ export class DashboardComponent implements OnInit {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const norm = (status ?? '').toLowerCase();
+    if (norm.includes('ongoing')) return 'status-badge--ongoing';
+    if (norm.includes('completed')) return 'status-badge--completed';
+    if (norm.includes('cancel')) return 'status-badge--cancelled';
+    return 'status-badge--scheduled';
   }
 }
