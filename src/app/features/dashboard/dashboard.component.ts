@@ -32,7 +32,8 @@ export class DashboardComponent implements OnInit {
   upcomingSessions = signal<ScheduleSession[]>([]);
   allSessions = signal<ScheduleSession[]>([]);
   courseCount = signal<number | '—'>('—');
-  userCount = signal<number | '—'>('—');
+  instructorCount = signal<number | '—'>('—');
+  studentCount = signal<number | '—'>('—');
   groupCount = signal<number | '—'>('—');
 
   readonly scheduledCount = computed(
@@ -130,11 +131,19 @@ export class DashboardComponent implements OnInit {
     if (this.isAdmin()) {
       cards.push(
         {
-          label: 'Total Users',
-          value: this.userCount(),
-          icon: 'pi pi-users',
+          label: 'Instructors',
+          value: this.instructorCount(),
+          icon: 'pi pi-user',
           color: 'var(--color-warning)',
-          link: '/users',
+          link: '/instructors',
+          loading: this.loadingCounts(),
+        },
+        {
+          label: 'Students',
+          value: this.studentCount(),
+          icon: 'pi pi-users',
+          color: 'var(--color-info)',
+          link: '/students',
           loading: this.loadingCounts(),
         },
         {
@@ -273,10 +282,14 @@ export class DashboardComponent implements OnInit {
       error: () => this.loadingCounts.set(false),
     });
 
-    // Admin-only: fetch users + groups counts
+    // Admin-only: fetch instructors + students + groups counts
     if (this.isAdmin()) {
       this.lms.getInstructors().subscribe({
-        next: (instructors) => this.userCount.set(instructors?.length ?? 0),
+        next: (instructors) => this.instructorCount.set(instructors?.length ?? 0),
+        error: () => {},
+      });
+      this.lms.getStudents().subscribe({
+        next: (students) => this.studentCount.set(students?.length ?? 0),
         error: () => {},
       });
       this.lms.getGroups().subscribe({

@@ -52,6 +52,10 @@ export class GroupsComponent implements OnInit {
   loading = signal(true);
   searchQuery = signal('');
   statusFilter = signal('All');
+  courseFilter = signal('');
+  topicFilter = signal('');
+  instructorFilter = signal('');
+  locationFilter = signal('');
 
   instructors = signal<User[]>([]);
   availableCourses = signal<Course[]>([]);
@@ -86,9 +90,73 @@ export class GroupsComponent implements OnInit {
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
   statusOptions = STATUS_OPTIONS;
 
+  readonly hasActiveFilters = computed(() => {
+    return !!(
+      this.courseFilter() ||
+      this.topicFilter() ||
+      this.instructorFilter() ||
+      this.locationFilter()
+    );
+  });
+
+  readonly uniqueCourses = computed(() => {
+    const countMap = new Map<string, number>();
+    for (const g of this.groups()) {
+      for (const c of g.courses) {
+        const key = c.title;
+        countMap.set(key, (countMap.get(key) || 0) + 1);
+      }
+    }
+    return Array.from(countMap.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  });
+
+  readonly uniqueTopics = computed(() => {
+    const countMap = new Map<string, number>();
+    for (const g of this.groups()) {
+      for (const c of g.courses) {
+        const key = c.topic || 'Other';
+        countMap.set(key, (countMap.get(key) || 0) + 1);
+      }
+    }
+    return Array.from(countMap.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  });
+
+  readonly uniqueLocations = computed(() => {
+    const countMap = new Map<string, number>();
+    for (const g of this.groups()) {
+      if (g.location) {
+        countMap.set(g.location, (countMap.get(g.location) || 0) + 1);
+      }
+    }
+    return Array.from(countMap.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  });
+
+  readonly uniqueInstructors = computed(() => {
+    const countMap = new Map<string, number>();
+    for (const g of this.groups()) {
+      const key = g.defaultInstructorName;
+      if (key) {
+        countMap.set(key, (countMap.get(key) || 0) + 1);
+      }
+    }
+    return Array.from(countMap.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  });
+
   filteredGroups = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const status = this.statusFilter();
+    const course = this.courseFilter();
+    const topic = this.topicFilter();
+    const instructor = this.instructorFilter();
+    const location = this.locationFilter();
     return this.groups().filter((g) => {
       const matchesStatus = status === 'All' || g.status === status;
       const matchesSearch =
@@ -96,7 +164,15 @@ export class GroupsComponent implements OnInit {
         g.name.toLowerCase().includes(query) ||
         g.defaultInstructorName.toLowerCase().includes(query) ||
         g.courses.some((c) => c.title.toLowerCase().includes(query));
-      return matchesStatus && matchesSearch;
+      const matchesCourse =
+        !course || g.courses.some((c) => c.title === course);
+      const matchesTopic =
+        !topic || g.courses.some((c) => (c.topic || 'Other') === topic);
+      const matchesInstructor =
+        !instructor || g.defaultInstructorName === instructor;
+      const matchesLocation =
+        !location || g.location === location;
+      return matchesStatus && matchesSearch && matchesCourse && matchesTopic && matchesInstructor && matchesLocation;
     });
   });
 
@@ -104,6 +180,13 @@ export class GroupsComponent implements OnInit {
 
   countByStatus(status: string): number {
     return this.groups().filter((g) => g.status === status).length;
+  }
+
+  clearAllFilters(): void {
+    this.courseFilter.set('');
+    this.topicFilter.set('');
+    this.instructorFilter.set('');
+    this.locationFilter.set('');
   }
 
   ngOnInit(): void {

@@ -11,7 +11,7 @@
   </div>
 
   <!-- Stat Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-10">
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mb-10">
     @for (card of statCards(); track card.label) {
       <a [routerLink]="card.link ?? null" class="stat-card group" [style.--card-color]="card.color">
         <div class="stat-icon">

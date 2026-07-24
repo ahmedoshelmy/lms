@@ -51,3 +51,20 @@
   background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
   color: var(--color-text-muted);
 }
+
+/* Filter dropdowns */
+.filter-dropdown-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-select {
+  appearance: auto;
+  cursor: pointer;
+  &:hover {
+    border-color: var(--color-secondary);
+  }
+  &:focus {
+    border-color: var(--color-secondary);
+  }
+}
