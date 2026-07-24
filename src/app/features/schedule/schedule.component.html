@@ -86,6 +86,26 @@
     </div>
   </div>
 
+  <!-- Cancelled-sessions warning banner -->
+  @if (hasCancelledSessions) {
+    <div
+      class="flex items-center gap-3 px-5 py-3 mb-6 rounded-xl border border-[var(--color-warning)] bg-[rgba(245,158,11,0.08)] text-[var(--color-warning)]"
+    >
+      <i class="pi pi-exclamation-triangle text-lg flex-shrink-0"></i>
+      <p class="text-sm font-semibold flex-grow">
+        Some sessions this week are <strong>cancelled</strong>. Please review and reschedule as needed.
+      </p>
+      <button
+        type="button"
+        class="text-[var(--color-warning)] hover:opacity-70 transition-opacity cursor-pointer"
+        (click)="dismissCancelledWarning()"
+        aria-label="Dismiss warning"
+      >
+        <i class="pi pi-times text-sm"></i>
+      </button>
+    </div>
+  }
+
   <!-- Main Schedule content -->
   @if (loading()) {
     <div class="flex justify-center items-center py-20">
@@ -115,4 +135,8 @@
 </div>
 
 <!-- Session detail dialog -->
-<app-session-detail-panel [session]="selectedSession()" (closed)="onPanelClosed()" />
+<app-session-detail-panel
+  [session]="selectedSession()"
+  (closed)="onPanelClosed()"
+  (sessionUpdated)="onSessionUpdated($event)"
+/>

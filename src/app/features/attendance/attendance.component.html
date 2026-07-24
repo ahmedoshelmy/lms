@@ -3,14 +3,14 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
     <div>
       <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
-        Attendance Sheet
+        Session Details
       </h1>
       <p class="text-sm text-[var(--color-text-muted)] mt-1">
-        Track, mark, and update student attendance for scheduled sessions
+        View session information and manage student attendance
       </p>
     </div>
 
-    @if (selectedSession()) {
+    @if (selectedSession() && !isLocked()) {
       <div class="flex items-center gap-3">
         <button
           (click)="saveAttendance()"
@@ -29,80 +29,42 @@
     }
   </div>
 
-  <!-- Controls & Session Picker -->
+  <!-- Session Picker -->
   <div
-    class="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-8"
+    class="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-6"
   >
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
-      <!-- Session Dropdown -->
-      <div>
-        <label
-          class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
-        >
-          Select Session
-        </label>
-        <p-select
-          [options]="sessions()"
-          [ngModel]="selectedSessionId()"
-          (ngModelChange)="onSessionChange($event)"
-          optionLabel="topic"
-          optionValue="id"
-          placeholder="Choose a session"
-          class="w-full"
-          [filter]="true"
-          filterBy="topic,courseTitle,groupName"
-        >
-          <ng-template pTemplate="selectedItem" let-selected>
-            @if (selected) {
-              <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
-                {{ selected.topic }} ({{ selected.groupName }})
-              </div>
-            }
-          </ng-template>
-          <ng-template pTemplate="item" let-s>
-            <div class="py-1">
-              <p class="text-sm font-bold text-[var(--color-text-primary)]">{{ s.topic }}</p>
-              <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-                {{ s.courseTitle }} · {{ s.groupName }} · {{ formatDate(s.startsAt) }}
-              </p>
-            </div>
-          </ng-template>
-        </p-select>
-      </div>
-
-      <!-- Active Session Info Card -->
-      @if (selectedSession(); as session) {
-        <div
-          class="lg:col-span-2 flex items-center justify-between p-4 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)] flex-wrap gap-4"
-        >
-          <div>
-            <span
-              class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--color-info-background)] text-[var(--color-secondary)]"
-            >
-              {{ session.groupName }}
-            </span>
-            <h2 class="text-base font-bold text-[var(--color-text-primary)] mt-1">
-              {{ session.topic }}
-            </h2>
-            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-              <i class="pi pi-book mr-1"></i>{{ session.courseTitle }}
-              @if (session.instructorName) {
-                · <i class="pi pi-user mr-1 ml-1"></i>{{ session.instructorName }}
-              }
-            </p>
+    <label
+      class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
+    >
+      Select Session
+    </label>
+    <p-select
+      [options]="sessions()"
+      [ngModel]="selectedSessionId()"
+      (ngModelChange)="onSessionChange($event)"
+      optionLabel="topic"
+      optionValue="id"
+      placeholder="Choose a session"
+      class="w-full md:w-96"
+      [filter]="true"
+      filterBy="topic,courseTitle,groupName"
+    >
+      <ng-template pTemplate="selectedItem" let-selected>
+        @if (selected) {
+          <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
+            {{ selected.topic }} ({{ selected.groupName }})
           </div>
-
-          <div class="text-right">
-            <span class="text-xs font-bold text-[var(--color-secondary)] block">
-              <i class="pi pi-calendar mr-1"></i>{{ formatDate(session.startsAt) }}
-            </span>
-            <span class="text-xs text-[var(--color-text-muted)]">
-              {{ formatTime(session.startsAt) }} - {{ formatTime(session.endsAt) }}
-            </span>
-          </div>
+        }
+      </ng-template>
+      <ng-template pTemplate="item" let-s>
+        <div class="py-1">
+          <p class="text-sm font-bold text-[var(--color-text-primary)]">{{ s.topic }}</p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            {{ s.courseTitle }} · {{ s.groupName }} · {{ formatDate(s.startsAt) }}
+          </p>
         </div>
-      }
-    </div>
+      </ng-template>
+    </p-select>
   </div>
 
   <!-- Main Body -->
@@ -121,18 +83,94 @@
       </div>
       <h2 class="text-lg font-bold text-[var(--color-text-primary)]">No session selected</h2>
       <p class="text-sm text-[var(--color-text-muted)] mt-1 max-w-sm mx-auto">
-        Please choose a session from the dropdown above to load and mark attendance records.
+        Please choose a session from the dropdown above to load attendance records.
       </p>
     </div>
   } @else {
-    <!-- Attendance Stats & Quick Actions -->
+    <!-- ── Session Info Card ─────────────────────────────────────── -->
+    @if (selectedSession(); as session) {
+      <div
+        class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)] mb-6"
+      >
+        <!-- Header row -->
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap mb-2">
+              <span
+                class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                [ngClass]="getStatusBadgeClass(session.status)"
+              >
+                {{ session.status }}
+              </span>
+              <span
+                class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)] uppercase tracking-wider"
+              >
+                {{ session.type }}
+              </span>
+            </div>
+            <h2 class="text-xl font-extrabold text-[var(--color-text-primary)]">
+              {{ session.topic }}
+            </h2>
+            <p class="text-sm text-[var(--color-text-secondary)] font-medium mt-0.5">
+              {{ session.courseTitle }}
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-1 text-right text-sm">
+            <span class="font-bold text-[var(--color-secondary)]">
+              <i class="pi pi-calendar mr-1"></i>{{ formatDate(session.startsAt) }}
+            </span>
+            <span class="text-[var(--color-text-muted)]">
+              <i class="pi pi-clock mr-1"></i>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Details grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-[var(--color-border)]">
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Group</p>
+            <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.groupName }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Instructor</p>
+            <p class="text-sm font-semibold text-[var(--color-secondary)]">{{ session.instructorName }}</p>
+          </div>
+          @if (session.location) {
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Location</p>
+              <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.location }}</p>
+            </div>
+          }
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Duration</p>
+            <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.durationMinutes }} min</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ── 24-hour Lock Banner ───────────────────────────────────── -->
+    @if (isLocked()) {
+      <div
+        class="flex items-center gap-3 px-5 py-3.5 mb-6 rounded-xl border border-[var(--color-warning)] bg-[rgba(245,158,11,0.08)]"
+      >
+        <i class="pi pi-lock text-xl text-[var(--color-warning)] flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-[var(--color-warning)]">Attendance Locked</p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            More than 24 hours have passed since this session started. Attendance records are now read-only.
+          </p>
+        </div>
+      </div>
+    }
+
+    <!-- Attendance Stats -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
       <div
         class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
       >
-        <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase"
-          >Total Students</span
-        >
+        <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase">Total Students</span>
         <p class="text-2xl font-extrabold text-[var(--color-text-primary)] mt-1">
           {{ records().length }}
         </p>
@@ -143,9 +181,7 @@
       >
         <div class="flex items-center justify-between">
           <span class="text-xs text-[var(--color-success)] font-bold uppercase">Present</span>
-          <span class="text-xs font-extrabold text-[var(--color-success)]"
-            >{{ presentRate() }}%</span
-          >
+          <span class="text-xs font-extrabold text-[var(--color-success)]">{{ presentRate() }}%</span>
         </div>
         <p class="text-2xl font-extrabold text-[var(--color-success)] mt-1">
           {{ countByStatus(StatusEnum.Present) }}
@@ -182,23 +218,26 @@
 
     <!-- Quick Action Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2"
-          >Quick Mark:</span
-        >
-        <button
-          (click)="bulkSetStatus(StatusEnum.Present)"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-success-background)] text-[var(--color-success)] hover:opacity-80 transition-opacity cursor-pointer"
-        >
-          <i class="pi pi-check-circle mr-1"></i> All Present
-        </button>
-        <button
-          (click)="bulkSetStatus(StatusEnum.Absent)"
-          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-error-background)] text-[var(--color-danger)] hover:opacity-80 transition-opacity cursor-pointer"
-        >
-          <i class="pi pi-times-circle mr-1"></i> All Absent
-        </button>
-      </div>
+      @if (!isLocked()) {
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2">Quick Mark:</span>
+          <button
+            (click)="bulkSetStatus(StatusEnum.Present)"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-success-background)] text-[var(--color-success)] hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <i class="pi pi-check-circle mr-1"></i> All Present
+          </button>
+          <button
+            (click)="bulkSetStatus(StatusEnum.Absent)"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-error-background)] text-[var(--color-danger)] hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <i class="pi pi-times-circle mr-1"></i> All Absent
+          </button>
+        </div>
+      } @else {
+        <!-- Locked placeholder to keep layout stable -->
+        <div></div>
+      }
 
       <!-- Search filter -->
       <div class="relative w-full md:w-64">
@@ -226,13 +265,19 @@
           >
             <th class="th-cell">Student</th>
             <th class="th-cell hidden md:table-cell">Email</th>
-            <th class="th-cell text-center">Attendance Status</th>
+            <th class="th-cell text-center">
+              Attendance Status
+              @if (isLocked()) {
+                <i class="pi pi-lock ml-1 text-[var(--color-warning)] text-xs"></i>
+              }
+            </th>
           </tr>
         </thead>
         <tbody>
           @for (rec of filteredRecords(); track rec.studentId) {
             <tr
               class="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-hover)] transition-colors"
+              [class.opacity-70]="isLocked()"
             >
               <td class="td-cell">
                 <div class="flex items-center gap-3">
@@ -257,6 +302,7 @@
                   <button
                     (click)="setStatus(rec, StatusEnum.Present)"
                     [class.active-present]="rec.status === StatusEnum.Present"
+                    [disabled]="isLocked()"
                     class="status-btn btn-present"
                   >
                     <i class="pi pi-check text-xs"></i>
@@ -266,6 +312,7 @@
                   <button
                     (click)="setStatus(rec, StatusEnum.Late)"
                     [class.active-late]="rec.status === StatusEnum.Late"
+                    [disabled]="isLocked()"
                     class="status-btn btn-late"
                   >
                     <i class="pi pi-clock text-xs"></i>
@@ -275,6 +322,7 @@
                   <button
                     (click)="setStatus(rec, StatusEnum.Excused)"
                     [class.active-excused]="rec.status === StatusEnum.Excused"
+                    [disabled]="isLocked()"
                     class="status-btn btn-excused"
                   >
                     <i class="pi pi-info-circle text-xs"></i>
@@ -284,6 +332,7 @@
                   <button
                     (click)="setStatus(rec, StatusEnum.Absent)"
                     [class.active-absent]="rec.status === StatusEnum.Absent"
+                    [disabled]="isLocked()"
                     class="status-btn btn-absent"
                   >
                     <i class="pi pi-times text-xs"></i>

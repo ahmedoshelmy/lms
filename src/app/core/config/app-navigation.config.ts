@@ -35,7 +35,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
   },
   {
     path: 'attendance',
-    label: 'Attendance',
+    label: 'Sessions',
     icon: 'pi pi-calendar',
     roles: [Role.Admin, Role.Instructor],
     showInMenu: true,

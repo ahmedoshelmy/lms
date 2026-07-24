@@ -42,26 +42,16 @@ interface DayColumn {
                 <div
                   class="session-card p-4 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-[0_4px_12px_rgba(62,109,181,0.08)] transition-all duration-300 flex flex-col justify-between cursor-pointer"
                   [ngClass]="getStatusCardClass(session.status)"
+                  (click)="onSessionClick(session)"
                 >
                   <div>
-                    <!-- Header Info -->
-                    <div class="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
-                      <div class="flex gap-1 flex-wrap">
-                        <span
-                          class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-                          [ngClass]="getStatusBadgeClass(session.status)"
-                        >
-                          {{ session.status }}
-                        </span>
-                        <span
-                          class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-                          [ngClass]="getTypeBadgeClass(session.type)"
-                        >
-                          {{ session.type }}
-                        </span>
-                      </div>
-                      <span class="text-[10px] text-[var(--color-text-muted)] font-bold">
-                        Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
+                    <!-- Status badge only -->
+                    <div class="flex gap-1 flex-wrap mb-1.5">
+                      <span
+                        class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
+                        [ngClass]="getStatusBadgeClass(session.status)"
+                      >
+                        {{ session.status }}
                       </span>
                     </div>
 
@@ -91,9 +81,7 @@ interface DayColumn {
                     <div class="flex items-center gap-1.5">
                       <i class="pi pi-clock text-[var(--color-text-muted)]"></i>
                       <span class="font-medium">
-                        {{ formatTime(session.startsAt) }} - {{ formatTime(session.endsAt) }} ({{
-                          session.durationMinutes
-                        }}m)
+                        {{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
                       </span>
                     </div>
                     <div class="flex items-center gap-1.5">
@@ -146,40 +134,29 @@ interface DayColumn {
             <div class="flex flex-col gap-4">
               @for (session of col.sessions; track session.id) {
                 <div
-                  class="mobile-session-card p-4 rounded-xl border border-[var(--color-border)] flex flex-col gap-3"
+                  class="mobile-session-card p-4 rounded-xl border border-[var(--color-border)] flex flex-col gap-3 cursor-pointer"
                   [ngClass]="getStatusCardClass(session.status)"
+                  (click)="onSessionClick(session)"
                 >
-                  <div class="flex items-start justify-between gap-4">
-                    <div>
-                      <div class="flex gap-1 flex-wrap mb-1.5">
-                        <span
-                          class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                          [ngClass]="getStatusBadgeClass(session.status)"
-                        >
-                          {{ session.status }}
-                        </span>
-                        <span
-                          class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                          [ngClass]="getTypeBadgeClass(session.type)"
-                        >
-                          {{ session.type }}
-                        </span>
-                      </div>
-                      <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
-                        {{ session.topic }}
-                      </h4>
-                      <p class="text-xs text-[var(--color-text-secondary)] font-medium mt-0.5">
-                        {{ session.courseTitle }}
-                      </p>
-                      <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">
-                        {{ session.groupName }}
-                      </p>
+                  <div>
+                    <!-- Status badge only -->
+                    <div class="flex gap-1 flex-wrap mb-1.5">
+                      <span
+                        class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                        [ngClass]="getStatusBadgeClass(session.status)"
+                      >
+                        {{ session.status }}
+                      </span>
                     </div>
-                    <span
-                      class="text-xs text-[var(--color-text-muted)] font-bold whitespace-nowrap"
-                    >
-                      Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
-                    </span>
+                    <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
+                      {{ session.topic }}
+                    </h4>
+                    <p class="text-xs text-[var(--color-text-secondary)] font-medium mt-0.5">
+                      {{ session.courseTitle }}
+                    </p>
+                    <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">
+                      {{ session.groupName }}
+                    </p>
                   </div>
 
                   <div
@@ -187,9 +164,7 @@ interface DayColumn {
                   >
                     <div class="flex items-center gap-1.5">
                       <i class="pi pi-clock text-[var(--color-text-muted)]"></i>
-                      <span
-                        >{{ formatTime(session.startsAt) }} - {{ formatTime(session.endsAt) }}</span
-                      >
+                      <span>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span>
                     </div>
                     <div class="flex items-center gap-1.5">
                       <i class="pi pi-user text-[var(--color-text-muted)]"></i>
@@ -332,7 +307,7 @@ export class WeeklyScheduleComponent {
 
   getStatusCardClass(status: string): string {
     const normStatus = (status ?? '').toLowerCase();
-    if (normStatus.includes('ongoing')) return 'status-ongoing-card';
+    if (normStatus.includes('running')) return 'status-ongoing-card';
     if (normStatus.includes('completed')) return 'status-completed-card';
     if (normStatus.includes('cancel')) return 'status-cancelled-card';
     return 'status-scheduled-card';
@@ -340,7 +315,7 @@ export class WeeklyScheduleComponent {
 
   getStatusBadgeClass(status: string): string {
     const normStatus = (status ?? '').toLowerCase();
-    if (normStatus.includes('ongoing')) return 'status-ongoing-badge';
+    if (normStatus.includes('running')) return 'status-ongoing-badge';
     if (normStatus.includes('completed')) return 'status-completed-badge';
     if (normStatus.includes('cancel')) return 'status-cancelled-badge';
     return 'status-scheduled-badge';
@@ -356,6 +331,6 @@ export class WeeklyScheduleComponent {
   formatTime(isoString: string): string {
     if (!isoString) return '';
     const date = new Date(isoString);
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 }

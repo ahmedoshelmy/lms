@@ -16,3 +16,8 @@ export interface ScheduleSession {
   totalSessions: number;
   type: string;
 }
+
+export interface UpdateSessionPayload {
+  instructorId?: number;
+  status?: string;
+}

@@ -12,7 +12,7 @@ import {
 } from '../interfaces/Attendance';
 import { Course } from '../interfaces/Course';
 import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
-import { ScheduleSession } from '../interfaces/ScheduleSession';
+import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -142,7 +142,15 @@ export class LmsService {
     return this.http.get<ScheduleSession[]>(url);
   }
 
+  updateSession(id: number, payload: UpdateSessionPayload): Observable<ScheduleSession> {
+    return this.http.patch<ScheduleSession>(`${this.getApiUrl()}/schedule/${id}`, payload);
+  }
+
   // ─── Attendance ───────────────────────────────────────────────────────────
+
+  getSessionAttendance(sessionId: number): Observable<AttendanceResponseDto[]> {
+    return this.http.get<AttendanceResponseDto[]>(`${this.getApiUrl()}/Attendance/session/${sessionId}`);
+  }
 
   createAttendance(payload: CreateAttendanceDto): Observable<AttendanceResponseDto> {
     return this.http.post<AttendanceResponseDto>(`${this.getApiUrl()}/Attendance`, payload);

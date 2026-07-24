@@ -43,6 +43,7 @@ export class ScheduleComponent implements OnInit {
   currentWeekStart = signal<Date>(new Date());
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
+  cancelledWarningDismissed = signal(false);
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
@@ -50,6 +51,13 @@ export class ScheduleComponent implements OnInit {
 
   get totalSessionsThisWeek(): number {
     return this.sessions().length;
+  }
+
+  get hasCancelledSessions(): boolean {
+    return (
+      !this.cancelledWarningDismissed() &&
+      this.sessions().some((s) => (s.status ?? '').toLowerCase().includes('cancel'))
+    );
   }
 
   ngOnInit(): void {
@@ -190,5 +198,20 @@ export class ScheduleComponent implements OnInit {
 
   onPanelClosed(): void {
     this.selectedSession.set(null);
+  }
+
+  onSessionUpdated(updated: ScheduleSession): void {
+    // Patch the session in-place so cards re-render without a full reload
+    this.sessions.update((list) =>
+      list.map((s) => (s.id === updated.id ? updated : s))
+    );
+    // If the currently-open session was updated, sync the panel too
+    if (this.selectedSession()?.id === updated.id) {
+      this.selectedSession.set(updated);
+    }
+  }
+
+  dismissCancelledWarning(): void {
+    this.cancelledWarningDismissed.set(true);
   }
 }

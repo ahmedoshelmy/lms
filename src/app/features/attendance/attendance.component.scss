@@ -86,3 +86,29 @@
   color: white !important;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--color-danger) 40%, transparent);
 }
+
+// Session status badge classes (for the session info card)
+.session-status-scheduled {
+  background-color: rgba(26, 43, 76, 0.08);
+  color: var(--color-primary);
+}
+.session-status-running {
+  background-color: rgba(245, 158, 11, 0.08);
+  color: var(--color-warning);
+}
+.session-status-completed {
+  background-color: rgba(16, 185, 129, 0.08);
+  color: var(--color-success);
+}
+.session-status-cancelled {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger);
+}
+
+// Disabled state for locked attendance
+.status-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+

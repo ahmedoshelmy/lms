@@ -39,10 +39,10 @@ export class DashboardComponent implements OnInit {
         (s.status ?? '').toLowerCase().includes('scheduled')
       ).length
   );
-  readonly ongoingCount = computed(
+  readonly runningCount = computed(
     () =>
       this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('ongoing')
+        (s.status ?? '').toLowerCase().includes('running')
       ).length
   );
   readonly completedCount = computed(
@@ -90,7 +90,6 @@ export class DashboardComponent implements OnInit {
           value: this.userCount(),
           icon: 'pi pi-users',
           color: 'var(--color-warning)',
-          link: '/users',
           loading: this.loadingCounts(),
         },
         {
@@ -102,30 +101,13 @@ export class DashboardComponent implements OnInit {
           loading: this.loadingCounts(),
         }
       );
-    } else {
-      cards.push(
-        {
-          label: 'Resources',
-          value: '—',
-          icon: 'pi pi-folder-open',
-          color: 'var(--color-info)',
-          link: '/resources',
-        },
-        {
-          label: 'Progress',
-          value: '—',
-          icon: 'pi pi-chart-line',
-          color: 'var(--color-accent)',
-          link: '/progress',
-        }
-      );
     }
 
     return cards;
   });
 
   readonly quickLinks = computed(() => {
-    const links = [
+    const links: { label: string; description: string; icon: string; route: string; color: string }[] = [
       {
         label: 'Weekly Schedule',
         description: 'View your sessions',
@@ -140,45 +122,42 @@ export class DashboardComponent implements OnInit {
         route: '/courses',
         color: 'var(--color-success)',
       },
-      {
-        label: 'Resources',
-        description: 'Study materials',
-        icon: 'pi pi-folder-open',
-        route: '/resources',
-        color: 'var(--color-info)',
-      },
-      {
-        label: 'Progress',
-        description: 'Track completion',
-        icon: 'pi pi-chart-line',
-        route: '/progress',
-        color: 'var(--color-accent)',
-      },
     ];
     if (this.isAdmin() || this.isInstructor()) {
-      links.push({
-        label: 'Attendance',
-        description: 'Mark & review attendance',
-        icon: 'pi pi-calendar',
-        route: '/attendance',
-        color: 'var(--color-warning)',
-      });
-      links.push({
-        label: 'Groups',
-        description: 'View all groups',
-        icon: 'pi pi-sitemap',
-        route: '/groups',
-        color: 'var(--color-primary)',
-      });
+      links.push(
+        {
+          label: 'Sessions',
+          description: 'Mark & review attendance',
+          icon: 'pi pi-calendar',
+          route: '/attendance',
+          color: 'var(--color-warning)',
+        },
+        {
+          label: 'Groups',
+          description: 'View all groups',
+          icon: 'pi pi-sitemap',
+          route: '/groups',
+          color: 'var(--color-primary)',
+        }
+      );
     }
     if (this.isAdmin()) {
-      links.push({
-        label: 'Users & Staff',
-        description: 'Manage accounts',
-        icon: 'pi pi-users',
-        route: '/users',
-        color: 'var(--color-primary)',
-      });
+      links.push(
+        {
+          label: 'Students',
+          description: 'Manage student accounts',
+          icon: 'pi pi-graduation-cap',
+          route: '/students',
+          color: 'var(--color-warning)',
+        },
+        {
+          label: 'Instructors',
+          description: 'Manage instructor accounts',
+          icon: 'pi pi-user',
+          route: '/instructors',
+          color: 'var(--color-primary)',
+        },
+      );
     }
     return links;
   });
@@ -259,7 +238,7 @@ export class DashboardComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     const norm = (status ?? '').toLowerCase();
-    if (norm.includes('ongoing')) return 'status-badge--ongoing';
+    if (norm.includes('running')) return 'status-badge--running';
     if (norm.includes('completed')) return 'status-badge--completed';
     if (norm.includes('cancel')) return 'status-badge--cancelled';
     return 'status-badge--scheduled';

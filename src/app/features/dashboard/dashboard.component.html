@@ -76,10 +76,10 @@
             {{ scheduledCount() }} Scheduled
           </span>
         }
-        @if (ongoingCount() > 0) {
-          <span class="status-chip status-chip--ongoing">
+        @if (runningCount() > 0) {
+          <span class="status-chip status-chip--running">
             <span class="status-chip__dot"></span>
-            {{ ongoingCount() }} Ongoing
+            {{ runningCount() }} Running
           </span>
         }
         @if (completedCount() > 0) {
