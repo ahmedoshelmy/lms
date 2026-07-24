@@ -5,24 +5,30 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+    max-width: 95vw !important;
+
+    @media (max-width: 640px) {
+      width: 95vw !important;
+      margin: 0 auto;
+    }
 
     .p-dialog-header {
       background: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
-      padding: 1.25rem 1.5rem;
+      padding: 1rem 1.25rem;
       color: var(--color-text-primary);
       font-weight: 700;
     }
 
     .p-dialog-content {
       background: var(--color-surface);
-      padding: 1.25rem 1.5rem;
+      padding: 1rem 1.25rem;
       color: var(--color-text-primary);
     }
 
     .p-dialog-footer {
       background: var(--color-surface);
-      padding: 1rem 1.5rem;
+      padding: 0.875rem 1.25rem;
     }
   }
 }

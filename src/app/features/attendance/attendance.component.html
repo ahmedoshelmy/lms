@@ -573,11 +573,11 @@
       </div>
     </div>
 
-    <!-- Student Roster Table -->
+    <!-- Student Roster Table Container -->
     <div
-      class="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-8"
+      class="overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-8"
     >
-      <table class="w-full border-collapse">
+      <table class="w-full min-w-[620px] border-collapse">
         <thead>
           <tr
             class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-left"
@@ -592,7 +592,7 @@
               />
             </th>
             <th class="th-cell">Student</th>
-            <th class="th-cell hidden md:table-cell">Email</th>
+            <th class="th-cell">Email</th>
             <th class="th-cell text-center">
               Attendance Status
               @if (isLocked()) {
@@ -635,13 +635,10 @@
                         </span>
                       }
                     </div>
-                    <p class="text-xs text-[var(--color-text-muted)] md:hidden">
-                      {{ rec.studentEmail }}
-                    </p>
                   </div>
                 </div>
               </td>
-              <td class="td-cell text-sm text-[var(--color-text-muted)] hidden md:table-cell">
+              <td class="td-cell text-sm text-[var(--color-text-muted)]">
                 {{ rec.studentEmail }}
               </td>
               <td class="td-cell">

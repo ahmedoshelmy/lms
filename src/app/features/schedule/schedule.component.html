@@ -1,13 +1,15 @@
-<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+<div class="p-4 sm:p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
   <!-- Page Header -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
       <div class="flex items-center gap-3 flex-wrap">
-        <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+        <h1
+          class="text-2xl sm:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight"
+        >
           Schedule
         </h1>
       </div>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1">
+      <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
         @if (isAdmin) {
           Manage and view group schedules across instructors and locations
         } @else {
@@ -16,35 +18,15 @@
       </p>
     </div>
 
-    <!-- Instructor Select (Admin only), View Mode & Date Navigator -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-wrap">
-      <!-- @if (isAdmin) {
-        <div class="flex items-center gap-2">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] whitespace-nowrap"
-            >Instructor:</label
-          >
-          <p-select
-            [options]="instructors()"
-            [ngModel]="selectedInstructorId()"
-            (ngModelChange)="selectedInstructorId.set($event); onInstructorChange()"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select Instructor"
-            class="w-[200px]"
-            [filter]="true"
-            filterBy="name"
-          >
-          </p-select>
-        </div>
-      } -->
-
+    <!-- View Mode & Date Navigator Controls -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
       <!-- View Mode Toggle (Weekly / Daily) -->
       <div
-        class="flex items-center gap-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-1"
+        class="flex items-center justify-center gap-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-1 shrink-0"
       >
         <button
           type="button"
-          class="density-btn px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+          class="density-btn flex-1 sm:flex-initial justify-center px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer"
           [class.density-btn--active]="viewMode() === 'weekly'"
           (click)="viewMode.set('weekly')"
         >
@@ -53,7 +35,7 @@
         </button>
         <button
           type="button"
-          class="density-btn px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+          class="density-btn flex-1 sm:flex-initial justify-center px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer"
           [class.density-btn--active]="viewMode() === 'daily'"
           (click)="viewMode.set('daily')"
         >
@@ -62,55 +44,56 @@
         </button>
       </div>
 
-      <!-- Date Navigator -->
-      <div
-        class="flex items-center justify-between gap-2 bg-[var(--color-surface)] p-1.5 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-      >
-        <button
-          pButton
-          type="button"
-          icon="pi pi-chevron-left"
-          class="p-button-text p-button-secondary p-button-sm cursor-pointer"
-          (click)="previousDate()"
-          [attr.aria-label]="viewMode() === 'daily' ? 'Previous day' : 'Previous week'"
-        ></button>
-
-        <span
-          class="text-xs font-extrabold text-[var(--color-text-primary)] px-2 min-w-[170px] text-center"
+      <!-- Date Navigator & Today Jump -->
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <div
+          class="flex-1 flex items-center justify-between gap-1.5 bg-[var(--color-surface)] p-1.5 border border-[var(--color-border)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] min-w-0"
         >
-          {{ getDateRangeString() }}
-        </span>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-chevron-left"
+            class="p-button-text p-button-secondary p-button-sm cursor-pointer shrink-0"
+            (click)="previousDate()"
+            [attr.aria-label]="viewMode() === 'daily' ? 'Previous day' : 'Previous week'"
+          ></button>
+
+          <span
+            class="text-xs font-extrabold text-[var(--color-text-primary)] px-1 text-center truncate"
+          >
+            {{ getDateRangeString() }}
+          </span>
+
+          <button
+            pButton
+            type="button"
+            icon="pi pi-chevron-right"
+            class="p-button-text p-button-secondary p-button-sm cursor-pointer shrink-0"
+            (click)="nextDate()"
+            [attr.aria-label]="viewMode() === 'daily' ? 'Next day' : 'Next week'"
+          ></button>
+        </div>
 
         <button
           pButton
           type="button"
-          icon="pi pi-chevron-right"
-          class="p-button-text p-button-secondary p-button-sm cursor-pointer"
-          (click)="nextDate()"
-          [attr.aria-label]="viewMode() === 'daily' ? 'Next day' : 'Next week'"
+          label="Today"
+          icon="pi pi-calendar-times"
+          class="p-button-outlined p-button-sm cursor-pointer shrink-0"
+          (click)="goToToday()"
+          aria-label="Jump to today"
         ></button>
       </div>
-
-      <!-- Today jump button -->
-      <button
-        pButton
-        type="button"
-        label="Today"
-        icon="pi pi-calendar-times"
-        class="p-button-outlined p-button-sm cursor-pointer"
-        (click)="goToToday()"
-        aria-label="Jump to today"
-      ></button>
     </div>
   </div>
 
   <!-- Multi-Filter Toolbar -->
   @if (!loading() && sessions().length > 0) {
     <div
-      class="flex flex-wrap items-center gap-2 mb-6 p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+      class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 mb-6 p-3 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
     >
       <!-- Search Input Box -->
-      <div class="relative flex-grow min-w-[200px] max-w-xs">
+      <div class="relative w-full sm:w-auto sm:flex-grow min-w-0 sm:min-w-[180px] sm:max-w-xs">
         <i
           class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-xs"
         ></i>
@@ -139,7 +122,7 @@
           [ngModel]="courseFilter()"
           (ngModelChange)="courseFilter.set($event || '')"
           placeholder="All Courses"
-          class="w-[150px]"
+          class="w-full sm:w-[150px]"
           [showClear]="true"
           (onClear)="courseFilter.set('')"
         >
@@ -153,7 +136,7 @@
           [ngModel]="topicFilter()"
           (ngModelChange)="topicFilter.set($event || '')"
           placeholder="All Topics"
-          class="w-[150px]"
+          class="w-full sm:w-[150px]"
           [showClear]="true"
           (onClear)="topicFilter.set('')"
         >
@@ -167,7 +150,7 @@
           [ngModel]="levelFilter()"
           (ngModelChange)="levelFilter.set($event || '')"
           placeholder="All Levels"
-          class="w-[120px]"
+          class="w-full sm:w-[120px]"
           [showClear]="true"
           (onClear)="levelFilter.set('')"
         >
@@ -181,7 +164,7 @@
           [ngModel]="instructorFilter()"
           (ngModelChange)="instructorFilter.set($event || '')"
           placeholder="All Instructors"
-          class="w-[160px]"
+          class="w-full sm:w-[160px]"
           [showClear]="true"
           (onClear)="instructorFilter.set('')"
         >
@@ -195,7 +178,7 @@
           [ngModel]="locationFilter()"
           (ngModelChange)="locationFilter.set($event || '')"
           placeholder="All Locations"
-          class="w-[140px]"
+          class="w-full sm:w-[140px]"
           [showClear]="true"
           (onClear)="locationFilter.set('')"
         >
@@ -206,7 +189,7 @@
       @if (hasActiveFilters()) {
         <button
           type="button"
-          class="px-2.5 py-1.5 text-xs font-semibold text-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_10%,transparent)] rounded-xl transition-colors cursor-pointer"
+          class="px-2.5 py-1.5 text-xs font-semibold text-[var(--color-error)] hover:bg-[color-mix(in_srgb,var(--color-error)_10%,transparent)] rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
           (click)="clearAllFilters()"
         >
           <i class="pi pi-filter-slash mr-1"></i>Reset
@@ -215,11 +198,11 @@
 
       <!-- Density toggle (Compact / Comfortable / Timeline) -->
       <div
-        class="ml-auto flex items-center gap-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-0.5"
+        class="w-full sm:w-auto sm:ml-auto flex items-center justify-center gap-1 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl p-0.5"
       >
         <button
           type="button"
-          class="density-btn"
+          class="density-btn flex-1 sm:flex-initial justify-center"
           [class.density-btn--active]="densityMode() === 'compact'"
           (click)="densityMode.set('compact')"
           title="Compact view"
@@ -229,7 +212,7 @@
         </button>
         <button
           type="button"
-          class="density-btn"
+          class="density-btn flex-1 sm:flex-initial justify-center"
           [class.density-btn--active]="densityMode() === 'comfortable'"
           (click)="densityMode.set('comfortable')"
           title="Comfortable view"
@@ -239,7 +222,7 @@
         </button>
         <button
           type="button"
-          class="density-btn"
+          class="density-btn flex-1 sm:flex-initial justify-center"
           [class.density-btn--active]="densityMode() === 'timeline'"
           (click)="densityMode.set('timeline')"
           title="Timeline view"

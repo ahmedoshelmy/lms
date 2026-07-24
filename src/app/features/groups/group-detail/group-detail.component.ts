@@ -37,13 +37,7 @@ const STATUS_MAP: Record<string, number> = {
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ProgressSpinnerModule,
-    ButtonModule,
-    DialogModule,
-  ],
+  imports: [CommonModule, FormsModule, ProgressSpinnerModule, ButtonModule, DialogModule],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss',
 })
@@ -94,9 +88,7 @@ export class GroupDetailComponent implements OnInit {
   groupSessions = computed(() => {
     const grp = this.group();
     if (!grp) return [];
-    return this.sessions().filter(
-      (s) => s.groupId === grp.id || s.groupName === grp.name
-    );
+    return this.sessions().filter((s) => s.groupId === grp.id || s.groupName === grp.name);
   });
 
   ngOnInit(): void {

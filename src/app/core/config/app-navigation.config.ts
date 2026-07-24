@@ -61,13 +61,6 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     roles: [Role.Admin],
     showInMenu: true,
   },
-  {
-    path: 'settings',
-    label: 'Settings',
-    icon: 'pi pi-cog',
-    roles: [Role.Admin],
-    showInMenu: true,
-  },
 ];
 
 export function getRolesForPath(path: string): Role[] {

@@ -1,22 +1,22 @@
-<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+<div class="p-4 sm:p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
   <!-- Page Header -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 sm:mb-8">
     <div>
       <h1
-        class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight flex items-center gap-3"
+        class="text-2xl sm:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight flex items-center gap-3"
       >
         <i class="pi pi-user text-[var(--color-secondary)]"></i>
         Instructors
       </h1>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1">
+      <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
         Manage teaching staff and instructor accounts
       </p>
     </div>
 
-    <div class="flex items-center gap-3 flex-wrap">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
       <!-- Search Input -->
       <div
-        class="flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 w-full md:w-72 shadow-sm"
+        class="flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 w-full sm:w-72 shadow-sm"
       >
         <i class="pi pi-search text-[var(--color-text-muted)] text-sm"></i>
         <input
@@ -24,7 +24,7 @@
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
           placeholder="Search instructors…"
-          class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
+          class="flex-1 bg-transparent border-none outline-none text-xs sm:text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
           aria-label="Search instructors"
         />
       </div>
@@ -33,7 +33,7 @@
       <button
         type="button"
         (click)="openCreateModal()"
-        class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm cursor-pointer"
+        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs sm:text-sm font-semibold rounded-xl transition-colors shadow-sm cursor-pointer w-full sm:w-auto"
       >
         <i class="pi pi-plus"></i>
         Add Instructor
@@ -51,37 +51,101 @@
     </div>
   } @else if (instructors().length === 0) {
     <div
-      class="flex flex-col items-center justify-center p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8"
+      class="flex flex-col items-center justify-center p-8 sm:p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8"
     >
       <i class="pi pi-user text-5xl mb-3 text-[var(--color-text-muted)] opacity-40"></i>
-      <h3 class="text-lg font-bold text-[var(--color-text-primary)]">No instructors found</h3>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1 max-w-md">
+      <h3 class="text-base sm:text-lg font-bold text-[var(--color-text-primary)]">
+        No instructors found
+      </h3>
+      <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1 max-w-md">
         Add teaching staff members to assign them to learning groups and sessions.
       </p>
       <button
         type="button"
         (click)="openCreateModal()"
-        class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-semibold rounded-xl cursor-pointer"
+        class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white text-xs sm:text-sm font-semibold rounded-xl cursor-pointer"
       >
         <i class="pi pi-plus"></i> Add Instructor
       </button>
     </div>
   } @else if (filteredInstructors().length === 0) {
     <div
-      class="flex flex-col items-center justify-center p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8"
+      class="flex flex-col items-center justify-center p-8 sm:p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8"
     >
       <i class="pi pi-search text-5xl mb-3 text-[var(--color-text-muted)] opacity-40"></i>
-      <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
+      <h3 class="text-base sm:text-lg font-bold text-[var(--color-text-primary)]">
         No results for "{{ searchQuery() }}"
       </h3>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1">Try a different name or email.</p>
+      <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
+        Try a different name or email.
+      </p>
     </div>
   } @else {
-    <!-- Table -->
+    <!-- ── Mobile Card Grid (Visible on small screens < md) ── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 block md:hidden mb-6">
+      @for (instructor of filteredInstructors(); track instructor.id) {
+        <div
+          class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm flex flex-col justify-between gap-3"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <span
+                class="w-10 h-10 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center border border-[var(--color-secondary)]/20 shrink-0"
+              >
+                {{ initials(instructor.name) }}
+              </span>
+              <div class="min-w-0">
+                <p class="font-bold text-sm text-[var(--color-text-primary)] truncate">
+                  {{ instructor.name }}
+                </p>
+                <p class="text-xs text-[var(--color-text-muted)] truncate">
+                  {{ instructor.email }}
+                </p>
+              </div>
+            </div>
+
+            <span
+              class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20 shrink-0"
+            >
+              Instructor
+            </span>
+          </div>
+
+          <div
+            class="flex items-center justify-between pt-2 border-t border-[var(--color-border)]/60 text-xs"
+          >
+            <span class="text-[var(--color-text-muted)]">
+              Joined {{ formatDate(instructor.createdAt) }}
+            </span>
+
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                (click)="openEditModal(instructor)"
+                class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                title="Edit Instructor"
+              >
+                <i class="pi pi-pencil text-xs"></i>
+              </button>
+              <button
+                type="button"
+                (click)="openDeleteModal(instructor)"
+                class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                title="Delete Instructor"
+              >
+                <i class="pi pi-trash text-xs"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ── Desktop Table View (Visible on >= md screens) ── -->
     <div
-      class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+      class="hidden md:block overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
     >
-      <table class="w-full border-collapse text-left">
+      <table class="w-full min-w-[640px] border-collapse text-left">
         <thead>
           <tr
             class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
@@ -89,7 +153,7 @@
             <th class="px-6 py-4">Instructor</th>
             <th class="px-6 py-4">Email</th>
             <th class="px-6 py-4">Role</th>
-            <th class="px-6 py-4 hidden md:table-cell">Joined</th>
+            <th class="px-6 py-4">Joined</th>
             <th class="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
@@ -116,7 +180,7 @@
                   Instructor
                 </span>
               </td>
-              <td class="px-6 py-4 hidden md:table-cell text-xs text-[var(--color-text-muted)]">
+              <td class="px-6 py-4 text-xs text-[var(--color-text-muted)]">
                 {{ formatDate(instructor.createdAt) }}
               </td>
               <td class="px-6 py-4 text-right">
