@@ -45,20 +45,14 @@ export class DashboardComponent implements OnInit {
     () =>
       this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
         .length
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
-        .length
   );
   readonly runningCount = computed(
     () =>
       this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('running'))
         .length
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('running'))
-        .length
   );
   readonly completedCount = computed(
     () =>
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
-        .length
       this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
         .length
   );
@@ -94,16 +88,13 @@ export class DashboardComponent implements OnInit {
   readonly allScheduledCount = computed(
     () =>
       this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled')).length
-      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled')).length
   );
   readonly allOngoingCount = computed(
     () =>
       this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('ongoing')).length
-      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('ongoing')).length
   );
   readonly allCompletedCount = computed(
     () =>
-      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed')).length
       this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed')).length
   );
   readonly allCancelledCount = computed(
@@ -145,13 +136,12 @@ export class DashboardComponent implements OnInit {
 
   readonly statCards = computed<StatCard[]>(() => {
     const upcoming = this.upcomingSessions().length;
-    const neutral = 'var(--color-neutral-icon-bg)';
     const cards: StatCard[] = [
       {
         label: 'Sessions This Week',
         value: upcoming,
         icon: 'pi pi-calendar-clock',
-        color: neutral,
+        color: 'var(--color-secondary)',
         link: '/schedule',
         loading: this.loadingUpcoming(),
         subtitle: 'Scheduled across week',
@@ -160,7 +150,7 @@ export class DashboardComponent implements OnInit {
         label: 'Total Hours',
         value: this.totalHours(),
         icon: 'pi pi-clock',
-        color: neutral,
+        color: 'var(--color-accent)',
         link: '/schedule',
         loading: this.loadingAllSessions(),
         subtitle: 'Tracked this month',
@@ -169,7 +159,7 @@ export class DashboardComponent implements OnInit {
         label: 'Courses',
         value: this.courseCount(),
         icon: 'pi pi-book',
-        color: neutral,
+        color: 'var(--color-success)',
         link: '/courses',
         loading: this.loadingCounts(),
         subtitle: 'Active curriculum',
@@ -182,7 +172,7 @@ export class DashboardComponent implements OnInit {
           label: 'Instructors',
           value: this.instructorCount(),
           icon: 'pi pi-user',
-          color: neutral,
+          color: 'var(--color-warning)',
           link: '/instructors',
           loading: this.loadingCounts(),
           subtitle: 'Active educators',
@@ -191,7 +181,7 @@ export class DashboardComponent implements OnInit {
           label: 'Students',
           value: this.studentCount(),
           icon: 'pi pi-users',
-          color: neutral,
+          color: 'var(--color-info)',
           link: '/students',
           loading: this.loadingCounts(),
           subtitle: 'Enrolled learners',
@@ -200,7 +190,7 @@ export class DashboardComponent implements OnInit {
           label: 'Total Groups',
           value: this.groupCount(),
           icon: 'pi pi-sitemap',
-          color: neutral,
+          color: 'var(--color-primary)',
           link: '/groups',
           loading: this.loadingCounts(),
           subtitle: 'Assigned cohorts',
@@ -220,20 +210,18 @@ export class DashboardComponent implements OnInit {
       color: string;
     }[] = [
       {
-        label: 'Schedule',
+        label: 'Weekly Schedule',
         description: 'View your sessions',
         icon: 'pi pi-calendar-clock',
         route: '/schedule',
-        color: accent,
-        textColor: 'var(--color-secondary-content)',
+        color: 'var(--color-secondary)',
       },
       {
         label: 'Courses',
         description: 'Browse all courses',
         icon: 'pi pi-book',
         route: '/courses',
-        color: neutral,
-        textColor: 'var(--color-neutral-icon)',
+        color: 'var(--color-success)',
       },
     ];
     if (this.isAdmin() || this.isInstructor()) {
@@ -243,16 +231,14 @@ export class DashboardComponent implements OnInit {
           description: 'Mark & review attendance',
           icon: 'pi pi-calendar',
           route: '/attendance',
-          color: neutral,
-          textColor: 'var(--color-neutral-icon)',
+          color: 'var(--color-warning)',
         },
         {
           label: 'Groups',
           description: 'View all groups',
           icon: 'pi pi-sitemap',
           route: '/groups',
-          color: neutral,
-          textColor: 'var(--color-neutral-icon)',
+          color: 'var(--color-primary)',
         }
       );
     }
@@ -263,8 +249,7 @@ export class DashboardComponent implements OnInit {
           description: 'Manage student accounts',
           icon: 'pi pi-graduation-cap',
           route: '/students',
-          color: neutral,
-          textColor: 'var(--color-neutral-icon)',
+          color: 'var(--color-warning)',
         },
         {
           label: 'Instructors',
