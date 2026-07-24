@@ -29,6 +29,43 @@
     }
   </div>
 
+  <!-- Monthly Overview -->
+  @if (!loadingAllSessions() && totalSessionsCount() > 0) {
+    <div class="mb-10 p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
+          Monthly Overview
+          <span class="ml-2 text-sm font-normal text-[var(--color-text-muted)]">this month</span>
+        </h2>
+        <a routerLink="/schedule" class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors">
+          View Schedule <i class="pi pi-arrow-right ml-1 text-[10px]"></i>
+        </a>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="monthly-stat">
+          <p class="monthly-stat__value">{{ totalSessionsCount() }}</p>
+          <p class="monthly-stat__label">Total Sessions</p>
+        </div>
+        <div class="monthly-stat monthly-stat--scheduled">
+          <p class="monthly-stat__value">{{ allScheduledCount() }}</p>
+          <p class="monthly-stat__label">Scheduled</p>
+        </div>
+        <div class="monthly-stat monthly-stat--ongoing">
+          <p class="monthly-stat__value">{{ allOngoingCount() }}</p>
+          <p class="monthly-stat__label">Ongoing</p>
+        </div>
+        <div class="monthly-stat monthly-stat--completed">
+          <p class="monthly-stat__value">{{ allCompletedCount() }}</p>
+          <p class="monthly-stat__label">Completed</p>
+        </div>
+        <div class="monthly-stat monthly-stat--cancelled">
+          <p class="monthly-stat__value">{{ allCancelledCount() }}</p>
+          <p class="monthly-stat__label">Cancelled</p>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Quick Links -->
   <div class="mb-10">
     <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">Quick Links</h2>

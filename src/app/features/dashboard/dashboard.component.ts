@@ -28,7 +28,9 @@ export class DashboardComponent implements OnInit {
 
   loadingUpcoming = signal(false);
   loadingCounts = signal(false);
+  loadingAllSessions = signal(false);
   upcomingSessions = signal<ScheduleSession[]>([]);
+  allSessions = signal<ScheduleSession[]>([]);
   courseCount = signal<number | '—'>('—');
   userCount = signal<number | '—'>('—');
   groupCount = signal<number | '—'>('—');
@@ -58,6 +60,40 @@ export class DashboardComponent implements OnInit {
       ).length
   );
 
+  readonly totalHours = computed(() => {
+    const sessions = this.allSessions();
+    if (!sessions.length) return 0;
+    const totalMinutes = sessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
+    return Math.round((totalMinutes / 60) * 10) / 10;
+  });
+
+  readonly totalSessionsCount = computed(() => this.allSessions().length);
+
+  readonly allScheduledCount = computed(
+    () =>
+      this.allSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('scheduled')
+      ).length
+  );
+  readonly allOngoingCount = computed(
+    () =>
+      this.allSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('ongoing')
+      ).length
+  );
+  readonly allCompletedCount = computed(
+    () =>
+      this.allSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('completed')
+      ).length
+  );
+  readonly allCancelledCount = computed(
+    () =>
+      this.allSessions().filter((s) =>
+        (s.status ?? '').toLowerCase().includes('cancel')
+      ).length
+  );
+
   readonly userName = computed(() => this.auth.currentUser()?.name ?? 'User');
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
@@ -72,6 +108,14 @@ export class DashboardComponent implements OnInit {
         color: 'var(--color-secondary)',
         link: '/schedule',
         loading: this.loadingUpcoming(),
+      },
+      {
+        label: 'Total Hours',
+        value: this.totalHours(),
+        icon: 'pi pi-clock',
+        color: 'var(--color-accent)',
+        link: '/schedule',
+        loading: this.loadingAllSessions(),
       },
       {
         label: 'Courses',
@@ -186,6 +230,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadUpcoming();
     this.loadCounts();
+    this.loadAllSessions();
   }
 
   private loadUpcoming(): void {
@@ -239,6 +284,24 @@ export class DashboardComponent implements OnInit {
         error: () => {},
       });
     }
+  }
+
+  private loadAllSessions(): void {
+    this.loadingAllSessions.set(true);
+
+    const now = new Date();
+    const from = new Date(now.getFullYear(), now.getMonth(), 1);
+    const to = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    this.lms.getSchedule(from, to).subscribe({
+      next: (sessions) => {
+        this.allSessions.set(sessions || []);
+        this.loadingAllSessions.set(false);
+      },
+      error: () => {
+        this.loadingAllSessions.set(false);
+      },
+    });
   }
 
   formatTime(iso: string): string {

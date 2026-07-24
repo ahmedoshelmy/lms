@@ -26,3 +26,49 @@
   position: relative;
   overflow: hidden;
 }
+
+/* Group by Topic toggle */
+.group-toggle-btn {
+  white-space: nowrap;
+  cursor: pointer;
+  &:hover:not(.active) {
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+  }
+  &.active {
+    border-color: var(--color-secondary);
+    background: var(--color-secondary);
+    color: white;
+  }
+}
+
+/* Topic group */
+.topic-group {
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.topic-header {
+  cursor: pointer;
+  &:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: -2px;
+  }
+}
+
+.topic-courses {
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

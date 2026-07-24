@@ -6,6 +6,12 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Course } from '../../core/interfaces/Course';
 
+interface TopicGroup {
+  topic: string;
+  courses: Course[];
+  expanded: boolean;
+}
+
 @Component({
   selector: 'app-courses',
   standalone: true,
@@ -20,6 +26,8 @@ export class CoursesComponent implements OnInit {
   courses = signal<Course[]>([]);
   loading = signal(true);
   searchQuery = signal('');
+  groupByTopic = signal(false);
+  collapsedTopics = signal<Set<string>>(new Set());
 
   filteredCourses = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -34,6 +42,26 @@ export class CoursesComponent implements OnInit {
         c.sessionCount.toString().includes(query) ||
         c.description.toLowerCase().includes(query)
     );
+  });
+
+  topicGroups = computed<TopicGroup[]>(() => {
+    const courses = this.filteredCourses();
+    const collapsed = this.collapsedTopics();
+    const map = new Map<string, Course[]>();
+
+    for (const course of courses) {
+      const topic = course.topic || 'Other';
+      if (!map.has(topic)) map.set(topic, []);
+      map.get(topic)!.push(course);
+    }
+
+    return Array.from(map.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([topic, topicCourses]) => ({
+        topic,
+        courses: topicCourses,
+        expanded: !collapsed.has(topic),
+      }));
   });
 
   ngOnInit(): void {
@@ -52,6 +80,31 @@ export class CoursesComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  toggleGroupByTopic(): void {
+    this.groupByTopic.update((v) => !v);
+  }
+
+  toggleTopicCollapse(topic: string): void {
+    this.collapsedTopics.update((set) => {
+      const next = new Set(set);
+      if (next.has(topic)) {
+        next.delete(topic);
+      } else {
+        next.add(topic);
+      }
+      return next;
+    });
+  }
+
+  collapseAllTopics(): void {
+    const topics = this.topicGroups().map((g) => g.topic);
+    this.collapsedTopics.set(new Set(topics));
+  }
+
+  expandAllTopics(): void {
+    this.collapsedTopics.set(new Set());
   }
 
   getTopicBadgeClass(topic: string): string {
