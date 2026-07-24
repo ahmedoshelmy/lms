@@ -102,11 +102,11 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary) 15%, transparent);
 }
 .input-error {
-  border-color: var(--color-danger) !important;
+  border-color: var(--color-error) !important;
 }
 .error-msg {
   font-size: 12px;
-  color: var(--color-danger);
+  color: var(--color-error);
   margin-top: 4px;
   font-weight: 600;
 }

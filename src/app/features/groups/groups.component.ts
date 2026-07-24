@@ -164,15 +164,18 @@ export class GroupsComponent implements OnInit {
         g.name.toLowerCase().includes(query) ||
         g.defaultInstructorName.toLowerCase().includes(query) ||
         g.courses.some((c) => c.title.toLowerCase().includes(query));
-      const matchesCourse =
-        !course || g.courses.some((c) => c.title === course);
-      const matchesTopic =
-        !topic || g.courses.some((c) => (c.topic || 'Other') === topic);
-      const matchesInstructor =
-        !instructor || g.defaultInstructorName === instructor;
-      const matchesLocation =
-        !location || g.location === location;
-      return matchesStatus && matchesSearch && matchesCourse && matchesTopic && matchesInstructor && matchesLocation;
+      const matchesCourse = !course || g.courses.some((c) => c.title === course);
+      const matchesTopic = !topic || g.courses.some((c) => (c.topic || 'Other') === topic);
+      const matchesInstructor = !instructor || g.defaultInstructorName === instructor;
+      const matchesLocation = !location || g.location === location;
+      return (
+        matchesStatus &&
+        matchesSearch &&
+        matchesCourse &&
+        matchesTopic &&
+        matchesInstructor &&
+        matchesLocation
+      );
     });
   });
 

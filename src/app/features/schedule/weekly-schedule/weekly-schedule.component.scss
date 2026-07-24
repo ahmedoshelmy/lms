@@ -3,6 +3,44 @@
   width: 100%;
 }
 
+/* ── Category Filter Pills ── */
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-text-primary);
+  }
+}
+.category-pill--active {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--color-secondary) 25%, transparent);
+
+  .category-pill-dot {
+    box-shadow: 0 0 0 1.5px #ffffff;
+  }
+}
+.category-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 /* ── Legend ── */
 .legend-item {
   display: inline-flex;
@@ -60,18 +98,22 @@
   background-color: var(--color-surface);
   border-radius: 12px;
   position: relative;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .session-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 .session-card--conflict {
-  box-shadow: inset 0 0 0 1.5px var(--color-error),
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-error),
     0 0 0 3px color-mix(in srgb, var(--color-error) 10%, transparent);
 }
 .session-card--conflict:hover {
-  box-shadow: inset 0 0 0 1.5px var(--color-error),
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-error),
     0 0 0 4px color-mix(in srgb, var(--color-error) 15%, transparent);
 }
 
@@ -94,22 +136,24 @@
   box-shadow: 0 1px 4px color-mix(in srgb, var(--color-error) 35%, transparent);
 }
 
-/* ── Instructor avatar ── */
+/* ── Neutral Instructor avatar (name-tag pattern) ── */
 .instructor-avatar {
   position: absolute;
   bottom: 8px;
   right: 8px;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  color: white;
+  background: var(--color-background-alt);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
   font-size: 10px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   z-index: 1;
 }
 .instructor-avatar--sm {
@@ -192,7 +236,9 @@
 
 /* ── Timeline view ── */
 .timeline-card {
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .timeline-card:hover {
@@ -200,7 +246,9 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 .timeline-card--conflict {
-  box-shadow: inset 0 0 0 1.5px var(--color-error), 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-error),
+    0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* ── Animations ── */
@@ -213,3 +261,4 @@
     box-shadow: 0 0 0 6px transparent;
   }
 }
+

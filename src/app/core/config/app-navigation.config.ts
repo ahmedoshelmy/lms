@@ -21,7 +21,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
   },
   {
     path: 'schedule',
-    label: 'Weekly Schedule',
+    label: 'Schedule',
     icon: 'pi pi-calendar-clock',
     roles: ALL_ROLES,
     showInMenu: true,

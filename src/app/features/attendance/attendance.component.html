@@ -121,30 +121,57 @@
               <i class="pi pi-calendar mr-1"></i>{{ formatDate(session.startsAt) }}
             </span>
             <span class="text-[var(--color-text-muted)]">
-              <i class="pi pi-clock mr-1"></i>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
+              <i class="pi pi-clock mr-1"></i>{{ formatTime(session.startsAt) }} –
+              {{ formatTime(session.endsAt) }}
             </span>
           </div>
         </div>
 
         <!-- Details grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-[var(--color-border)]">
+        <div
+          class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-[var(--color-border)]"
+        >
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Group</p>
-            <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.groupName }}</p>
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+            >
+              Group
+            </p>
+            <p class="text-sm font-semibold text-[var(--color-text-primary)]">
+              {{ session.groupName }}
+            </p>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Instructor</p>
-            <p class="text-sm font-semibold text-[var(--color-secondary)]">{{ session.instructorName }}</p>
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+            >
+              Instructor
+            </p>
+            <p class="text-sm font-semibold text-[var(--color-secondary)]">
+              {{ session.instructorName }}
+            </p>
           </div>
           @if (session.location) {
             <div>
-              <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Location</p>
-              <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.location }}</p>
+              <p
+                class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+              >
+                Location
+              </p>
+              <p class="text-sm font-semibold text-[var(--color-text-primary)]">
+                {{ session.location }}
+              </p>
             </div>
           }
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Duration</p>
-            <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.durationMinutes }} min</p>
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+            >
+              Duration
+            </p>
+            <p class="text-sm font-semibold text-[var(--color-text-primary)]">
+              {{ session.durationMinutes }} min
+            </p>
           </div>
         </div>
       </div>
@@ -159,7 +186,8 @@
         <div>
           <p class="text-sm font-bold text-[var(--color-warning)]">Attendance Locked</p>
           <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            More than 24 hours have passed since this session started. Attendance records are now read-only.
+            More than 24 hours have passed since this session started. Attendance records are now
+            read-only.
           </p>
         </div>
       </div>
@@ -170,7 +198,9 @@
       <div
         class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
       >
-        <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase">Total Students</span>
+        <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase"
+          >Total Students</span
+        >
         <p class="text-2xl font-extrabold text-[var(--color-text-primary)] mt-1">
           {{ records().length }}
         </p>
@@ -181,7 +211,9 @@
       >
         <div class="flex items-center justify-between">
           <span class="text-xs text-[var(--color-success)] font-bold uppercase">Present</span>
-          <span class="text-xs font-extrabold text-[var(--color-success)]">{{ presentRate() }}%</span>
+          <span class="text-xs font-extrabold text-[var(--color-success)]"
+            >{{ presentRate() }}%</span
+          >
         </div>
         <p class="text-2xl font-extrabold text-[var(--color-success)] mt-1">
           {{ countByStatus(StatusEnum.Present) }}
@@ -220,7 +252,10 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       @if (!isLocked()) {
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2">Quick Mark:</span>
+          <span
+            class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2"
+            >Quick Mark:</span
+          >
           <button
             (click)="bulkSetStatus(StatusEnum.Present)"
             class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-success-background)] text-[var(--color-success)] hover:opacity-80 transition-opacity cursor-pointer"

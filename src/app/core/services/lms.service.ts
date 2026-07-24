@@ -149,7 +149,9 @@ export class LmsService {
   // ─── Attendance ───────────────────────────────────────────────────────────
 
   getSessionAttendance(sessionId: number): Observable<AttendanceResponseDto[]> {
-    return this.http.get<AttendanceResponseDto[]>(`${this.getApiUrl()}/Attendance/session/${sessionId}`);
+    return this.http.get<AttendanceResponseDto[]>(
+      `${this.getApiUrl()}/Attendance/session/${sessionId}`
+    );
   }
 
   createAttendance(payload: CreateAttendanceDto): Observable<AttendanceResponseDto> {

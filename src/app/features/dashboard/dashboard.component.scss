@@ -79,25 +79,33 @@
   background: color-mix(in srgb, var(--color-info) 10%, transparent);
   color: var(--color-info);
   border-color: color-mix(in srgb, var(--color-info) 25%, transparent);
-  .status-chip__dot { background: var(--color-info); }
+  .status-chip__dot {
+    background: var(--color-info);
+  }
 }
 .status-chip--running {
   background: color-mix(in srgb, var(--color-warning) 12%, transparent);
   color: var(--color-warning);
   border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
-  .status-chip__dot { background: var(--color-warning); }
+  .status-chip__dot {
+    background: var(--color-warning);
+  }
 }
 .status-chip--completed {
   background: color-mix(in srgb, var(--color-success) 10%, transparent);
   color: var(--color-success);
   border-color: color-mix(in srgb, var(--color-success) 25%, transparent);
-  .status-chip__dot { background: var(--color-success); }
+  .status-chip__dot {
+    background: var(--color-success);
+  }
 }
 .status-chip--cancelled {
   background: color-mix(in srgb, var(--color-error) 8%, transparent);
   color: var(--color-error);
   border-color: color-mix(in srgb, var(--color-error) 20%, transparent);
-  .status-chip__dot { background: var(--color-error); }
+  .status-chip__dot {
+    background: var(--color-error);
+  }
 }
 
 /* ─── Status badge (per-row inline pill) ────────────────────────── */
@@ -160,14 +168,22 @@
   letter-spacing: 0.04em;
 }
 .monthly-stat--scheduled {
-  .monthly-stat__value { color: var(--color-info); }
+  .monthly-stat__value {
+    color: var(--color-info);
+  }
 }
 .monthly-stat--ongoing {
-  .monthly-stat__value { color: var(--color-warning); }
+  .monthly-stat__value {
+    color: var(--color-warning);
+  }
 }
 .monthly-stat--completed {
-  .monthly-stat__value { color: var(--color-success); }
+  .monthly-stat__value {
+    color: var(--color-success);
+  }
 }
 .monthly-stat--cancelled {
-  .monthly-stat__value { color: var(--color-error); }
+  .monthly-stat__value {
+    color: var(--color-error);
+  }
 }

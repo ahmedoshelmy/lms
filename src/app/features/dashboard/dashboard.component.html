@@ -31,13 +31,18 @@
 
   <!-- Monthly Overview -->
   @if (!loadingAllSessions() && totalSessionsCount() > 0) {
-    <div class="mb-10 p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div
+      class="mb-10 p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]"
+    >
       <div class="flex items-center justify-between mb-5">
         <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
           Monthly Overview
           <span class="ml-2 text-sm font-normal text-[var(--color-text-muted)]">this month</span>
         </h2>
-        <a routerLink="/schedule" class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors">
+        <a
+          routerLink="/schedule"
+          class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors"
+        >
           View Schedule <i class="pi pi-arrow-right ml-1 text-[10px]"></i>
         </a>
       </div>

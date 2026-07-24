@@ -38,27 +38,23 @@ export class DashboardComponent implements OnInit {
 
   readonly scheduledCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('scheduled')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
+        .length
   );
   readonly runningCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('running')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('running'))
+        .length
   );
   readonly completedCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('completed')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
+        .length
   );
   readonly cancelledCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('cancel')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel'))
+        .length
   );
 
   readonly totalHours = computed(() => {
@@ -72,27 +68,18 @@ export class DashboardComponent implements OnInit {
 
   readonly allScheduledCount = computed(
     () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('scheduled')
-      ).length
+      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled')).length
   );
   readonly allOngoingCount = computed(
     () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('ongoing')
-      ).length
+      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('ongoing')).length
   );
   readonly allCompletedCount = computed(
     () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('completed')
-      ).length
+      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed')).length
   );
   readonly allCancelledCount = computed(
-    () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('cancel')
-      ).length
+    () => this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel')).length
   );
 
   readonly userName = computed(() => this.auth.currentUser()?.name ?? 'User');
@@ -164,9 +151,16 @@ export class DashboardComponent implements OnInit {
   readonly quickLinks = computed(() => {
     const neutral = 'var(--color-neutral-icon-bg)';
     const accent = 'var(--color-secondary)';
-    const links: { label: string; description: string; icon: string; route: string; color: string; textColor: string }[] = [
+    const links: {
+      label: string;
+      description: string;
+      icon: string;
+      route: string;
+      color: string;
+      textColor: string;
+    }[] = [
       {
-        label: 'Weekly Schedule',
+        label: 'Schedule',
         description: 'View your sessions',
         icon: 'pi pi-calendar-clock',
         route: '/schedule',
@@ -219,7 +213,7 @@ export class DashboardComponent implements OnInit {
           route: '/instructors',
           color: neutral,
           textColor: 'var(--color-neutral-icon)',
-        },
+        }
       );
     }
     return links;

@@ -8,7 +8,11 @@ import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
 import { AttendanceStatus } from '../../core/enums/AttendanceStatus';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
-import { UpdateAttendanceDto, CreateAttendanceDto, AttendanceResponseDto } from '../../core/interfaces/Attendance';
+import {
+  UpdateAttendanceDto,
+  CreateAttendanceDto,
+  AttendanceResponseDto,
+} from '../../core/interfaces/Attendance';
 import { User } from '../../core/interfaces/User';
 
 interface StudentAttendanceRecord {

@@ -1,8 +1,9 @@
-import { Component, input, computed, output } from '@angular/core';
+import { Component, input, computed, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
+export type ViewMode = 'weekly' | 'daily';
 
 interface CategoryMeta {
   key: string;
@@ -21,12 +22,48 @@ interface DayColumn {
 }
 
 const CATEGORIES: CategoryMeta[] = [
-  { key: 'mobile', label: 'Mobile App Dev', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.25)' },
-  { key: 'python', label: 'Python', color: '#0d9488', bg: 'rgba(13,148,136,0.08)', border: 'rgba(13,148,136,0.25)' },
-  { key: 'wedo', label: 'WeDo / Robotics', color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.25)' },
-  { key: 'arduino', label: 'Arduino', color: '#d97706', bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.25)' },
-  { key: 'ai', label: 'AI', color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)' },
-  { key: 'general', label: 'General', color: '#6b7280', bg: 'rgba(107,114,128,0.08)', border: 'rgba(107,114,128,0.25)' },
+  {
+    key: 'mobile',
+    label: 'Mobile App Dev',
+    color: 'var(--color-session-group)',
+    bg: 'var(--color-session-group-background)',
+    border: 'color-mix(in srgb, var(--color-session-group) 25%, transparent)',
+  },
+  {
+    key: 'python',
+    label: 'Python',
+    color: 'var(--color-session-makeup)',
+    bg: 'var(--color-session-makeup-background)',
+    border: 'color-mix(in srgb, var(--color-session-makeup) 25%, transparent)',
+  },
+  {
+    key: 'wedo',
+    label: 'WeDo / Robotics',
+    color: 'var(--color-session-trial)',
+    bg: 'var(--color-session-trial-background)',
+    border: 'color-mix(in srgb, var(--color-session-trial) 25%, transparent)',
+  },
+  {
+    key: 'arduino',
+    label: 'Arduino',
+    color: 'var(--color-warning)',
+    bg: 'color-mix(in srgb, var(--color-warning) 8%, transparent)',
+    border: 'color-mix(in srgb, var(--color-warning) 25%, transparent)',
+  },
+  {
+    key: 'ai',
+    label: 'AI',
+    color: 'var(--color-info)',
+    bg: 'var(--color-info-background)',
+    border: 'color-mix(in srgb, var(--color-info) 25%, transparent)',
+  },
+  {
+    key: 'general',
+    label: 'General',
+    color: 'var(--color-text-muted)',
+    bg: 'color-mix(in srgb, var(--color-text-muted) 8%, transparent)',
+    border: 'color-mix(in srgb, var(--color-text-muted) 25%, transparent)',
+  },
 ];
 
 function classifyCategory(session: ScheduleSession): CategoryMeta {
@@ -57,12 +94,20 @@ function overlaps(a: ScheduleSession, b: ScheduleSession): boolean {
 export class WeeklyScheduleComponent {
   sessions = input<ScheduleSession[]>([]);
   currentWeekStart = input<Date>(new Date());
+  currentDate = input<Date>(new Date());
+  viewMode = input<ViewMode>('weekly');
+  searchQuery = input<string>('');
+  courseFilter = input<string>('');
+  topicFilter = input<string>('');
+  levelFilter = input<string>('');
+  instructorFilter = input<string>('');
   locationFilter = input<string>('');
   densityMode = input<DensityMode>('compact');
 
   sessionSelected = output<ScheduleSession>();
 
   readonly categories = CATEGORIES;
+  activeCategory = signal<string>('all');
 
   readonly categoryMap = computed(() => {
     const map = new Map<number, CategoryMeta>();
@@ -72,27 +117,38 @@ export class WeeklyScheduleComponent {
     return map;
   });
 
-  readonly uniqueLocations = computed(() => {
-    const set = new Set<string>();
-    for (const s of this.sessions()) {
-      if (s.location) set.add(s.location);
-    }
-    return Array.from(set).sort();
-  });
-
   readonly conflictIds = computed(() => {
     const ids = new Set<number>();
     const all = this.sessions();
     for (let i = 0; i < all.length; i++) {
       for (let j = i + 1; j < all.length; j++) {
-        if (!overlaps(all[i], all[j])) continue;
-        if (all[i].instructorId && all[i].instructorId === all[j].instructorId) {
-          ids.add(all[i].id);
-          ids.add(all[j].id);
-        }
-        if (all[i].location && all[i].location === all[j].location) {
-          ids.add(all[i].id);
-          ids.add(all[j].id);
+        const a = all[i];
+        const b = all[j];
+        if (!overlaps(a, b)) continue;
+
+        // Check same instructor overlap
+        const sameInstructor =
+          (a.instructorId && b.instructorId && a.instructorId === b.instructorId) ||
+          (a.instructorName &&
+            b.instructorName &&
+            a.instructorName.trim().toLowerCase() !== 'unassigned' &&
+            a.instructorName.trim().toLowerCase() === b.instructorName.trim().toLowerCase());
+
+        // Check same physical location overlap (excluding Online and empty locations)
+        const locA = (a.location || '').trim().toLowerCase();
+        const locB = (b.location || '').trim().toLowerCase();
+        const sameLocation =
+          locA !== '' &&
+          locA !== 'online' &&
+          locA !== 'n/a' &&
+          locB !== '' &&
+          locB !== 'online' &&
+          locB !== 'n/a' &&
+          locA === locB;
+
+        if (sameInstructor || sameLocation) {
+          ids.add(a.id);
+          ids.add(b.id);
         }
       }
     }
@@ -100,40 +156,104 @@ export class WeeklyScheduleComponent {
   });
 
   readonly filteredSessions = computed(() => {
-    const loc = this.locationFilter();
-    if (!loc) return this.sessions();
-    return this.sessions().filter((s) => s.location === loc);
+    const q = this.searchQuery().trim().toLowerCase();
+    const course = this.courseFilter().trim().toLowerCase();
+    const topic = this.topicFilter().trim().toLowerCase();
+    const level = this.levelFilter().trim().toLowerCase();
+    const inst = this.instructorFilter().trim().toLowerCase();
+    const loc = this.locationFilter().trim().toLowerCase();
+    const cat = this.activeCategory();
+
+    return this.sessions().filter((s) => {
+      // 1. Search Query filter
+      if (q) {
+        const text = `${s.topic} ${s.courseTitle} ${s.groupName} ${s.instructorName} ${s.location || ''}`.toLowerCase();
+        if (!text.includes(q)) return false;
+      }
+      // 2. Course filter
+      if (course && !s.courseTitle.toLowerCase().includes(course)) return false;
+      // 3. Topic filter
+      if (topic && !s.topic.toLowerCase().includes(topic)) return false;
+      // 4. Level filter
+      if (level) {
+        const sLevel = `${s.groupName} ${s.courseTitle}`.toLowerCase();
+        if (!sLevel.includes(level)) return false;
+      }
+      // 5. Instructor filter
+      if (inst) {
+        const instMatch =
+          s.instructorName.toLowerCase().includes(inst) ||
+          s.instructorId.toString() === inst;
+        if (!instMatch) return false;
+      }
+      // 6. Location filter
+      if (loc && (s.location || '').toLowerCase() !== loc) return false;
+      // 7. Category Pill filter
+      if (cat !== 'all') {
+        const sessionCat = this.getCategory(s).key;
+        if (sessionCat !== cat) return false;
+      }
+
+      return true;
+    });
   });
 
   readonly dayColumns = computed<DayColumn[]>(() => {
-    const startOfWeek = new Date(this.currentWeekStart());
-    startOfWeek.setHours(0, 0, 0, 0);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayMs = today.getTime();
-    const days: DayColumn[] = [];
-    const weekdays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
     const sess = this.filteredSessions();
+    const days: DayColumn[] = [];
 
-    for (let i = 0; i < 7; i++) {
-      const currentDate = new Date(startOfWeek);
-      currentDate.setDate(startOfWeek.getDate() + i);
+    if (this.viewMode() === 'daily') {
+      const curDate = new Date(this.currentDate());
+      curDate.setHours(0, 0, 0, 0);
+      const dayName = curDate.toLocaleDateString('en-US', { weekday: 'long' });
       const daySessions = sess
         .filter((s) => {
           const d = new Date(s.startsAt);
-          return d.getFullYear() === currentDate.getFullYear() &&
-            d.getMonth() === currentDate.getMonth() &&
-            d.getDate() === currentDate.getDate();
+          return (
+            d.getFullYear() === curDate.getFullYear() &&
+            d.getMonth() === curDate.getMonth() &&
+            d.getDate() === curDate.getDate()
+          );
         })
         .sort((a, b) => parseTime(a.startsAt) - parseTime(b.startsAt));
 
       days.push({
-        date: currentDate,
-        dayName: weekdays[i],
-        formattedDate: currentDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }),
+        date: curDate,
+        dayName,
+        formattedDate: curDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
         sessions: daySessions,
-        isToday: currentDate.getTime() === todayMs,
+        isToday: curDate.getTime() === todayMs,
       });
+    } else {
+      const startOfWeek = new Date(this.currentWeekStart());
+      startOfWeek.setHours(0, 0, 0, 0);
+      const weekdays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+      for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(startOfWeek);
+        currentDate.setDate(startOfWeek.getDate() + i);
+        const daySessions = sess
+          .filter((s) => {
+            const d = new Date(s.startsAt);
+            return (
+              d.getFullYear() === currentDate.getFullYear() &&
+              d.getMonth() === currentDate.getMonth() &&
+              d.getDate() === currentDate.getDate()
+            );
+          })
+          .sort((a, b) => parseTime(a.startsAt) - parseTime(b.startsAt));
+
+        days.push({
+          date: currentDate,
+          dayName: weekdays[i],
+          formattedDate: currentDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }),
+          sessions: daySessions,
+          isToday: currentDate.getTime() === todayMs,
+        });
+      }
     }
     return days;
   });
@@ -169,7 +289,12 @@ export class WeeklyScheduleComponent {
   }
 
   getInitials(name: string): string {
-    return (name || 'U').split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
+    return (name || 'U')
+      .split(' ')
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 
   getProgressPercent(s: ScheduleSession): number {
@@ -183,6 +308,14 @@ export class WeeklyScheduleComponent {
     if (pct >= 80) return 'Nearly done';
     if (pct >= 50) return 'In progress';
     return 'Early stage';
+  }
+
+  toggleCategory(key: string): void {
+    if (this.activeCategory() === key) {
+      this.activeCategory.set('all');
+    } else {
+      this.activeCategory.set(key);
+    }
   }
 
   onSessionClick(session: ScheduleSession): void {
@@ -199,7 +332,11 @@ export class WeeklyScheduleComponent {
 
   formatTime(iso: string): string {
     if (!iso) return '';
-    return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return new Date(iso).toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
   }
 
   getTimelineHours(): number[] {
@@ -213,3 +350,4 @@ export class WeeklyScheduleComponent {
     });
   }
 }
+

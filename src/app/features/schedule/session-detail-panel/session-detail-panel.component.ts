@@ -12,7 +12,6 @@ import { Role } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { signal } from '@angular/core';
 
-
 @Component({
   selector: 'app-session-detail-panel',
   standalone: true,
@@ -35,9 +34,7 @@ export class SessionDetailPanelComponent {
   saving = signal(false);
 
   /** True when the pending status is Cancelled */
-  readonly isCancelled = computed(() =>
-    (this.editStatus() ?? '').toLowerCase().includes('cancel')
-  );
+  readonly isCancelled = computed(() => (this.editStatus() ?? '').toLowerCase().includes('cancel'));
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
@@ -89,7 +86,9 @@ export class SessionDetailPanelComponent {
     const originalStatus = this.session()?.status ?? 'Scheduled';
     if (this.isCancelled()) {
       // Restore to original non-cancelled status
-      this.editStatus.set(originalStatus.toLowerCase().includes('cancel') ? 'Scheduled' : originalStatus);
+      this.editStatus.set(
+        originalStatus.toLowerCase().includes('cancel') ? 'Scheduled' : originalStatus
+      );
     } else {
       this.editStatus.set('Cancelled');
     }

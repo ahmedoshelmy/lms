@@ -1,14 +1,28 @@
 <div class="weekly-schedule-wrapper">
-  <!-- Category Legend -->
-  <div class="flex flex-wrap items-center gap-3 mb-5">
+  <!-- Category Legend / Filter Pills -->
+  <div class="flex flex-wrap items-center gap-2 mb-5">
+    <button
+      type="button"
+      class="category-pill"
+      [class.category-pill--active]="activeCategory() === 'all'"
+      (click)="activeCategory.set('all')"
+    >
+      <span class="category-pill-dot" style="background: var(--color-primary)"></span>
+      <span>All Categories</span>
+    </button>
     @for (cat of categories; track cat.key) {
-      <span class="legend-item">
-        <span class="legend-dot" [style.background]="cat.color"></span>
-        <span class="legend-label">{{ cat.label }}</span>
-      </span>
+      <button
+        type="button"
+        class="category-pill"
+        [class.category-pill--active]="activeCategory() === cat.key"
+        (click)="toggleCategory(cat.key)"
+      >
+        <span class="category-pill-dot" [style.background]="cat.color"></span>
+        <span>{{ cat.label }}</span>
+      </button>
     }
     @if (conflictSessionsCount() > 0) {
-      <span class="legend-item legend-item--conflict">
+      <span class="legend-item legend-item--conflict ml-auto">
         <span class="legend-dot legend-dot--conflict"></span>
         <span class="legend-label font-bold">Conflict</span>
       </span>
@@ -39,9 +53,16 @@
       </div>
     </div>
     <div class="summary-card">
-      <i class="pi pi-exclamation-triangle summary-icon" [style.color]="conflictSessionsCount() > 0 ? 'var(--color-error)' : 'var(--color-text-muted)'"></i>
+      <i
+        class="pi pi-exclamation-triangle summary-icon"
+        [style.color]="
+          conflictSessionsCount() > 0 ? 'var(--color-error)' : 'var(--color-text-muted)'
+        "
+      ></i>
       <div>
-        <p class="summary-value" [class.text-[var(--color-error)]]="conflictSessionsCount() > 0">{{ conflictSessionsCount() }}</p>
+        <p class="summary-value" [class.text-[var(--color-error)]]="conflictSessionsCount() > 0">
+          {{ conflictSessionsCount() }}
+        </p>
         <p class="summary-label">Conflicts</p>
       </div>
     </div>
@@ -49,20 +70,34 @@
 
   <!-- ─── DESKTOP GRID VIEW ─── -->
   @if (densityMode() !== 'timeline') {
-    <div class="hidden md:grid grid-cols-7 gap-3 schedule-grid border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
-         [class.comfortable]="densityMode() === 'comfortable'">
+    <div
+      class="hidden md:grid gap-3 schedule-grid border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+      [class.grid-cols-7]="viewMode() === 'weekly'"
+      [class.grid-cols-1]="viewMode() === 'daily'"
+      [class.comfortable]="densityMode() === 'comfortable'"
+    >
       @for (col of dayColumns(); track col.dayName) {
-        <div class="day-column flex flex-col border-r last:border-r-0 border-[var(--color-border)] pr-2 last:pr-0">
+        <div
+          class="day-column flex flex-col border-r last:border-r-0 border-[var(--color-border)] pr-2 last:pr-0"
+        >
           <!-- Day Header -->
           <div class="day-header border-b border-[var(--color-border)] pb-3 mb-3 text-center">
-            <h3 class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">{{ col.dayName }}</h3>
-            <p class="text-lg font-extrabold mt-0.5"
-               [class.text-[var(--color-secondary)]]="col.isToday"
-               [class.text-[var(--color-text-primary)]]="!col.isToday">
+            <h3
+              class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider"
+            >
+              {{ col.dayName }}
+            </h3>
+            <p
+              class="text-lg font-extrabold mt-0.5"
+              [class.text-[var(--color-secondary)]]="col.isToday"
+              [class.text-[var(--color-text-primary)]]="!col.isToday"
+            >
               {{ col.formattedDate }}
             </p>
             @if (col.sessions.length > 0) {
-              <span class="text-[10px] font-bold text-[var(--color-text-muted)]">{{ col.sessions.length }} session{{ col.sessions.length !== 1 ? 's' : '' }}</span>
+              <span class="text-[10px] font-bold text-[var(--color-text-muted)]"
+                >{{ col.sessions.length }} session{{ col.sessions.length !== 1 ? 's' : '' }}</span
+              >
             }
           </div>
 
@@ -71,11 +106,13 @@
             @for (session of col.sessions; track session.id) {
               @let cat = getCategory(session);
               @let progress = getProgressPercent(session);
-              <div class="session-card rounded-xl border transition-all duration-200 cursor-pointer relative"
-                   [class.session-card--conflict]="isConflict(session)"
-                   [style.border-left-color]="cat.color"
-                   [style.border-left-width]="'3px'"
-                   (click)="onSessionClick(session)">
+              <div
+                class="session-card rounded-xl border transition-all duration-200 cursor-pointer relative"
+                [class.session-card--conflict]="isConflict(session)"
+                [style.border-left-color]="cat.color"
+                [style.border-left-width]="'3px'"
+                (click)="onSessionClick(session)"
+              >
                 <!-- Conflict indicator -->
                 @if (isConflict(session)) {
                   <div class="conflict-flag" title="Scheduling conflict detected">
@@ -86,50 +123,87 @@
                 <div class="p-3">
                   <!-- Top row: status + session number -->
                   <div class="flex items-center justify-between gap-1 mb-1.5">
-                    <span class="status-badge" [ngClass]="getStatusBadgeClass(session.status)">{{ session.status }}</span>
-                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]">S{{ session.currentSessionNumber }}/{{ session.totalSessions }}</span>
+                    <span class="status-badge" [ngClass]="getStatusBadgeClass(session.status)">{{
+                      session.status
+                    }}</span>
+                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]"
+                      >S{{ session.currentSessionNumber }}/{{ session.totalSessions }}</span
+                    >
                   </div>
 
                   <!-- Topic -->
-                  <h4 class="text-[13px] font-bold text-[var(--color-text-primary)] line-clamp-2 leading-tight mb-0.5" [title]="session.topic">{{ session.topic }}</h4>
-                  <p class="text-[11px] text-[var(--color-text-secondary)] font-medium truncate" [title]="session.courseTitle">{{ session.courseTitle }}</p>
-                  <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">{{ session.groupName }}</p>
+                  <h4
+                    class="text-[13px] font-bold text-[var(--color-text-primary)] line-clamp-2 leading-tight mb-0.5"
+                    [title]="session.topic"
+                  >
+                    {{ session.topic }}
+                  </h4>
+                  <p
+                    class="text-[11px] text-[var(--color-text-secondary)] font-medium truncate"
+                    [title]="session.courseTitle"
+                  >
+                    {{ session.courseTitle }}
+                  </p>
+                  <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">
+                    {{ session.groupName }}
+                  </p>
 
                   <!-- Progress bar -->
                   <div class="mt-2">
                     <div class="flex items-center justify-between mb-0.5">
-                      <span class="text-[9px] font-bold text-[var(--color-text-muted)]">{{ progress }}%</span>
-                      <span class="text-[9px] font-semibold" [class.text-[var(--color-success)]]="progress === 100" [class.text-[var(--color-secondary)]]="progress > 0 && progress < 100" [class.text-[var(--color-text-muted)]]="progress === 0">{{ getProgressLabel(session) }}</span>
+                      <span class="text-[9px] font-bold text-[var(--color-text-muted)]"
+                        >Course progress: {{ progress }}%</span
+                      >
+                      <span
+                        class="text-[9px] font-semibold"
+                        [class.text-[var(--color-success)]]="progress === 100"
+                        [class.text-[var(--color-secondary)]]="progress > 0 && progress < 100"
+                        [class.text-[var(--color-text-muted)]]="progress === 0"
+                        >{{ getProgressLabel(session) }}</span
+                      >
                     </div>
                     <div class="progress-track">
-                      <div class="progress-fill" [style.width.%]="progress"
-                           [class.progress-fill--done]="progress === 100"
-                           [class.progress-fill--active]="progress > 0 && progress < 100"
-                           [style.background]="cat.color"></div>
+                      <div
+                        class="progress-fill"
+                        [style.width.%]="progress"
+                        [class.progress-fill--done]="progress === 100"
+                        [class.progress-fill--active]="progress > 0 && progress < 100"
+                        [style.background]="cat.color"
+                      ></div>
                     </div>
                   </div>
 
                   <!-- Footer -->
-                  <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-[var(--color-border)] text-[10px] text-[var(--color-text-muted)]">
+                  <div
+                    class="flex items-center gap-1.5 mt-2 pt-2 border-t border-[var(--color-border)] text-[10px] text-[var(--color-text-muted)]"
+                  >
                     <i class="pi pi-clock"></i>
-                    <span class="font-medium">{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span>
+                    <span class="font-medium"
+                      >{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span
+                    >
                   </div>
                   @if (session.location) {
-                    <div class="flex items-center gap-1.5 mt-0.5 text-[10px] text-[var(--color-text-muted)]">
+                    <div
+                      class="flex items-center gap-1.5 mt-0.5 text-[10px] text-[var(--color-text-muted)]"
+                    >
                       <i class="pi pi-map-marker"></i>
                       <span class="truncate">{{ session.location }}</span>
                     </div>
                   }
                 </div>
 
-                <!-- Instructor avatar -->
-                <div class="instructor-avatar" [title]="session.instructorName"
-                     [style.background]="cat.color">
+                <!-- Neutral Instructor avatar (no category color override) -->
+                <div
+                  class="instructor-avatar"
+                  [title]="session.instructorName"
+                >
                   {{ getInitials(session.instructorName) }}
                 </div>
               </div>
             } @empty {
-              <div class="flex flex-col items-center justify-center flex-grow py-8 text-center text-[var(--color-text-muted)]">
+              <div
+                class="flex flex-col items-center justify-center flex-grow py-8 text-center text-[var(--color-text-muted)]"
+              >
                 <i class="pi pi-calendar text-2xl mb-1.5 opacity-60"></i>
                 <span class="text-xs font-medium">Free day</span>
               </div>
@@ -142,17 +216,29 @@
 
   <!-- ─── TIMELINE VIEW ─── -->
   @if (densityMode() === 'timeline') {
-    <div class="hidden md:block border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)] overflow-x-auto">
+    <div
+      class="hidden md:block border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)] overflow-x-auto"
+    >
       <table class="w-full border-collapse min-w-[800px]">
         <thead>
           <tr>
-            <th class="w-16 text-right pr-3 text-[10px] font-bold text-[var(--color-text-muted)] uppercase">Time</th>
+            <th
+              class="w-16 text-right pr-3 text-[10px] font-bold text-[var(--color-text-muted)] uppercase"
+            >
+              Time
+            </th>
             @for (col of dayColumns(); track col.dayName) {
               <th class="text-center pb-3 border-b border-[var(--color-border)]">
-                <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">{{ col.dayName }}</span>
-                <p class="text-sm font-extrabold mt-0.5"
-                   [class.text-[var(--color-secondary)]]="col.isToday"
-                   [class.text-[var(--color-text-primary)]]="!col.isToday">{{ col.formattedDate }}</p>
+                <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">{{
+                  col.dayName
+                }}</span>
+                <p
+                  class="text-sm font-extrabold mt-0.5"
+                  [class.text-[var(--color-secondary)]]="col.isToday"
+                  [class.text-[var(--color-text-primary)]]="!col.isToday"
+                >
+                  {{ col.formattedDate }}
+                </p>
               </th>
             }
           </tr>
@@ -160,22 +246,34 @@
         <tbody>
           @for (hour of getTimelineHours(); track hour) {
             <tr class="border-b border-[var(--color-border)]/50">
-              <td class="text-right pr-3 py-1 text-[10px] font-bold text-[var(--color-text-muted)] whitespace-nowrap align-top pt-2">
+              <td
+                class="text-right pr-3 py-1 text-[10px] font-bold text-[var(--color-text-muted)] whitespace-nowrap align-top pt-2"
+              >
                 {{ hour.toString().padStart(2, '0') }}:00
               </td>
               @for (col of dayColumns(); track col.dayName) {
                 <td class="p-1 align-top">
                   @for (session of getTimelineSessionsForHour(col, hour); track session.id) {
                     @let cat = getCategory(session);
-                    <div class="timeline-card rounded-lg p-2 mb-1 cursor-pointer border border-transparent hover:border-[var(--color-secondary)] transition-colors"
-                         [style.border-left-color]="cat.color"
-                         [style.border-left-width]="'3px'"
-                         [style.background]="cat.bg"
-                         [class.timeline-card--conflict]="isConflict(session)"
-                         (click)="onSessionClick(session)">
-                      <p class="text-[11px] font-bold text-[var(--color-text-primary)] line-clamp-1">{{ session.topic }}</p>
-                      <p class="text-[9px] text-[var(--color-text-muted)]">{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</p>
-                      <p class="text-[9px] font-semibold truncate" [style.color]="cat.color">{{ session.instructorName }}</p>
+                    <div
+                      class="timeline-card rounded-lg p-2 mb-1 cursor-pointer border border-transparent hover:border-[var(--color-secondary)] transition-colors"
+                      [style.border-left-color]="cat.color"
+                      [style.border-left-width]="'3px'"
+                      [style.background]="cat.bg"
+                      [class.timeline-card--conflict]="isConflict(session)"
+                      (click)="onSessionClick(session)"
+                    >
+                      <p
+                        class="text-[11px] font-bold text-[var(--color-text-primary)] line-clamp-1"
+                      >
+                        {{ session.topic }}
+                      </p>
+                      <p class="text-[9px] text-[var(--color-text-muted)]">
+                        {{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
+                      </p>
+                      <p class="text-[9px] font-semibold truncate" [style.color]="cat.color">
+                        {{ session.instructorName }}
+                      </p>
                     </div>
                   }
                 </td>
@@ -190,25 +288,46 @@
   <!-- ─── MOBILE VIEW ─── -->
   <div class="flex flex-col md:hidden gap-4">
     @for (col of dayColumns(); track col.dayName) {
-      <div class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-        <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3 mb-3">
+      <div
+        class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+      >
+        <div
+          class="flex items-center justify-between border-b border-[var(--color-border)] pb-3 mb-3"
+        >
           <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full" [class.bg-[var(--color-accent)]]="col.isToday" [class.bg-[var(--color-secondary)]]="!col.isToday"></span>
-            <h3 class="text-base font-bold" [class.text-[var(--color-secondary)]]="col.isToday" [class.text-[var(--color-text-primary)]]="!col.isToday">{{ col.dayName }}</h3>
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background)] px-1.5 py-0.5 rounded-full">{{ col.sessions.length }}</span>
+            <span
+              class="w-2.5 h-2.5 rounded-full"
+              [class.bg-[var(--color-accent)]]="col.isToday"
+              [class.bg-[var(--color-secondary)]]="!col.isToday"
+            ></span>
+            <h3
+              class="text-base font-bold"
+              [class.text-[var(--color-secondary)]]="col.isToday"
+              [class.text-[var(--color-text-primary)]]="!col.isToday"
+            >
+              {{ col.dayName }}
+            </h3>
+            <span
+              class="text-[10px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background)] px-1.5 py-0.5 rounded-full"
+              >{{ col.sessions.length }}</span
+            >
           </div>
-          <span class="text-sm font-bold text-[var(--color-text-muted)]">{{ col.formattedDate }}</span>
+          <span class="text-sm font-bold text-[var(--color-text-muted)]">{{
+            col.formattedDate
+          }}</span>
         </div>
 
         <div class="flex flex-col gap-3">
           @for (session of col.sessions; track session.id) {
             @let cat = getCategory(session);
             @let progress = getProgressPercent(session);
-            <div class="session-card rounded-xl border transition-all duration-200 cursor-pointer relative"
-                 [class.session-card--conflict]="isConflict(session)"
-                 [style.border-left-color]="cat.color"
-                 [style.border-left-width]="'3px'"
-                 (click)="onSessionClick(session)">
+            <div
+              class="session-card rounded-xl border transition-all duration-200 cursor-pointer relative"
+              [class.session-card--conflict]="isConflict(session)"
+              [style.border-left-color]="cat.color"
+              [style.border-left-width]="'3px'"
+              (click)="onSessionClick(session)"
+            >
               @if (isConflict(session)) {
                 <div class="conflict-flag" title="Scheduling conflict detected">
                   <i class="pi pi-exclamation-circle"></i>
@@ -218,36 +337,66 @@
               <div class="p-3">
                 <div class="flex items-start justify-between gap-2 mb-1">
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="status-badge" [ngClass]="getStatusBadgeClass(session.status)">{{ session.status }}</span>
-                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]">S{{ session.currentSessionNumber }}/{{ session.totalSessions }}</span>
+                    <span class="status-badge" [ngClass]="getStatusBadgeClass(session.status)">{{
+                      session.status
+                    }}</span>
+                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]"
+                      >S{{ session.currentSessionNumber }}/{{ session.totalSessions }}</span
+                    >
                   </div>
-                  <div class="instructor-avatar instructor-avatar--sm" [title]="session.instructorName" [style.background]="cat.color">
+                  <div
+                    class="instructor-avatar instructor-avatar--sm"
+                    [title]="session.instructorName"
+                  >
                     {{ getInitials(session.instructorName) }}
                   </div>
                 </div>
 
-                <h4 class="text-[13px] font-bold text-[var(--color-text-primary)] leading-tight mb-0.5">{{ session.topic }}</h4>
-                <p class="text-[11px] text-[var(--color-text-secondary)] font-medium truncate">{{ session.courseTitle }}</p>
-                <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">{{ session.groupName }}</p>
+                <h4
+                  class="text-[13px] font-bold text-[var(--color-text-primary)] leading-tight mb-0.5"
+                >
+                  {{ session.topic }}
+                </h4>
+                <p class="text-[11px] text-[var(--color-text-secondary)] font-medium truncate">
+                  {{ session.courseTitle }}
+                </p>
+                <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">
+                  {{ session.groupName }}
+                </p>
 
                 <!-- Progress bar -->
                 <div class="mt-2">
                   <div class="flex items-center justify-between mb-0.5">
-                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]">{{ progress }}%</span>
-                    <span class="text-[9px] font-semibold" [class.text-[var(--color-success)]]="progress === 100" [class.text-[var(--color-secondary)]]="progress > 0 && progress < 100" [class.text-[var(--color-text-muted)]]="progress === 0">{{ getProgressLabel(session) }}</span>
+                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]"
+                      >Course progress: {{ progress }}%</span
+                    >
+                    <span
+                      class="text-[9px] font-semibold"
+                      [class.text-[var(--color-success)]]="progress === 100"
+                      [class.text-[var(--color-secondary)]]="progress > 0 && progress < 100"
+                      [class.text-[var(--color-text-muted)]]="progress === 0"
+                      >{{ getProgressLabel(session) }}</span
+                    >
                   </div>
                   <div class="progress-track">
-                    <div class="progress-fill" [style.width.%]="progress"
-                         [class.progress-fill--done]="progress === 100"
-                         [class.progress-fill--active]="progress > 0 && progress < 100"
-                         [style.background]="cat.color"></div>
+                    <div
+                      class="progress-fill"
+                      [style.width.%]="progress"
+                      [class.progress-fill--done]="progress === 100"
+                      [class.progress-fill--active]="progress > 0 && progress < 100"
+                      [style.background]="cat.color"
+                    ></div>
                   </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-1 mt-2 pt-2 border-t border-[var(--color-border)] text-[10px] text-[var(--color-text-muted)]">
+                <div
+                  class="grid grid-cols-2 gap-1 mt-2 pt-2 border-t border-[var(--color-border)] text-[10px] text-[var(--color-text-muted)]"
+                >
                   <div class="flex items-center gap-1">
                     <i class="pi pi-clock"></i>
-                    <span>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span>
+                    <span
+                      >{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span
+                    >
                   </div>
                   @if (session.location) {
                     <div class="flex items-center gap-1">
@@ -259,10 +408,13 @@
               </div>
             </div>
           } @empty {
-            <div class="text-center py-4 text-[var(--color-text-muted)] text-xs font-semibold">No sessions scheduled for this day.</div>
+            <div class="text-center py-4 text-[var(--color-text-muted)] text-xs font-semibold">
+              No sessions scheduled for this day.
+            </div>
           }
         </div>
       </div>
     }
   </div>
 </div>
+
