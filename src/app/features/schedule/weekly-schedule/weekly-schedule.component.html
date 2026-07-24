@@ -12,7 +12,12 @@
           <h3 class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
             {{ col.dayName }}
           </h3>
-          <p class="text-lg font-extrabold text-[var(--color-text-primary)] mt-0.5">
+          <p
+            class="text-lg font-extrabold mt-0.5"
+            [class]="
+              col.isToday ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-primary)]'
+            "
+          >
             {{ col.formattedDate }}
           </p>
         </div>
@@ -114,8 +119,16 @@
           class="flex items-center justify-between border-b border-[var(--color-border)] pb-3 mb-4"
         >
           <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-[var(--color-secondary)]"></span>
-            <h3 class="text-base font-bold text-[var(--color-text-primary)]">
+            <span
+              class="w-2.5 h-2.5 rounded-full"
+              [class]="col.isToday ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-secondary)]'"
+            ></span>
+            <h3
+              class="text-base font-bold"
+              [class]="
+                col.isToday ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-primary)]'
+              "
+            >
               {{ col.dayName }}
             </h3>
           </div>

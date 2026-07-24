@@ -12,6 +12,30 @@ import {
 import { Group } from '../interfaces/Group';
 import { ScheduleSession } from '../interfaces/ScheduleSession';
 
+export interface CreateGroupPayload {
+  name: string;
+  startDate: string;
+  endDate: string;
+  defaultInstructorId: string;
+  status?: number;
+  location?: string;
+  courseIds?: string[];
+}
+
+export interface UpdateGroupPayload {
+  name: string;
+  startDate: string;
+  endDate: string;
+  defaultInstructorId: string;
+  status: number;
+  location?: string;
+}
+
+export interface BulkAttendanceItem {
+  studentId: string;
+  status: AttendanceStatus;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -72,6 +96,10 @@ export class LmsService {
     return this.http.get<User[]>(`${this.getApiUrl()}/users`);
   }
 
+  getInstructors(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.getApiUrl()}/instructors`);
+  }
+
   // ─── Courses ─────────────────────────────────────────────────────────────
 
   getCourses(): Observable<Course[]> {
@@ -84,6 +112,18 @@ export class LmsService {
 
   getGroup(id: string): Observable<Group> {
     return this.http.get<Group>(`${this.getApiUrl()}/groups/${id}`);
+  }
+
+  createGroup(payload: CreateGroupPayload): Observable<Group> {
+    return this.http.post<Group>(`${this.getApiUrl()}/groups`, payload);
+  }
+
+  updateGroup(id: string, payload: UpdateGroupPayload): Observable<Group> {
+    return this.http.put<Group>(`${this.getApiUrl()}/groups/${id}`, payload);
+  }
+
+  deleteGroup(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/groups/${id}`);
   }
 
   // ─── Schedule ────────────────────────────────────────────────────────────
@@ -111,5 +151,9 @@ export class LmsService {
 
   updateAttendance(id: string, payload: UpdateAttendanceDto): Observable<AttendanceResponseDto> {
     return this.http.put<AttendanceResponseDto>(`${this.getApiUrl()}/Attendance/${id}`, payload);
+  }
+
+  saveBulkAttendance(sessionId: string, records: BulkAttendanceItem[]): Observable<any> {
+    return this.http.post(`${this.getApiUrl()}/Attendance/session/${sessionId}`, records);
   }
 }

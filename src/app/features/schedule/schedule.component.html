@@ -1,4 +1,3 @@
-
 <div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -93,10 +92,18 @@
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
   } @else if (isAdmin && instructors().length === 0) {
-    <div class="flex flex-col items-center justify-center py-24 border border-dashed border-[var(--color-border)] rounded-2xl text-[var(--color-text-muted)] text-center">
+    <div
+      class="flex flex-col items-center justify-center py-24 border border-dashed border-[var(--color-border)] rounded-2xl text-[var(--color-text-muted)] text-center"
+    >
       <i class="pi pi-users text-5xl mb-4 opacity-40"></i>
       <p class="font-bold text-base text-[var(--color-text-primary)]">No instructors found</p>
-      <p class="text-sm mt-1">Add instructor accounts via <a routerLink="/users" class="text-[var(--color-secondary)] font-semibold hover:underline">Users & Staff</a> to view their schedules.</p>
+      <p class="text-sm mt-1">
+        Add instructor accounts via
+        <a routerLink="/users" class="text-[var(--color-secondary)] font-semibold hover:underline"
+          >Users & Staff</a
+        >
+        to view their schedules.
+      </p>
     </div>
   } @else {
     <app-weekly-schedule
@@ -108,7 +115,4 @@
 </div>
 
 <!-- Session detail dialog -->
-<app-session-detail-panel
-  [session]="selectedSession()"
-  (closed)="onPanelClosed()"
-/>
+<app-session-detail-panel [session]="selectedSession()" (closed)="onPanelClosed()" />
