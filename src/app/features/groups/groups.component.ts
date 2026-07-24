@@ -2,8 +2,12 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { LmsService, Group } from '../../core/services/lms.service';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { LmsService, Group, User, Course, CreateGroupPayload, UpdateGroupPayload } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Role } from '../../core/interfaces/Role';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -12,10 +16,24 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   Archived: { label: 'Archived', css: 'status-archived', icon: 'pi-archive' },
 };
 
+const STATUS_OPTIONS = [
+  { label: 'Running', value: 0 },
+  { label: 'Stopped', value: 1 },
+  { label: 'Completed', value: 2 },
+  { label: 'Archived', value: 3 },
+];
+
+const STATUS_MAP: Record<string, number> = {
+  Running: 0,
+  Stopped: 1,
+  Completed: 2,
+  Archived: 3,
+};
+
 @Component({
   selector: 'app-groups',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, ButtonModule],
   template: `
     <div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
       <!-- Page Header -->
@@ -44,7 +62,7 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
           </div>
 
           <!-- Search -->
-          <div class="relative w-full md:w-72">
+          <div class="relative w-full md:w-64">
             <input
               type="text"
               [ngModel]="searchQuery()"
@@ -54,6 +72,17 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
             />
             <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"></i>
           </div>
+
+          <!-- Admin Add Group Button -->
+          @if (isAdmin()) {
+            <button
+              (click)="openCreateModal()"
+              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md"
+            >
+              <i class="pi pi-plus text-xs"></i>
+              Create Group
+            </button>
+          }
         </div>
       </div>
 
@@ -121,6 +150,26 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
                   <span class="text-xs text-[var(--color-text-muted)]">
                     {{ group.startDate | date:'MMM y' }} – {{ group.endDate | date:'MMM y' }}
                   </span>
+
+                  <!-- Admin Actions -->
+                  @if (isAdmin()) {
+                    <div class="flex items-center gap-1 ml-2 border-l border-[var(--color-border)] pl-3">
+                      <button
+                        (click)="openEditModal(group)"
+                        title="Edit Group"
+                        class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-background-alt)] transition-all duration-200"
+                      >
+                        <i class="pi pi-pencil text-sm"></i>
+                      </button>
+                      <button
+                        (click)="confirmDelete(group)"
+                        title="Delete Group"
+                        class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-background-alt)] transition-all duration-200"
+                      >
+                        <i class="pi pi-trash text-sm"></i>
+                      </button>
+                    </div>
+                  }
                 </div>
               </div>
 
@@ -150,6 +199,174 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
           }
         </div>
       }
+
+      <!-- Create / Edit Group Modal -->
+      <p-dialog
+        [(visible)]="showModal"
+        [header]="modalMode() === 'create' ? 'Create Group' : 'Edit Group'"
+        [modal]="true"
+        [style]="{ width: '90%', maxWidth: '560px' }"
+        [draggable]="false"
+        [resizable]="false"
+      >
+        <form (ngSubmit)="saveGroup()" class="flex flex-col gap-4 pt-2">
+          <!-- Name -->
+          <div>
+            <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Group Name *</label>
+            <input
+              type="text"
+              [(ngModel)]="formName"
+              name="name"
+              required
+              placeholder="e.g. Group A - Spring 2026"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+            />
+          </div>
+
+          <!-- Instructor -->
+          <div>
+            <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Default Instructor *</label>
+            <select
+              [(ngModel)]="formInstructorId"
+              name="defaultInstructorId"
+              required
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+            >
+              <option value="">Select Instructor...</option>
+              @for (inst of instructors(); track inst.id) {
+                <option [value]="inst.id">{{ inst.name }} ({{ inst.email }})</option>
+              }
+            </select>
+          </div>
+
+          <!-- Dates Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Start Date *</label>
+              <input
+                type="date"
+                [(ngModel)]="formStartDate"
+                name="startDate"
+                required
+                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">End Date *</label>
+              <input
+                type="date"
+                [(ngModel)]="formEndDate"
+                name="endDate"
+                required
+                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+              />
+            </div>
+          </div>
+
+          <!-- Status & Location Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Status *</label>
+              <select
+                [(ngModel)]="formStatus"
+                name="status"
+                required
+                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+              >
+                @for (opt of statusOptions; track opt.value) {
+                  <option [ngValue]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Location</label>
+              <input
+                type="text"
+                [(ngModel)]="formLocation"
+                name="location"
+                placeholder="e.g. MOA Room 1"
+                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+              />
+            </div>
+          </div>
+
+          <!-- Course Selection (Create Mode only) -->
+          @if (modalMode() === 'create') {
+            <div>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Assigned Courses</label>
+              <div class="max-h-40 overflow-y-auto border border-[var(--color-border)] rounded-xl p-3 bg-[var(--color-surface)] flex flex-col gap-2">
+                @for (course of availableCourses(); track course.id) {
+                  <label class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="isCourseSelected(course.id)"
+                      (change)="toggleCourseSelection(course.id)"
+                      class="rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)]"
+                    />
+                    <span class="font-medium">{{ course.title }}</span>
+                    <span class="text-[var(--color-text-muted)]">({{ course.topic }} - L{{ course.level }})</span>
+                  </label>
+                } @empty {
+                  <p class="text-xs text-[var(--color-text-muted)]">No courses available.</p>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Submit buttons -->
+          <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+            <button
+              type="button"
+              (click)="showModal.set(false)"
+              class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="saving()"
+              class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
+            >
+              {{ saving() ? 'Saving...' : (modalMode() === 'create' ? 'Create Group' : 'Save Changes') }}
+            </button>
+          </div>
+        </form>
+      </p-dialog>
+
+      <!-- Delete Confirmation Modal -->
+      <p-dialog
+        [(visible)]="showDeleteConfirmModal"
+        header="Delete Group"
+        [modal]="true"
+        [style]="{ width: '90%', maxWidth: '440px' }"
+        [draggable]="false"
+        [resizable]="false"
+      >
+        <div class="pt-2">
+          <p class="text-sm text-[var(--color-text-primary)]">
+            Are you sure you want to delete group <strong class="text-[var(--color-danger)]">{{ groupToDelete()?.name }}</strong>?
+            This will delete all sessions, schedules, and enrollments linked to this group.
+          </p>
+
+          <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-[var(--color-border)]">
+            <button
+              type="button"
+              (click)="showDeleteConfirmModal.set(false)"
+              class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="deleteGroup()"
+              [disabled]="saving()"
+              class="px-4 py-2 rounded-xl bg-[var(--color-danger)] text-white font-semibold text-xs hover:opacity-90 transition-all duration-200 disabled:opacity-50"
+            >
+              {{ saving() ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
+        </div>
+      </p-dialog>
     </div>
   `,
   styles: `
@@ -181,13 +398,39 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
 export class GroupsComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
+  private auth = inject(AuthService);
+
+  readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
   groups = signal<Group[]>([]);
   loading = signal(true);
   searchQuery = signal('');
   statusFilter = signal('All');
 
+  instructors = signal<User[]>([]);
+  availableCourses = signal<Course[]>([]);
+
+  // Modal signals
+  showModal = signal(false);
+  modalMode = signal<'create' | 'edit'>('create');
+  selectedGroupId = signal<string | null>(null);
+  saving = signal(false);
+
+  // Form signals
+  formName = '';
+  formStartDate = '';
+  formEndDate = '';
+  formInstructorId = '';
+  formStatus = 0;
+  formLocation = '';
+  formSelectedCourseIds: string[] = [];
+
+  // Delete modal signals
+  showDeleteConfirmModal = signal(false);
+  groupToDelete = signal<Group | null>(null);
+
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
+  statusOptions = STATUS_OPTIONS;
 
   filteredGroups = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
@@ -211,6 +454,10 @@ export class GroupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGroups();
+    if (this.isAdmin()) {
+      this.loadInstructors();
+      this.loadCourses();
+    }
   }
 
   loadGroups(): void {
@@ -222,6 +469,139 @@ export class GroupsComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+      },
+    });
+  }
+
+  loadInstructors(): void {
+    this.lmsService.getInstructors().subscribe({
+      next: (data) => this.instructors.set(data || []),
+      error: () => {},
+    });
+  }
+
+  loadCourses(): void {
+    this.lmsService.getCourses().subscribe({
+      next: (data) => this.availableCourses.set(data || []),
+      error: () => {},
+    });
+  }
+
+  openCreateModal(): void {
+    this.modalMode.set('create');
+    this.selectedGroupId.set(null);
+    this.formName = '';
+    this.formStartDate = '';
+    this.formEndDate = '';
+    this.formInstructorId = '';
+    this.formStatus = 0;
+    this.formLocation = '';
+    this.formSelectedCourseIds = [];
+    this.showModal.set(true);
+  }
+
+  openEditModal(group: Group): void {
+    this.modalMode.set('edit');
+    this.selectedGroupId.set(group.id);
+    this.formName = group.name;
+    this.formStartDate = group.startDate ? group.startDate.split('T')[0] : '';
+    this.formEndDate = group.endDate ? group.endDate.split('T')[0] : '';
+    this.formInstructorId = group.defaultInstructorId || '';
+    this.formStatus = STATUS_MAP[group.status] ?? 0;
+    this.formLocation = group.location || '';
+    this.formSelectedCourseIds = [];
+    this.showModal.set(true);
+  }
+
+  isCourseSelected(courseId: string): boolean {
+    return this.formSelectedCourseIds.includes(courseId);
+  }
+
+  toggleCourseSelection(courseId: string): void {
+    if (this.isCourseSelected(courseId)) {
+      this.formSelectedCourseIds = this.formSelectedCourseIds.filter((id) => id !== courseId);
+    } else {
+      this.formSelectedCourseIds = [...this.formSelectedCourseIds, courseId];
+    }
+  }
+
+  saveGroup(): void {
+    if (!this.formName || !this.formStartDate || !this.formEndDate || !this.formInstructorId) {
+      this.notify.showError('Please fill in all required fields.');
+      return;
+    }
+
+    this.saving.set(true);
+
+    if (this.modalMode() === 'create') {
+      const payload: CreateGroupPayload = {
+        name: this.formName,
+        startDate: this.formStartDate,
+        endDate: this.formEndDate,
+        defaultInstructorId: this.formInstructorId,
+        status: this.formStatus,
+        location: this.formLocation || undefined,
+        courseIds: this.formSelectedCourseIds,
+      };
+
+      this.lmsService.createGroup(payload).subscribe({
+        next: () => {
+          this.notify.showSuccess('Group created successfully.');
+          this.saving.set(false);
+          this.showModal.set(false);
+          this.loadGroups();
+        },
+        error: () => {
+          this.saving.set(false);
+        },
+      });
+    } else {
+      const id = this.selectedGroupId();
+      if (!id) return;
+
+      const payload: UpdateGroupPayload = {
+        name: this.formName,
+        startDate: this.formStartDate,
+        endDate: this.formEndDate,
+        defaultInstructorId: this.formInstructorId,
+        status: this.formStatus,
+        location: this.formLocation || undefined,
+      };
+
+      this.lmsService.updateGroup(id, payload).subscribe({
+        next: () => {
+          this.notify.showSuccess('Group updated successfully.');
+          this.saving.set(false);
+          this.showModal.set(false);
+          this.loadGroups();
+        },
+        error: () => {
+          this.saving.set(false);
+        },
+      });
+    }
+  }
+
+  confirmDelete(group: Group): void {
+    this.groupToDelete.set(group);
+    this.showDeleteConfirmModal.set(true);
+  }
+
+  deleteGroup(): void {
+    const group = this.groupToDelete();
+    if (!group) return;
+
+    this.saving.set(true);
+    this.lmsService.deleteGroup(group.id).subscribe({
+      next: () => {
+        this.notify.showSuccess(`Group ${group.name} deleted.`);
+        this.saving.set(false);
+        this.showDeleteConfirmModal.set(false);
+        this.groupToDelete.set(null);
+        this.loadGroups();
+      },
+      error: () => {
+        this.saving.set(false);
       },
     });
   }
