@@ -1,34 +1,33 @@
-import { GroupCourse } from "./GroupCourse";
+import { GroupCourse } from './GroupCourse';
 
 export interface Group {
-  id: string;
+  id: number;
   name: string;
   startDate: string;
   endDate: string;
   status: string;
   location?: string;
-  defaultInstructorId: string;
+  defaultInstructorId: number;
   defaultInstructorName: string;
   studentCount: number;
   courses: GroupCourse[];
 }
 
-
 export interface CreateGroupPayload {
   name: string;
   startDate: string;
   endDate: string;
-  defaultInstructorId: string;
+  defaultInstructorId: number;
   status?: number;
   location?: string;
-  courseIds?: string[];
+  courseIds?: number[];
 }
 
 export interface UpdateGroupPayload {
   name: string;
   startDate: string;
   endDate: string;
-  defaultInstructorId: string;
+  defaultInstructorId: number;
   status: number;
   location?: string;
 }

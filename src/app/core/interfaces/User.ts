@@ -1,7 +1,7 @@
-import { Role } from "./Role";
+import { Role } from './Role';
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: Role;
@@ -11,9 +11,9 @@ export interface User {
   avatarUrl?: string;
   location?: string;
   title?: string;
-  groupName?: string
-  groupId?: string;
-  createdAt?: string
+  groupName?: string;
+  groupId?: number;
+  createdAt?: string;
 }
 
 export interface CreateUserPayload {
@@ -21,7 +21,7 @@ export interface CreateUserPayload {
   email: string;
   password: string;
   role: Role;
-  groupId?: string;
+  groupId?: number;
 }
 
 export interface UpdateUserPayload {
@@ -29,5 +29,5 @@ export interface UpdateUserPayload {
   email: string;
   password?: string;
   role: Role;
-  groupId?: string;
+  groupId?: number;
 }

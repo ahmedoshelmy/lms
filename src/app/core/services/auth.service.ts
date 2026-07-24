@@ -20,7 +20,7 @@ export class AuthService {
   readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
   readonly currentRole = computed<Role | null>(() => this.currentUserSignal()?.role ?? null);
 
-  getUserId(): string | null {
+  getUserId(): number | null {
     return this.currentUserSignal()?.id ?? null;
   }
 

@@ -1,5 +1,5 @@
 export interface GroupCourse {
-  courseId: string;
+  courseId: number;
   title: string;
   topic: string;
   level: string;

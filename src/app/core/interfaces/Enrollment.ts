@@ -1,8 +1,8 @@
 export interface Enrollment {
-  id: string;
-  courseId: string;
+  id: number;
+  courseId: number;
   courseTitle?: string;
-  studentId: string;
+  studentId: number;
   studentName?: string;
   enrollmentDate: string;
   progressPercentage: number;

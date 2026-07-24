@@ -47,13 +47,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/courses/courses.component').then((c) => c.CoursesComponent),
       },
-      {
-        path: 'progress',
-        canActivate: [roleGuard],
-        data: { roles: getRolesForPath('progress') },
-        loadComponent: () =>
-          import('./features/progress/progress.component').then((c) => c.ProgressComponent),
-      },
 
       {
         path: 'attendance',
@@ -61,14 +54,6 @@ export const routes: Routes = [
         data: { roles: getRolesForPath('attendance') },
         loadComponent: () =>
           import('./features/attendance/attendance.component').then((c) => c.AttendanceComponent),
-      },
-
-      {
-        path: 'resources',
-        canActivate: [roleGuard],
-        data: { roles: getRolesForPath('resources') },
-        loadComponent: () =>
-          import('./features/resources/resources.component').then((c) => c.ResourcesComponent),
       },
       {
         path: 'groups',

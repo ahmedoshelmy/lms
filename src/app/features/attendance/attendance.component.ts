@@ -12,11 +12,11 @@ import { UpdateAttendanceDto, CreateAttendanceDto } from '../../core/interfaces/
 import { User } from '../../core/interfaces/User';
 
 interface StudentAttendanceRecord {
-  studentId: string;
+  studentId: number;
   studentName: string;
   studentEmail: string;
   status: AttendanceStatus;
-  recordId?: string; // Existing record UUID if updating
+  recordId?: number; // Existing record UUID if updating
   isSaved?: boolean;
 }
 
@@ -36,7 +36,7 @@ export class AttendanceComponent implements OnInit {
 
   sessions = signal<ScheduleSession[]>([]);
   students = signal<User[]>([]);
-  selectedSessionId = signal<string>('');
+  selectedSessionId = signal<number>(0);
   records = signal<StudentAttendanceRecord[]>([]);
 
   loading = signal(false);
@@ -84,12 +84,12 @@ export class AttendanceComponent implements OnInit {
     });
   }
 
-  onSessionChange(sessionId: string): void {
+  onSessionChange(sessionId: number): void {
     this.selectedSessionId.set(sessionId);
     this.loadStudentsForSession(sessionId);
   }
 
-  private loadStudentsForSession(sessionId: string): void {
+  private loadStudentsForSession(sessionId: number): void {
     this.loading.set(true);
 
     this.lms.getStudents().subscribe({
@@ -102,7 +102,7 @@ export class AttendanceComponent implements OnInit {
         const storedJson = isPlatformBrowser(this.platformId)
           ? localStorage.getItem(storedKey)
           : null;
-        const storedMap: Record<string, { status: number; recordId?: string }> = storedJson
+        const storedMap: Record<string, { status: number; recordId?: number }> = storedJson
           ? JSON.parse(storedJson)
           : {};
 
@@ -111,7 +111,8 @@ export class AttendanceComponent implements OnInit {
           studentName: st.name,
           studentEmail: st.email,
           status: storedMap[st.id]?.status ?? AttendanceStatus.Present,
-          recordId: storedMap[st.id]?.recordId,
+          recordId: storedMap[st.id]?.recordId ? Number(storedMap[st.id].recordId) : undefined,
+          isSaved: false,
         }));
 
         this.records.set(recs);
@@ -145,7 +146,7 @@ export class AttendanceComponent implements OnInit {
     let hasError = false;
 
     // Save to local storage cache immediately
-    const cacheMap: Record<string, { status: number; recordId?: string }> = {};
+    const cacheMap: Record<string, { status: number; recordId?: number }> = {};
 
     recs.forEach((r) => {
       cacheMap[r.studentId] = { status: r.status, recordId: r.recordId };
@@ -194,7 +195,7 @@ export class AttendanceComponent implements OnInit {
   }
 
   private finishSave(
-    cacheMap: Record<string, { status: number; recordId?: string }>,
+    cacheMap: Record<string, { status: number; recordId?: number }>,
     hasError: boolean
   ): void {
     const sessionId = this.selectedSessionId();

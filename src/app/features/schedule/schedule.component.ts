@@ -39,7 +39,7 @@ export class ScheduleComponent implements OnInit {
 
   sessions = signal<ScheduleSession[]>([]);
   instructors = signal<User[]>([]);
-  selectedInstructorId = signal<string>('');
+  selectedInstructorId = signal<number>(0);
   currentWeekStart = signal<Date>(new Date());
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
@@ -89,7 +89,7 @@ export class ScheduleComponent implements OnInit {
       next: (users) => {
         const filtered = (users || []).filter((u) => u.role === Role.Instructor);
         const options: User[] = [
-          { id: 'all', name: 'All Instructors', email: '', role: Role.Instructor },
+          { id: 0, name: 'All Instructors', email: '', role: Role.Instructor },
           ...filtered,
         ];
         this.instructors.set(options);
@@ -116,19 +116,17 @@ export class ScheduleComponent implements OnInit {
     toDate.setDate(toDate.getDate() + 7);
 
     let url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
-    if (userId && userId !== 'all') {
+    if (userId && userId !== 0) {
       url += `&instructorId=${userId}&userId=${userId}`;
     }
 
     const headers: Record<string, string> = {};
-    if (userId && userId !== 'all' && this.isAdmin) {
-      headers['X-User-Id'] = userId;
-    }
+    
 
     this.http.get<ScheduleSession[]>(url, { headers }).subscribe({
       next: (res) => {
         let sessions = res || [];
-        if (userId && userId !== 'all') {
+        if (userId && userId !== 0) {
           const selectedInst = this.instructors().find((i) => i.id === userId);
           const filtered = sessions.filter((s) => {
             if (s.instructorId === userId) return true;

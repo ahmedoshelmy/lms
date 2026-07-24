@@ -5,17 +5,17 @@ import { Role } from '../interfaces/Role';
 import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
-import { CreateAttendanceDto, AttendanceResponseDto, UpdateAttendanceDto } from '../interfaces/Attendance';
+import {
+  CreateAttendanceDto,
+  AttendanceResponseDto,
+  UpdateAttendanceDto,
+} from '../interfaces/Attendance';
 import { Course } from '../interfaces/Course';
 import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
 import { ScheduleSession } from '../interfaces/ScheduleSession';
 
-
-
-
-
 export interface BulkAttendanceItem {
-  studentId: string;
+  studentId: number;
   status: AttendanceStatus;
 }
 
@@ -91,11 +91,11 @@ export class LmsService {
     return this.http.post<User>(`${this.getApiUrl()}/users`, payload);
   }
 
-  updateUser(id: string, payload: UpdateUserPayload): Observable<User> {
+  updateUser(id: number, payload: UpdateUserPayload): Observable<User> {
     return this.http.put<User>(`${this.getApiUrl()}/users/${id}`, payload);
   }
 
-  deleteUser(id: string): Observable<void> {
+  deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.getApiUrl()}/users/${id}`);
   }
 
@@ -109,7 +109,7 @@ export class LmsService {
     return this.http.get<Group[]>(`${this.getApiUrl()}/groups`);
   }
 
-  getGroup(id: string): Observable<Group> {
+  getGroup(id: number): Observable<Group> {
     return this.http.get<Group>(`${this.getApiUrl()}/groups/${id}`);
   }
 
@@ -117,11 +117,11 @@ export class LmsService {
     return this.http.post<Group>(`${this.getApiUrl()}/groups`, payload);
   }
 
-  updateGroup(id: string, payload: UpdateGroupPayload): Observable<Group> {
+  updateGroup(id: number, payload: UpdateGroupPayload): Observable<Group> {
     return this.http.put<Group>(`${this.getApiUrl()}/groups/${id}`, payload);
   }
 
-  deleteGroup(id: string): Observable<void> {
+  deleteGroup(id: number): Observable<void> {
     return this.http.delete<void>(`${this.getApiUrl()}/groups/${id}`);
   }
 
@@ -148,11 +148,11 @@ export class LmsService {
     return this.http.post<AttendanceResponseDto>(`${this.getApiUrl()}/Attendance`, payload);
   }
 
-  updateAttendance(id: string, payload: UpdateAttendanceDto): Observable<AttendanceResponseDto> {
+  updateAttendance(id: number, payload: UpdateAttendanceDto): Observable<AttendanceResponseDto> {
     return this.http.put<AttendanceResponseDto>(`${this.getApiUrl()}/Attendance/${id}`, payload);
   }
 
-  saveBulkAttendance(sessionId: string, records: BulkAttendanceItem[]): Observable<any> {
+  saveBulkAttendance(sessionId: number, records: BulkAttendanceItem[]): Observable<any> {
     return this.http.post(`${this.getApiUrl()}/Attendance/session/${sessionId}`, records);
   }
 }

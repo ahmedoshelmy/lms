@@ -8,13 +8,6 @@ export const userIdInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Only inject X-User-Id when the request does not already set it explicitly
   // (e.g. the schedule component overriding it for an admin-selected instructor).
-  if (userId && !req.headers.has('X-User-Id')) {
-    req = req.clone({
-      setHeaders: {
-        'X-User-Id': userId,
-      },
-    });
-  }
 
   return next(req);
 };

@@ -59,17 +59,17 @@ export class GroupsComponent implements OnInit {
   // Modal signals
   showModal = signal(false);
   modalMode = signal<'create' | 'edit'>('create');
-  selectedGroupId = signal<string | null>(null);
+  selectedGroupId = signal<number | null>(null);
   saving = signal(false);
 
   // Form signals
   formName = '';
   formStartDate = '';
   formEndDate = '';
-  formInstructorId = '';
+  formInstructorId = 0;
   formStatus = 0;
   formLocation = '';
-  formSelectedCourseIds: string[] = [];
+  formSelectedCourseIds: number[] = [];
 
   // Delete modal signals
   showDeleteConfirmModal = signal(false);
@@ -77,7 +77,7 @@ export class GroupsComponent implements OnInit {
 
   // Instructor Reassignment confirmation signals
   editingGroup = signal<Group | null>(null);
-  originalInstructorId = signal<string>('');
+  originalInstructorId = signal<number>(0);
   showInstructorConfirmModal = signal<boolean>(false);
   pendingInstructorName = signal<string>('');
   pendingRemainingSessions = signal<number>(0);
@@ -153,11 +153,11 @@ export class GroupsComponent implements OnInit {
     this.modalMode.set('create');
     this.selectedGroupId.set(null);
     this.editingGroup.set(null);
-    this.originalInstructorId.set('');
+    this.originalInstructorId.set(0);
     this.formName = '';
     this.formStartDate = '';
     this.formEndDate = '';
-    this.formInstructorId = '';
+    this.formInstructorId = 0;
     this.formStatus = 0;
     this.formLocation = '';
     this.formSelectedCourseIds = [];
@@ -168,11 +168,11 @@ export class GroupsComponent implements OnInit {
     this.modalMode.set('edit');
     this.selectedGroupId.set(group.id);
     this.editingGroup.set(group);
-    this.originalInstructorId.set(group.defaultInstructorId || '');
+    this.originalInstructorId.set(group.defaultInstructorId || 0);
     this.formName = group.name;
     this.formStartDate = group.startDate ? group.startDate.split('T')[0] : '';
     this.formEndDate = group.endDate ? group.endDate.split('T')[0] : '';
-    this.formInstructorId = group.defaultInstructorId || '';
+    this.formInstructorId = group.defaultInstructorId || 0;
     this.formStatus = STATUS_MAP[group.status] ?? 0;
     this.formLocation = group.location || '';
     this.formSelectedCourseIds = [];
@@ -204,11 +204,11 @@ export class GroupsComponent implements OnInit {
     }, 0);
   }
 
-  isCourseSelected(courseId: string): boolean {
+  isCourseSelected(courseId: number): boolean {
     return this.formSelectedCourseIds.includes(courseId);
   }
 
-  toggleCourseSelection(courseId: string): void {
+  toggleCourseSelection(courseId: number): void {
     if (this.isCourseSelected(courseId)) {
       this.formSelectedCourseIds = this.formSelectedCourseIds.filter((id) => id !== courseId);
     } else {

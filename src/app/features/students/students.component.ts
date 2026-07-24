@@ -36,7 +36,7 @@ export class StudentsComponent implements OnInit {
   formName = signal('');
   formEmail = signal('');
   formPassword = signal('');
-  formGroupId = signal<string>('');
+  formGroupId = signal<number>(0);
 
   filteredStudents = computed(() => {
     const q = this.searchQuery().toLowerCase();
@@ -77,7 +77,7 @@ export class StudentsComponent implements OnInit {
     this.formName.set('');
     this.formEmail.set('');
     this.formPassword.set('');
-    this.formGroupId.set('');
+    this.formGroupId.set(0);
     this.showStudentModal.set(true);
   }
 
@@ -86,7 +86,7 @@ export class StudentsComponent implements OnInit {
     this.formName.set(student.name);
     this.formEmail.set(student.email);
     this.formPassword.set('');
-    this.formGroupId.set(student.groupId || '');
+    this.formGroupId.set(student.groupId || 0);
     this.showStudentModal.set(true);
   }
 

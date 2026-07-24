@@ -1,4 +1,4 @@
-import { Role } from "./Role";
+import { Role } from './Role';
 
 export interface LoginRequest {
   email: string;
@@ -6,7 +6,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: Role;

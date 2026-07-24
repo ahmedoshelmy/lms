@@ -1,8 +1,8 @@
-import { AttendanceStatus } from "../enums/AttendanceStatus";
+import { AttendanceStatus } from '../enums/AttendanceStatus';
 
 export interface CreateAttendanceDto {
-  sessionId: string;
-  studentId: string;
+  sessionId: number;
+  studentId: number;
   status: AttendanceStatus;
 }
 
@@ -11,9 +11,9 @@ export interface UpdateAttendanceDto {
 }
 
 export interface AttendanceResponseDto {
-  id: string;
-  sessionId: string;
-  studentId: string;
+  id: number;
+  sessionId: number;
+  studentId: number;
   studentName?: string;
   studentEmail?: string;
   status: string | AttendanceStatus;
@@ -26,16 +26,16 @@ export interface AttendanceResponseDto {
 }
 
 export interface AttendanceSession {
-  id: string;
-  courseId: string;
+  id: number;
+  courseId: number;
   courseTitle?: string;
   date: string; // ISO date string
   records: AttendanceRecord[];
 }
 
 export interface AttendanceRecord {
-  studentId: string;
+  studentId: number;
   studentName?: string;
   status: AttendanceStatus;
-  recordId?: string;
+  recordId?: number;
 }

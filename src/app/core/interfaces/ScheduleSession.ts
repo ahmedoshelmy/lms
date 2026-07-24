@@ -1,13 +1,13 @@
 export interface ScheduleSession {
-  id: string;
+  id: number;
   courseTitle: string;
   groupName: string;
-  groupId: string;
+  groupId: number;
   topic: string;
   startsAt: string;
   endsAt: string;
   durationMinutes: number;
-  instructorId: string;
+  instructorId: number;
   instructorName: string;
   location?: string;
   status: string;

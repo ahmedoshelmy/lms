@@ -41,20 +41,6 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
-    path: 'progress',
-    label: 'Progress',
-    icon: 'pi pi-chart-line',
-    roles: ALL_ROLES,
-    showInMenu: true,
-  },
-  {
-    path: 'resources',
-    label: 'Resources',
-    icon: 'pi pi-folder-open',
-    roles: ALL_ROLES,
-    showInMenu: true,
-  },
-  {
     path: 'groups',
     label: 'Groups',
     icon: 'pi pi-sitemap',
