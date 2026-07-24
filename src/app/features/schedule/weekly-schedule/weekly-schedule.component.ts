@@ -1,8 +1,16 @@
 import { Component, input, computed, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CardModule } from 'primeng/card';
-import { TooltipModule } from 'primeng/tooltip';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
+
+export type DensityMode = 'compact' | 'comfortable' | 'timeline';
+
+interface CategoryMeta {
+  key: string;
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+}
 
 interface DayColumn {
   date: Date;
@@ -12,325 +20,196 @@ interface DayColumn {
   isToday: boolean;
 }
 
+const CATEGORIES: CategoryMeta[] = [
+  { key: 'mobile', label: 'Mobile App Dev', color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)', border: 'rgba(139,92,246,0.25)' },
+  { key: 'python', label: 'Python', color: '#0d9488', bg: 'rgba(13,148,136,0.08)', border: 'rgba(13,148,136,0.25)' },
+  { key: 'wedo', label: 'WeDo / Robotics', color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.25)' },
+  { key: 'arduino', label: 'Arduino', color: '#d97706', bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.25)' },
+  { key: 'ai', label: 'AI', color: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.25)' },
+  { key: 'general', label: 'General', color: '#6b7280', bg: 'rgba(107,114,128,0.08)', border: 'rgba(107,114,128,0.25)' },
+];
+
+function classifyCategory(session: ScheduleSession): CategoryMeta {
+  const text = `${session.topic || ''} ${session.courseTitle || ''}`.toLowerCase();
+  if (/mobile|app dev|android|ios|flutter|react native/.test(text)) return CATEGORIES[0];
+  if (/python|py\b/.test(text)) return CATEGORIES[1];
+  if (/wedo|robotics|lego/.test(text)) return CATEGORIES[2];
+  if (/arduino|electronics|sensor/.test(text)) return CATEGORIES[3];
+  if (/\bai\b|machine learning|deep learning|neural/.test(text)) return CATEGORIES[4];
+  return CATEGORIES[5];
+}
+
+function parseTime(iso: string): number {
+  return new Date(iso).getTime();
+}
+
+function overlaps(a: ScheduleSession, b: ScheduleSession): boolean {
+  return parseTime(a.startsAt) < parseTime(b.endsAt) && parseTime(b.startsAt) < parseTime(a.endsAt);
+}
+
 @Component({
   selector: 'app-weekly-schedule',
   standalone: true,
-  imports: [CommonModule, CardModule, TooltipModule],
-  template: `
-    <div class="weekly-schedule-wrapper">
-      <!-- Desktop View: Grid -->
-      <div
-        class="hidden md:grid grid-cols-7 gap-4 border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
-      >
-        @for (col of dayColumns(); track col.dayName) {
-          <div
-            class="day-column flex flex-col border-r last:border-r-0 border-[var(--color-border)] pr-2 last:pr-0"
-          >
-            <!-- Day Header -->
-            <div class="day-header border-b border-[var(--color-border)] pb-3 mb-4 text-center">
-              <h3 class="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
-                {{ col.dayName }}
-              </h3>
-              <p class="text-lg font-extrabold text-[var(--color-text-primary)] mt-0.5">
-                {{ col.formattedDate }}
-              </p>
-            </div>
-
-            <!-- Day Sessions -->
-            <div class="sessions-container flex-grow flex flex-col gap-3 min-h-[300px]">
-              @for (session of col.sessions; track session.id) {
-                <div
-                  class="session-card p-4 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-[0_4px_12px_rgba(62,109,181,0.08)] transition-all duration-300 flex flex-col justify-between cursor-pointer"
-                  [ngClass]="getStatusCardClass(session.status)"
-                  (click)="onSessionClick(session)"
-                >
-                  <div>
-                    <!-- Status badge only -->
-                    <div class="flex gap-1 flex-wrap mb-1.5">
-                      <span
-                        class="inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-                        [ngClass]="getStatusBadgeClass(session.status)"
-                      >
-                        {{ session.status }}
-                      </span>
-                    </div>
-
-                    <!-- Topic -->
-                    <h4
-                      class="text-sm font-bold text-[var(--color-text-primary)] line-clamp-2"
-                      [title]="session.topic"
-                    >
-                      {{ session.topic }}
-                    </h4>
-                    <!-- Course & Cohort -->
-                    <p
-                      class="text-xs text-[var(--color-text-secondary)] font-medium mt-1 truncate"
-                      [title]="session.courseTitle"
-                    >
-                      {{ session.courseTitle }}
-                    </p>
-                    <p class="text-[10px] text-[var(--color-text-muted)] font-semibold mt-0.5">
-                      {{ session.groupName }}
-                    </p>
-                  </div>
-
-                  <!-- Footer details -->
-                  <div
-                    class="border-t border-[var(--color-border)] pt-2.5 mt-3 flex flex-col gap-1 text-[11px] text-[var(--color-text-muted)]"
-                  >
-                    <div class="flex items-center gap-1.5">
-                      <i class="pi pi-clock text-[var(--color-text-muted)]"></i>
-                      <span class="font-medium">
-                        {{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
-                      </span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="pi pi-user text-[var(--color-text-muted)]"></i>
-                      <span class="truncate font-semibold text-[var(--color-secondary)]">{{
-                        session.instructorName
-                      }}</span>
-                    </div>
-                    @if (session.location) {
-                      <div class="flex items-center gap-1.5">
-                        <i class="pi pi-map-marker text-[var(--color-text-muted)]"></i>
-                        <span class="truncate">{{ session.location }}</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-              } @empty {
-                <div
-                  class="flex flex-col items-center justify-center flex-grow py-8 text-center text-[var(--color-text-muted)]"
-                >
-                  <i class="pi pi-calendar text-2xl mb-1.5 opacity-60"></i>
-                  <span class="text-xs font-medium">Free day</span>
-                </div>
-              }
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Mobile View: Vertical Accordion-List -->
-      <div class="flex flex-col md:hidden gap-6">
-        @for (col of dayColumns(); track col.dayName) {
-          <div
-            class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
-          >
-            <div
-              class="flex items-center justify-between border-b border-[var(--color-border)] pb-3 mb-4"
-            >
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-[var(--color-secondary)]"></span>
-                <h3 class="text-base font-bold text-[var(--color-text-primary)]">
-                  {{ col.dayName }}
-                </h3>
-              </div>
-              <span class="text-sm font-bold text-[var(--color-text-muted)]">{{
-                col.formattedDate
-              }}</span>
-            </div>
-
-            <div class="flex flex-col gap-4">
-              @for (session of col.sessions; track session.id) {
-                <div
-                  class="mobile-session-card p-4 rounded-xl border border-[var(--color-border)] flex flex-col gap-3 cursor-pointer"
-                  [ngClass]="getStatusCardClass(session.status)"
-                  (click)="onSessionClick(session)"
-                >
-                  <div>
-                    <!-- Status badge only -->
-                    <div class="flex gap-1 flex-wrap mb-1.5">
-                      <span
-                        class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                        [ngClass]="getStatusBadgeClass(session.status)"
-                      >
-                        {{ session.status }}
-                      </span>
-                    </div>
-                    <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
-                      {{ session.topic }}
-                    </h4>
-                    <p class="text-xs text-[var(--color-text-secondary)] font-medium mt-0.5">
-                      {{ session.courseTitle }}
-                    </p>
-                    <p class="text-[10px] text-[var(--color-text-muted)] font-semibold">
-                      {{ session.groupName }}
-                    </p>
-                  </div>
-
-                  <div
-                    class="grid grid-cols-2 gap-2 text-[11px] text-[var(--color-text-muted)] border-t border-[var(--color-border)] pt-3"
-                  >
-                    <div class="flex items-center gap-1.5">
-                      <i class="pi pi-clock text-[var(--color-text-muted)]"></i>
-                      <span>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                      <i class="pi pi-user text-[var(--color-text-muted)]"></i>
-                      <span class="truncate font-semibold text-[var(--color-secondary)]">{{
-                        session.instructorName
-                      }}</span>
-                    </div>
-                    @if (session.location) {
-                      <div class="flex items-center gap-1.5 col-span-2">
-                        <i class="pi pi-map-marker text-[var(--color-text-muted)]"></i>
-                        <span class="truncate">{{ session.location }}</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-              } @empty {
-                <div class="text-center py-4 text-[var(--color-text-muted)] text-xs font-semibold">
-                  No sessions scheduled for this day.
-                </div>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  `,
-  styles: `
-    :host {
-      display: block;
-      width: 100%;
-    }
-
-    .session-card {
-      background-color: var(--color-surface);
-      min-height: 160px;
-    }
-
-    .status-scheduled-card {
-      border-left: 4px solid var(--color-primary);
-    }
-    .status-ongoing-card {
-      border-left: 4px solid var(--color-warning);
-    }
-    .status-completed-card {
-      border-left: 4px solid var(--color-success);
-    }
-    .status-cancelled-card {
-      border-left: 4px solid var(--color-error);
-      opacity: 0.65;
-    }
-
-    .status-scheduled-badge {
-      background-color: rgba(26, 43, 76, 0.08);
-      color: var(--color-primary);
-    }
-    .status-ongoing-badge {
-      background-color: rgba(245, 158, 11, 0.08);
-      color: var(--color-warning);
-    }
-    .status-completed-badge {
-      background-color: rgba(16, 185, 129, 0.08);
-      color: var(--color-success);
-    }
-    .status-cancelled-badge {
-      background-color: rgba(239, 68, 68, 0.08);
-      color: var(--color-error, #ef4444);
-    }
-
-    .type-group-badge {
-      background-color: var(--color-session-group-background);
-      color: var(--color-session-group-foreground);
-    }
-    .type-makeup-badge {
-      background-color: var(--color-session-makeup-background);
-      color: var(--color-session-makeup-foreground);
-    }
-    .type-trial-badge {
-      background-color: var(--color-session-trial-background);
-      color: var(--color-session-trial-foreground);
-    }
-  `,
+  imports: [CommonModule],
+  templateUrl: './weekly-schedule.component.html',
+  styleUrl: './weekly-schedule.component.scss',
 })
 export class WeeklyScheduleComponent {
   sessions = input<ScheduleSession[]>([]);
   currentWeekStart = input<Date>(new Date());
+  locationFilter = input<string>('');
+  densityMode = input<DensityMode>('compact');
 
-  /** Emits the session the user clicked on */
   sessionSelected = output<ScheduleSession>();
 
-  private todayMidnight(): Date {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
+  readonly categories = CATEGORIES;
 
-  // Create columns for 7 days starting from Saturday
-  dayColumns = computed<DayColumn[]>(() => {
+  readonly categoryMap = computed(() => {
+    const map = new Map<number, CategoryMeta>();
+    for (const s of this.sessions()) {
+      map.set(s.id, classifyCategory(s));
+    }
+    return map;
+  });
+
+  readonly uniqueLocations = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      if (s.location) set.add(s.location);
+    }
+    return Array.from(set).sort();
+  });
+
+  readonly conflictIds = computed(() => {
+    const ids = new Set<number>();
+    const all = this.sessions();
+    for (let i = 0; i < all.length; i++) {
+      for (let j = i + 1; j < all.length; j++) {
+        if (!overlaps(all[i], all[j])) continue;
+        if (all[i].instructorId && all[i].instructorId === all[j].instructorId) {
+          ids.add(all[i].id);
+          ids.add(all[j].id);
+        }
+        if (all[i].location && all[i].location === all[j].location) {
+          ids.add(all[i].id);
+          ids.add(all[j].id);
+        }
+      }
+    }
+    return ids;
+  });
+
+  readonly filteredSessions = computed(() => {
+    const loc = this.locationFilter();
+    if (!loc) return this.sessions();
+    return this.sessions().filter((s) => s.location === loc);
+  });
+
+  readonly dayColumns = computed<DayColumn[]>(() => {
     const startOfWeek = new Date(this.currentWeekStart());
     startOfWeek.setHours(0, 0, 0, 0);
-
-    const today = this.todayMidnight().getTime();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayMs = today.getTime();
     const days: DayColumn[] = [];
     const weekdays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const sess = this.filteredSessions();
 
     for (let i = 0; i < 7; i++) {
       const currentDate = new Date(startOfWeek);
       currentDate.setDate(startOfWeek.getDate() + i);
-
-      // Filter sessions for this specific day, then sort ascending by start time
-      const daySessions = (this.sessions() || [])
-        .filter((session) => {
-          const sessionDate = new Date(session.startsAt);
-          return (
-            sessionDate.getFullYear() === currentDate.getFullYear() &&
-            sessionDate.getMonth() === currentDate.getMonth() &&
-            sessionDate.getDate() === currentDate.getDate()
-          );
+      const daySessions = sess
+        .filter((s) => {
+          const d = new Date(s.startsAt);
+          return d.getFullYear() === currentDate.getFullYear() &&
+            d.getMonth() === currentDate.getMonth() &&
+            d.getDate() === currentDate.getDate();
         })
-        .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
+        .sort((a, b) => parseTime(a.startsAt) - parseTime(b.startsAt));
 
       days.push({
         date: currentDate,
         dayName: weekdays[i],
         formattedDate: currentDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }),
         sessions: daySessions,
-        isToday: currentDate.getTime() === today,
+        isToday: currentDate.getTime() === todayMs,
       });
     }
-
     return days;
   });
 
-  totalSessions = computed(() =>
+  readonly totalSessions = computed(() =>
     this.dayColumns().reduce((sum, col) => sum + col.sessions.length, 0)
   );
+
+  readonly distinctInstructors = computed(() => {
+    const set = new Set<number>();
+    for (const s of this.filteredSessions()) {
+      if (s.instructorId) set.add(s.instructorId);
+    }
+    return set.size;
+  });
+
+  readonly distinctLocations = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.filteredSessions()) {
+      if (s.location) set.add(s.location);
+    }
+    return set.size;
+  });
+
+  readonly conflictSessionsCount = computed(() => this.conflictIds().size);
+
+  getCategory(session: ScheduleSession): CategoryMeta {
+    return this.categoryMap().get(session.id) || CATEGORIES[5];
+  }
+
+  isConflict(session: ScheduleSession): boolean {
+    return this.conflictIds().has(session.id);
+  }
+
+  getInitials(name: string): string {
+    return (name || 'U').split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  getProgressPercent(s: ScheduleSession): number {
+    if (!s.totalSessions) return 0;
+    return Math.round((s.currentSessionNumber / s.totalSessions) * 100);
+  }
+
+  getProgressLabel(s: ScheduleSession): string {
+    const pct = this.getProgressPercent(s);
+    if (pct >= 100) return 'Complete';
+    if (pct >= 80) return 'Nearly done';
+    if (pct >= 50) return 'In progress';
+    return 'Early stage';
+  }
 
   onSessionClick(session: ScheduleSession): void {
     this.sessionSelected.emit(session);
   }
 
-  getStatusCardClass(status: string): string {
-    const normStatus = (status ?? '').toLowerCase();
-    if (normStatus.includes('running')) return 'status-ongoing-card';
-    if (normStatus.includes('completed')) return 'status-completed-card';
-    if (normStatus.includes('cancel')) return 'status-cancelled-card';
-    return 'status-scheduled-card';
-  }
-
   getStatusBadgeClass(status: string): string {
-    const normStatus = (status ?? '').toLowerCase();
-    if (normStatus.includes('running')) return 'status-ongoing-badge';
-    if (normStatus.includes('completed')) return 'status-completed-badge';
-    if (normStatus.includes('cancel')) return 'status-cancelled-badge';
-    return 'status-scheduled-badge';
+    const n = (status ?? '').toLowerCase();
+    if (n.includes('running')) return 'badge-ongoing';
+    if (n.includes('completed')) return 'badge-completed';
+    if (n.includes('cancel')) return 'badge-cancelled';
+    return 'badge-scheduled';
   }
 
-  getTypeBadgeClass(type: string): string {
-    const normType = (type ?? '').toLowerCase();
-    if (normType.includes('makeup')) return 'type-makeup-badge';
-    if (normType.includes('trial')) return 'type-trial-badge';
-    return 'type-group-badge';
+  formatTime(iso: string): string {
+    if (!iso) return '';
+    return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  formatTime(isoString: string): string {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
+  getTimelineHours(): number[] {
+    return Array.from({ length: 14 }, (_, i) => i + 7);
+  }
+
+  getTimelineSessionsForHour(col: DayColumn, hour: number): ScheduleSession[] {
+    return col.sessions.filter((s) => {
+      const h = new Date(s.startsAt).getHours();
+      return h === hour;
+    });
   }
 }
