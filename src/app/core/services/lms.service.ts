@@ -9,6 +9,24 @@ export interface User {
   email: string;
   role: Role;
   createdAt?: string;
+  groupId?: string;
+  groupName?: string;
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+  groupId?: string;
+}
+
+export interface UpdateUserPayload {
+  name: string;
+  email: string;
+  password?: string;
+  role: Role;
+  groupId?: string;
 }
 
 export interface LoginRequest {
@@ -216,8 +234,24 @@ export class LmsService {
     return this.http.get<User[]>(`${this.getApiUrl()}/users`);
   }
 
+  getStudents(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.getApiUrl()}/students`);
+  }
+
   getInstructors(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/instructors`);
+  }
+
+  createUser(payload: CreateUserPayload): Observable<User> {
+    return this.http.post<User>(`${this.getApiUrl()}/users`, payload);
+  }
+
+  updateUser(id: string, payload: UpdateUserPayload): Observable<User> {
+    return this.http.put<User>(`${this.getApiUrl()}/users/${id}`, payload);
+  }
+
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/users/${id}`);
   }
 
   // ─── Courses ─────────────────────────────────────────────────────────────

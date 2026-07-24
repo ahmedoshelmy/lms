@@ -1,0 +1,236 @@
+<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight flex items-center gap-3">
+        <i class="pi pi-user text-[var(--color-secondary)]"></i>
+        Instructors
+      </h1>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">
+        Manage teaching staff and instructor accounts
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3 flex-wrap">
+      <!-- Search Input -->
+      <div class="flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 w-full md:w-72 shadow-sm">
+        <i class="pi pi-search text-[var(--color-text-muted)] text-sm"></i>
+        <input
+          type="search"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search instructors…"
+          class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
+          aria-label="Search instructors"
+        />
+      </div>
+
+      <!-- Add Instructor Button -->
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm cursor-pointer"
+      >
+        <i class="pi pi-plus"></i>
+        Add Instructor
+      </button>
+    </div>
+  </div>
+
+  <!-- Content State -->
+  @if (loading()) {
+    <div class="flex items-center gap-3 text-[var(--color-text-muted)] text-sm py-16 justify-center">
+      <i class="pi pi-spinner pi-spin text-2xl text-[var(--color-secondary)]"></i>
+      <span>Loading instructors…</span>
+    </div>
+  } @else if (instructors().length === 0) {
+    <div class="flex flex-col items-center justify-center p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8">
+      <i class="pi pi-user text-5xl mb-3 text-[var(--color-text-muted)] opacity-40"></i>
+      <h3 class="text-lg font-bold text-[var(--color-text-primary)]">No instructors found</h3>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1 max-w-md">
+        Add teaching staff members to assign them to learning groups and sessions.
+      </p>
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-semibold rounded-xl cursor-pointer"
+      >
+        <i class="pi pi-plus"></i> Add Instructor
+      </button>
+    </div>
+  } @else if (filteredInstructors().length === 0) {
+    <div class="flex flex-col items-center justify-center p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8">
+      <i class="pi pi-search text-5xl mb-3 text-[var(--color-text-muted)] opacity-40"></i>
+      <h3 class="text-lg font-bold text-[var(--color-text-primary)]">No results for "{{ searchQuery() }}"</h3>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">Try a different name or email.</p>
+    </div>
+  } @else {
+    <!-- Table -->
+    <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
+      <table class="w-full border-collapse text-left">
+        <thead>
+          <tr class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+            <th class="px-6 py-4">Instructor</th>
+            <th class="px-6 py-4">Email</th>
+            <th class="px-6 py-4">Role</th>
+            <th class="px-6 py-4 hidden md:table-cell">Joined</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--color-border)] text-sm">
+          @for (instructor of filteredInstructors(); track instructor.id) {
+            <tr class="hover:bg-[var(--color-surface-hover)] transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <span class="w-9 h-9 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center border border-[var(--color-secondary)]/20">
+                    {{ initials(instructor.name) }}
+                  </span>
+                  <span class="font-semibold text-[var(--color-text-primary)]">{{ instructor.name }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-[var(--color-text-muted)]">{{ instructor.email }}</td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20">
+                  Instructor
+                </span>
+              </td>
+              <td class="px-6 py-4 hidden md:table-cell text-xs text-[var(--color-text-muted)]">
+                {{ formatDate(instructor.createdAt) }}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="openEditModal(instructor)"
+                    class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                    title="Edit Instructor"
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="openDeleteModal(instructor)"
+                    class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    title="Delete Instructor"
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Create/Edit Modal -->
+  <p-dialog
+    [(visible)]="showInstructorModal"
+    [header]="editingInstructor() ? 'Edit Instructor' : 'Add New Instructor'"
+    [modal]="true"
+    [style]="{ width: '100%', maxWidth: '520px' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <div class="flex flex-col gap-4 py-2">
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Full Name *</label>
+        <input
+          type="text"
+          [ngModel]="formName()"
+          (ngModelChange)="formName.set($event)"
+          placeholder="e.g. Jane Smith"
+          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Email Address *</label>
+        <input
+          type="email"
+          [ngModel]="formEmail()"
+          (ngModelChange)="formEmail.set($event)"
+          placeholder="instructor@example.com"
+          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          Password {{ editingInstructor() ? '(Leave blank to keep current)' : '*' }}
+        </label>
+        <input
+          type="password"
+          [ngModel]="formPassword()"
+          (ngModelChange)="formPassword.set($event)"
+          placeholder="••••••••"
+          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+        />
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+        <button
+          type="button"
+          (click)="showInstructorModal.set(false)"
+          class="px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="saveInstructor()"
+          [disabled]="saving()"
+          class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-primary)] text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+        >
+          @if (saving()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          }
+          {{ editingInstructor() ? 'Save Changes' : 'Create Instructor' }}
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Delete Modal -->
+  <p-dialog
+    [(visible)]="showDeleteModal"
+    header="Confirm Delete"
+    [modal]="true"
+    [style]="{ width: '100%', maxWidth: '440px' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <div class="py-2">
+      <p class="text-sm text-[var(--color-text-primary)]">
+        Are you sure you want to delete <strong class="text-[var(--color-primary)]">{{ deletingInstructor()?.name }}</strong>?
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+        <button
+          type="button"
+          (click)="showDeleteModal.set(false)"
+          class="px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="saving()"
+          class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+        >
+          @if (saving()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          }
+          Delete Instructor
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>
