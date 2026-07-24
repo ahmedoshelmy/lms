@@ -11,6 +11,7 @@ import {
 } from '../interfaces/Attendance';
 import { Group } from '../interfaces/Group';
 import { ScheduleSession } from '../interfaces/ScheduleSession';
+import { AttendanceStatus } from '../enums/AttendanceStatus';
 
 export interface CreateGroupPayload {
   name: string;
