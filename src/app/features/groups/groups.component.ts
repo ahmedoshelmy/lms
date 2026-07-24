@@ -417,4 +417,17 @@ export class GroupsComponent implements OnInit {
     if (level === '2') return 'level-2';
     return 'level-default';
   }
+
+  getGroupProgress(group: Group): number {
+    if (!group.courses || group.courses.length === 0) return 0;
+    let totalSessions = 0;
+    let completedSessions = 0;
+    for (const c of group.courses) {
+      const total = parseInt(c.sessionCount || '0', 10) || 0;
+      totalSessions += total;
+      completedSessions += c.currentSessionNumber || 0;
+    }
+    if (totalSessions === 0) return 0;
+    return Math.round((completedSessions / totalSessions) * 100);
+  }
 }
