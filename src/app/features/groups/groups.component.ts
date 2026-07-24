@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -42,11 +43,16 @@ const STATUS_MAP: Record<string, number> = {
   styleUrl: './groups.component.scss',
 })
 export class GroupsComponent implements OnInit {
+  private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
+
+  viewGroupDetails(group: Group): void {
+    this.router.navigate(['/groups', group.id]);
+  }
 
   groups = signal<Group[]>([]);
   loading = signal(true);

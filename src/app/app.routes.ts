@@ -63,6 +63,15 @@ export const routes: Routes = [
           import('./features/groups/groups.component').then((c) => c.GroupsComponent),
       },
       {
+        path: 'groups/:id',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('groups') },
+        loadComponent: () =>
+          import('./features/groups/group-detail/group-detail.component').then(
+            (c) => c.GroupDetailComponent
+          ),
+      },
+      {
         path: 'students',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('students') },
