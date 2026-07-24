@@ -92,7 +92,7 @@ export class AttendanceComponent implements OnInit {
   private loadStudentsForSession(sessionId: string): void {
     this.loading.set(true);
 
-    this.lms.getUsers().subscribe({
+    this.lms.getStudents().subscribe({
       next: (users) => {
         const studentUsers = (users || []).filter((u) => u.role === Role.Student);
         this.students.set(studentUsers);

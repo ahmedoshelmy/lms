@@ -75,9 +75,9 @@ export class LmsService {
 
   // ─── Users ───────────────────────────────────────────────────────────────
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.getApiUrl()}/users`);
-  }
+  // getUsers(): Observable<User[]> {
+  //   return this.http.get<User[]>(`${this.getApiUrl()}/users`);
+  // }
 
   getStudents(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/students`);

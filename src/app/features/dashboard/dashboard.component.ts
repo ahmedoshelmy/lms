@@ -230,8 +230,8 @@ export class DashboardComponent implements OnInit {
 
     // Admin-only: fetch users + groups counts
     if (this.isAdmin()) {
-      this.lms.getUsers().subscribe({
-        next: (users) => this.userCount.set(users?.length ?? 0),
+      this.lms.getInstructors().subscribe({
+        next: (instructors) => this.userCount.set(instructors?.length ?? 0),
         error: () => {},
       });
       this.lms.getGroups().subscribe({

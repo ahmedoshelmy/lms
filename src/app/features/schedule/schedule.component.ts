@@ -85,7 +85,7 @@ export class ScheduleComponent implements OnInit {
 
   loadInstructors(): void {
     this.loading.set(true);
-    this.lmsService.getUsers().subscribe({
+    this.lmsService.getInstructors().subscribe({
       next: (users) => {
         const filtered = (users || []).filter((u) => u.role === Role.Instructor);
         const options: User[] = [
