@@ -1,0 +1,317 @@
+<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+      Account Profile
+    </h1>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">
+      Manage your personal information, security credentials, and preferences
+    </p>
+  </div>
+
+  <!-- Profile Hero Banner -->
+  <div
+    class="hero-card p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_12px_rgba(0,0,0,0.03)] mb-8"
+  >
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="flex items-center gap-5">
+        <!-- Avatar -->
+        <div class="profile-avatar shrink-0">
+          {{ initials() }}
+        </div>
+        <div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h2 class="text-2xl font-extrabold text-[var(--color-text-primary)] leading-tight">
+              {{ user()?.name }}
+            </h2>
+            <span class="role-badge" [class]="roleBadgeClass()">
+              {{ roleName() }}
+            </span>
+          </div>
+          <p class="text-sm text-[var(--color-text-muted)] mt-1 flex items-center gap-2">
+            <i class="pi pi-envelope text-xs"></i>
+            {{ user()?.email }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Metadata Stat Chips -->
+      <div
+        class="flex items-center gap-3 flex-wrap border-t md:border-t-0 md:border-l border-[var(--color-border)] pt-4 md:pt-0 md:pl-6"
+      >
+        <div class="stat-chip">
+          <i class="pi pi-id-card text-[var(--color-secondary)]"></i>
+          <div>
+            <span class="chip-title">User ID</span>
+            <span class="chip-value">{{ user()?.id }}</span>
+          </div>
+        </div>
+        <div class="stat-chip">
+          <i class="pi pi-check-circle text-[var(--color-success)]"></i>
+          <div>
+            <span class="chip-title">Status</span>
+            <span class="chip-value text-[var(--color-success)]">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Navigation Tabs -->
+  <div class="flex border-b border-[var(--color-border)] mb-8 gap-8">
+    <button
+      (click)="activeTab.set('details')"
+      [class.tab-active]="activeTab() === 'details'"
+      class="tab-btn pb-3 text-sm font-bold transition-all duration-200 cursor-pointer"
+    >
+      <i class="pi pi-user mr-2"></i>Personal Details
+    </button>
+    <button
+      (click)="activeTab.set('security')"
+      [class.tab-active]="activeTab() === 'security'"
+      class="tab-btn pb-3 text-sm font-bold transition-all duration-200 cursor-pointer"
+    >
+      <i class="pi pi-shield mr-2"></i>Security & Password
+    </button>
+    <button
+      (click)="activeTab.set('preferences')"
+      [class.tab-active]="activeTab() === 'preferences'"
+      class="tab-btn pb-3 text-sm font-bold transition-all duration-200 cursor-pointer"
+    >
+      <i class="pi pi-bell mr-2"></i>Preferences
+    </button>
+  </div>
+
+  <!-- Tab Content Cards -->
+  <div>
+    <!-- TAB 1: Personal Details -->
+    @if (activeTab() === 'details') {
+      <div
+        class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+      >
+        <h3 class="text-lg font-bold text-[var(--color-text-primary)] mb-6 flex items-center gap-2">
+          <i class="pi pi-user text-[var(--color-secondary)]"></i>
+          Personal Information
+        </h3>
+
+        <form [formGroup]="detailsForm" (ngSubmit)="saveDetails()" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Full Name -->
+            <div>
+              <label class="form-label">Full Name</label>
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Your full name"
+                class="form-input"
+                [class.input-error]="nameCtrl.invalid && nameCtrl.touched"
+              />
+              @if (nameCtrl.invalid && nameCtrl.touched) {
+                <p class="error-msg">Name is required (at least 2 characters)</p>
+              }
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="form-label">Email Address</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="your.email@example.com"
+                class="form-input"
+                [class.input-error]="emailCtrl.invalid && emailCtrl.touched"
+              />
+              @if (emailCtrl.invalid && emailCtrl.touched) {
+                <p class="error-msg">Please enter a valid email address</p>
+              }
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label class="form-label">Phone Number</label>
+              <input
+                type="text"
+                formControlName="phone"
+                placeholder="+1 (555) 000-0000"
+                class="form-input"
+              />
+            </div>
+
+            <!-- Title / Headline -->
+            <div>
+              <label class="form-label">Title / Role Headline</label>
+              <input
+                type="text"
+                formControlName="title"
+                placeholder="e.g. Senior Instructor / Curriculum Lead"
+                class="form-input"
+              />
+            </div>
+
+            <!-- Location -->
+            <div class="md:col-span-2">
+              <label class="form-label">Location / Branch</label>
+              <input
+                type="text"
+                formControlName="location"
+                placeholder="e.g. Cairo Campus / Online"
+                class="form-input"
+              />
+            </div>
+
+            <!-- Bio -->
+            <div class="md:col-span-2">
+              <label class="form-label">Bio / Profile Summary</label>
+              <textarea
+                formControlName="bio"
+                rows="4"
+                placeholder="Brief description about your role or specialization…"
+                class="form-input"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Submit button -->
+          <div class="flex justify-end pt-4 border-t border-[var(--color-border)]">
+            <button type="submit" [disabled]="savingDetails()" class="save-btn">
+              @if (savingDetails()) {
+                <i class="pi pi-spinner pi-spin"></i> Saving…
+              } @else {
+                <i class="pi pi-check mr-2"></i> Save Changes
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- TAB 2: Security & Password -->
+    @if (activeTab() === 'security') {
+      <div
+        class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+      >
+        <h3 class="text-lg font-bold text-[var(--color-text-primary)] mb-6 flex items-center gap-2">
+          <i class="pi pi-lock text-[var(--color-warning)]"></i>
+          Security & Password
+        </h3>
+
+        <form [formGroup]="securityForm" (ngSubmit)="changePassword()" class="space-y-6 max-w-xl">
+          <!-- Current Password -->
+          <div>
+            <label class="form-label">Current Password</label>
+            <input
+              type="password"
+              formControlName="currentPassword"
+              placeholder="••••••••"
+              class="form-input"
+              [class.input-error]="currPassCtrl.invalid && currPassCtrl.touched"
+            />
+            @if (currPassCtrl.invalid && currPassCtrl.touched) {
+              <p class="error-msg">Current password is required</p>
+            }
+          </div>
+
+          <!-- New Password -->
+          <div>
+            <label class="form-label">New Password</label>
+            <input
+              type="password"
+              formControlName="newPassword"
+              placeholder="At least 6 characters"
+              class="form-input"
+              [class.input-error]="newPassCtrl.invalid && newPassCtrl.touched"
+            />
+            @if (newPassCtrl.invalid && newPassCtrl.touched) {
+              <p class="error-msg">New password must be at least 6 characters</p>
+            }
+          </div>
+
+          <!-- Confirm New Password -->
+          <div>
+            <label class="form-label">Confirm New Password</label>
+            <input
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="Repeat new password"
+              class="form-input"
+              [class.input-error]="confirmPassCtrl.invalid && confirmPassCtrl.touched"
+            />
+            @if (securityForm.hasError('mismatch') && confirmPassCtrl.touched) {
+              <p class="error-msg">Passwords do not match</p>
+            }
+          </div>
+
+          <!-- Submit button -->
+          <div class="flex justify-end pt-4 border-t border-[var(--color-border)]">
+            <button type="submit" [disabled]="savingSecurity()" class="save-btn">
+              @if (savingSecurity()) {
+                <i class="pi pi-spinner pi-spin"></i> Updating…
+              } @else {
+                <i class="pi pi-shield mr-2"></i> Update Password
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- TAB 3: Preferences -->
+    @if (activeTab() === 'preferences') {
+      <div
+        class="p-6 md:p-8 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+      >
+        <h3 class="text-lg font-bold text-[var(--color-text-primary)] mb-6 flex items-center gap-2">
+          <i class="pi pi-bell text-[var(--color-info)]"></i>
+          Notification Preferences
+        </h3>
+
+        <div class="space-y-6 max-w-2xl">
+          <div class="pref-row">
+            <div>
+              <h4 class="pref-title">Email Notifications</h4>
+              <p class="pref-desc">Receive updates about schedule changes and announcements</p>
+            </div>
+            <input
+              type="checkbox"
+              [checked]="emailNotifs()"
+              (change)="emailNotifs.set(!emailNotifs())"
+              class="toggle-checkbox"
+            />
+          </div>
+
+          <div class="pref-row">
+            <div>
+              <h4 class="pref-title">Session Reminder Alerts</h4>
+              <p class="pref-desc">Get notified 15 minutes before your upcoming live sessions</p>
+            </div>
+            <input
+              type="checkbox"
+              [checked]="sessionReminders()"
+              (change)="sessionReminders.set(!sessionReminders())"
+              class="toggle-checkbox"
+            />
+          </div>
+
+          <div class="pref-row">
+            <div>
+              <h4 class="pref-title">Course Update Digest</h4>
+              <p class="pref-desc">Weekly summary of new study materials and resources</p>
+            </div>
+            <input
+              type="checkbox"
+              [checked]="weeklyDigest()"
+              (change)="weeklyDigest.set(!weeklyDigest())"
+              class="toggle-checkbox"
+            />
+          </div>
+
+          <div class="flex justify-end pt-6 border-t border-[var(--color-border)]">
+            <button (click)="savePreferences()" class="save-btn">
+              <i class="pi pi-check mr-2"></i> Save Preferences
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

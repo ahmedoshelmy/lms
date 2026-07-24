@@ -9,136 +9,8 @@ import { NotificationService } from '../../core/services/notification.service';
   selector: 'app-users',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">Users & Staff</h1>
-          <p class="text-sm text-[var(--color-text-muted)] mt-1">All registered accounts in the system</p>
-        </div>
-        <!-- Search -->
-        <div class="flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 w-full md:w-72">
-          <i class="pi pi-search text-[var(--color-text-muted)] text-sm"></i>
-          <input
-            type="search"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
-            placeholder="Search users…"
-            class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
-            aria-label="Search users"
-          />
-        </div>
-      </div>
-
-      @if (loading()) {
-        <div class="flex items-center gap-3 text-[var(--color-text-muted)] text-sm py-10">
-          <i class="pi pi-spinner pi-spin"></i> Loading users…
-        </div>
-      } @else if (users().length === 0) {
-        <div class="empty-state">
-          <i class="pi pi-users text-4xl mb-3 opacity-40"></i>
-          <p class="font-semibold">No users found</p>
-        </div>
-      } @else if (filteredUsers().length === 0) {
-        <div class="empty-state">
-          <i class="pi pi-search text-4xl mb-3 opacity-40"></i>
-          <p class="font-semibold">No results for "{{ searchQuery() }}"</p>
-          <p class="text-sm mt-1">Try a different name, email, or role.</p>
-        </div>
-      } @else {
-        <!-- Summary chips -->
-        <div class="flex gap-3 mb-6 flex-wrap">
-          @for (chip of roleChips(); track chip.role) {
-            <span class="role-chip">
-              <i [class]="chip.icon + ' mr-1.5'" [style.color]="chip.color"></i>
-              {{ chip.count }} {{ chip.label }}{{ chip.count !== 1 ? 's' : '' }}
-            </span>
-          }
-        </div>
-
-        <!-- Table -->
-        <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)]">
-          <table class="w-full border-collapse">
-            <thead>
-              <tr class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)]">
-                <th class="th-cell">Name</th>
-                <th class="th-cell">Email</th>
-                <th class="th-cell">Role</th>
-                <th class="th-cell hidden md:table-cell">Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (user of filteredUsers(); track user.id) {
-                <tr class="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-hover)] transition-colors">
-                  <td class="td-cell">
-                    <div class="flex items-center gap-3">
-                      <span class="user-avatar">{{ initials(user.name) }}</span>
-                      <span class="font-semibold text-sm text-[var(--color-text-primary)]">{{ user.name }}</span>
-                    </div>
-                  </td>
-                  <td class="td-cell text-sm text-[var(--color-text-muted)]">{{ user.email }}</td>
-                  <td class="td-cell">
-                    <span class="role-badge-sm" [class]="roleBadgeClass(user.role)">
-                      {{ roleLabel(user.role) }}
-                    </span>
-                  </td>
-                  <td class="td-cell hidden md:table-cell text-xs text-[var(--color-text-muted)]">
-                    {{ formatDate(user.createdAt) }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </div>
-  `,
-  styles: `
-    :host { display: block; width: 100%; }
-
-    .th-cell {
-      padding: 12px 20px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--color-text-muted);
-      text-align: left;
-    }
-    .td-cell {
-      padding: 14px 20px;
-      vertical-align: middle;
-    }
-
-    .user-avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--color-avatar-from) 0%, var(--color-avatar-to) 100%);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
-    }
-
-    .role-badge-sm {
-      display: inline-flex; padding: 3px 10px; border-radius: 99px;
-      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .badge-admin { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
-    .badge-instructor { background: color-mix(in srgb, var(--color-secondary) 10%, transparent); color: var(--color-secondary); }
-    .badge-student { background: color-mix(in srgb, var(--color-success) 10%, transparent); color: var(--color-success); }
-
-    .role-chip {
-      display: inline-flex; align-items: center; padding: 6px 14px;
-      border-radius: 99px; font-size: 12px; font-weight: 600;
-      background: var(--color-surface-secondary); color: var(--color-text-muted);
-      border: 1px solid var(--color-border);
-    }
-
-    .empty-state {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 300px; border-radius: 16px; border: 1px dashed var(--color-border);
-      color: var(--color-text-muted); text-align: center;
-    }
-  `,
+  templateUrl: './users.component.html',
+  styleUrl: './users.component.scss',
 })
 export class UsersComponent implements OnInit {
   private lms = inject(LmsService);
@@ -161,25 +33,53 @@ export class UsersComponent implements OnInit {
   roleChips = computed(() => {
     const all = this.users();
     return [
-      { role: Role.Admin, label: 'Admin', count: all.filter((u) => u.role === Role.Admin).length, icon: 'pi pi-shield', color: 'var(--color-primary)' },
-      { role: Role.Instructor, label: 'Instructor', count: all.filter((u) => u.role === Role.Instructor).length, icon: 'pi pi-user', color: 'var(--color-secondary)' },
-      { role: Role.Student, label: 'Student', count: all.filter((u) => u.role === Role.Student).length, icon: 'pi pi-graduation-cap', color: 'var(--color-success)' },
+      {
+        role: Role.Admin,
+        label: 'Admin',
+        count: all.filter((u) => u.role === Role.Admin).length,
+        icon: 'pi pi-shield',
+        color: 'var(--color-primary)',
+      },
+      {
+        role: Role.Instructor,
+        label: 'Instructor',
+        count: all.filter((u) => u.role === Role.Instructor).length,
+        icon: 'pi pi-user',
+        color: 'var(--color-secondary)',
+      },
+      {
+        role: Role.Student,
+        label: 'Student',
+        count: all.filter((u) => u.role === Role.Student).length,
+        icon: 'pi pi-graduation-cap',
+        color: 'var(--color-success)',
+      },
     ].filter((c) => c.count > 0);
   });
 
   ngOnInit(): void {
     this.loading.set(true);
     this.lms.getUsers().subscribe({
-      next: (users) => { this.users.set(users || []); this.loading.set(false); },
+      next: (users) => {
+        this.users.set(users || []);
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false),
     });
   }
 
   initials(name: string): string {
-    return name.split(' ').map((p) => p[0]).join('').toUpperCase().slice(0, 2);
+    return name
+      .split(' ')
+      .map((p) => p[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 
-  roleLabel(role: Role): string { return ROLE_LABELS[role] ?? 'Unknown'; }
+  roleLabel(role: Role): string {
+    return ROLE_LABELS[role] ?? 'Unknown';
+  }
 
   roleBadgeClass(role: Role): string {
     if (role === Role.Admin) return 'badge-admin';
@@ -189,6 +89,10 @@ export class UsersComponent implements OnInit {
 
   formatDate(iso?: string): string {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   }
 }

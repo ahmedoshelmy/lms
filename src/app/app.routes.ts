@@ -94,6 +94,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/settings/settings.component').then((c) => c.SettingsComponent),
       },
+
+      {
+        path: 'profile',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('profile') },
+        loadComponent: () =>
+          import('./features/profile/profile.component').then((c) => c.ProfileComponent),
+      },
     ],
   },
 

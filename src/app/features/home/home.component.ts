@@ -10,13 +10,7 @@ import { ScheduleComponent } from '../schedule/schedule.component';
   standalone: true,
   imports: [CommonModule, LoginComponent, ScheduleComponent],
   templateUrl: './home.component.html',
-  styles: `
-    :host {
-      display: block;
-      width: 100%;
-      min-height: 100vh;
-    }
-  `,
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
   protected auth = inject(AuthService);
