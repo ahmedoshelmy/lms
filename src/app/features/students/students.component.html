@@ -11,6 +11,19 @@
       <p class="text-sm text-[var(--color-text-muted)] mt-1">
         Manage enrolled students and their assigned learning groups
       </p>
+      @if (!loading() && students().length > 0) {
+        <div class="flex items-center gap-2 mt-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20">
+            <i class="pi pi-users text-[10px]"></i>
+            {{ filteredStudents().length }} student{{ filteredStudents().length !== 1 ? 's' : '' }}
+          </span>
+          @if (searchQuery()) {
+            <span class="text-xs text-[var(--color-text-muted)]">
+              of {{ students().length }} total
+            </span>
+          }
+        </div>
+      }
     </div>
 
     <div class="flex items-center gap-3 flex-wrap">
