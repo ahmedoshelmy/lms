@@ -70,7 +70,9 @@
 
       <div class="flex flex-col gap-4">
         @for (group of topicGroups(); track group.topic) {
-          <div class="topic-group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
+          <div
+            class="topic-group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden"
+          >
             <!-- Topic Header (clickable) -->
             <button
               (click)="toggleTopicCollapse(group.topic)"
@@ -94,14 +96,18 @@
 
             <!-- Collapsible Course Grid -->
             @if (group.expanded) {
-              <div class="topic-courses px-6 pb-6 pt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 border-t border-[var(--color-border)]">
+              <div
+                class="topic-courses px-6 pb-6 pt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 border-t border-[var(--color-border)]"
+              >
                 @for (course of group.courses; track course.id) {
                   <div
                     class="course-card p-5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-[0_8px_24px_rgba(62,109,181,0.08)] transition-all duration-300 flex flex-col justify-between"
                   >
                     <div>
                       <div class="flex items-center justify-between gap-4 mb-3">
-                        <span class="text-xs text-[var(--color-text-muted)] font-bold uppercase tracking-wider">
+                        <span
+                          class="text-xs text-[var(--color-text-muted)] font-bold uppercase tracking-wider"
+                        >
                           Level {{ course.level }}
                         </span>
                         <span class="text-xs text-[var(--color-text-muted)] font-bold">

@@ -1,274 +1,607 @@
-<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
-  <!-- Page Header -->
+<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen pb-28">
+  <!-- Page Hero Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
     <div>
-      <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
-        Session Details
-      </h1>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1">
-        View session information and manage student attendance
+      <div class="flex items-center gap-3 mb-1">
+        <h1
+          class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight"
+        >
+          Sessions & Attendance
+        </h1>
+        @if (isDirty()) {
+          <span
+            class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--color-warning-background)] text-[var(--color-warning-foreground)] border border-[var(--color-warning)] animate-pulse"
+          >
+            ● Unsaved Edits
+          </span>
+        }
+      </div>
+      <p class="text-sm text-[var(--color-text-muted)]">
+        Manage class sessions, track roster attendance, and export reports
       </p>
     </div>
 
-    @if (selectedSession() && !isLocked()) {
-      <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 flex-wrap">
+      @if (selectedSession()) {
+        <button
+          type="button"
+          (click)="exportAttendanceCsv()"
+          class="px-4 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] text-[var(--color-text-primary)] text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+        >
+          <i class="pi pi-download text-xs text-[var(--color-secondary)]"></i>
+          Export CSV
+        </button>
+      }
+
+      @if (selectedSession() && !isLocked()) {
         <button
           (click)="saveAttendance()"
           [disabled]="saving()"
-          class="px-5 py-2.5 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          class="btn-save-sheet px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+          [ngClass]="
+            isDirty()
+              ? 'bg-[var(--color-success)] hover:bg-[var(--color-success-hover)] ring-2 ring-[var(--color-success)] ring-offset-2'
+              : 'bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)]'
+          "
         >
           @if (saving()) {
             <i class="pi pi-spinner pi-spin"></i>
             Saving…
           } @else {
             <i class="pi pi-check-circle"></i>
-            Save Attendance
+            Save Sheet
           }
         </button>
-      </div>
-    }
+      }
+    </div>
   </div>
 
-  <!-- Session Picker -->
+  <!-- Advanced Session Filters & Picker Bar -->
   <div
-    class="p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.02)] mb-6"
+    class="p-6 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-6 space-y-4"
   >
-    <label
-      class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
-    >
-      Select Session
-    </label>
-    <p-select
-      [options]="sessions()"
-      [ngModel]="selectedSessionId()"
-      (ngModelChange)="onSessionChange($event)"
-      optionLabel="topic"
-      optionValue="id"
-      placeholder="Choose a session"
-      class="w-full md:w-96"
-      [filter]="true"
-      filterBy="topic,courseTitle,groupName"
-    >
-      <ng-template pTemplate="selectedItem" let-selected>
-        @if (selected) {
-          <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
-            {{ selected.topic }} ({{ selected.groupName }})
+    <!-- Row 1: Dropdown Session Picker & Group Filter -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between mb-2">
+          <label
+            class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
+          >
+            Select Session
+          </label>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-[var(--color-secondary)]">
+              Showing {{ filteredSessionsList().length }} of {{ sessions().length }}
+            </span>
+            @if (hasActiveFilters()) {
+              <button
+                type="button"
+                (click)="resetFilters()"
+                class="text-xs font-bold text-[var(--color-error-foreground)] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <i class="pi pi-refresh text-xs"></i> Reset
+              </button>
+            }
           </div>
-        }
-      </ng-template>
-      <ng-template pTemplate="item" let-s>
-        <div class="py-1">
-          <p class="text-sm font-bold text-[var(--color-text-primary)]">{{ s.topic }}</p>
-          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            {{ s.courseTitle }} · {{ s.groupName }} · {{ formatDate(s.startsAt) }}
-          </p>
         </div>
-      </ng-template>
-    </p-select>
+        <p-select
+          [options]="filteredSessionsList()"
+          [ngModel]="selectedSessionId()"
+          (ngModelChange)="onSessionChange($event)"
+          optionLabel="topic"
+          optionValue="id"
+          placeholder="Choose a session"
+          class="w-full"
+          [filter]="true"
+          filterBy="topic,courseTitle,groupName"
+        >
+          <ng-template pTemplate="selectedItem" let-selected>
+            @if (selected) {
+              <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
+                {{ selected.topic }} ({{ selected.groupName }})
+              </div>
+            } @else {
+              <span class="text-sm text-[var(--color-text-muted)]">No session matching filter</span>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-s>
+            <div class="py-1">
+              <p class="text-sm font-bold text-[var(--color-text-primary)]">{{ s.topic }}</p>
+              <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                {{ s.courseTitle }} · {{ s.groupName }} · {{ formatDate(s.startsAt) }}
+              </p>
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Cohort Group Dropdown Filter -->
+      <div class="w-full md:w-64">
+        <label
+          class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
+        >
+          Filter Cohort Group
+        </label>
+        <select
+          [ngModel]="selectedGroupFilter()"
+          (ngModelChange)="setGroupFilter($event)"
+          class="w-full p-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-semibold text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] shadow-sm cursor-pointer"
+        >
+          <option value="all">All Groups ({{ uniqueGroups().length }})</option>
+          @for (grp of uniqueGroups(); track grp) {
+            <option [value]="grp">{{ grp }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Row 2: Status Filter Tabs & Date Range Chips -->
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[var(--color-border)]"
+    >
+      <!-- Session Status Chips -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-1"
+          >Status:</span
+        >
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="sessionStatusFilter() === 'all'"
+          (click)="setSessionStatusFilter('all')"
+        >
+          All ({{ sessions().length }})
+        </button>
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="sessionStatusFilter() === 'scheduled'"
+          (click)="setSessionStatusFilter('scheduled')"
+        >
+          Scheduled
+        </button>
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="sessionStatusFilter() === 'running'"
+          (click)="setSessionStatusFilter('running')"
+        >
+          Running
+        </button>
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="sessionStatusFilter() === 'completed'"
+          (click)="setSessionStatusFilter('completed')"
+        >
+          Completed
+        </button>
+      </div>
+
+      <!-- Date Range Filter Chips -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-1"
+          >Date:</span
+        >
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="dateRangeFilter() === 'all'"
+          (click)="setDateRangeFilter('all')"
+        >
+          All Time
+        </button>
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="dateRangeFilter() === 'today'"
+          (click)="setDateRangeFilter('today')"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="dateRangeFilter() === 'week'"
+          (click)="setDateRangeFilter('week')"
+        >
+          This Week
+        </button>
+        <button
+          type="button"
+          class="session-chip-btn"
+          [class.active]="dateRangeFilter() === 'month'"
+          (click)="setDateRangeFilter('month')"
+        >
+          This Month
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- Main Body -->
+  <!-- Main Content -->
   @if (loading()) {
     <div class="flex justify-center items-center py-20">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
   } @else if (!selectedSession()) {
     <div
-      class="text-center py-24 bg-[var(--color-surface)] border border-dashed border-[var(--color-border)] rounded-2xl"
+      class="text-center py-24 bg-[var(--color-surface)] border border-dashed border-[var(--color-border)] rounded-3xl shadow-sm"
     >
       <div
         class="w-16 h-16 rounded-full bg-[var(--color-info-background)] flex items-center justify-center mx-auto mb-4"
       >
-        <i class="pi pi-calendar text-3xl text-[var(--color-secondary)]"></i>
+        <i class="pi pi-filter-slash text-3xl text-[var(--color-secondary)]"></i>
       </div>
-      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">No session selected</h2>
+      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">No matching session found</h2>
       <p class="text-sm text-[var(--color-text-muted)] mt-1 max-w-sm mx-auto">
-        Please choose a session from the dropdown above to load attendance records.
+        No sessions match your current group, date, or status filter selection.
       </p>
+      @if (hasActiveFilters()) {
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="mt-4 px-5 py-2.5 rounded-xl bg-[var(--color-secondary)] text-white font-bold text-xs shadow-md hover:bg-[var(--color-secondary-hover)] transition-all cursor-pointer inline-flex items-center gap-2"
+        >
+          <i class="pi pi-refresh"></i> Reset All Filters
+        </button>
+      }
     </div>
   } @else {
-    <!-- ── Session Info Card ─────────────────────────────────────── -->
+    <!-- Session Info Glass Card -->
     @if (selectedSession(); as session) {
       <div
-        class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)] mb-6"
+        class="p-6 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-6 relative overflow-hidden"
       >
         <!-- Header row -->
-        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5">
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
           <div>
             <div class="flex items-center gap-2 flex-wrap mb-2">
               <span
-                class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                class="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm"
                 [ngClass]="getStatusBadgeClass(session.status)"
               >
                 {{ session.status }}
               </span>
               <span
-                class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)] uppercase tracking-wider"
+                class="inline-flex px-3 py-1 rounded-full text-[10px] font-semibold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)] uppercase tracking-wider border border-[var(--color-border)]"
               >
                 {{ session.type }}
               </span>
+              @if (session.currentSessionNumber && session.totalSessions) {
+                <span
+                  class="inline-flex px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--color-info-background)] text-[var(--color-info-foreground)] uppercase tracking-wider border border-[var(--color-info)]"
+                >
+                  Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
+                </span>
+              }
             </div>
-            <h2 class="text-xl font-extrabold text-[var(--color-text-primary)]">
+            <h2 class="text-xl md:text-2xl font-extrabold text-[var(--color-text-primary)]">
               {{ session.topic }}
             </h2>
-            <p class="text-sm text-[var(--color-text-secondary)] font-medium mt-0.5">
+            <p class="text-sm text-[var(--color-secondary)] font-bold mt-0.5">
               {{ session.courseTitle }}
             </p>
           </div>
 
-          <div class="flex flex-col gap-1 text-right text-sm">
-            <span class="font-bold text-[var(--color-secondary)]">
-              <i class="pi pi-calendar mr-1"></i>{{ formatDate(session.startsAt) }}
+          <div
+            class="flex flex-col gap-1 md:text-right text-sm bg-[var(--color-background)] p-3 rounded-2xl border border-[var(--color-border)]"
+          >
+            <span
+              class="font-bold text-[var(--color-secondary)] flex items-center md:justify-end gap-1.5"
+            >
+              <i class="pi pi-calendar"></i>{{ formatDate(session.startsAt) }}
             </span>
-            <span class="text-[var(--color-text-muted)]">
-              <i class="pi pi-clock mr-1"></i>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
+            <span
+              class="text-xs text-[var(--color-text-muted)] flex items-center md:justify-end gap-1.5"
+            >
+              <i class="pi pi-clock"></i>{{ formatTime(session.startsAt) }} –
+              {{ formatTime(session.endsAt) }}
             </span>
           </div>
         </div>
 
+        <!-- Session Sequence Progress Bar -->
+        @if (session.currentSessionNumber && session.totalSessions) {
+          <div class="mb-5">
+            <div
+              class="flex items-center justify-between text-xs text-[var(--color-text-muted)] font-bold mb-1.5"
+            >
+              <span>Curriculum Progress</span>
+              <span>{{ sessionProgressPercent() }}% Completed</span>
+            </div>
+            <div
+              class="w-full h-2 rounded-full bg-[var(--color-background-alt)] overflow-hidden flex"
+            >
+              <div
+                class="h-full bg-gradient-to-r from-[var(--color-secondary)] to-[var(--color-accent)] transition-all duration-500 rounded-full"
+                [style.width.%]="sessionProgressPercent()"
+              ></div>
+            </div>
+          </div>
+        }
+
         <!-- Details grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-[var(--color-border)]">
+        <div
+          class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-[var(--color-border)]"
+        >
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Group</p>
-            <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.groupName }}</p>
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+            >
+              Cohort Group
+            </p>
+            <p class="text-sm font-bold text-[var(--color-text-primary)]">
+              {{ session.groupName }}
+            </p>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Instructor</p>
-            <p class="text-sm font-semibold text-[var(--color-secondary)]">{{ session.instructorName }}</p>
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+            >
+              Instructor
+            </p>
+            <p class="text-sm font-bold text-[var(--color-secondary)]">
+              {{ session.instructorName || 'Unassigned' }}
+            </p>
+            @if (session.instructorEmail) {
+              <p class="text-xs text-[var(--color-text-muted)] truncate">
+                {{ session.instructorEmail }}
+              </p>
+            }
           </div>
           @if (session.location) {
             <div>
-              <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Location</p>
-              <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.location }}</p>
+              <p
+                class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+              >
+                Location
+              </p>
+              <p class="text-sm font-bold text-[var(--color-text-primary)] truncate">
+                {{ session.location }}
+              </p>
             </div>
           }
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5">Duration</p>
-            <p class="text-sm font-semibold text-[var(--color-text-primary)]">{{ session.durationMinutes }} min</p>
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
+            >
+              Duration
+            </p>
+            <p class="text-sm font-bold text-[var(--color-text-primary)]">
+              {{ session.durationMinutes }} min
+            </p>
           </div>
         </div>
       </div>
     }
 
-    <!-- ── 24-hour Lock Banner ───────────────────────────────────── -->
+    <!-- 24-hour Lock Warning Banner -->
     @if (isLocked()) {
       <div
-        class="flex items-center gap-3 px-5 py-3.5 mb-6 rounded-xl border border-[var(--color-warning)] bg-[rgba(245,158,11,0.08)]"
+        class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-warning)] bg-[var(--color-warning-background)]"
       >
-        <i class="pi pi-lock text-xl text-[var(--color-warning)] flex-shrink-0"></i>
+        <i class="pi pi-lock text-2xl text-[var(--color-warning-foreground)] flex-shrink-0"></i>
         <div>
-          <p class="text-sm font-bold text-[var(--color-warning)]">Attendance Locked</p>
+          <p class="text-sm font-bold text-[var(--color-warning-foreground)]">
+            Attendance Sheet Locked
+          </p>
           <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            More than 24 hours have passed since this session started. Attendance records are now read-only.
+            More than 24 hours have elapsed since session start. Attendance records are locked in
+            read-only state.
           </p>
         </div>
       </div>
     }
 
-    <!-- Attendance Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-      <div
-        class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
+    <!-- Attendance Metrics & Filter Cards (6 Columns) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+      <button
+        type="button"
+        (click)="setRosterFilter('all')"
+        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
+        [class.border-[var(--color-secondary)]]="rosterStatusFilter() === 'all'"
+        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'all'"
       >
-        <span class="text-xs text-[var(--color-text-muted)] font-semibold uppercase">Total Students</span>
-        <p class="text-2xl font-extrabold text-[var(--color-text-primary)] mt-1">
+        <span class="text-[10px] text-[var(--color-text-muted)] font-bold uppercase"
+          >Total Roster</span
+        >
+        <p class="text-xl font-extrabold text-[var(--color-text-primary)] mt-1">
           {{ records().length }}
         </p>
-      </div>
+      </button>
 
-      <div
-        class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
+      <button
+        type="button"
+        (click)="setRosterFilter('Pending')"
+        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border border-dashed transition-all text-left cursor-pointer"
+        [class.border-[var(--color-warning)]]="rosterStatusFilter() === 'Pending'"
+        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Pending'"
       >
         <div class="flex items-center justify-between">
-          <span class="text-xs text-[var(--color-success)] font-bold uppercase">Present</span>
-          <span class="text-xs font-extrabold text-[var(--color-success)]">{{ presentRate() }}%</span>
+          <span class="text-[10px] text-[var(--color-warning-foreground)] font-bold uppercase"
+            >Pending</span
+          >
+          <i class="pi pi-hourglass text-xs text-[var(--color-warning-foreground)]"></i>
         </div>
-        <p class="text-2xl font-extrabold text-[var(--color-success)] mt-1">
-          {{ countByStatus(StatusEnum.Present) }}
+        <p class="text-xl font-extrabold text-[var(--color-warning-foreground)] mt-1">
+          {{ countByStatus('Pending') }}
         </p>
-      </div>
+      </button>
 
-      <div
-        class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
+      <button
+        type="button"
+        (click)="setRosterFilter('Present')"
+        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
+        [class.border-[var(--color-success)]]="rosterStatusFilter() === 'Present'"
+        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Present'"
       >
-        <span class="text-xs text-[var(--color-warning)] font-bold uppercase">Late</span>
-        <p class="text-2xl font-extrabold text-[var(--color-warning)] mt-1">
-          {{ countByStatus(StatusEnum.Late) }}
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] text-[var(--color-success-foreground)] font-bold uppercase"
+            >Present</span
+          >
+          <span class="text-[10px] font-extrabold text-[var(--color-success-foreground)]"
+            >{{ presentRate() }}%</span
+          >
+        </div>
+        <p class="text-xl font-extrabold text-[var(--color-success-foreground)] mt-1">
+          {{ countByStatus('Present') }}
         </p>
-      </div>
+      </button>
 
-      <div
-        class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
+      <button
+        type="button"
+        (click)="setRosterFilter('Late')"
+        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
+        [class.border-[var(--color-warning)]]="rosterStatusFilter() === 'Late'"
+        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Late'"
       >
-        <span class="text-xs text-[var(--color-info)] font-bold uppercase">Excused</span>
-        <p class="text-2xl font-extrabold text-[var(--color-secondary)] mt-1">
-          {{ countByStatus(StatusEnum.Excused) }}
+        <span class="text-[10px] text-[var(--color-warning-foreground)] font-bold uppercase"
+          >Late</span
+        >
+        <p class="text-xl font-extrabold text-[var(--color-warning-foreground)] mt-1">
+          {{ countByStatus('Late') }}
         </p>
-      </div>
+      </button>
 
-      <div
-        class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
+      <button
+        type="button"
+        (click)="setRosterFilter('Excused')"
+        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
+        [class.border-[var(--color-info)]]="rosterStatusFilter() === 'Excused'"
+        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Excused'"
       >
-        <span class="text-xs text-[var(--color-danger)] font-bold uppercase">Absent</span>
-        <p class="text-2xl font-extrabold text-[var(--color-danger)] mt-1">
-          {{ countByStatus(StatusEnum.Absent) }}
+        <span class="text-[10px] text-[var(--color-info-foreground)] font-bold uppercase"
+          >Excused</span
+        >
+        <p class="text-xl font-extrabold text-[var(--color-info-foreground)] mt-1">
+          {{ countByStatus('Excused') }}
         </p>
-      </div>
+      </button>
+
+      <button
+        type="button"
+        (click)="setRosterFilter('Absent')"
+        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
+        [class.border-[var(--color-error)]]="rosterStatusFilter() === 'Absent'"
+        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Absent'"
+      >
+        <span class="text-[10px] text-[var(--color-error-foreground)] font-bold uppercase"
+          >Absent</span
+        >
+        <p class="text-xl font-extrabold text-[var(--color-error-foreground)] mt-1">
+          {{ countByStatus('Absent') }}
+        </p>
+      </button>
     </div>
 
-    <!-- Quick Action Bar -->
+    <!-- Quick Actions & Contextual Bulk Action Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      @if (!isLocked()) {
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2">Quick Mark:</span>
-          <button
-            (click)="bulkSetStatus(StatusEnum.Present)"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-success-background)] text-[var(--color-success)] hover:opacity-80 transition-opacity cursor-pointer"
+      <div class="flex items-center gap-2 flex-wrap">
+        @if (selectedStudentIds().length > 0 && !isLocked()) {
+          <div
+            class="px-3.5 py-1.5 rounded-xl bg-[var(--color-info-background)] border border-[var(--color-info)] text-xs font-bold text-[var(--color-info-foreground)] flex items-center gap-2"
           >
-            <i class="pi pi-check-circle mr-1"></i> All Present
+            <span>Selected ({{ selectedStudentIds().length }}) Students:</span>
+            <button
+              type="button"
+              (click)="bulkSetSelectedStatus('Present')"
+              class="px-2 py-0.5 rounded bg-[var(--color-success)] text-white hover:opacity-90 cursor-pointer"
+            >
+              Present
+            </button>
+            <button
+              type="button"
+              (click)="bulkSetSelectedStatus('Late')"
+              class="px-2 py-0.5 rounded bg-[var(--color-warning)] text-white hover:opacity-90 cursor-pointer"
+            >
+              Late
+            </button>
+            <button
+              type="button"
+              (click)="bulkSetSelectedStatus('Excused')"
+              class="px-2 py-0.5 rounded bg-[var(--color-secondary)] text-white hover:opacity-90 cursor-pointer"
+            >
+              Excused
+            </button>
+            <button
+              type="button"
+              (click)="bulkSetSelectedStatus('Absent')"
+              class="px-2 py-0.5 rounded bg-[var(--color-error)] text-white hover:opacity-90 cursor-pointer"
+            >
+              Absent
+            </button>
+          </div>
+        } @else if (!isLocked()) {
+          <span
+            class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2"
+            >Quick Mark All:</span
+          >
+          <button
+            type="button"
+            (click)="bulkSetStatus('Present')"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-success-background)] text-[var(--color-success-foreground)] border border-[var(--color-success)] hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5"
+          >
+            <i class="pi pi-check-circle"></i> Present
           </button>
           <button
-            (click)="bulkSetStatus(StatusEnum.Absent)"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-error-background)] text-[var(--color-danger)] hover:opacity-80 transition-opacity cursor-pointer"
+            type="button"
+            (click)="bulkSetStatus('Absent')"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-error-background)] text-[var(--color-error-foreground)] border border-[var(--color-error)] hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5"
           >
-            <i class="pi pi-times-circle mr-1"></i> All Absent
+            <i class="pi pi-times-circle"></i> Absent
           </button>
-        </div>
-      } @else {
-        <!-- Locked placeholder to keep layout stable -->
-        <div></div>
-      }
+        }
+      </div>
 
-      <!-- Search filter -->
-      <div class="relative w-full md:w-64">
+      <!-- Search filter input -->
+      <div class="relative w-full md:w-72">
         <input
           type="text"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
-          placeholder="Filter students…"
-          class="w-full pl-9 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          placeholder="Search student name or email…"
+          class="w-full pl-9 pr-8 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] shadow-sm"
         />
         <i
           class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-xs"
         ></i>
+        @if (searchQuery()) {
+          <button
+            type="button"
+            (click)="searchQuery.set('')"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+          >
+            <i class="pi pi-times text-xs"></i>
+          </button>
+        }
       </div>
     </div>
 
     <!-- Student Roster Table -->
     <div
-      class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[0_2px_8px_rgba(0,0,0,0.03)] mb-8"
+      class="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-8"
     >
       <table class="w-full border-collapse">
         <thead>
           <tr
             class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-left"
           >
+            <th class="th-cell w-12 text-center">
+              <input
+                type="checkbox"
+                [checked]="isAllSelected()"
+                (change)="toggleSelectAll($any($event.target).checked)"
+                [disabled]="isLocked() || filteredRecords().length === 0"
+                class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
+              />
+            </th>
             <th class="th-cell">Student</th>
             <th class="th-cell hidden md:table-cell">Email</th>
             <th class="th-cell text-center">
               Attendance Status
               @if (isLocked()) {
-                <i class="pi pi-lock ml-1 text-[var(--color-warning)] text-xs"></i>
+                <i class="pi pi-lock ml-1 text-[var(--color-warning-foreground)] text-xs"></i>
               }
             </th>
           </tr>
@@ -278,16 +611,35 @@
             <tr
               class="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-hover)] transition-colors"
               [class.opacity-70]="isLocked()"
+              [class.bg-[rgba(56,189,248,0.04)]]="isStudentSelected(rec.studentId)"
             >
+              <td class="td-cell text-center">
+                <input
+                  type="checkbox"
+                  [checked]="isStudentSelected(rec.studentId)"
+                  (change)="toggleStudentSelection(rec.studentId)"
+                  [disabled]="isLocked()"
+                  class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
+                />
+              </td>
               <td class="td-cell">
                 <div class="flex items-center gap-3">
                   <div class="avatar-circle">
                     {{ initials(rec.studentName) }}
                   </div>
                   <div>
-                    <p class="font-bold text-sm text-[var(--color-text-primary)]">
-                      {{ rec.studentName }}
-                    </p>
+                    <div class="flex items-center gap-2">
+                      <p class="font-bold text-sm text-[var(--color-text-primary)]">
+                        {{ rec.studentName }}
+                      </p>
+                      @if (rec.status === 'Pending') {
+                        <span
+                          class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[var(--color-warning-background)] text-[var(--color-warning-foreground)] border border-[var(--color-warning)]"
+                        >
+                          Pending
+                        </span>
+                      }
+                    </div>
                     <p class="text-xs text-[var(--color-text-muted)] md:hidden">
                       {{ rec.studentEmail }}
                     </p>
@@ -300,8 +652,9 @@
               <td class="td-cell">
                 <div class="flex items-center justify-center gap-1 sm:gap-2">
                   <button
-                    (click)="setStatus(rec, StatusEnum.Present)"
-                    [class.active-present]="rec.status === StatusEnum.Present"
+                    type="button"
+                    (click)="setStatus(rec, 'Present')"
+                    [class.active-present]="rec.status === 'Present'"
                     [disabled]="isLocked()"
                     class="status-btn btn-present"
                   >
@@ -310,8 +663,9 @@
                   </button>
 
                   <button
-                    (click)="setStatus(rec, StatusEnum.Late)"
-                    [class.active-late]="rec.status === StatusEnum.Late"
+                    type="button"
+                    (click)="setStatus(rec, 'Late')"
+                    [class.active-late]="rec.status === 'Late'"
                     [disabled]="isLocked()"
                     class="status-btn btn-late"
                   >
@@ -320,8 +674,9 @@
                   </button>
 
                   <button
-                    (click)="setStatus(rec, StatusEnum.Excused)"
-                    [class.active-excused]="rec.status === StatusEnum.Excused"
+                    type="button"
+                    (click)="setStatus(rec, 'Excused')"
+                    [class.active-excused]="rec.status === 'Excused'"
                     [disabled]="isLocked()"
                     class="status-btn btn-excused"
                   >
@@ -330,8 +685,9 @@
                   </button>
 
                   <button
-                    (click)="setStatus(rec, StatusEnum.Absent)"
-                    [class.active-absent]="rec.status === StatusEnum.Absent"
+                    type="button"
+                    (click)="setStatus(rec, 'Absent')"
+                    [class.active-absent]="rec.status === 'Absent'"
                     [disabled]="isLocked()"
                     class="status-btn btn-absent"
                   >
@@ -343,13 +699,54 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="3" class="text-center py-12 text-[var(--color-text-muted)]">
-                No students found matching your criteria
+              <td colspan="4" class="text-center py-12 text-[var(--color-text-muted)] font-medium">
+                No students found matching your search or status filter.
               </td>
             </tr>
           }
         </tbody>
       </table>
+    </div>
+  }
+
+  <!-- Sticky Floating Save Bar -->
+  @if (isDirty() && selectedSession() && !isLocked()) {
+    <div
+      class="floating-save-bar flex items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--color-success)] bg-[var(--color-surface)] shadow-2xl z-50"
+    >
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-[var(--color-warning)] animate-ping"></span>
+        <div>
+          <p class="text-sm font-extrabold text-[var(--color-text-primary)]">
+            Unsaved Attendance Edits
+          </p>
+          <p class="text-xs text-[var(--color-text-muted)]">
+            Changes made to current session sheet
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="resetChanges()"
+          class="px-4 py-2 rounded-xl text-xs font-bold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] transition-colors cursor-pointer"
+        >
+          Discard
+        </button>
+        <button
+          type="button"
+          (click)="saveAttendance()"
+          [disabled]="saving()"
+          class="btn-save-sheet px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--color-success)] hover:bg-[var(--color-success-hover)] shadow-md transition-all cursor-pointer flex items-center gap-2"
+        >
+          @if (saving()) {
+            <i class="pi pi-spinner pi-spin"></i> Saving…
+          } @else {
+            <i class="pi pi-check"></i> Save Sheet
+          }
+        </button>
+      </div>
     </div>
   }
 </div>

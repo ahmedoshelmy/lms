@@ -164,7 +164,9 @@ interface DayColumn {
                   >
                     <div class="flex items-center gap-1.5">
                       <i class="pi pi-clock text-[var(--color-text-muted)]"></i>
-                      <span>{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span>
+                      <span
+                        >{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span
+                      >
                     </div>
                     <div class="flex items-center gap-1.5">
                       <i class="pi pi-user text-[var(--color-text-muted)]"></i>

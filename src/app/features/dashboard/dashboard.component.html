@@ -1,13 +1,40 @@
 <div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
-  <!-- Header -->
-  <div class="mb-10">
-    <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
-      Overview
-    </h1>
-    <p class="text-sm text-[var(--color-text-muted)] mt-1">
-      Welcome back, <span class="font-semibold text-[var(--color-secondary)]">{{ userName() }}</span
-      >! Here's a snapshot of your week.
-    </p>
+  <!-- Hero Greeting Banner -->
+  <div
+    class="dashboard-hero mb-8 p-6 md:p-8 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm relative overflow-hidden"
+  >
+    <div class="dashboard-hero__glow" aria-hidden="true"></div>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2 flex-wrap">
+          <span class="role-badge-pill">
+            <i [class]="roleIcon()"></i>
+            {{ userRole() }}
+          </span>
+          <span class="text-xs text-[var(--color-text-muted)] flex items-center gap-1">
+            <i class="pi pi-calendar text-xs"></i> {{ todayFormatted() }}
+          </span>
+        </div>
+        <h1
+          class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight"
+        >
+          Welcome back, <span class="text-[var(--color-secondary)]">{{ userName() }}</span
+          >! 👋
+        </h1>
+        <p class="text-sm text-[var(--color-text-muted)] mt-1">
+          Here is your learning & management overview for this week.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a routerLink="/schedule" class="hero-action-btn hero-action-btn--primary">
+          <i class="pi pi-calendar-plus"></i> View Schedule
+        </a>
+        <a routerLink="/courses" class="hero-action-btn hero-action-btn--secondary">
+          <i class="pi pi-book"></i> Courses
+        </a>
+      </div>
+    </div>
   </div>
 
   <!-- Stat Cards -->
@@ -18,29 +45,63 @@
           <i [class]="card.icon"></i>
         </div>
         @if (card.loading) {
-          <p class="stat-value text-[var(--color-text-muted)]">
-            <i class="pi pi-spin pi-spinner text-xl"></i>
-          </p>
+          <div class="skeleton-line skeleton-line--value"></div>
+          <div class="skeleton-line skeleton-line--label"></div>
         } @else {
           <p class="stat-value">{{ card.value }}</p>
+          <p class="stat-label">{{ card.label }}</p>
+          @if (card.subtitle) {
+            <span class="stat-subtitle">{{ card.subtitle }}</span>
+          }
         }
-        <p class="stat-label">{{ card.label }}</p>
       </a>
     }
   </div>
 
   <!-- Monthly Overview -->
   @if (!loadingAllSessions() && totalSessionsCount() > 0) {
-    <div class="mb-10 p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div class="flex items-center justify-between mb-5">
-        <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
-          Monthly Overview
-          <span class="ml-2 text-sm font-normal text-[var(--color-text-muted)]">this month</span>
-        </h2>
-        <a routerLink="/schedule" class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors">
-          View Schedule <i class="pi pi-arrow-right ml-1 text-[10px]"></i>
+    <div
+      class="mb-10 p-6 md:p-8 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm"
+    >
+      <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+        <div>
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
+            Monthly Activity Overview
+          </h2>
+          <p class="text-xs text-[var(--color-text-muted)]">Current month aggregate metrics</p>
+        </div>
+        <a
+          routerLink="/schedule"
+          class="text-xs font-bold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors inline-flex items-center gap-1"
+        >
+          Full Schedule <i class="pi pi-arrow-right text-[10px]"></i>
         </a>
       </div>
+
+      <!-- Multi-segment visual progress bar -->
+      <div class="monthly-progress-bar mb-6" title="Monthly status breakdown">
+        <div
+          class="monthly-progress-bar__segment monthly-progress-bar__segment--scheduled"
+          [style.width.%]="monthlyProgressPercentages().scheduled"
+          [attr.title]="'Scheduled: ' + monthlyProgressPercentages().scheduled + '%'"
+        ></div>
+        <div
+          class="monthly-progress-bar__segment monthly-progress-bar__segment--ongoing"
+          [style.width.%]="monthlyProgressPercentages().ongoing"
+          [attr.title]="'Ongoing: ' + monthlyProgressPercentages().ongoing + '%'"
+        ></div>
+        <div
+          class="monthly-progress-bar__segment monthly-progress-bar__segment--completed"
+          [style.width.%]="monthlyProgressPercentages().completed"
+          [attr.title]="'Completed: ' + monthlyProgressPercentages().completed + '%'"
+        ></div>
+        <div
+          class="monthly-progress-bar__segment monthly-progress-bar__segment--cancelled"
+          [style.width.%]="monthlyProgressPercentages().cancelled"
+          [attr.title]="'Cancelled: ' + monthlyProgressPercentages().cancelled + '%'"
+        ></div>
+      </div>
+
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="monthly-stat">
           <p class="monthly-stat__value">{{ totalSessionsCount() }}</p>
@@ -68,112 +129,191 @@
 
   <!-- Quick Links -->
   <div class="mb-10">
-    <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">Quick Links</h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4 flex items-center gap-2">
+      <i class="pi pi-bolt text-[var(--color-secondary)]"></i> Quick Actions
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       @for (link of quickLinks(); track link.label) {
         <a
           [routerLink]="link.route"
-          class="quick-link-card flex items-center gap-3 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-[0_4px_12px_rgba(62,109,181,0.08)] transition-all duration-300 group"
+          class="quick-link-card flex items-center gap-3.5 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] transition-all duration-300 group shadow-sm hover:shadow-md"
         >
           <div
-            class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg"
+            class="w-11 h-11 rounded-xl flex items-center justify-center text-white text-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-sm"
             [style.background]="link.color"
           >
             <i [class]="link.icon"></i>
           </div>
-          <div>
+          <div class="min-w-0 flex-1">
             <p
-              class="font-semibold text-sm text-[var(--color-text-primary)] group-hover:text-[var(--color-secondary)] transition-colors"
+              class="font-bold text-sm text-[var(--color-text-primary)] group-hover:text-[var(--color-secondary)] transition-colors truncate"
             >
               {{ link.label }}
             </p>
-            <p class="text-xs text-[var(--color-text-muted)]">{{ link.description }}</p>
+            <p class="text-xs text-[var(--color-text-muted)] truncate">{{ link.description }}</p>
           </div>
           <i
-            class="pi pi-arrow-right ml-auto text-[var(--color-text-muted)] group-hover:text-[var(--color-secondary)] transition-colors text-sm"
+            class="pi pi-chevron-right text-[var(--color-text-muted)] group-hover:text-[var(--color-secondary)] group-hover:translate-x-1 transition-all text-xs flex-shrink-0"
           ></i>
         </a>
       }
     </div>
   </div>
 
-  <!-- Sessions This Week preview -->
+  <!-- Sessions This Week -->
   <div>
-    <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">
-      Sessions This Week
-      <span class="ml-2 text-sm font-normal text-[var(--color-text-muted)]">(from schedule)</span>
-    </h2>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+      <div>
+        <h2 class="text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+          <i class="pi pi-calendar-clock text-[var(--color-secondary)]"></i> Sessions This Week
+        </h2>
+        <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+          Filter and review scheduled classes for the active week
+        </p>
+      </div>
 
-    @if (!loadingUpcoming() && upcomingSessions().length > 0) {
-      <!-- Status breakdown chips -->
-      <div class="flex flex-wrap gap-2 mb-5">
-        @if (scheduledCount() > 0) {
-          <span class="status-chip status-chip--scheduled">
-            <span class="status-chip__dot"></span>
-            {{ scheduledCount() }} Scheduled
-          </span>
-        }
-        @if (runningCount() > 0) {
-          <span class="status-chip status-chip--running">
-            <span class="status-chip__dot"></span>
-            {{ runningCount() }} Running
-          </span>
-        }
-        @if (completedCount() > 0) {
-          <span class="status-chip status-chip--completed">
-            <span class="status-chip__dot"></span>
-            {{ completedCount() }} Completed
-          </span>
-        }
-        @if (cancelledCount() > 0) {
-          <span class="status-chip status-chip--cancelled">
-            <span class="status-chip__dot"></span>
-            {{ cancelledCount() }} Cancelled
-          </span>
-        }
-      </div>
-    }
+      @if (!loadingUpcoming() && upcomingSessions().length > 0) {
+        <!-- Filter chips -->
+        <div class="filter-chips flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            class="chip-btn"
+            [class.active]="activeStatusFilter() === 'all'"
+            (click)="setFilter('all')"
+          >
+            All ({{ upcomingSessions().length }})
+          </button>
+
+          @if (scheduledCount() > 0) {
+            <button
+              type="button"
+              class="chip-btn chip-btn--scheduled"
+              [class.active]="activeStatusFilter() === 'scheduled'"
+              (click)="setFilter('scheduled')"
+            >
+              <span class="chip-dot"></span> Scheduled ({{ scheduledCount() }})
+            </button>
+          }
+
+          @if (runningCount() > 0) {
+            <button
+              type="button"
+              class="chip-btn chip-btn--running"
+              [class.active]="activeStatusFilter() === 'running'"
+              (click)="setFilter('running')"
+            >
+              <span class="chip-dot"></span> Running ({{ runningCount() }})
+            </button>
+          }
+
+          @if (completedCount() > 0) {
+            <button
+              type="button"
+              class="chip-btn chip-btn--completed"
+              [class.active]="activeStatusFilter() === 'completed'"
+              (click)="setFilter('completed')"
+            >
+              <span class="chip-dot"></span> Completed ({{ completedCount() }})
+            </button>
+          }
+
+          @if (cancelledCount() > 0) {
+            <button
+              type="button"
+              class="chip-btn chip-btn--cancelled"
+              [class.active]="activeStatusFilter() === 'cancelled'"
+              (click)="setFilter('cancelled')"
+            >
+              <span class="chip-dot"></span> Cancelled ({{ cancelledCount() }})
+            </button>
+          }
+        </div>
+      }
+    </div>
+
     @if (loadingUpcoming()) {
-      <div class="flex items-center gap-3 text-[var(--color-text-muted)] text-sm py-6">
-        <i class="pi pi-spinner pi-spin"></i> Loading weekly sessions…
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] space-y-3"
+        >
+          <div class="skeleton-line w-1/3 h-4"></div>
+          <div class="skeleton-line w-2/3 h-5"></div>
+          <div class="skeleton-line w-1/2 h-3"></div>
+        </div>
+        <div
+          class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] space-y-3"
+        >
+          <div class="skeleton-line w-1/3 h-4"></div>
+          <div class="skeleton-line w-2/3 h-5"></div>
+          <div class="skeleton-line w-1/2 h-3"></div>
+        </div>
       </div>
-    } @else if (upcomingSessions().length === 0) {
+    } @else if (filteredSessions().length === 0) {
       <div class="empty-state">
-        <i class="pi pi-calendar text-4xl mb-3 opacity-40"></i>
-        <p class="font-semibold">No sessions scheduled this week</p>
-        <p class="text-sm mt-1">Your schedule appears to be clear.</p>
+        <i class="pi pi-calendar-times text-4xl mb-3 opacity-40 text-[var(--color-secondary)]"></i>
+        <p class="font-bold text-base text-[var(--color-text-primary)]">No sessions found</p>
+        <p class="text-xs text-[var(--color-text-muted)] mt-1">
+          @if (activeStatusFilter() !== 'all') {
+            No sessions match the status filter "{{ activeStatusFilter() }}".
+          } @else {
+            Your schedule appears to be clear this week.
+          }
+        </p>
       </div>
     } @else {
-      <div class="flex flex-col gap-3">
-        @for (s of upcomingSessions(); track s.id) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @for (s of filteredSessions(); track s.id) {
           <a
             routerLink="/schedule"
-            class="flex items-center gap-4 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] transition-colors duration-200"
+            class="session-card p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between gap-4 group"
           >
-            <div
-              class="w-10 h-10 rounded-xl bg-[var(--color-info-background)] flex items-center justify-center flex-shrink-0"
-            >
-              <i class="pi pi-calendar-clock text-[var(--color-secondary)]"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-[var(--color-text-primary)] truncate">
-                {{ s.topic }}
-              </p>
-              <p class="text-xs text-[var(--color-text-muted)] truncate">
-                {{ s.courseTitle }} · {{ s.groupName }}
-                @if (s.instructorName) {
-                  · {{ s.instructorName }}
-                }
-              </p>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <p class="text-xs font-bold text-[var(--color-secondary)]">
-                {{ formatTime(s.startsAt) }}
-              </p>
-              <p class="text-[10px] text-[var(--color-text-muted)]">{{ formatDate(s.startsAt) }}</p>
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-11 h-11 rounded-2xl bg-[var(--color-info-background)] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform"
+                >
+                  <i class="pi pi-calendar-clock text-[var(--color-secondary)] text-lg"></i>
+                </div>
+                <div>
+                  <h3
+                    class="text-sm font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-secondary)] transition-colors line-clamp-1"
+                  >
+                    {{ s.topic }}
+                  </h3>
+                  <p class="text-xs text-[var(--color-text-muted)] line-clamp-1 mt-0.5">
+                    {{ s.courseTitle }}
+                  </p>
+                </div>
+              </div>
+
               <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">
                 {{ s.status }}
               </span>
+            </div>
+
+            <div
+              class="pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]"
+            >
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="font-semibold flex items-center gap-1 text-[var(--color-secondary)]">
+                  <i class="pi pi-users text-[11px]"></i> {{ s.groupName }}
+                </span>
+                @if (s.instructorName) {
+                  <span class="flex items-center gap-1 text-[var(--color-text-muted)]">
+                    <i class="pi pi-user text-[11px]"></i> {{ s.instructorName }}
+                  </span>
+                }
+              </div>
+
+              <div class="text-right flex-shrink-0">
+                <span class="font-bold text-[var(--color-text-primary)] flex items-center gap-1">
+                  <i class="pi pi-clock text-[11px] text-[var(--color-secondary)]"></i>
+                  {{ formatTime(s.startsAt) }}
+                </span>
+                <span class="text-[10px] text-[var(--color-text-muted)] block">{{
+                  formatDate(s.startsAt)
+                }}</span>
+              </div>
             </div>
           </a>
         }

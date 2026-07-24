@@ -1,23 +1,69 @@
 import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
+import { catchError, of } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
-import { AttendanceStatus } from '../../core/enums/AttendanceStatus';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
-import { UpdateAttendanceDto, CreateAttendanceDto, AttendanceResponseDto } from '../../core/interfaces/Attendance';
+import {
+  UpdateAttendanceDto,
+  CreateAttendanceDto,
+  AttendanceResponseDto,
+  BulkAttendanceItem,
+} from '../../core/interfaces/Attendance';
+import { AttendanceStatus } from '../../core/enums/AttendanceStatus';
 import { User } from '../../core/interfaces/User';
 
-interface StudentAttendanceRecord {
+export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
+
+export interface StudentAttendanceRecord {
   studentId: number;
   studentName: string;
   studentEmail: string;
-  status: AttendanceStatus;
-  recordId?: number; // Existing record UUID if updating
+  status: StudentStatus;
+  recordId?: number; // Existing record ID if updating
   isSaved?: boolean;
+}
+
+export type RosterFilterOption = 'all' | StudentStatus;
+export type SessionStatusFilter = 'all' | 'scheduled' | 'running' | 'completed' | 'cancelled';
+export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
+
+export function statusToApiEnum(status: StudentStatus): AttendanceStatus {
+  switch (status) {
+    case 'Present':
+      return AttendanceStatus.Present;
+    case 'Late':
+      return AttendanceStatus.Late;
+    case 'Excused':
+      return AttendanceStatus.Excused;
+    case 'Absent':
+      return AttendanceStatus.Absent;
+    default:
+      return AttendanceStatus.Present;
+  }
+}
+
+export function normalizeAttendanceStatus(raw: any): StudentStatus {
+  if (raw === undefined || raw === null) return 'Pending';
+  if (typeof raw === 'string') {
+    const s = raw.trim().toLowerCase();
+    if (s === 'present' || s === '1') return 'Present';
+    if (s === 'late' || s === '2') return 'Late';
+    if (s === 'excused' || s === '3') return 'Excused';
+    if (s === 'absent' || s === '0') return 'Absent';
+    if (s === 'pending') return 'Pending';
+  }
+  if (raw === 1) return 'Present';
+  if (raw === 2) return 'Late';
+  if (raw === 3) return 'Excused';
+  if (raw === 0) return 'Absent';
+  return 'Pending';
 }
 
 @Component({
@@ -30,22 +76,101 @@ interface StudentAttendanceRecord {
 export class AttendanceComponent implements OnInit {
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
+  private auth = inject(AuthService);
+  private route = inject(ActivatedRoute);
   private platformId = inject(PLATFORM_ID);
-
-  readonly StatusEnum = AttendanceStatus;
 
   sessions = signal<ScheduleSession[]>([]);
   students = signal<User[]>([]);
   selectedSessionId = signal<number>(0);
+  sessionDetail = signal<ScheduleSession | null>(null);
   records = signal<StudentAttendanceRecord[]>([]);
 
   loading = signal(false);
   saving = signal(false);
+  isDirty = signal(false);
   searchQuery = signal('');
+  rosterStatusFilter = signal<RosterFilterOption>('all');
+  sessionStatusFilter = signal<SessionStatusFilter>('all');
+  selectedGroupFilter = signal<string>('all');
+  dateRangeFilter = signal<DateRangeFilter>('all');
+  selectedStudentIds = signal<number[]>([]);
 
-  readonly selectedSession = computed(() =>
-    this.sessions().find((s) => s.id === this.selectedSessionId())
-  );
+  readonly selectedSession = computed(() => {
+    const detail = this.sessionDetail();
+    if (detail && detail.id === this.selectedSessionId()) {
+      return detail;
+    }
+    return this.sessions().find((s) => s.id === this.selectedSessionId());
+  });
+
+  /** Extract unique group names for group filter dropdown */
+  readonly uniqueGroups = computed(() => {
+    const set = new Set<string>();
+    this.sessions().forEach((s) => {
+      if (s.groupName) set.add(s.groupName);
+    });
+    return Array.from(set).sort();
+  });
+
+  readonly hasActiveFilters = computed(() => {
+    return (
+      this.sessionStatusFilter() !== 'all' ||
+      this.selectedGroupFilter() !== 'all' ||
+      this.dateRangeFilter() !== 'all'
+    );
+  });
+
+  /** Session sequence progress percentage */
+  readonly sessionProgressPercent = computed(() => {
+    const s = this.selectedSession();
+    if (!s || !s.currentSessionNumber || !s.totalSessions) return 0;
+    return Math.min(100, Math.round((s.currentSessionNumber / s.totalSessions) * 100));
+  });
+
+  /** Filtered list of sessions based on Status, Group, and Date Range filters */
+  readonly filteredSessionsList = computed(() => {
+    const statusFilter = this.sessionStatusFilter();
+    const groupFilter = this.selectedGroupFilter();
+    const dateFilter = this.dateRangeFilter();
+    const all = this.sessions();
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const todayEnd = todayStart + 24 * 60 * 60 * 1000;
+
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime();
+
+    return all.filter((s) => {
+      // 1. Status Filter
+      const normStatus = (s.status ?? '').toLowerCase();
+      if (statusFilter === 'scheduled' && !normStatus.includes('scheduled')) return false;
+      if (statusFilter === 'running' && !normStatus.includes('running')) return false;
+      if (statusFilter === 'completed' && !normStatus.includes('completed')) return false;
+      if (statusFilter === 'cancelled' && !normStatus.includes('cancel')) return false;
+
+      // 2. Group Filter
+      if (groupFilter !== 'all' && s.groupName !== groupFilter) return false;
+
+      // 3. Date Range Filter
+      if (dateFilter !== 'all') {
+        const time = new Date(s.startsAt).getTime();
+        if (dateFilter === 'today' && (time < todayStart || time >= todayEnd)) return false;
+        if (dateFilter === 'week' && (time < weekStart.getTime() || time >= weekEnd.getTime()))
+          return false;
+        if (dateFilter === 'month' && (time < monthStart || time > monthEnd)) return false;
+      }
+
+      return true;
+    });
+  });
 
   /** True when the session started more than 24 hours ago */
   readonly isLocked = computed(() => {
@@ -57,17 +182,30 @@ export class AttendanceComponent implements OnInit {
 
   readonly filteredRecords = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
-    if (!q) return this.records();
-    return this.records().filter(
-      (r) => r.studentName.toLowerCase().includes(q) || r.studentEmail.toLowerCase().includes(q)
-    );
+    const filter = this.rosterStatusFilter();
+
+    return this.records().filter((r) => {
+      const matchesSearch =
+        !q || r.studentName.toLowerCase().includes(q) || r.studentEmail.toLowerCase().includes(q);
+
+      const matchesStatus = filter === 'all' || r.status === filter;
+
+      return matchesSearch && matchesStatus;
+    });
   });
 
   readonly presentRate = computed(() => {
     const total = this.records().length;
     if (total === 0) return 0;
-    const presentCount = this.countByStatus(AttendanceStatus.Present);
+    const presentCount = this.countByStatus('Present');
     return Math.round((presentCount / total) * 100);
+  });
+
+  readonly isAllSelected = computed(() => {
+    const visible = this.filteredRecords();
+    if (visible.length === 0) return false;
+    const selectedSet = new Set(this.selectedStudentIds());
+    return visible.every((r) => selectedSet.has(r.studentId));
   });
 
   ngOnInit(): void {
@@ -81,8 +219,13 @@ export class AttendanceComponent implements OnInit {
       next: (sessions) => {
         this.sessions.set(sessions || []);
         if (sessions && sessions.length > 0) {
-          this.selectedSessionId.set(sessions[0].id);
-          this.loadAttendanceForSession(sessions[0].id);
+          // Check query parameters for deep-linked sessionId or id
+          const queryParams = this.route.snapshot.queryParams;
+          const paramId = Number(queryParams['sessionId'] || queryParams['id']);
+
+          const targetSession = sessions.find((s) => s.id === paramId) || sessions[0];
+          this.selectedSessionId.set(targetSession.id);
+          this.loadAttendanceForSession(targetSession.id);
         } else {
           this.loading.set(false);
         }
@@ -92,114 +235,333 @@ export class AttendanceComponent implements OnInit {
   }
 
   onSessionChange(sessionId: number): void {
+    if (this.isDirty()) {
+      if (!confirm('You have unsaved attendance changes. Switch session anyway?')) {
+        return;
+      }
+    }
     this.selectedSessionId.set(sessionId);
+    this.selectedStudentIds.set([]);
     this.loadAttendanceForSession(sessionId);
+  }
+
+  setSessionStatusFilter(filter: SessionStatusFilter): void {
+    this.sessionStatusFilter.set(filter);
+    this.syncSelectedSessionWithFilter();
+  }
+
+  setGroupFilter(group: string): void {
+    this.selectedGroupFilter.set(group);
+    this.syncSelectedSessionWithFilter();
+  }
+
+  setDateRangeFilter(filter: DateRangeFilter): void {
+    this.dateRangeFilter.set(filter);
+    this.syncSelectedSessionWithFilter();
+  }
+
+  resetFilters(): void {
+    this.sessionStatusFilter.set('all');
+    this.selectedGroupFilter.set('all');
+    this.dateRangeFilter.set('all');
+    this.syncSelectedSessionWithFilter();
+  }
+
+  private syncSelectedSessionWithFilter(): void {
+    const list = this.filteredSessionsList();
+    const currentId = this.selectedSessionId();
+    const exists = list.some((s) => s.id === currentId);
+
+    if (!exists) {
+      if (list.length > 0) {
+        const newTargetId = list[0].id;
+        this.selectedSessionId.set(newTargetId);
+        this.loadAttendanceForSession(newTargetId);
+      } else {
+        this.selectedSessionId.set(0);
+        this.sessionDetail.set(null);
+        this.records.set([]);
+      }
+    }
+  }
+
+  setRosterFilter(filter: RosterFilterOption): void {
+    this.rosterStatusFilter.set(filter);
+  }
+
+  toggleStudentSelection(studentId: number): void {
+    const current = new Set(this.selectedStudentIds());
+    if (current.has(studentId)) {
+      current.delete(studentId);
+    } else {
+      current.add(studentId);
+    }
+    this.selectedStudentIds.set(Array.from(current));
+  }
+
+  toggleSelectAll(checked: boolean): void {
+    if (checked) {
+      const allVisibleIds = this.filteredRecords().map((r) => r.studentId);
+      this.selectedStudentIds.set(allVisibleIds);
+    } else {
+      this.selectedStudentIds.set([]);
+    }
+  }
+
+  isStudentSelected(studentId: number): boolean {
+    return this.selectedStudentIds().includes(studentId);
   }
 
   private loadAttendanceForSession(sessionId: number): void {
     this.loading.set(true);
+    this.isDirty.set(false);
+    this.selectedStudentIds.set([]);
 
-    // First, load all students so we have the full roster
-    this.lms.getStudents().subscribe({
-      next: (users) => {
-        const studentUsers = (users || []).filter((u) => u.role === Role.Student);
-        this.students.set(studentUsers);
+    const isAdmin = this.auth.hasRole(Role.Admin);
 
-        // Then try to fetch existing attendance records from the API
-        this.lms.getSessionAttendance(sessionId).subscribe({
-          next: (apiRecords: AttendanceResponseDto[]) => {
-            this.mergeAttendanceRecords(sessionId, studentUsers, apiRecords);
-          },
-          error: () => {
-            // Fallback to localStorage cache
-            this.loadFromLocalStorage(sessionId, studentUsers);
-          },
-        });
+    // Call GET /api/Schedule/sessions/{id} endpoint
+    this.lms
+      .getSessionDetails(sessionId)
+      .pipe(catchError(() => of(null)))
+      .subscribe({
+        next: (detail: ScheduleSession | null) => {
+          if (detail) {
+            this.sessionDetail.set(detail);
+
+            // Convert detail.attendances to StudentAttendanceRecord format
+            const apiAtts: AttendanceResponseDto[] = (detail.attendances || []).map((att) => ({
+              id: att.id,
+              sessionId,
+              studentId: att.studentId,
+              studentName: att.studentName,
+              studentEmail: att.studentEmail,
+              status: att.status,
+            }));
+
+            if (isAdmin) {
+              this.lms
+                .getStudents()
+                .pipe(catchError(() => of([])))
+                .subscribe({
+                  next: (users) => {
+                    const studentUsers = (users || []).filter((u) => u.role === Role.Student);
+                    this.students.set(studentUsers);
+                    this.buildRecordsFromApi(sessionId, apiAtts, studentUsers);
+                  },
+                });
+            } else {
+              this.buildRecordsFromApi(sessionId, apiAtts, []);
+            }
+          } else {
+            // Fallback to legacy getSessionAttendance API if getSessionDetails is unavailable
+            this.loadLegacySessionAttendance(sessionId, isAdmin);
+          }
+        },
+        error: () => {
+          this.loadLegacySessionAttendance(sessionId, isAdmin);
+        },
+      });
+  }
+
+  private loadLegacySessionAttendance(sessionId: number, isAdmin: boolean): void {
+    this.lms.getSessionAttendance(sessionId).subscribe({
+      next: (apiRecords: AttendanceResponseDto[]) => {
+        if (isAdmin) {
+          this.lms
+            .getStudents()
+            .pipe(catchError(() => of([])))
+            .subscribe({
+              next: (users) => {
+                const studentUsers = (users || []).filter((u) => u.role === Role.Student);
+                this.students.set(studentUsers);
+                this.buildRecordsFromApi(sessionId, apiRecords, studentUsers);
+              },
+            });
+        } else {
+          this.buildRecordsFromApi(sessionId, apiRecords, []);
+        }
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        if (isAdmin) {
+          this.lms
+            .getStudents()
+            .pipe(catchError(() => of([])))
+            .subscribe({
+              next: (users) => {
+                const studentUsers = (users || []).filter((u) => u.role === Role.Student);
+                this.students.set(studentUsers);
+                this.buildRecordsFromApi(sessionId, [], studentUsers);
+              },
+            });
+        } else {
+          this.buildRecordsFromApi(sessionId, [], []);
+        }
+      },
     });
   }
 
-  private mergeAttendanceRecords(
+  private buildRecordsFromApi(
     sessionId: number,
-    studentUsers: User[],
-    apiRecords: AttendanceResponseDto[]
+    apiRecords: AttendanceResponseDto[],
+    studentUsers: User[] = []
   ): void {
     const apiMap = new Map<number, AttendanceResponseDto>();
-    apiRecords.forEach((r) => apiMap.set(r.studentId, r));
+    (apiRecords || []).forEach((r) => apiMap.set(r.studentId, r));
 
-    // Also check localStorage for any unsaved local changes
     const storedKey = `lms_attendance_${sessionId}`;
     const storedJson = isPlatformBrowser(this.platformId) ? localStorage.getItem(storedKey) : null;
-    const storedMap: Record<string, { status: number; recordId?: number }> = storedJson
+    const storedMap: Record<string, { status: string; recordId?: number }> = storedJson
       ? JSON.parse(storedJson)
       : {};
 
-    const recs: StudentAttendanceRecord[] = studentUsers.map((st) => {
+    const recs: StudentAttendanceRecord[] = [];
+
+    // 1. First add students from studentUsers list (if loaded by Admin)
+    studentUsers.forEach((st) => {
       const apiRec = apiMap.get(st.id);
       if (apiRec) {
-        return {
+        recs.push({
           studentId: st.id,
           studentName: st.name,
           studentEmail: st.email,
-          status: (apiRec.status as AttendanceStatus) ?? AttendanceStatus.Present,
+          status: normalizeAttendanceStatus(apiRec.status),
           recordId: apiRec.id,
           isSaved: true,
-        };
+        });
+        apiMap.delete(st.id);
+      } else {
+        recs.push({
+          studentId: st.id,
+          studentName: st.name,
+          studentEmail: st.email,
+          status: normalizeAttendanceStatus(storedMap[st.id]?.status ?? 'Pending'),
+          recordId: storedMap[st.id]?.recordId ? Number(storedMap[st.id].recordId) : undefined,
+          isSaved: false,
+        });
       }
-      return {
-        studentId: st.id,
-        studentName: st.name,
-        studentEmail: st.email,
-        status: storedMap[st.id]?.status ?? AttendanceStatus.Present,
-        recordId: storedMap[st.id]?.recordId ? Number(storedMap[st.id].recordId) : undefined,
-        isSaved: false,
-      };
+    });
+
+    // 2. Add any remaining students from apiRecords (e.g. for Instructors where getStudents was skipped)
+    apiMap.forEach((apiRec, stId) => {
+      recs.push({
+        studentId: stId,
+        studentName: apiRec.studentName || `Student #${stId}`,
+        studentEmail: apiRec.studentEmail || '',
+        status: normalizeAttendanceStatus(apiRec.status),
+        recordId: apiRec.id,
+        isSaved: true,
+      });
+    });
+
+    // 3. Add any remaining students from local storage cache
+    Object.entries(storedMap).forEach(([stIdStr, data]) => {
+      const stId = Number(stIdStr);
+      if (!recs.some((r) => r.studentId === stId)) {
+        recs.push({
+          studentId: stId,
+          studentName: `Student #${stId}`,
+          studentEmail: '',
+          status: normalizeAttendanceStatus(data.status),
+          recordId: data.recordId,
+          isSaved: false,
+        });
+      }
     });
 
     this.records.set(recs);
+    this.isDirty.set(false);
     this.loading.set(false);
   }
 
-  private loadFromLocalStorage(sessionId: number, studentUsers: User[]): void {
-    const storedKey = `lms_attendance_${sessionId}`;
-    const storedJson = isPlatformBrowser(this.platformId) ? localStorage.getItem(storedKey) : null;
-    const storedMap: Record<string, { status: number; recordId?: number }> = storedJson
-      ? JSON.parse(storedJson)
-      : {};
-
-    const recs: StudentAttendanceRecord[] = studentUsers.map((st) => ({
-      studentId: st.id,
-      studentName: st.name,
-      studentEmail: st.email,
-      status: storedMap[st.id]?.status ?? AttendanceStatus.Present,
-      recordId: storedMap[st.id]?.recordId ? Number(storedMap[st.id].recordId) : undefined,
-      isSaved: false,
-    }));
-
-    this.records.set(recs);
-    this.loading.set(false);
-  }
-
-  setStatus(record: StudentAttendanceRecord, status: AttendanceStatus): void {
+  setStatus(record: StudentAttendanceRecord, status: StudentStatus): void {
     if (this.isLocked()) {
       this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
       return;
     }
+    if (record.status === status) return;
+
     this.records.update((list) =>
       list.map((r) => (r.studentId === record.studentId ? { ...r, status } : r))
     );
+    this.isDirty.set(true);
   }
 
-  bulkSetStatus(status: AttendanceStatus): void {
+  bulkSetStatus(status: StudentStatus): void {
     if (this.isLocked()) {
       this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
       return;
     }
     this.records.update((list) => list.map((r) => ({ ...r, status })));
+    this.isDirty.set(true);
   }
 
-  countByStatus(status: AttendanceStatus): number {
+  bulkSetSelectedStatus(status: StudentStatus): void {
+    if (this.isLocked()) {
+      this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
+      return;
+    }
+    const selectedSet = new Set(this.selectedStudentIds());
+    if (selectedSet.size === 0) return;
+
+    this.records.update((list) =>
+      list.map((r) => (selectedSet.has(r.studentId) ? { ...r, status } : r))
+    );
+    this.isDirty.set(true);
+    this.notify.showSuccess(`Updated ${selectedSet.size} selected student(s) to ${status}`);
+  }
+
+  resetChanges(): void {
+    const sessionId = this.selectedSessionId();
+    if (sessionId) {
+      this.loadAttendanceForSession(sessionId);
+    }
+  }
+
+  exportAttendanceCsv(): void {
+    const session = this.selectedSession();
+    const recs = this.filteredRecords();
+    if (!session || recs.length === 0) {
+      this.notify.showError('No records to export');
+      return;
+    }
+
+    const headers = [
+      'Student ID',
+      'Student Name',
+      'Email',
+      'Status',
+      'Session Topic',
+      'Course',
+      'Group',
+      'Date',
+    ];
+    const rows = recs.map((r) => [
+      r.studentId,
+      `"${r.studentName.replace(/"/g, '""')}"`,
+      `"${r.studentEmail}"`,
+      r.status,
+      `"${(session.topic || '').replace(/"/g, '""')}"`,
+      `"${(session.courseTitle || '').replace(/"/g, '""')}"`,
+      `"${(session.groupName || '').replace(/"/g, '""')}"`,
+      `"${this.formatDate(session.startsAt)}"`,
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const fileName = `Attendance_${(session.topic || 'Session').replace(/[^a-zA-Z0-9]/g, '_')}_${this.formatDate(session.startsAt)}.csv`;
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.notify.showSuccess('Attendance sheet exported as CSV');
+  }
+
+  countByStatus(status: StudentStatus): number {
     return this.records().filter((r) => r.status === status).length;
   }
 
@@ -213,58 +575,70 @@ export class AttendanceComponent implements OnInit {
 
     this.saving.set(true);
     const recs = this.records();
-    let completed = 0;
-    let hasError = false;
 
-    // Save to local storage cache immediately
-    const cacheMap: Record<string, { status: number; recordId?: number }> = {};
-
+    // Prepare local storage cache map
+    const cacheMap: Record<string, { status: string; recordId?: number }> = {};
     recs.forEach((r) => {
       cacheMap[r.studentId] = { status: r.status, recordId: r.recordId };
-
-      if (r.recordId) {
-        // PUT /api/Attendance/{id}
-        const updatePayload: UpdateAttendanceDto = { status: r.status };
-        this.lms.updateAttendance(r.recordId, updatePayload).subscribe({
-          next: () => {
-            completed++;
-            if (completed === recs.length) this.finishSave(cacheMap, hasError);
-          },
-          error: () => {
-            hasError = true;
-            completed++;
-            if (completed === recs.length) this.finishSave(cacheMap, hasError);
-          },
-        });
-      } else {
-        // POST /api/Attendance
-        const createPayload: CreateAttendanceDto = {
-          sessionId,
-          studentId: r.studentId,
-          status: r.status,
-        };
-        this.lms.createAttendance(createPayload).subscribe({
-          next: (res: any) => {
-            if (res && res.id) r.recordId = res.id;
-            completed++;
-            if (completed === recs.length) this.finishSave(cacheMap, hasError);
-          },
-          error: () => {
-            hasError = true;
-            completed++;
-            if (completed === recs.length) this.finishSave(cacheMap, hasError);
-          },
-        });
-      }
     });
 
-    if (recs.length === 0) {
-      this.finishSave(cacheMap, hasError);
-    }
+    // Prepare payload array for POST /api/Attendance/session/{sessionId}
+    const bulkPayload: BulkAttendanceItem[] = recs.map((r) => ({
+      studentId: r.studentId,
+      status: statusToApiEnum(r.status), // 0 = Absent, 1 = Present, 2 = Late, 3 = Excused
+    }));
+
+    // Primary: Call bulk attendance save endpoint POST /api/Attendance/session/{sessionId}
+    this.lms.saveBulkAttendance(sessionId, bulkPayload).subscribe({
+      next: () => {
+        this.finishSave(cacheMap, false);
+      },
+      error: () => {
+        // Fallback: If bulk endpoint encounters issue, save individual records or save locally
+        let completed = 0;
+        let hasError = false;
+
+        recs.forEach((r) => {
+          const numericStatus = statusToApiEnum(r.status);
+          if (r.recordId) {
+            this.lms.updateAttendance(r.recordId, { status: numericStatus }).subscribe({
+              next: () => {
+                completed++;
+                if (completed === recs.length) this.finishSave(cacheMap, hasError);
+              },
+              error: () => {
+                hasError = true;
+                completed++;
+                if (completed === recs.length) this.finishSave(cacheMap, hasError);
+              },
+            });
+          } else {
+            this.lms
+              .createAttendance({ sessionId, studentId: r.studentId, status: numericStatus })
+              .subscribe({
+                next: (res: any) => {
+                  if (res && res.id) r.recordId = res.id;
+                  completed++;
+                  if (completed === recs.length) this.finishSave(cacheMap, hasError);
+                },
+                error: () => {
+                  hasError = true;
+                  completed++;
+                  if (completed === recs.length) this.finishSave(cacheMap, hasError);
+                },
+              });
+          }
+        });
+
+        if (recs.length === 0) {
+          this.finishSave(cacheMap, true);
+        }
+      },
+    });
   }
 
   private finishSave(
-    cacheMap: Record<string, { status: number; recordId?: number }>,
+    cacheMap: Record<string, { status: string; recordId?: number }>,
     hasError: boolean
   ): void {
     const sessionId = this.selectedSessionId();
@@ -272,6 +646,8 @@ export class AttendanceComponent implements OnInit {
       localStorage.setItem(`lms_attendance_${sessionId}`, JSON.stringify(cacheMap));
     }
     this.saving.set(false);
+    this.isDirty.set(false);
+
     if (hasError) {
       this.notify.showSuccess('Attendance sheet saved locally (server sync pending)');
     } else {
@@ -299,10 +675,10 @@ export class AttendanceComponent implements OnInit {
 
   formatTime(iso?: string): string {
     if (!iso) return '—';
-    return new Date(iso).toLocaleTimeString('en-GB', {
-      hour: '2-digit',
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     });
   }
 

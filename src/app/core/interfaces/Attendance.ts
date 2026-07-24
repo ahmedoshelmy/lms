@@ -3,11 +3,11 @@ import { AttendanceStatus } from '../enums/AttendanceStatus';
 export interface CreateAttendanceDto {
   sessionId: number;
   studentId: number;
-  status: AttendanceStatus;
+  status: string | AttendanceStatus;
 }
 
 export interface UpdateAttendanceDto {
-  status: AttendanceStatus;
+  status: string | AttendanceStatus;
 }
 
 export interface AttendanceResponseDto {
@@ -38,4 +38,9 @@ export interface AttendanceRecord {
   studentName?: string;
   status: AttendanceStatus;
   recordId?: number;
+}
+
+export interface BulkAttendanceItem {
+  studentId: number;
+  status: number;
 }

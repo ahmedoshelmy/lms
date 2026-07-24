@@ -3,112 +3,179 @@
   width: 100%;
 }
 
-.th-cell {
-  padding: 14px 20px;
-  font-size: 11px;
+.session-chip-btn {
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 12px;
   font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.session-chip-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-secondary);
+}
+
+.session-chip-btn.active {
+  background: var(--color-secondary);
+  color: white;
+  border-color: var(--color-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-pill {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.th-cell {
+  padding: 14px 16px;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.05em;
   color: var(--color-text-muted);
 }
+
 .td-cell {
-  padding: 14px 20px;
+  padding: 14px 16px;
   vertical-align: middle;
 }
 
 .avatar-circle {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+  background: linear-gradient(135deg, var(--color-avatar-from) 0%, var(--color-avatar-to) 100%);
   color: white;
-  font-size: 12px;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px var(--color-avatar-glow);
 }
 
 .status-btn {
-  padding: 6px 12px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.btn-present:hover {
-  border-color: var(--color-success);
-  color: var(--color-success);
-}
-.btn-late:hover {
-  border-color: var(--color-warning);
-  color: var(--color-warning);
-}
-.btn-excused:hover {
-  border-color: var(--color-secondary);
-  color: var(--color-secondary);
-}
-.btn-absent:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
+.status-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+.btn-present:hover:not(:disabled),
 .active-present {
-  background: var(--color-success) !important;
+  background: var(--color-success-background) !important;
+  color: var(--color-success-foreground) !important;
   border-color: var(--color-success) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-success) 40%, transparent);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2) !important;
 }
+
+.btn-late:hover:not(:disabled),
 .active-late {
-  background: var(--color-warning) !important;
+  background: var(--color-warning-background) !important;
+  color: var(--color-warning-foreground) !important;
   border-color: var(--color-warning) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-warning) 40%, transparent);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2) !important;
 }
+
+.btn-excused:hover:not(:disabled),
 .active-excused {
-  background: var(--color-secondary) !important;
-  border-color: var(--color-secondary) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-secondary) 40%, transparent);
+  background: var(--color-info-background) !important;
+  color: var(--color-info-foreground) !important;
+  border-color: var(--color-info) !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2) !important;
 }
+
+.btn-absent:hover:not(:disabled),
 .active-absent {
-  background: var(--color-danger) !important;
-  border-color: var(--color-danger) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-danger) 40%, transparent);
+  background: var(--color-error-background) !important;
+  color: var(--color-error-foreground) !important;
+  border-color: var(--color-error) !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2) !important;
 }
 
-// Session status badge classes (for the session info card)
 .session-status-scheduled {
-  background-color: rgba(26, 43, 76, 0.08);
-  color: var(--color-primary);
+  background: var(--color-info-background);
+  color: var(--color-info-foreground);
+  border: 1px solid var(--color-info);
 }
+
 .session-status-running {
-  background-color: rgba(245, 158, 11, 0.08);
-  color: var(--color-warning);
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+  border: 1px solid var(--color-success);
 }
+
 .session-status-completed {
-  background-color: rgba(16, 185, 129, 0.08);
-  color: var(--color-success);
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
 }
+
 .session-status-cancelled {
-  background-color: rgba(239, 68, 68, 0.08);
-  color: var(--color-danger);
+  background: var(--color-error-background);
+  color: var(--color-error-foreground);
+  border: 1px solid var(--color-error);
 }
 
-// Disabled state for locked attendance
-.status-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  pointer-events: none;
+/* ── Floating Save Bar ─────────────────────────────────────────────────── */
+.floating-save-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 48px);
+  max-width: 640px;
+  background: var(--color-surface);
+  backdrop-filter: blur(16px);
+  border: 1.5px solid var(--color-success);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ── Save Sheet Buttons ───────────────────────────────────────────────── */
+.btn-save-sheet {
+  color: #ffffff !important;
+}
+
+.btn-save-sheet:hover,
+.btn-save-sheet:focus,
+.btn-save-sheet:active {
+  color: #ffffff !important;
+}

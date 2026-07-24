@@ -3,140 +3,318 @@
   width: 100%;
 }
 
+/* ── Hero Banner ────────────────────────────────────────────────────── */
+.dashboard-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-alt) 100%);
+}
+
+.role-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-role-badge-bg);
+  color: var(--color-role-badge-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  line-height: 1;
+
+  i {
+    font-size: 12px;
+    color: var(--color-role-badge-text);
+  }
+}
+
+.dashboard-hero__glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.hero-action-btn--primary {
+  background: var(--color-secondary);
+  color: var(--color-secondary-content);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  &:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-1px);
+  }
+}
+
+.hero-action-btn--secondary {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  &:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-secondary);
+    transform: translateY(-1px);
+  }
+}
+
+/* ── Stat Cards ─────────────────────────────────────────────────────── */
 .stat-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   padding: 20px;
-  border-radius: 16px;
+  border-radius: 20px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
+
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
   border-color: var(--card-color, var(--color-secondary));
 }
+
 .stat-icon {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
   background: var(--card-color, var(--color-secondary));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
-  opacity: 0.9;
+  font-size: 19px;
+  opacity: 0.95;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
 }
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.08);
+}
+
 .stat-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   color: var(--color-text-primary);
-  margin: 0;
+  margin: 4px 0 0;
   line-height: 1;
 }
+
 .stat-label {
   font-size: 12px;
-  color: var(--color-text-muted);
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font-weight: 700;
   margin: 0;
 }
 
+.stat-subtitle {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* ── Skeleton Loading ───────────────────────────────────────────────── */
+.skeleton-line {
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton-bg) 25%,
+    var(--color-skeleton-highlight) 50%,
+    var(--color-skeleton-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+.skeleton-line--value {
+  height: 28px;
+  width: 60%;
+  margin-top: 4px;
+}
+
+.skeleton-line--label {
+  height: 12px;
+  width: 80%;
+  margin-top: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Empty State ────────────────────────────────────────────────────── */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px;
-  border-radius: 16px;
-  border: 1px dashed var(--color-border);
+  padding: 50px 24px;
+  border-radius: 24px;
+  border: 1.5px dashed var(--color-border);
+  background: var(--color-surface);
   color: var(--color-text-muted);
   text-align: center;
 }
 
-/* ─── Status chips (summary row) ────────────────────────────────── */
-.status-chip {
+/* ── Status Filter Chips ───────────────────────────────────────────── */
+.chip-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid transparent;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.status-chip__dot {
-  width: 7px;
-  height: 7px;
+
+.chip-btn:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.chip-btn.active {
+  background: var(--color-secondary);
+  color: var(--color-secondary-content);
+  border-color: var(--color-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  flex-shrink: 0;
+  background: currentColor;
 }
 
-.status-chip--scheduled {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  border-color: rgba(59, 130, 246, 0.25);
-  .status-chip__dot { background: #3b82f6; }
-}
-.status-chip--running {
-  background: rgba(234, 179, 8, 0.12);
-  color: #ca8a04;
-  border-color: rgba(234, 179, 8, 0.3);
-  .status-chip__dot { background: #eab308; }
-}
-.status-chip--completed {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border-color: rgba(16, 185, 129, 0.25);
-  .status-chip__dot { background: #10b981; }
-}
-.status-chip--cancelled {
-  background: rgba(239, 68, 68, 0.08);
-  color: #dc2626;
-  border-color: rgba(239, 68, 68, 0.2);
-  .status-chip__dot { background: #ef4444; }
+.chip-btn--scheduled.active {
+  background: var(--color-info);
+  border-color: var(--color-info);
 }
 
-/* ─── Status badge (per-row inline pill) ────────────────────────── */
+.chip-btn--running.active {
+  background: var(--color-warning-foreground);
+  border-color: var(--color-warning-foreground);
+}
+
+.chip-btn--completed.active {
+  background: var(--color-success-foreground);
+  border-color: var(--color-success-foreground);
+}
+
+.chip-btn--cancelled.active {
+  background: var(--color-error-foreground);
+  border-color: var(--color-error-foreground);
+}
+
+/* ── Status Badge Pills ─────────────────────────────────────────────── */
 .status-badge {
   display: inline-block;
-  margin-top: 4px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: capitalize;
-}
-.status-badge--scheduled {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-}
-.status-badge--running {
-  background: rgba(234, 179, 8, 0.12);
-  color: #ca8a04;
-}
-.status-badge--completed {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-}
-.status-badge--cancelled {
-  background: rgba(239, 68, 68, 0.08);
-  color: #dc2626;
+  border: 1px solid transparent;
 }
 
-/* ─── Monthly overview stats ────────────────────────────────── */
+.status-badge--scheduled {
+  background: var(--color-info-background);
+  color: var(--color-info-foreground);
+  border-color: var(--color-info);
+}
+
+.status-badge--running {
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+  border-color: var(--color-warning);
+}
+
+.status-badge--completed {
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+  border-color: var(--color-success);
+}
+
+.status-badge--cancelled {
+  background: var(--color-error-background);
+  color: var(--color-error-foreground);
+  border-color: var(--color-error);
+}
+
+/* ── Monthly Progress & Stats ──────────────────────────────────────── */
+.monthly-progress-bar {
+  display: flex;
+  height: 8px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-background-alt);
+  gap: 2px;
+}
+
+.monthly-progress-bar__segment {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.monthly-progress-bar__segment--scheduled {
+  background: var(--color-info);
+}
+
+.monthly-progress-bar__segment--ongoing {
+  background: var(--color-warning);
+}
+
+.monthly-progress-bar__segment--completed {
+  background: var(--color-success);
+}
+
+.monthly-progress-bar__segment--cancelled {
+  background: var(--color-error);
+}
+
 .monthly-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   padding: 16px 12px;
-  border-radius: 12px;
+  border-radius: 16px;
   background: var(--color-background);
   border: 1px solid var(--color-border);
   transition: all 0.2s ease;
@@ -145,6 +323,7 @@
     transform: translateY(-1px);
   }
 }
+
 .monthly-stat__value {
   font-size: 24px;
   font-weight: 800;
@@ -152,23 +331,33 @@
   margin: 0;
   line-height: 1;
 }
+
 .monthly-stat__label {
   font-size: 11px;
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.monthly-stat--scheduled {
-  .monthly-stat__value { color: #3b82f6; }
+
+.monthly-stat--scheduled .monthly-stat__value {
+  color: var(--color-info-foreground);
 }
-.monthly-stat--ongoing {
-  .monthly-stat__value { color: #ca8a04; }
+
+.monthly-stat--ongoing .monthly-stat__value {
+  color: var(--color-warning-foreground);
 }
-.monthly-stat--completed {
-  .monthly-stat__value { color: #059669; }
+
+.monthly-stat--completed .monthly-stat__value {
+  color: var(--color-success-foreground);
 }
-.monthly-stat--cancelled {
-  .monthly-stat__value { color: #dc2626; }
+
+.monthly-stat--cancelled .monthly-stat__value {
+  color: var(--color-error-foreground);
+}
+
+/* ── Session Cards ─────────────────────────────────────────────────── */
+.session-card {
+  text-decoration: none;
 }

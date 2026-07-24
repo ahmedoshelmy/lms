@@ -35,6 +35,7 @@
 
   /* Semantic statuses (sessions) */
   --color-success: #10b981;
+  --color-success-hover: #059669;
   --color-success-background: #ecfdf3;
   --color-success-foreground: #027a48;
 
@@ -56,23 +57,30 @@
   --color-accent-glow: rgba(28, 211, 156, 0.3);
 
   /* Role badge */
-  --color-role-badge-bg: #5a4bb6;
-  --color-role-badge-text: #f0f0ff;
+  --color-role-badge-bg: #4338ca;
+  --color-role-badge-text: #ffffff;
 
   /* Avatar */
-  --color-avatar-from: #7453ff;
-  --color-avatar-to: #5a4bb6;
-  --color-avatar-glow: rgba(116, 83, 255, 0.3);
+  --color-avatar-from: #3b82f6;
+  --color-avatar-to: #6366f1;
+  --color-avatar-glow: rgba(59, 130, 246, 0.35);
 
-  /* Sidebar specifics */
-  --color-sidebar-bg-from: #1e2a5c;
-  --color-sidebar-bg-to: #16224d;
-  --color-sidebar-text: #c6cce5;
-  --color-sidebar-subtext: #a8b0d3;
-  --color-sidebar-user-email: #9ea9d8;
-  --color-sidebar-border: rgba(255, 255, 255, 0.08);
-  --color-sidebar-item-hover: rgba(255, 255, 255, 0.08);
-  --color-sidebar-item-active: rgba(28, 211, 156, 0.15);
+  /* Sidebar specifics (Option 1 & 3 Modern Clean Design) */
+  --color-sidebar-bg-from: #f8f6f0;
+  --color-sidebar-bg-to: #f4f1ea;
+  --color-sidebar-title: #0f172a;
+  --color-sidebar-text: #334155;
+  --color-sidebar-subtext: #64748b;
+  --color-sidebar-user-email: #64748b;
+  --color-sidebar-border: #e2e8f0;
+  --color-sidebar-item-hover: rgba(0, 0, 0, 0.05);
+  --color-sidebar-item-active: #3b82f6;
+  --color-role-badge-bg: #e0f2fe;
+  --color-role-badge-text: #0284c7;
+
+  /* Skeleton loader */
+  --color-skeleton-bg: #e2e8f0;
+  --color-skeleton-highlight: #f8fafc;
 
   /* Fonts */
   --font-sans: 'Inter', 'Segoe UI', sans-serif;
@@ -101,6 +109,7 @@
   --color-disabled: #3a3f4a;
 
   --color-success: #34d399;
+  --color-success-hover: #059669;
   --color-success-background: #0e2b1e;
   --color-success-foreground: #6ce9a6;
 
@@ -122,23 +131,30 @@
   --color-accent-glow: rgba(28, 211, 156, 0.25);
 
   /* Role badge */
-  --color-role-badge-bg: #3d3185;
-  --color-role-badge-text: #d4d0ff;
+  --color-role-badge-bg: #3730a3;
+  --color-role-badge-text: #e0e7ff;
 
   /* Avatar */
-  --color-avatar-from: #5a3fd6;
-  --color-avatar-to: #3d2fa0;
-  --color-avatar-glow: rgba(90, 63, 214, 0.3);
+  --color-avatar-from: #10b981;
+  --color-avatar-to: #059669;
+  --color-avatar-glow: rgba(16, 185, 129, 0.35);
 
-  /* Sidebar specifics */
-  --color-sidebar-bg-from: #12183a;
-  --color-sidebar-bg-to: #0d1230;
-  --color-sidebar-text: #a8b0d3;
-  --color-sidebar-subtext: #6b7494;
-  --color-sidebar-user-email: #6b7494;
-  --color-sidebar-border: rgba(255, 255, 255, 0.06);
+  /* Sidebar specifics (Option 1 Single Accent Dark) */
+  --color-sidebar-bg-from: #121829;
+  --color-sidebar-bg-to: #0f1422;
+  --color-sidebar-title: #ffffff;
+  --color-sidebar-text: #cbd5e1;
+  --color-sidebar-subtext: #64748b;
+  --color-sidebar-user-email: #64748b;
+  --color-sidebar-border: rgba(255, 255, 255, 0.08);
   --color-sidebar-item-hover: rgba(255, 255, 255, 0.06);
-  --color-sidebar-item-active: rgba(28, 211, 156, 0.12);
+  --color-sidebar-item-active: #3b82f6;
+  --color-role-badge-bg: rgba(255, 255, 255, 0.08);
+  --color-role-badge-text: #94a3b8;
+
+  /* Skeleton loader */
+  --color-skeleton-bg: #272a30;
+  --color-skeleton-highlight: #333842;
 }
 
 @layer base {

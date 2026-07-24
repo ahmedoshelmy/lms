@@ -2,9 +2,10 @@ import { Component, computed, inject, model, output } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
-import { ROLE_LABELS } from '../../../core/interfaces/Role';
+import { Role, ROLE_LABELS } from '../../../core/interfaces/Role';
 import { AuthService } from '../../../core/services/auth.service';
 import { LmsService } from '../../../core/services/lms.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
 
 @Component({
@@ -17,7 +18,10 @@ import { getMenuItemsForRole } from '../../../core/config/app-navigation.config'
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
   private readonly lmsService = inject(LmsService);
+  private readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+
+  readonly isDark = this.themeService.isDark;
 
   isOpen = model(true);
   menuItemClicked = output<void>();
@@ -43,12 +47,23 @@ export class SidebarComponent {
     return role ? ROLE_LABELS[role] : 'Guest';
   });
 
+  readonly roleIcon = computed(() => {
+    const role = this.currentUser()?.role;
+    if (role === Role.Admin) return 'pi pi-shield';
+    if (role === Role.Instructor) return 'pi pi-user-edit';
+    return 'pi pi-graduation-cap';
+  });
+
   onMenuItemClick(): void {
     this.menuItemClicked.emit();
   }
 
   toggleSidebar(): void {
     this.isOpen.update((value) => !value);
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   logout(): void {

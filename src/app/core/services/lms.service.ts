@@ -146,10 +146,16 @@ export class LmsService {
     return this.http.patch<ScheduleSession>(`${this.getApiUrl()}/schedule/${id}`, payload);
   }
 
+  getSessionDetails(id: number): Observable<ScheduleSession> {
+    return this.http.get<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${id}`);
+  }
+
   // ─── Attendance ───────────────────────────────────────────────────────────
 
   getSessionAttendance(sessionId: number): Observable<AttendanceResponseDto[]> {
-    return this.http.get<AttendanceResponseDto[]>(`${this.getApiUrl()}/Attendance/session/${sessionId}`);
+    return this.http.get<AttendanceResponseDto[]>(
+      `${this.getApiUrl()}/Attendance/session/${sessionId}`
+    );
   }
 
   createAttendance(payload: CreateAttendanceDto): Observable<AttendanceResponseDto> {

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LmsService } from '../../core/services/lms.service';
-import { Role } from '../../core/interfaces/Role';
+import { Role, ROLE_LABELS } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 
 interface StatCard {
@@ -13,7 +13,10 @@ interface StatCard {
   color: string;
   link?: string;
   loading?: boolean;
+  subtitle?: string;
 }
+
+export type SessionStatusFilter = 'all' | 'scheduled' | 'running' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,30 +39,42 @@ export class DashboardComponent implements OnInit {
   studentCount = signal<number | '—'>('—');
   groupCount = signal<number | '—'>('—');
 
+  activeStatusFilter = signal<SessionStatusFilter>('all');
+
   readonly scheduledCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('scheduled')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
+        .length
   );
   readonly runningCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('running')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('running'))
+        .length
   );
   readonly completedCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('completed')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
+        .length
   );
   readonly cancelledCount = computed(
     () =>
-      this.upcomingSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('cancel')
-      ).length
+      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel'))
+        .length
   );
+
+  readonly filteredSessions = computed(() => {
+    const filter = this.activeStatusFilter();
+    const sessions = this.upcomingSessions();
+    if (filter === 'all') return sessions;
+    return sessions.filter((s) => {
+      const norm = (s.status ?? '').toLowerCase();
+      if (filter === 'scheduled') return norm.includes('scheduled');
+      if (filter === 'running') return norm.includes('running');
+      if (filter === 'completed') return norm.includes('completed');
+      if (filter === 'cancelled') return norm.includes('cancel');
+      return true;
+    });
+  });
 
   readonly totalHours = computed(() => {
     const sessions = this.allSessions();
@@ -72,32 +87,52 @@ export class DashboardComponent implements OnInit {
 
   readonly allScheduledCount = computed(
     () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('scheduled')
-      ).length
+      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled')).length
   );
   readonly allOngoingCount = computed(
     () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('ongoing')
-      ).length
+      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('ongoing')).length
   );
   readonly allCompletedCount = computed(
     () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('completed')
-      ).length
+      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed')).length
   );
   readonly allCancelledCount = computed(
-    () =>
-      this.allSessions().filter((s) =>
-        (s.status ?? '').toLowerCase().includes('cancel')
-      ).length
+    () => this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel')).length
   );
 
+  readonly monthlyProgressPercentages = computed(() => {
+    const total = this.totalSessionsCount();
+    if (!total) return { scheduled: 0, ongoing: 0, completed: 0, cancelled: 0 };
+    return {
+      scheduled: Math.round((this.allScheduledCount() / total) * 100),
+      ongoing: Math.round((this.allOngoingCount() / total) * 100),
+      completed: Math.round((this.allCompletedCount() / total) * 100),
+      cancelled: Math.round((this.allCancelledCount() / total) * 100),
+    };
+  });
+
   readonly userName = computed(() => this.auth.currentUser()?.name ?? 'User');
+  readonly userRole = computed(() => {
+    const role = this.auth.currentUser()?.role;
+    return role ? ROLE_LABELS[role] : 'Member';
+  });
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
+  readonly roleIcon = computed(() => {
+    if (this.isAdmin()) return 'pi pi-shield';
+    if (this.isInstructor()) return 'pi pi-user-edit';
+    return 'pi pi-graduation-cap';
+  });
+
+  readonly todayFormatted = computed(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  });
 
   readonly statCards = computed<StatCard[]>(() => {
     const upcoming = this.upcomingSessions().length;
@@ -109,6 +144,7 @@ export class DashboardComponent implements OnInit {
         color: 'var(--color-secondary)',
         link: '/schedule',
         loading: this.loadingUpcoming(),
+        subtitle: 'Scheduled across week',
       },
       {
         label: 'Total Hours',
@@ -117,6 +153,7 @@ export class DashboardComponent implements OnInit {
         color: 'var(--color-accent)',
         link: '/schedule',
         loading: this.loadingAllSessions(),
+        subtitle: 'Tracked this month',
       },
       {
         label: 'Courses',
@@ -125,6 +162,7 @@ export class DashboardComponent implements OnInit {
         color: 'var(--color-success)',
         link: '/courses',
         loading: this.loadingCounts(),
+        subtitle: 'Active curriculum',
       },
     ];
 
@@ -137,6 +175,7 @@ export class DashboardComponent implements OnInit {
           color: 'var(--color-warning)',
           link: '/instructors',
           loading: this.loadingCounts(),
+          subtitle: 'Active educators',
         },
         {
           label: 'Students',
@@ -145,6 +184,7 @@ export class DashboardComponent implements OnInit {
           color: 'var(--color-info)',
           link: '/students',
           loading: this.loadingCounts(),
+          subtitle: 'Enrolled learners',
         },
         {
           label: 'Total Groups',
@@ -153,6 +193,7 @@ export class DashboardComponent implements OnInit {
           color: 'var(--color-primary)',
           link: '/groups',
           loading: this.loadingCounts(),
+          subtitle: 'Assigned cohorts',
         }
       );
     }
@@ -161,7 +202,13 @@ export class DashboardComponent implements OnInit {
   });
 
   readonly quickLinks = computed(() => {
-    const links: { label: string; description: string; icon: string; route: string; color: string }[] = [
+    const links: {
+      label: string;
+      description: string;
+      icon: string;
+      route: string;
+      color: string;
+    }[] = [
       {
         label: 'Weekly Schedule',
         description: 'View your sessions',
@@ -210,7 +257,7 @@ export class DashboardComponent implements OnInit {
           icon: 'pi pi-user',
           route: '/instructors',
           color: 'var(--color-primary)',
-        },
+        }
       );
     }
     return links;
@@ -220,6 +267,10 @@ export class DashboardComponent implements OnInit {
     this.loadUpcoming();
     this.loadCounts();
     this.loadAllSessions();
+  }
+
+  setFilter(filter: SessionStatusFilter): void {
+    this.activeStatusFilter.set(filter);
   }
 
   private loadUpcoming(): void {

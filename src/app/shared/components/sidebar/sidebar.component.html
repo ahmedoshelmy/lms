@@ -19,8 +19,8 @@
     </div>
   </div>
 
-  <div class="role-badge" aria-label="Current role">
-    {{ currentRole() }}
+  <div class="role-badge-container">
+    <span class="role-badge">{{ currentRole() }}</span>
   </div>
 
   <nav class="menu" aria-label="Primary">
@@ -30,6 +30,7 @@
         [routerLink]="item.route"
         routerLinkActive="active"
         [attr.aria-label]="item.label"
+        [attr.title]="!isOpen() ? item.label : null"
         (click)="onMenuItemClick()"
       >
         <i [class]="item.icon" aria-hidden="true"></i>
@@ -38,24 +39,44 @@
     }
   </nav>
 
-  <a
-    routerLink="/profile"
-    routerLinkActive="active"
-    class="user-section"
-    aria-label="My Profile"
-    (click)="onMenuItemClick()"
-  >
-    <div class="avatar" aria-hidden="true">
-      {{ userProfile().initials }}
-    </div>
-    <div class="user-info">
-      <h4>{{ userProfile().name }}</h4>
-      <p class="menu-label">{{ userProfile().email }}</p>
-    </div>
-  </a>
+  <div class="sidebar-footer">
+    <a
+      routerLink="/profile"
+      routerLinkActive="active"
+      class="user-section"
+      aria-label="My Profile"
+      [attr.title]="!isOpen() ? userProfile().name + ' (Profile)' : null"
+      (click)="onMenuItemClick()"
+    >
+      <div class="avatar" aria-hidden="true">
+        {{ userProfile().initials }}
+      </div>
+      <div class="user-info">
+        <h4>{{ userProfile().name }}</h4>
+      </div>
+    </a>
 
-  <button type="button" class="logout-btn" aria-label="Sign out" (click)="logout()">
-    <i class="pi pi-sign-out" aria-hidden="true"></i>
-    <span class="menu-label">Logout</span>
-  </button>
+    <div class="footer-actions">
+      <button
+        type="button"
+        class="logout-btn"
+        aria-label="Sign out"
+        [attr.title]="!isOpen() ? 'Logout' : null"
+        (click)="logout()"
+      >
+        <i class="pi pi-sign-out" aria-hidden="true"></i>
+        <span class="menu-label">Logout</span>
+      </button>
+
+      <button
+        type="button"
+        class="theme-toggle-btn"
+        [attr.aria-label]="isDark() ? 'Light Mode' : 'Dark Mode'"
+        [attr.title]="isDark() ? 'Light Mode' : 'Dark Mode'"
+        (click)="toggleTheme()"
+      >
+        <i [class]="isDark() ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
 </aside>

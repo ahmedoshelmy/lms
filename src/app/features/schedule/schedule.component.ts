@@ -129,7 +129,6 @@ export class ScheduleComponent implements OnInit {
     }
 
     const headers: Record<string, string> = {};
-    
 
     this.http.get<ScheduleSession[]>(url, { headers }).subscribe({
       next: (res) => {
@@ -202,9 +201,7 @@ export class ScheduleComponent implements OnInit {
 
   onSessionUpdated(updated: ScheduleSession): void {
     // Patch the session in-place so cards re-render without a full reload
-    this.sessions.update((list) =>
-      list.map((s) => (s.id === updated.id ? updated : s))
-    );
+    this.sessions.update((list) => list.map((s) => (s.id === updated.id ? updated : s)));
     // If the currently-open session was updated, sync the panel too
     if (this.selectedSession()?.id === updated.id) {
       this.selectedSession.set(updated);
