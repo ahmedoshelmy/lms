@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.group-detail-avatar {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.student-avatar {
+  background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+}
+
+.tab-btn {
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  &:hover {
+    background: var(--color-background-alt);
+    color: var(--color-text-primary);
+  }
+}
+
+.tab-active {
+  background: var(--color-secondary) !important;
+  color: var(--color-secondary-content) !important;
+  border-color: var(--color-secondary) !important;
+}
+
+.status-running {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+}
+.status-stopped {
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
+}
+.status-completed {
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  color: var(--color-text-muted);
+}
+.status-archived {
+  background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+  color: var(--color-text-muted);
+}

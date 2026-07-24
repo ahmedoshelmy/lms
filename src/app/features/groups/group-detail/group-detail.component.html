@@ -1,0 +1,488 @@
+<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+  <!-- Back Button & Breadcrumbs -->
+  <div class="flex items-center gap-3 mb-6">
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-xs font-semibold hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] transition-all duration-200 shadow-sm"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      Back to Groups
+    </button>
+    <span class="text-[var(--color-text-muted)] text-xs">/</span>
+    <span class="text-xs font-bold text-[var(--color-text-primary)]">
+      {{ group() ? group()!.name : 'Group Details' }}
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-24">
+      <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
+    </div>
+  } @else if (group()) {
+    <!-- Main Group Card Banner -->
+    <div class="p-6 md:p-8 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm mb-8 relative overflow-hidden">
+      <!-- Ambient Top Accent Gradient Bar -->
+      <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"></div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <!-- Left: Group Avatar & Info -->
+        <div class="flex items-start gap-4">
+          <div class="group-detail-avatar rounded-2xl flex items-center justify-center w-16 h-16 shrink-0 text-2xl font-black text-white shadow-md">
+            {{ group()!.name.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+                {{ group()!.name }}
+              </h1>
+              <span
+                class="status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                [ngClass]="getStatusCss(group()!.status)"
+              >
+                <i [ngClass]="'pi ' + getStatusIcon(group()!.status)"></i>
+                {{ group()!.status }}
+              </span>
+            </div>
+
+            <!-- Instructor & Location Info -->
+            <div class="flex flex-wrap items-center gap-4 mt-2 text-xs text-[var(--color-text-secondary)]">
+              <div class="flex items-center gap-1.5">
+                <i class="pi pi-user text-[var(--color-secondary)]"></i>
+                <span class="font-medium text-[var(--color-text-primary)]">{{ group()!.defaultInstructorName }}</span>
+                @if (group()!.defaultInstructorEmail) {
+                  <span class="text-[var(--color-text-muted)]">({{ group()!.defaultInstructorEmail }})</span>
+                }
+              </div>
+              @if (group()!.location) {
+                <div class="flex items-center gap-1.5">
+                  <i class="pi pi-map-marker text-[var(--color-primary)]"></i>
+                  <span class="font-semibold">{{ group()!.location }}</span>
+                </div>
+              }
+              <div class="flex items-center gap-1.5">
+                <i class="pi pi-calendar text-[var(--color-text-muted)]"></i>
+                <span>{{ group()!.startDate | date: 'mediumDate' }} – {{ group()!.endDate | date: 'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Actions -->
+        @if (isAdmin()) {
+          <div class="flex items-center gap-3 shrink-0">
+            <button
+              (click)="openEditModal()"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md"
+            >
+              <i class="pi pi-pencil text-xs"></i>
+              Edit Group
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Quick Metrics Summary Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--color-border)]">
+        <div class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
+            Enrolled Students
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-users text-lg text-[var(--color-secondary)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ group()!.studentCount }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
+            Courses Count
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-book text-lg text-[var(--color-primary)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ group()!.courses.length }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
+            Weekly Schedule
+          </span>
+          <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--color-text-primary)] truncate">
+            <i class="pi pi-clock text-lg text-[var(--color-success)] shrink-0"></i>
+            <span class="truncate">
+              {{ group()!.schedules && group()!.schedules!.length > 0 ? (group()!.schedules![0].dayOfWeek + ' ' + group()!.schedules![0].startTime) : 'Not Scheduled' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1">
+            Overall Progress
+          </span>
+          <div class="flex items-center justify-between text-xs font-bold text-[var(--color-text-primary)] mb-1">
+            <span>{{ getGroupProgress(group()) }}%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-[var(--color-border)] overflow-hidden">
+            <div
+              class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
+              [style.width.%]="getGroupProgress(group())"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 mb-6 border-b border-[var(--color-border)] pb-2 overflow-x-auto">
+      <button
+        (click)="activeTab.set('students')"
+        [class.tab-active]="activeTab() === 'students'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-users"></i>
+        Enrolled Students ({{ group()!.studentCount }})
+      </button>
+
+      <button
+        (click)="activeTab.set('courses')"
+        [class.tab-active]="activeTab() === 'courses'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-book"></i>
+        Curriculum & Courses ({{ group()!.courses.length }})
+      </button>
+
+      <button
+        (click)="activeTab.set('schedules')"
+        [class.tab-active]="activeTab() === 'schedules'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-calendar-times"></i>
+        Weekly Schedule
+      </button>
+
+      <button
+        (click)="activeTab.set('sessions')"
+        [class.tab-active]="activeTab() === 'sessions'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-list"></i>
+        Generated Sessions ({{ groupSessions().length }})
+      </button>
+    </div>
+
+    <!-- TAB 1: ENROLLED STUDENTS -->
+    @if (activeTab() === 'students') {
+      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Students List</h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">Students currently registered in this group</p>
+          </div>
+
+          <!-- Search Filter -->
+          <div class="relative w-full sm:w-64">
+            <input
+              type="text"
+              [ngModel]="studentSearchQuery()"
+              (ngModelChange)="studentSearchQuery.set($event)"
+              placeholder="Search student..."
+              class="w-full pl-9 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
+            />
+            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]"></i>
+          </div>
+        </div>
+
+        @if (!group()!.students || group()!.students!.length === 0) {
+          <div class="text-center py-16 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+            <i class="pi pi-users text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
+            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">No Students Enrolled Yet</h3>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1">There are no students currently assigned to {{ group()!.name }}</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
+              <thead>
+                <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+                  <th class="py-3 px-4">Student</th>
+                  <th class="py-3 px-4">Email</th>
+                  <th class="py-3 px-4">Joined Date</th>
+                  <th class="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--color-border)]">
+                @for (s of filteredStudents(); track s.studentId) {
+                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors duration-150">
+                    <td class="py-3.5 px-4 font-bold flex items-center gap-3">
+                      <div class="student-avatar w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0">
+                        {{ s.studentName.charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-[var(--color-text-primary)]">{{ s.studentName }}</div>
+                        <div class="text-[10px] text-[var(--color-text-muted)]">ID: #{{ s.studentId }}</div>
+                      </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)] font-medium">
+                      {{ s.studentEmail }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-muted)]">
+                      {{ s.joinedAt | date: 'mediumDate' }}
+                    </td>
+                    <td class="py-3.5 px-4">
+                      @if (s.leftAt) {
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)]">
+                          Left ({{ s.leftAt | date: 'shortDate' }})
+                        </span>
+                      } @else {
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]">
+                          Active
+                        </span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB 2: COURSES & CURRICULUM -->
+    @if (activeTab() === 'courses') {
+      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm">
+        <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">Course Curriculum Breakdown</h2>
+
+        @if (group()!.courses.length === 0) {
+          <div class="text-center py-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+            <i class="pi pi-book text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
+            <p class="text-xs text-[var(--color-text-muted)]">No courses added to this group yet.</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (c of group()!.courses; track c.courseId) {
+              <div class="p-5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)]">
+                      Level {{ c.level }}
+                    </span>
+                    <span class="text-xs font-semibold text-[var(--color-text-muted)]">
+                      Order Index: #{{ c.orderIndex }}
+                    </span>
+                  </div>
+
+                  <h3 class="text-base font-bold text-[var(--color-text-primary)] leading-snug">
+                    {{ c.title }}
+                  </h3>
+                  <p class="text-xs font-medium text-[var(--color-text-muted)] mt-0.5">
+                    Topic: {{ c.topic }}
+                  </p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
+                  <span>Session: <strong>S{{ c.currentSessionNumber }}</strong> / {{ c.sessionCount }}</span>
+                  <span class="font-bold text-[var(--color-primary)]">
+                    {{ c.sessionCount }} Sessions
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB 3: WEEKLY SCHEDULE -->
+    @if (activeTab() === 'schedules') {
+      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm">
+        <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">Weekly Schedule Slots</h2>
+
+        @if (!group()!.schedules || group()!.schedules!.length === 0) {
+          <div class="text-center py-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+            <i class="pi pi-calendar-times text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
+            <p class="text-xs text-[var(--color-text-muted)]">No schedule configured for this group.</p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (sch of group()!.schedules; track sch.id) {
+              <div class="p-5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex items-start gap-4">
+                <div class="p-3 rounded-xl bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-primary)] shrink-0">
+                  <i class="pi pi-clock text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-[var(--color-text-primary)]">
+                    {{ sch.dayOfWeek }}
+                  </h3>
+                  <p class="text-xs font-semibold text-[var(--color-secondary)] mt-1">
+                    {{ sch.startTime }} – {{ sch.endTime }}
+                  </p>
+                  @if (sch.location) {
+                    <p class="text-xs text-[var(--color-text-muted)] mt-1 flex items-center gap-1">
+                      <i class="pi pi-map-marker text-[10px]"></i>
+                      {{ sch.location }}
+                    </p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB 4: GENERATED SESSIONS -->
+    @if (activeTab() === 'sessions') {
+      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Generated Sessions Schedule</h2>
+          <span class="text-xs font-semibold text-[var(--color-text-muted)]">
+            Total: {{ groupSessions().length }} sessions
+          </span>
+        </div>
+
+        @if (groupSessions().length === 0) {
+          <div class="text-center py-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+            <i class="pi pi-list text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
+            <p class="text-xs text-[var(--color-text-muted)]">No sessions generated for this group yet.</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
+              <thead>
+                <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+                  <th class="py-3 px-4">Topic</th>
+                  <th class="py-3 px-4">Date & Time</th>
+                  <th class="py-3 px-4">Instructor</th>
+                  <th class="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--color-border)]">
+                @for (sess of groupSessions(); track sess.id) {
+                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors duration-150">
+                    <td class="py-3.5 px-4 font-bold text-[var(--color-text-primary)]">
+                      {{ sess.topic || 'Regular Session' }}
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-[var(--color-secondary)]">
+                      {{ sess.startsAt | date: 'EEEE, MMM d, y · h:mm a' }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)]">
+                      {{ sess.instructorName }}
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span
+                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                        [ngClass]="getStatusCss(sess.status)"
+                      >
+                        {{ sess.status }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Edit Group Dialog -->
+<p-dialog
+  [(visible)]="showEditModal"
+  header="Edit Group Details"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '500px' }"
+  styleClass="rounded-2xl overflow-hidden"
+>
+  <div class="flex flex-col gap-4 py-2">
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Group Name</label>
+      <input
+        type="text"
+        [(ngModel)]="formName"
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Start Date</label>
+        <input
+          type="date"
+          [(ngModel)]="formStartDate"
+          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">End Date</label>
+        <input
+          type="date"
+          [(ngModel)]="formEndDate"
+          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Instructor</label>
+      <select
+        [(ngModel)]="formInstructorId"
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+      >
+        <option [value]="0">Select Instructor</option>
+        @for (inst of instructors(); track inst.id) {
+          <option [value]="inst.id">{{ inst.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Status</label>
+        <select
+          [(ngModel)]="formStatus"
+          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+        >
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Location</label>
+        <input
+          type="text"
+          [(ngModel)]="formLocation"
+          placeholder="e.g. MOA, Online"
+          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+        />
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button
+        (click)="showEditModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)]"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="saveGroup()"
+        [disabled]="saving()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50"
+      >
+        Save Changes
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
