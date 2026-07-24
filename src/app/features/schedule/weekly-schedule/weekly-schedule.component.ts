@@ -77,11 +77,37 @@ function classifyCategory(session: ScheduleSession): CategoryMeta {
 }
 
 function parseTime(iso: string): number {
-  return new Date(iso).getTime();
+  if (!iso) return 0;
+  const t = new Date(iso).getTime();
+  return isNaN(t) ? 0 : t;
+}
+
+function getStartMs(s: ScheduleSession): number {
+  if (!s || !s.startsAt) return 0;
+  return parseTime(s.startsAt);
+}
+
+function getEndMs(s: ScheduleSession): number {
+  if (!s) return 0;
+  if (s.endsAt) {
+    const t = new Date(s.endsAt).getTime();
+    if (!isNaN(t) && t > 0) return t;
+  }
+  const start = getStartMs(s);
+  const durationMs = (s.durationMinutes || 60) * 60 * 1000;
+  return start + durationMs;
 }
 
 function overlaps(a: ScheduleSession, b: ScheduleSession): boolean {
-  return parseTime(a.startsAt) < parseTime(b.endsAt) && parseTime(b.startsAt) < parseTime(a.endsAt);
+  const startA = getStartMs(a);
+  const endA = getEndMs(a);
+  const startB = getStartMs(b);
+  const endB = getEndMs(b);
+
+  if (!startA || !endA || !startB || !endB) return false;
+
+  // Strict time overlap: Session A starts before Session B ends AND Session B starts before Session A ends
+  return startA < endB && startB < endA;
 }
 
 @Component({
@@ -103,6 +129,7 @@ export class WeeklyScheduleComponent {
   instructorFilter = input<string>('');
   locationFilter = input<string>('');
   densityMode = input<DensityMode>('compact');
+  isAdmin = input<boolean>(false);
 
   sessionSelected = output<ScheduleSession>();
 
@@ -124,29 +151,25 @@ export class WeeklyScheduleComponent {
       for (let j = i + 1; j < all.length; j++) {
         const a = all[i];
         const b = all[j];
-        if (!overlaps(a, b)) continue;
 
-        // Check same instructor overlap
+        // 1. Ignore cancelled sessions
+        const statusA = (a.status ?? '').toLowerCase();
+        const statusB = (b.status ?? '').toLowerCase();
+        if (statusA.includes('cancel') || statusB.includes('cancel')) continue;
+
+        // 2. Conflicts ONLY apply when the SAME instructor is double-booked
+        const nameA = (a.instructorName || '').trim().toLowerCase();
+        const nameB = (b.instructorName || '').trim().toLowerCase();
+        if (!nameA || nameA === 'unassigned' || !nameB || nameB === 'unassigned') continue;
+
         const sameInstructor =
           (a.instructorId && b.instructorId && a.instructorId === b.instructorId) ||
-          (a.instructorName &&
-            b.instructorName &&
-            a.instructorName.trim().toLowerCase() !== 'unassigned' &&
-            a.instructorName.trim().toLowerCase() === b.instructorName.trim().toLowerCase());
+          nameA === nameB;
 
-        // Check same physical location overlap (excluding Online and empty locations)
-        const locA = (a.location || '').trim().toLowerCase();
-        const locB = (b.location || '').trim().toLowerCase();
-        const sameLocation =
-          locA !== '' &&
-          locA !== 'online' &&
-          locA !== 'n/a' &&
-          locB !== '' &&
-          locB !== 'online' &&
-          locB !== 'n/a' &&
-          locA === locB;
+        if (!sameInstructor) continue;
 
-        if (sameInstructor || sameLocation) {
+        // 3. Check strict time overlap
+        if (overlaps(a, b)) {
           ids.add(a.id);
           ids.add(b.id);
         }
@@ -167,7 +190,8 @@ export class WeeklyScheduleComponent {
     return this.sessions().filter((s) => {
       // 1. Search Query filter
       if (q) {
-        const text = `${s.topic} ${s.courseTitle} ${s.groupName} ${s.instructorName} ${s.location || ''}`.toLowerCase();
+        const text =
+          `${s.topic} ${s.courseTitle} ${s.groupName} ${s.instructorName} ${s.location || ''}`.toLowerCase();
         if (!text.includes(q)) return false;
       }
       // 2. Course filter
@@ -182,8 +206,7 @@ export class WeeklyScheduleComponent {
       // 5. Instructor filter
       if (inst) {
         const instMatch =
-          s.instructorName.toLowerCase().includes(inst) ||
-          s.instructorId.toString() === inst;
+          s.instructorName.toLowerCase().includes(inst) || s.instructorId.toString() === inst;
         if (!instMatch) return false;
       }
       // 6. Location filter
@@ -223,14 +246,26 @@ export class WeeklyScheduleComponent {
       days.push({
         date: curDate,
         dayName,
-        formattedDate: curDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+        formattedDate: curDate.toLocaleDateString('en-US', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
         sessions: daySessions,
         isToday: curDate.getTime() === todayMs,
       });
     } else {
       const startOfWeek = new Date(this.currentWeekStart());
       startOfWeek.setHours(0, 0, 0, 0);
-      const weekdays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+      const weekdays = [
+        'Saturday',
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+      ];
 
       for (let i = 0; i < 7; i++) {
         const currentDate = new Date(startOfWeek);
@@ -249,7 +284,10 @@ export class WeeklyScheduleComponent {
         days.push({
           date: currentDate,
           dayName: weekdays[i],
-          formattedDate: currentDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }),
+          formattedDate: currentDate.toLocaleDateString('en-US', {
+            day: 'numeric',
+            month: 'short',
+          }),
           sessions: daySessions,
           isToday: currentDate.getTime() === todayMs,
         });
@@ -350,4 +388,3 @@ export class WeeklyScheduleComponent {
     });
   }
 }
-

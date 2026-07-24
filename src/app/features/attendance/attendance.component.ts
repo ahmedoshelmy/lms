@@ -10,10 +10,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
-import {
-  AttendanceResponseDto,
-  BulkAttendanceItem,
-} from '../../core/interfaces/Attendance';
+import { AttendanceResponseDto, BulkAttendanceItem } from '../../core/interfaces/Attendance';
 import { AttendanceStatus } from '../../core/enums/AttendanceStatus';
 import { User } from '../../core/interfaces/User';
 

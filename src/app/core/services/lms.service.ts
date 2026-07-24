@@ -143,7 +143,7 @@ export class LmsService {
   }
 
   updateSession(id: number, payload: UpdateSessionPayload): Observable<ScheduleSession> {
-    return this.http.patch<ScheduleSession>(`${this.getApiUrl()}/schedule/${id}`, payload);
+    return this.http.put<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${id}`, payload);
   }
 
   getSessionDetails(id: number): Observable<ScheduleSession> {

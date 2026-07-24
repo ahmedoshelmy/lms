@@ -93,28 +93,6 @@
           }
         </button>
       </form>
-
-      <!-- Demo Section -->
-      <div class="mt-7 border-t border-(--color-border) pt-6 text-left">
-        <p class="m-0 mb-3 text-[13px] font-semibold text-(--color-text-secondary)">
-          Demo accounts — pick one to preview a role
-        </p>
-        <div class="grid grid-cols-2 gap-2.5">
-          @for (account of demoAccounts; track account.email) {
-            <button
-              type="button"
-              (click)="useDemo(account)"
-              class="flex cursor-pointer flex-col gap-0.5 rounded-[10px] border border-(--color-border) bg-(--color-surface-secondary) px-3 py-2.5 text-left text-(--color-text-primary) transition-all duration-200 hover:border-(--color-secondary) hover:shadow-[0_2px_8px_rgba(62,109,181,0.12)]"
-            >
-              <span class="text-[13px] font-semibold">{{ account.name }}</span>
-              <span class="text-[11px] font-semibold text-(--color-secondary)">{{
-                roleLabel(account.role)
-              }}</span>
-              <span class="text-[10px] text-(--color-text-muted)">pw: {{ account.password }}</span>
-            </button>
-          }
-        </div>
-      </div>
     </div>
   </div>
 </div>

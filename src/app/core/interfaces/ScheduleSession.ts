@@ -28,6 +28,10 @@ export interface ScheduleSession {
 }
 
 export interface UpdateSessionPayload {
+  topic?: string;
   instructorId?: number;
-  status?: string;
+  startsAt?: string;
+  endsAt?: string;
+  location?: string;
+  status?: number | string;
 }

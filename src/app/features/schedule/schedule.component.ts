@@ -5,7 +5,11 @@ import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { WeeklyScheduleComponent, DensityMode, ViewMode } from './weekly-schedule/weekly-schedule.component';
+import {
+  WeeklyScheduleComponent,
+  DensityMode,
+  ViewMode,
+} from './weekly-schedule/weekly-schedule.component';
 import { SessionDetailPanelComponent } from './session-detail-panel/session-detail-panel.component';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -229,7 +233,10 @@ export class ScheduleComponent implements OnInit {
       this.currentDate.set(d);
 
       // If moved outside current loaded week, reload
-      if (d < this.currentWeekStart() || d >= new Date(this.currentWeekStart().getTime() + 7 * 86400000)) {
+      if (
+        d < this.currentWeekStart() ||
+        d >= new Date(this.currentWeekStart().getTime() + 7 * 86400000)
+      ) {
         this.currentWeekStart.set(this.getWeekStartForDate(d));
         this.loadSchedule();
       }
@@ -248,7 +255,10 @@ export class ScheduleComponent implements OnInit {
       this.currentDate.set(d);
 
       // If moved outside current loaded week, reload
-      if (d < this.currentWeekStart() || d >= new Date(this.currentWeekStart().getTime() + 7 * 86400000)) {
+      if (
+        d < this.currentWeekStart() ||
+        d >= new Date(this.currentWeekStart().getTime() + 7 * 86400000)
+      ) {
         this.currentWeekStart.set(this.getWeekStartForDate(d));
         this.loadSchedule();
       }
@@ -331,4 +341,3 @@ export class ScheduleComponent implements OnInit {
     this.cancelledWarningDismissed.set(true);
   }
 }
-

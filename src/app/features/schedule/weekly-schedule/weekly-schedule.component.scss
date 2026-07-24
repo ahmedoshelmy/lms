@@ -66,46 +66,103 @@
   margin-left: auto;
 }
 
-/* ── Summary cards ── */
+/* ── Summary Cards ── */
 .summary-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 12px;
+  padding: 12px 16px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
 }
 .summary-icon {
-  font-size: 18px;
+  font-size: 20px;
 }
 .summary-value {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--color-text-primary);
   line-height: 1;
 }
 .summary-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--color-text-muted);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
-/* ── Session cards ── */
+/* ── Schedule Grid Container ── */
+.schedule-grid.comfortable {
+  gap: 16px;
+  padding: 20px;
+}
+
+/* ── Session Cards ── */
 .session-card {
   background-color: var(--color-surface);
   border-radius: 12px;
   position: relative;
   transition:
     transform 0.15s ease,
-    box-shadow 0.15s ease;
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
 }
-.session-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+/* ── Compact Density Mode ── */
+.session-card--compact {
+  padding: 8px 10px;
+
+  .card-topic {
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 2px;
+  }
+  .card-meta {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+  .card-footer {
+    margin-top: 6px;
+    padding-top: 6px;
+    font-size: 9.5px;
+  }
 }
+
+/* ── Comfortable Density Mode ── */
+.session-card--comfortable {
+  padding: 14px 16px;
+
+  .card-topic {
+    font-size: 13.5px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+  .card-meta {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  .card-footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    font-size: 11px;
+  }
+}
+
 .session-card--conflict {
   box-shadow:
     inset 0 0 0 1.5px var(--color-error),
@@ -117,7 +174,7 @@
     0 0 0 4px color-mix(in srgb, var(--color-error) 15%, transparent);
 }
 
-/* ── Conflict flag ── */
+/* ── Conflict Flag ── */
 .conflict-flag {
   position: absolute;
   top: 6px;
@@ -136,7 +193,7 @@
   box-shadow: 0 1px 4px color-mix(in srgb, var(--color-error) 35%, transparent);
 }
 
-/* ── Neutral Instructor avatar (name-tag pattern) ── */
+/* ── Instructor Avatar Tag ── */
 .instructor-avatar {
   position: absolute;
   bottom: 8px;
@@ -156,6 +213,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   z-index: 1;
 }
+
 .instructor-avatar--sm {
   position: static;
   width: 24px;
@@ -163,102 +221,56 @@
   font-size: 9px;
 }
 
-/* ── Progress bar ── */
-.progress-track {
-  width: 100%;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--color-background-alt);
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.4s ease;
-}
-.progress-fill--active {
-  opacity: 0.85;
-}
-.progress-fill--done {
-  opacity: 1;
-}
-
-/* ── Status badges ── */
+/* ── Status Badges ── */
 .status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 7px;
+  padding: 2.5px 8px;
   border-radius: 6px;
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.3px;
   white-space: nowrap;
   text-transform: capitalize;
 }
 .badge-scheduled {
-  background-color: color-mix(in srgb, var(--color-info) 8%, transparent);
+  background-color: color-mix(in srgb, var(--color-info) 10%, transparent);
   color: var(--color-info);
+  border: 1px solid color-mix(in srgb, var(--color-info) 25%, transparent);
 }
 .badge-ongoing {
-  background-color: color-mix(in srgb, var(--color-warning) 8%, transparent);
-  color: var(--color-warning);
+  background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success-foreground, #027a48);
+  border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
 }
 .badge-completed {
-  background-color: color-mix(in srgb, var(--color-success) 8%, transparent);
-  color: var(--color-success);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
 }
 .badge-cancelled {
-  background-color: color-mix(in srgb, var(--color-error) 8%, transparent);
+  background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
   color: var(--color-error);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
 }
 
-/* ── Day column ── */
-.day-column {
-  min-width: 0;
-}
-.day-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--color-surface);
-}
-
-/* ── Schedule grid comfortable density ── */
-.schedule-grid.comfortable .session-card {
-  min-height: auto;
-}
-.schedule-grid.comfortable .session-card .p-3 {
-  padding: 14px;
-}
-.schedule-grid.comfortable .sessions-container {
-  gap: 10px;
-}
-
-/* ── Timeline view ── */
+/* ── Timeline Card ── */
 .timeline-card {
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
-.timeline-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
 .timeline-card--conflict {
-  box-shadow:
-    inset 0 0 0 1.5px var(--color-error),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+  border-color: var(--color-error) !important;
+  background: color-mix(in srgb, var(--color-error) 8%, transparent) !important;
 }
 
-/* ── Animations ── */
 @keyframes pulse-dot {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-error) 35%, transparent);
+    transform: scale(1);
+    opacity: 1;
   }
   50% {
-    box-shadow: 0 0 0 6px transparent;
+    transform: scale(1.15);
+    opacity: 0.85;
   }
 }
-
