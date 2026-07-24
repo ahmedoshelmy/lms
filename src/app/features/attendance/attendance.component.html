@@ -209,8 +209,8 @@
       <div
         class="stat-pill p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]"
       >
-        <span class="text-xs text-[var(--color-danger)] font-bold uppercase">Absent</span>
-        <p class="text-2xl font-extrabold text-[var(--color-danger)] mt-1">
+        <span class="text-xs text-[var(--color-error)] font-bold uppercase">Absent</span>
+        <p class="text-2xl font-extrabold text-[var(--color-error)] mt-1">
           {{ countByStatus(StatusEnum.Absent) }}
         </p>
       </div>
@@ -229,7 +229,7 @@
           </button>
           <button
             (click)="bulkSetStatus(StatusEnum.Absent)"
-            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-error-background)] text-[var(--color-danger)] hover:opacity-80 transition-opacity cursor-pointer"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-error-background)] text-[var(--color-error)] hover:opacity-80 transition-opacity cursor-pointer"
           >
             <i class="pi pi-times-circle mr-1"></i> All Absent
           </button>

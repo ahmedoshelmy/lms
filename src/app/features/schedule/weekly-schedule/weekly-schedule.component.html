@@ -39,9 +39,9 @@
       </div>
     </div>
     <div class="summary-card">
-      <i class="pi pi-exclamation-triangle summary-icon" [style.color]="conflictSessionsCount() > 0 ? 'var(--color-danger)' : 'var(--color-text-muted)'"></i>
+      <i class="pi pi-exclamation-triangle summary-icon" [style.color]="conflictSessionsCount() > 0 ? 'var(--color-error)' : 'var(--color-text-muted)'"></i>
       <div>
-        <p class="summary-value" [class.text-[var(--color-danger)]]="conflictSessionsCount() > 0">{{ conflictSessionsCount() }}</p>
+        <p class="summary-value" [class.text-[var(--color-error)]]="conflictSessionsCount() > 0">{{ conflictSessionsCount() }}</p>
         <p class="summary-label">Conflicts</p>
       </div>
     </div>
