@@ -91,7 +91,9 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('instructors') },
         loadComponent: () =>
-          import('./features/instructors/instructors.component').then((c) => c.InstructorsComponent),
+          import('./features/instructors/instructors.component').then(
+            (c) => c.InstructorsComponent
+          ),
       },
       { path: 'users', redirectTo: 'students', pathMatch: 'full' },
 

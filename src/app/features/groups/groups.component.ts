@@ -9,6 +9,7 @@ import {
   Group,
   User,
   Course,
+  ScheduleSession,
   CreateGroupPayload,
   UpdateGroupPayload,
 } from '../../core/services/lms.service';
@@ -459,6 +460,58 @@ const STATUS_MAP: Record<string, number> = {
           </div>
         </div>
       </p-dialog>
+
+      <!-- Instructor Reassignment Confirmation Modal -->
+      <p-dialog
+        [(visible)]="showInstructorConfirmModal"
+        header="Confirm Instructor Reassignment"
+        [modal]="true"
+        [style]="{ width: '90%', maxWidth: '460px' }"
+        [draggable]="false"
+        [resizable]="false"
+      >
+        <div class="pt-2 flex flex-col gap-4">
+          <div
+            class="flex items-center gap-3 p-3.5 rounded-xl bg-[color-mix(in_srgb,var(--color-warning)_12%,transparent)] border border-[color-mix(in_srgb,var(--color-warning)_30%,transparent)]"
+          >
+            <i class="pi pi-exclamation-triangle text-xl text-[var(--color-warning)] shrink-0"></i>
+            <p class="text-xs text-[var(--color-text-primary)] leading-relaxed">
+              Reassigning the default instructor will update the group instructor and automatically
+              assign all remaining upcoming sessions.
+            </p>
+          </div>
+
+          <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">
+            Are you sure you want to assign the remaining
+            <strong class="font-bold text-[var(--color-primary)]">{{
+              pendingRemainingSessions()
+            }}</strong>
+            session{{ pendingRemainingSessions() === 1 ? '' : 's' }} to
+            <strong class="font-bold text-[var(--color-secondary)]">{{
+              pendingInstructorName()
+            }}</strong
+            >?
+          </p>
+
+          <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+            <button
+              type="button"
+              (click)="showInstructorConfirmModal.set(false)"
+              class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="confirmInstructorAssignment()"
+              [disabled]="saving()"
+              class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
+            >
+              {{ saving() ? 'Assigning...' : 'Confirm Assignment' }}
+            </button>
+          </div>
+        </div>
+      </p-dialog>
     </div>
   `,
   styles: `
@@ -551,6 +604,14 @@ export class GroupsComponent implements OnInit {
   showDeleteConfirmModal = signal(false);
   groupToDelete = signal<Group | null>(null);
 
+  // Instructor Reassignment confirmation signals
+  editingGroup = signal<Group | null>(null);
+  originalInstructorId = signal<string>('');
+  showInstructorConfirmModal = signal<boolean>(false);
+  pendingInstructorName = signal<string>('');
+  pendingRemainingSessions = signal<number>(0);
+  scheduleSessions = signal<ScheduleSession[]>([]);
+
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
   statusOptions = STATUS_OPTIONS;
 
@@ -576,6 +637,7 @@ export class GroupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGroups();
+    this.loadSchedule();
     if (this.isAdmin()) {
       this.loadInstructors();
       this.loadCourses();
@@ -592,6 +654,13 @@ export class GroupsComponent implements OnInit {
       error: () => {
         this.loading.set(false);
       },
+    });
+  }
+
+  loadSchedule(): void {
+    this.lmsService.getSchedule().subscribe({
+      next: (data) => this.scheduleSessions.set(data || []),
+      error: () => {},
     });
   }
 
@@ -612,6 +681,8 @@ export class GroupsComponent implements OnInit {
   openCreateModal(): void {
     this.modalMode.set('create');
     this.selectedGroupId.set(null);
+    this.editingGroup.set(null);
+    this.originalInstructorId.set('');
     this.formName = '';
     this.formStartDate = '';
     this.formEndDate = '';
@@ -625,6 +696,8 @@ export class GroupsComponent implements OnInit {
   openEditModal(group: Group): void {
     this.modalMode.set('edit');
     this.selectedGroupId.set(group.id);
+    this.editingGroup.set(group);
+    this.originalInstructorId.set(group.defaultInstructorId || '');
     this.formName = group.name;
     this.formStartDate = group.startDate ? group.startDate.split('T')[0] : '';
     this.formEndDate = group.endDate ? group.endDate.split('T')[0] : '';
@@ -633,6 +706,31 @@ export class GroupsComponent implements OnInit {
     this.formLocation = group.location || '';
     this.formSelectedCourseIds = [];
     this.showModal.set(true);
+  }
+
+  getRemainingSessions(group: Group | null): number {
+    if (!group) return 0;
+
+    // 1. Check schedule sessions if available for accurate upcoming count
+    const groupSchedule = this.scheduleSessions().filter(
+      (s) => s.groupId === group.id || s.groupName === group.name
+    );
+    if (groupSchedule.length > 0) {
+      const upcoming = groupSchedule.filter(
+        (s) => s.status !== 'Completed' && new Date(s.startsAt) >= new Date()
+      );
+      if (upcoming.length > 0) {
+        return upcoming.length;
+      }
+    }
+
+    // 2. Otherwise calculate based on GroupCourses (Total Sessions - Current Session Number)
+    if (!group.courses || group.courses.length === 0) return 0;
+    return group.courses.reduce((sum, c) => {
+      const total = parseInt(c.sessionCount || '12', 10) || 12;
+      const current = c.currentSessionNumber || 0;
+      return sum + Math.max(0, total - current);
+    }, 0);
   }
 
   isCourseSelected(courseId: string): boolean {
@@ -653,6 +751,28 @@ export class GroupsComponent implements OnInit {
       return;
     }
 
+    // Check if default instructor has changed during edit
+    if (this.modalMode() === 'edit' && this.formInstructorId !== this.originalInstructorId()) {
+      const group = this.editingGroup();
+      const remaining = this.getRemainingSessions(group);
+      const targetInst = this.instructors().find((i) => i.id === this.formInstructorId);
+      const targetName = targetInst ? targetInst.name : 'the selected instructor';
+
+      this.pendingRemainingSessions.set(remaining);
+      this.pendingInstructorName.set(targetName);
+      this.showInstructorConfirmModal.set(true);
+      return;
+    }
+
+    this.executeSaveGroup();
+  }
+
+  confirmInstructorAssignment(): void {
+    this.showInstructorConfirmModal.set(false);
+    this.executeSaveGroup();
+  }
+
+  executeSaveGroup(): void {
     this.saving.set(true);
 
     if (this.modalMode() === 'create') {
@@ -672,6 +792,7 @@ export class GroupsComponent implements OnInit {
           this.saving.set(false);
           this.showModal.set(false);
           this.loadGroups();
+          this.loadSchedule();
         },
         error: () => {
           this.saving.set(false);
@@ -696,6 +817,7 @@ export class GroupsComponent implements OnInit {
           this.saving.set(false);
           this.showModal.set(false);
           this.loadGroups();
+          this.loadSchedule();
         },
         error: () => {
           this.saving.set(false);
