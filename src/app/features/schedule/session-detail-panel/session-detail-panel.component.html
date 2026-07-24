@@ -151,13 +151,13 @@
                 <button
                   type="button"
                   (click)="toggleCancelStatus()"
-                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border-2 border-[#10b981] bg-[rgba(16,185,129,0.1)] text-[#059669] hover:bg-[rgba(16,185,129,0.2)] transition-all duration-200 cursor-pointer"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border-2 border-[var(--color-success)] bg-[var(--color-success-background)] text-[var(--color-success-foreground)] hover:bg-[color-mix(in_srgb,var(--color-success)_15%,transparent)] transition-all duration-200 cursor-pointer"
                 >
                   <i class="pi pi-undo"></i>
                   Restore Session
                 </button>
                 <span
-                  class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(239,68,68,0.1)] text-[#dc2626]"
+                  class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--color-error-background)] text-[var(--color-error)]"
                 >
                   Cancelled
                 </span>
@@ -165,13 +165,13 @@
                 <button
                   type="button"
                   (click)="toggleCancelStatus()"
-                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border-2 border-[#ef4444] bg-[rgba(239,68,68,0.08)] text-[#dc2626] hover:bg-[rgba(239,68,68,0.18)] transition-all duration-200 cursor-pointer"
+                  class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border-2 border-[var(--color-error)] bg-[var(--color-error-background)] text-[var(--color-error-foreground)] hover:bg-[color-mix(in_srgb,var(--color-error)_15%,transparent)] transition-all duration-200 cursor-pointer"
                 >
                   <i class="pi pi-ban"></i>
                   Cancel Session
                 </button>
                 <span
-                  class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(26,43,76,0.08)] text-[var(--color-primary)]"
+                  class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[var(--color-info-background)] text-[var(--color-info)]"
                 >
                   {{ editStatus() || 'Scheduled' }}
                 </span>

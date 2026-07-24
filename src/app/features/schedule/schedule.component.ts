@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
+import { WeeklyScheduleComponent, DensityMode, ViewMode } from './weekly-schedule/weekly-schedule.component';
 import { SessionDetailPanelComponent } from './session-detail-panel/session-detail-panel.component';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -41,9 +41,64 @@ export class ScheduleComponent implements OnInit {
   instructors = signal<User[]>([]);
   selectedInstructorId = signal<number>(0);
   currentWeekStart = signal<Date>(new Date());
+  currentDate = signal<Date>(new Date());
+  viewMode = signal<ViewMode>('weekly');
+
+  // Filter signals
+  searchQuery = signal<string>('');
+  courseFilter = signal<string>('');
+  topicFilter = signal<string>('');
+  levelFilter = signal<string>('');
+  instructorFilter = signal<string>('');
+  locationFilter = signal<string>('');
+  densityMode = signal<DensityMode>('compact');
+
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
   cancelledWarningDismissed = signal(false);
+
+  readonly uniqueCourses = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      if (s.courseTitle) set.add(s.courseTitle);
+    }
+    return Array.from(set).sort();
+  });
+
+  readonly uniqueTopics = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      if (s.topic) set.add(s.topic);
+    }
+    return Array.from(set).sort();
+  });
+
+  readonly uniqueLevels = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      const match = (s.groupName || '').match(/L\d|Level\s*\d|\b\d\b/i);
+      if (match) set.add(match[0].toUpperCase());
+    }
+    return Array.from(set).sort();
+  });
+
+  readonly uniqueInstructors = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      if (s.instructorName && s.instructorName.toLowerCase() !== 'unassigned') {
+        set.add(s.instructorName);
+      }
+    }
+    return Array.from(set).sort();
+  });
+
+  readonly uniqueLocations = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      if (s.location) set.add(s.location);
+    }
+    return Array.from(set).sort();
+  });
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
@@ -84,9 +139,13 @@ export class ScheduleComponent implements OnInit {
     const weekStart = new Date(today.setDate(diff));
     weekStart.setHours(0, 0, 0, 0);
     this.currentWeekStart.set(weekStart);
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    this.currentDate.set(now);
   }
 
-  goToCurrentWeek(): void {
+  goToToday(): void {
     this.calculateWeekStart();
     this.loadSchedule();
   }
@@ -142,7 +201,6 @@ export class ScheduleComponent implements OnInit {
             }
             return false;
           });
-          // Apply client-side filtering if backend returned unfiltered items
           if (
             filtered.length > 0 ||
             sessions.some((s) => s.instructorId && s.instructorId !== userId)
@@ -164,21 +222,64 @@ export class ScheduleComponent implements OnInit {
     this.loadSchedule();
   }
 
-  previousWeek(): void {
-    const newDate = new Date(this.currentWeekStart());
-    newDate.setDate(newDate.getDate() - 7);
-    this.currentWeekStart.set(newDate);
-    this.loadSchedule();
+  previousDate(): void {
+    if (this.viewMode() === 'daily') {
+      const d = new Date(this.currentDate());
+      d.setDate(d.getDate() - 1);
+      this.currentDate.set(d);
+
+      // If moved outside current loaded week, reload
+      if (d < this.currentWeekStart() || d >= new Date(this.currentWeekStart().getTime() + 7 * 86400000)) {
+        this.currentWeekStart.set(this.getWeekStartForDate(d));
+        this.loadSchedule();
+      }
+    } else {
+      const newDate = new Date(this.currentWeekStart());
+      newDate.setDate(newDate.getDate() - 7);
+      this.currentWeekStart.set(newDate);
+      this.loadSchedule();
+    }
   }
 
-  nextWeek(): void {
-    const newDate = new Date(this.currentWeekStart());
-    newDate.setDate(newDate.getDate() + 7);
-    this.currentWeekStart.set(newDate);
-    this.loadSchedule();
+  nextDate(): void {
+    if (this.viewMode() === 'daily') {
+      const d = new Date(this.currentDate());
+      d.setDate(d.getDate() + 1);
+      this.currentDate.set(d);
+
+      // If moved outside current loaded week, reload
+      if (d < this.currentWeekStart() || d >= new Date(this.currentWeekStart().getTime() + 7 * 86400000)) {
+        this.currentWeekStart.set(this.getWeekStartForDate(d));
+        this.loadSchedule();
+      }
+    } else {
+      const newDate = new Date(this.currentWeekStart());
+      newDate.setDate(newDate.getDate() + 7);
+      this.currentWeekStart.set(newDate);
+      this.loadSchedule();
+    }
   }
 
-  getWeekRangeString(): string {
+  private getWeekStartForDate(date: Date): Date {
+    const d = new Date(date);
+    const dayOfWeek = d.getDay();
+    const saturdayOffset = (dayOfWeek + 1) % 7;
+    const diff = d.getDate() - saturdayOffset;
+    const weekStart = new Date(d.setDate(diff));
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
+  }
+
+  getDateRangeString(): string {
+    if (this.viewMode() === 'daily') {
+      return this.currentDate().toLocaleDateString('en-US', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    }
+
     const start = new Date(this.currentWeekStart());
     const end = new Date(this.currentWeekStart());
     end.setDate(end.getDate() + 6);
@@ -191,6 +292,26 @@ export class ScheduleComponent implements OnInit {
     return `${start.toLocaleDateString('en-US', formatOptions)} - ${end.toLocaleDateString('en-US', formatOptions)}`;
   }
 
+  clearAllFilters(): void {
+    this.searchQuery.set('');
+    this.courseFilter.set('');
+    this.topicFilter.set('');
+    this.levelFilter.set('');
+    this.instructorFilter.set('');
+    this.locationFilter.set('');
+  }
+
+  hasActiveFilters(): boolean {
+    return (
+      !!this.searchQuery() ||
+      !!this.courseFilter() ||
+      !!this.topicFilter() ||
+      !!this.levelFilter() ||
+      !!this.instructorFilter() ||
+      !!this.locationFilter()
+    );
+  }
+
   onSessionSelected(session: ScheduleSession): void {
     this.selectedSession.set(session);
   }
@@ -200,9 +321,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   onSessionUpdated(updated: ScheduleSession): void {
-    // Patch the session in-place so cards re-render without a full reload
     this.sessions.update((list) => list.map((s) => (s.id === updated.id ? updated : s)));
-    // If the currently-open session was updated, sync the panel too
     if (this.selectedSession()?.id === updated.id) {
       this.selectedSession.set(updated);
     }
@@ -212,3 +331,4 @@ export class ScheduleComponent implements OnInit {
     this.cancelledWarningDismissed.set(true);
   }
 }
+

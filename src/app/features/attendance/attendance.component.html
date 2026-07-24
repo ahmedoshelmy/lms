@@ -344,11 +344,6 @@
             <p class="text-sm font-bold text-[var(--color-secondary)]">
               {{ session.instructorName || 'Unassigned' }}
             </p>
-            @if (session.instructorEmail) {
-              <p class="text-xs text-[var(--color-text-muted)] truncate">
-                {{ session.instructorEmail }}
-              </p>
-            }
           </div>
           @if (session.location) {
             <div>

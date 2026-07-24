@@ -80,18 +80,18 @@
 }
 
 .status-scheduled-badge {
-  background-color: rgba(26, 43, 76, 0.08);
-  color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-info) 8%, transparent);
+  color: var(--color-info);
 }
 .status-ongoing-badge {
-  background-color: rgba(245, 158, 11, 0.08);
+  background-color: color-mix(in srgb, var(--color-warning) 8%, transparent);
   color: var(--color-warning);
 }
 .status-completed-badge {
-  background-color: rgba(16, 185, 129, 0.08);
+  background-color: color-mix(in srgb, var(--color-success) 8%, transparent);
   color: var(--color-success);
 }
 .status-cancelled-badge {
-  background-color: rgba(239, 68, 68, 0.08);
+  background-color: color-mix(in srgb, var(--color-error) 8%, transparent);
   color: var(--color-error);
 }

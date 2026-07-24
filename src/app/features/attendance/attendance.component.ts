@@ -11,8 +11,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import {
-  UpdateAttendanceDto,
-  CreateAttendanceDto,
   AttendanceResponseDto,
   BulkAttendanceItem,
 } from '../../core/interfaces/Attendance';

@@ -3,51 +3,262 @@
   width: 100%;
 }
 
+/* ── Category Filter Pills ── */
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-text-primary);
+  }
+}
+.category-pill--active {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--color-secondary) 25%, transparent);
+
+  .category-pill-dot {
+    box-shadow: 0 0 0 1.5px #ffffff;
+  }
+}
+.category-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Legend ── */
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-dot--conflict {
+  background: var(--color-error);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+.legend-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.legend-item--conflict {
+  margin-left: auto;
+}
+
+/* ── Summary cards ── */
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+.summary-icon {
+  font-size: 18px;
+}
+.summary-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+.summary-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-top: 1px;
+}
+
+/* ── Session cards ── */
 .session-card {
   background-color: var(--color-surface);
-  min-height: 160px;
+  border-radius: 12px;
+  position: relative;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.session-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.session-card--conflict {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-error),
+    0 0 0 3px color-mix(in srgb, var(--color-error) 10%, transparent);
+}
+.session-card--conflict:hover {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-error),
+    0 0 0 4px color-mix(in srgb, var(--color-error) 15%, transparent);
 }
 
-.status-scheduled-card {
-  border-left: 4px solid var(--color-primary);
-}
-.status-ongoing-card {
-  border-left: 4px solid var(--color-warning);
-}
-.status-completed-card {
-  border-left: 4px solid var(--color-success);
-}
-.status-cancelled-card {
-  border-left: 4px solid var(--color-error);
-  opacity: 0.65;
+/* ── Conflict flag ── */
+.conflict-flag {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-error);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  z-index: 2;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-error) 35%, transparent);
 }
 
-.status-scheduled-badge {
-  background-color: rgba(26, 43, 76, 0.08);
-  color: var(--color-primary);
+/* ── Neutral Instructor avatar (name-tag pattern) ── */
+.instructor-avatar {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-background-alt);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  z-index: 1;
 }
-.status-ongoing-badge {
-  background-color: rgba(245, 158, 11, 0.08);
+.instructor-avatar--sm {
+  position: static;
+  width: 24px;
+  height: 24px;
+  font-size: 9px;
+}
+
+/* ── Progress bar ── */
+.progress-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-background-alt);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.progress-fill--active {
+  opacity: 0.85;
+}
+.progress-fill--done {
+  opacity: 1;
+}
+
+/* ── Status badges ── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+.badge-scheduled {
+  background-color: color-mix(in srgb, var(--color-info) 8%, transparent);
+  color: var(--color-info);
+}
+.badge-ongoing {
+  background-color: color-mix(in srgb, var(--color-warning) 8%, transparent);
   color: var(--color-warning);
 }
-.status-completed-badge {
-  background-color: rgba(16, 185, 129, 0.08);
+.badge-completed {
+  background-color: color-mix(in srgb, var(--color-success) 8%, transparent);
   color: var(--color-success);
 }
-.status-cancelled-badge {
-  background-color: rgba(239, 68, 68, 0.08);
-  color: var(--color-error, #ef4444);
+.badge-cancelled {
+  background-color: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-error);
 }
 
-.type-group-badge {
-  background-color: var(--color-session-group-background);
-  color: var(--color-session-group-foreground);
+/* ── Day column ── */
+.day-column {
+  min-width: 0;
 }
-.type-makeup-badge {
-  background-color: var(--color-session-makeup-background);
-  color: var(--color-session-makeup-foreground);
+.day-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-surface);
 }
-.type-trial-badge {
-  background-color: var(--color-session-trial-background);
-  color: var(--color-session-trial-foreground);
+
+/* ── Schedule grid comfortable density ── */
+.schedule-grid.comfortable .session-card {
+  min-height: auto;
 }
+.schedule-grid.comfortable .session-card .p-3 {
+  padding: 14px;
+}
+.schedule-grid.comfortable .sessions-container {
+  gap: 10px;
+}
+
+/* ── Timeline view ── */
+.timeline-card {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.timeline-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+.timeline-card--conflict {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-error),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Animations ── */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-error) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
