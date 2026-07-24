@@ -2,8 +2,9 @@ import { Component, inject, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { LmsService, ScheduleSession } from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { Role } from '../../core/interfaces/Role';
+import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 
 interface StatCard {
   label: string;

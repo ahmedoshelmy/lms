@@ -1,0 +1,83 @@
+:host ::ng-deep {
+  .session-detail-dialog .p-dialog-header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .session-detail-dialog .p-dialog-content {
+    padding: 16px 24px;
+    background: var(--color-surface);
+  }
+  .session-detail-dialog .p-dialog-footer {
+    padding: 12px 24px 20px;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.detail-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-content);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.detail-section {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.detail-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-muted);
+  margin: 0 0 4px;
+}
+
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-avatar-from) 0%, var(--color-avatar-to) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.status-scheduled-badge {
+  background-color: rgba(26, 43, 76, 0.08);
+  color: var(--color-primary);
+}
+.status-ongoing-badge {
+  background-color: rgba(245, 158, 11, 0.08);
+  color: var(--color-warning);
+}
+.status-completed-badge {
+  background-color: rgba(16, 185, 129, 0.08);
+  color: var(--color-success);
+}
+.status-cancelled-badge {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--color-error);
+}

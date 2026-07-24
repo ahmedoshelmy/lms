@@ -1,0 +1,88 @@
+<div class="p-6 md:p-10 max-w-3xl mx-auto min-h-screen">
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+      Settings
+    </h1>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">
+      Application configuration and API management
+    </p>
+  </div>
+
+  <!-- API Configuration Card -->
+  <div class="settings-card">
+    <div class="settings-card__header">
+      <div class="settings-icon">
+        <i class="pi pi-server"></i>
+      </div>
+      <div>
+        <h2 class="settings-card__title">API Endpoint</h2>
+        <p class="settings-card__subtitle">Configure the backend API base URL</p>
+      </div>
+    </div>
+
+    <div class="settings-card__body">
+      <label for="api-url" class="settings-label">Base URL</label>
+      <div class="input-row">
+        <input
+          id="api-url"
+          type="url"
+          [(ngModel)]="apiUrl"
+          placeholder="https://example.com/api"
+          class="settings-input"
+          [class.input-changed]="apiUrl !== currentSavedUrl()"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      @if (apiUrl !== currentSavedUrl()) {
+        <p class="text-xs text-[var(--color-warning)] mt-2 flex items-center gap-1.5">
+          <i class="pi pi-exclamation-triangle"></i> Unsaved changes
+        </p>
+      }
+
+      <div class="flex gap-3 mt-5">
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="saveUrl()"
+          [disabled]="!apiUrl.trim() || apiUrl === currentSavedUrl()"
+        >
+          <i class="pi pi-check mr-2"></i> Save
+        </button>
+        <button type="button" class="btn-secondary" (click)="resetUrl()">
+          <i class="pi pi-refresh mr-2"></i> Reset to Default
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Info Card -->
+  <div class="settings-card mt-6">
+    <div class="settings-card__header">
+      <div class="settings-icon settings-icon--info">
+        <i class="pi pi-info-circle"></i>
+      </div>
+      <div>
+        <h2 class="settings-card__title">Application Info</h2>
+        <p class="settings-card__subtitle">Current system information</p>
+      </div>
+    </div>
+    <div class="settings-card__body">
+      <dl class="info-grid">
+        <div class="info-row">
+          <dt>Current API URL</dt>
+          <dd>{{ currentSavedUrl() }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Framework</dt>
+          <dd>Angular 21 (Standalone)</dd>
+        </div>
+        <div class="info-row">
+          <dt>UI Library</dt>
+          <dd>PrimeNG with Aura theme</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

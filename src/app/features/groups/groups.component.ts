@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { LmsService, Group } from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { Group } from '../../core/interfaces/Group';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },

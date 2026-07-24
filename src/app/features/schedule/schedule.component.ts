@@ -7,11 +7,13 @@ import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
 import { SessionDetailPanelComponent } from './session-detail-panel/session-detail-panel.component';
-import { LmsService, ScheduleSession, User } from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Role } from '../../core/interfaces/Role';
+import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { User } from '../../core/interfaces/User';
 
 @Component({
   selector: 'app-schedule',
@@ -27,21 +29,7 @@ import { Role } from '../../core/interfaces/Role';
     SessionDetailPanelComponent,
   ],
   templateUrl: './schedule.component.html',
-  styles: `
-    :host {
-      display: block;
-      width: 100%;
-    }
-    :host ::ng-deep {
-      .p-select {
-        border-radius: 10px;
-        border-color: var(--color-border);
-      }
-      .p-button {
-        border-radius: 10px;
-      }
-    }
-  `,
+  styleUrl: './schedule.component.scss',
 })
 export class ScheduleComponent implements OnInit {
   private lmsService = inject(LmsService);
@@ -137,33 +125,34 @@ export class ScheduleComponent implements OnInit {
       headers['X-User-Id'] = userId;
     }
 
-    this.http
-      .get<ScheduleSession[]>(url, { headers })
-      .subscribe({
-        next: (res) => {
-          let sessions = res || [];
-          if (userId && userId !== 'all') {
-            const selectedInst = this.instructors().find((i) => i.id === userId);
-            const filtered = sessions.filter((s) => {
-              if (s.instructorId === userId) return true;
-              if (selectedInst && s.instructorName) {
-                return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
-              }
-              return false;
-            });
-            // Apply client-side filtering if backend returned unfiltered items
-            if (filtered.length > 0 || sessions.some((s) => s.instructorId && s.instructorId !== userId)) {
-              sessions = filtered;
+    this.http.get<ScheduleSession[]>(url, { headers }).subscribe({
+      next: (res) => {
+        let sessions = res || [];
+        if (userId && userId !== 'all') {
+          const selectedInst = this.instructors().find((i) => i.id === userId);
+          const filtered = sessions.filter((s) => {
+            if (s.instructorId === userId) return true;
+            if (selectedInst && s.instructorName) {
+              return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
             }
+            return false;
+          });
+          // Apply client-side filtering if backend returned unfiltered items
+          if (
+            filtered.length > 0 ||
+            sessions.some((s) => s.instructorId && s.instructorId !== userId)
+          ) {
+            sessions = filtered;
           }
-          this.sessions.set(sessions);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
-          this.loading.set(false);
-        },
-      });
+        }
+        this.sessions.set(sessions);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
+        this.loading.set(false);
+      },
+    });
   }
 
   onInstructorChange(): void {

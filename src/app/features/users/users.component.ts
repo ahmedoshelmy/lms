@@ -1,9 +1,10 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LmsService, User } from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { ROLE_LABELS, Role } from '../../core/interfaces/Role';
 import { NotificationService } from '../../core/services/notification.service';
+import { User } from '../../core/interfaces/User';
 
 @Component({
   selector: 'app-users',

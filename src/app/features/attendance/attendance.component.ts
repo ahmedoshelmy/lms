@@ -3,16 +3,13 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
-import {
-  LmsService,
-  ScheduleSession,
-  User,
-  AttendanceStatus,
-  CreateAttendanceDto,
-  UpdateAttendanceDto,
-} from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
+import { AttendanceStatus } from '../../core/enums/AttendanceStatus';
+import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { UpdateAttendanceDto, CreateAttendanceDto } from '../../core/interfaces/Attendance';
+import { User } from '../../core/interfaces/User';
 
 interface StudentAttendanceRecord {
   studentId: string;
@@ -156,8 +153,6 @@ export class AttendanceComponent implements OnInit {
       if (r.recordId) {
         // PUT /api/Attendance/{id}
         const updatePayload: UpdateAttendanceDto = {
-          sessionId,
-          studentId: r.studentId,
           status: r.status,
         };
         this.lms.updateAttendance(r.recordId, updatePayload).subscribe({

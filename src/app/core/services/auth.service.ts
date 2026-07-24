@@ -1,9 +1,10 @@
 import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs';
-import { User } from '../models/User';
 import { Role } from '../interfaces/Role';
-import { LmsService, LoginRequest } from '../services/lms.service';
+import { LmsService } from '../services/lms.service';
+import { LoginRequest } from '../interfaces/Login';
+import { User } from '../interfaces/User';
 
 @Injectable({
   providedIn: 'root',

@@ -1,0 +1,112 @@
+<p-dialog
+  [visible]="!!session()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [dismissableMask]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="session-detail-dialog"
+  [style]="{ width: '500px', maxWidth: '95vw' }"
+>
+  <ng-template pTemplate="header">
+    <div class="flex items-center gap-3">
+      <div class="detail-icon-badge">
+        <i class="pi pi-calendar-clock"></i>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-[var(--color-text-primary)] leading-tight">
+          Session Details
+        </h2>
+        <p class="text-xs text-[var(--color-text-muted)]">
+          {{ session()?.courseTitle }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+
+  @if (session(); as s) {
+    <div class="flex flex-col gap-5 py-2">
+      <!-- Status + Session Number row -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <span
+          class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+          [ngClass]="statusBadgeClass()"
+        >
+          {{ s.status }}
+        </span>
+        <span
+          class="px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)]"
+        >
+          Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}
+        </span>
+      </div>
+
+      <!-- Topic -->
+      <div class="detail-section">
+        <p class="detail-label">Topic</p>
+        <p class="detail-value text-lg font-extrabold">{{ s.topic }}</p>
+      </div>
+
+      <!-- Course & Group -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="detail-section">
+          <p class="detail-label">Course</p>
+          <p class="detail-value">{{ s.courseTitle }}</p>
+        </div>
+        <div class="detail-section">
+          <p class="detail-label">Group / Cohort</p>
+          <p class="detail-value">{{ s.groupName }}</p>
+        </div>
+      </div>
+
+      <!-- Time -->
+      <div class="detail-section">
+        <p class="detail-label">Time</p>
+        <div class="flex items-center gap-2 mt-1">
+          <i class="pi pi-clock text-[var(--color-secondary)]"></i>
+          <p class="detail-value">
+            {{ formatTime(s.startsAt) }} – {{ formatTime(s.endsAt) }}
+            <span class="text-[var(--color-text-muted)] text-xs font-normal ml-1">
+              ({{ s.durationMinutes }} min)
+            </span>
+          </p>
+        </div>
+        <p class="text-xs text-[var(--color-text-muted)] mt-1">{{ formatDate(s.startsAt) }}</p>
+      </div>
+
+      <!-- Instructor -->
+      <div class="detail-section">
+        <p class="detail-label">Instructor</p>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="avatar-sm">{{ instructorInitials() }}</span>
+          <p class="detail-value text-[var(--color-secondary)] font-semibold">
+            {{ s.instructorName }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Location -->
+      @if (s.location) {
+        <div class="detail-section">
+          <p class="detail-label">Location</p>
+          <div class="flex items-center gap-2 mt-1">
+            <i class="pi pi-map-marker text-[var(--color-secondary)]"></i>
+            <p class="detail-value">{{ s.location }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Close"
+      icon="pi pi-times"
+      class="p-button-outlined p-button-secondary cursor-pointer"
+      (click)="closed.emit()"
+    ></button>
+  </ng-template>
+</p-dialog>

@@ -225,6 +225,49 @@
   align-items: center;
   gap: 14px;
   background: rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.user-section::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 4px;
+  height: 60%;
+  background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  border-radius: 0 2px 2px 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-section:hover {
+  background: var(--color-sidebar-item-hover);
+}
+
+.user-section:hover::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.user-section.active {
+  background: var(--color-sidebar-item-active);
+}
+
+.user-section.active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.user-section.active .user-info h4 {
+  color: var(--color-accent);
+}
+
+.user-section.active .avatar {
+  box-shadow: 0 0 0 2px var(--color-accent), 0 4px 12px var(--color-avatar-glow);
 }
 
 .avatar {

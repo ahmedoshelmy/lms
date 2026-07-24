@@ -32,10 +32,7 @@ export class ProfileComponent implements OnInit {
   detailsForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    phone: [''],
     title: [''],
-    location: [''],
-    bio: [''],
   });
 
   securityForm = this.fb.nonNullable.group(
@@ -90,10 +87,6 @@ export class ProfileComponent implements OnInit {
       this.detailsForm.patchValue({
         name: u.name,
         email: u.email,
-        phone: u.phone ?? '',
-        title: u.title ?? '',
-        location: u.location ?? '',
-        bio: u.bio ?? '',
       });
     }
   }

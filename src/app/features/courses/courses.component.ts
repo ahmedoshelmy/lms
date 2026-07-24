@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { LmsService, Course } from '../../core/services/lms.service';
+import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { Course } from '../../core/interfaces/Course';
 
 @Component({
   selector: 'app-courses',

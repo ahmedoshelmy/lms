@@ -40,7 +40,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((c) => c.DashboardComponent),
       },
-
       {
         path: 'courses',
         canActivate: [roleGuard],
@@ -48,7 +47,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/courses/courses.component').then((c) => c.CoursesComponent),
       },
-
       {
         path: 'progress',
         canActivate: [roleGuard],

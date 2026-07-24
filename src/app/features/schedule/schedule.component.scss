@@ -1,0 +1,13 @@
+:host {
+  display: block;
+  width: 100%;
+}
+:host ::ng-deep {
+  .p-select {
+    border-radius: 10px;
+    border-color: var(--color-border);
+  }
+  .p-button {
+    border-radius: 10px;
+  }
+}
