@@ -18,7 +18,9 @@
           </h3>
           <p
             class="text-lg font-extrabold mt-0.5"
-            [class]="col.isToday ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-primary)]'"
+            [class]="
+              col.isToday ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-primary)]'
+            "
           >
             {{ col.formattedDate }}
           </p>
@@ -133,7 +135,9 @@
             ></span>
             <h3
               class="text-base font-bold"
-              [class]="col.isToday ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-primary)]'"
+              [class]="
+                col.isToday ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-primary)]'
+              "
             >
               {{ col.dayName }}
               @if (col.isToday) {

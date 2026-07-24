@@ -137,33 +137,34 @@ export class ScheduleComponent implements OnInit {
       headers['X-User-Id'] = userId;
     }
 
-    this.http
-      .get<ScheduleSession[]>(url, { headers })
-      .subscribe({
-        next: (res) => {
-          let sessions = res || [];
-          if (userId && userId !== 'all') {
-            const selectedInst = this.instructors().find((i) => i.id === userId);
-            const filtered = sessions.filter((s) => {
-              if (s.instructorId === userId) return true;
-              if (selectedInst && s.instructorName) {
-                return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
-              }
-              return false;
-            });
-            // Apply client-side filtering if backend returned unfiltered items
-            if (filtered.length > 0 || sessions.some((s) => s.instructorId && s.instructorId !== userId)) {
-              sessions = filtered;
+    this.http.get<ScheduleSession[]>(url, { headers }).subscribe({
+      next: (res) => {
+        let sessions = res || [];
+        if (userId && userId !== 'all') {
+          const selectedInst = this.instructors().find((i) => i.id === userId);
+          const filtered = sessions.filter((s) => {
+            if (s.instructorId === userId) return true;
+            if (selectedInst && s.instructorName) {
+              return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
             }
+            return false;
+          });
+          // Apply client-side filtering if backend returned unfiltered items
+          if (
+            filtered.length > 0 ||
+            sessions.some((s) => s.instructorId && s.instructorId !== userId)
+          ) {
+            sessions = filtered;
           }
-          this.sessions.set(sessions);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
-          this.loading.set(false);
-        },
-      });
+        }
+        this.sessions.set(sessions);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
+        this.loading.set(false);
+      },
+    });
   }
 
   onInstructorChange(): void {

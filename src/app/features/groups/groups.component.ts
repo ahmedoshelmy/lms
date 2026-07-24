@@ -4,7 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { LmsService, Group, User, Course, CreateGroupPayload, UpdateGroupPayload } from '../../core/services/lms.service';
+import {
+  LmsService,
+  Group,
+  User,
+  Course,
+  CreateGroupPayload,
+  UpdateGroupPayload,
+} from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
@@ -49,7 +56,9 @@ const STATUS_MAP: Record<string, number> = {
 
         <div class="flex items-center gap-3 flex-wrap">
           <!-- Status Filter -->
-          <div class="flex rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)]">
+          <div
+            class="flex rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)]"
+          >
             @for (s of statusFilters; track s) {
               <button
                 (click)="statusFilter.set(s)"
@@ -70,7 +79,9 @@ const STATUS_MAP: Record<string, number> = {
               placeholder="Search groups..."
               class="w-full pl-10 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
             />
-            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"></i>
+            <i
+              class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]"
+            ></i>
           </div>
 
           <!-- Admin Add Group Button -->
@@ -94,21 +105,49 @@ const STATUS_MAP: Record<string, number> = {
       } @else {
         <!-- Stats row -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1">
-            <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider">Total Groups</span>
-            <span class="text-2xl font-extrabold text-[var(--color-text-primary)]">{{ groups().length }}</span>
+          <div
+            class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+          >
+            <span
+              class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+              >Total Groups</span
+            >
+            <span class="text-2xl font-extrabold text-[var(--color-text-primary)]">{{
+              groups().length
+            }}</span>
           </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1">
-            <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider">Running</span>
-            <span class="text-2xl font-extrabold text-[var(--color-success)]">{{ countByStatus('Running') }}</span>
+          <div
+            class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+          >
+            <span
+              class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+              >Running</span
+            >
+            <span class="text-2xl font-extrabold text-[var(--color-success)]">{{
+              countByStatus('Running')
+            }}</span>
           </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1">
-            <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider">Total Students</span>
-            <span class="text-2xl font-extrabold text-[var(--color-secondary)]">{{ totalStudents() }}</span>
+          <div
+            class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+          >
+            <span
+              class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+              >Total Students</span
+            >
+            <span class="text-2xl font-extrabold text-[var(--color-secondary)]">{{
+              totalStudents()
+            }}</span>
           </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1">
-            <span class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider">Completed</span>
-            <span class="text-2xl font-extrabold text-[var(--color-text-muted)]">{{ countByStatus('Completed') }}</span>
+          <div
+            class="stat-card p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col gap-1"
+          >
+            <span
+              class="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider"
+              >Completed</span
+            >
+            <span class="text-2xl font-extrabold text-[var(--color-text-muted)]">{{
+              countByStatus('Completed')
+            }}</span>
           </div>
         </div>
 
@@ -121,12 +160,18 @@ const STATUS_MAP: Record<string, number> = {
               <!-- Header row -->
               <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                 <div class="flex items-start gap-3">
-                  <div class="group-avatar rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-lg font-black text-white">
+                  <div
+                    class="group-avatar rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-lg font-black text-white"
+                  >
                     {{ group.name.charAt(0).toUpperCase() }}
                   </div>
                   <div>
-                    <h2 class="text-base font-bold text-[var(--color-text-primary)] leading-tight">{{ group.name }}</h2>
-                    <div class="flex items-center gap-1.5 mt-0.5 text-xs text-[var(--color-text-muted)]">
+                    <h2 class="text-base font-bold text-[var(--color-text-primary)] leading-tight">
+                      {{ group.name }}
+                    </h2>
+                    <div
+                      class="flex items-center gap-1.5 mt-0.5 text-xs text-[var(--color-text-muted)]"
+                    >
                       <i class="pi pi-user text-[10px]"></i>
                       {{ group.defaultInstructorName }}
                       @if (group.location) {
@@ -139,21 +184,28 @@ const STATUS_MAP: Record<string, number> = {
                 </div>
 
                 <div class="flex items-center gap-3 flex-shrink-0 flex-wrap">
-                  <span class="status-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold" [ngClass]="getStatusCss(group.status)">
+                  <span
+                    class="status-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold"
+                    [ngClass]="getStatusCss(group.status)"
+                  >
                     <i [ngClass]="'pi ' + getStatusIcon(group.status)"></i>
                     {{ group.status }}
                   </span>
-                  <span class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]">
+                  <span
+                    class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]"
+                  >
                     <i class="pi pi-users text-[var(--color-secondary)]"></i>
                     {{ group.studentCount }} student{{ group.studentCount !== 1 ? 's' : '' }}
                   </span>
                   <span class="text-xs text-[var(--color-text-muted)]">
-                    {{ group.startDate | date:'MMM y' }} – {{ group.endDate | date:'MMM y' }}
+                    {{ group.startDate | date: 'MMM y' }} – {{ group.endDate | date: 'MMM y' }}
                   </span>
 
                   <!-- Admin Actions -->
                   @if (isAdmin()) {
-                    <div class="flex items-center gap-1 ml-2 border-l border-[var(--color-border)] pl-3">
+                    <div
+                      class="flex items-center gap-1 ml-2 border-l border-[var(--color-border)] pl-3"
+                    >
                       <button
                         (click)="openEditModal(group)"
                         title="Edit Group"
@@ -177,24 +229,41 @@ const STATUS_MAP: Record<string, number> = {
               @if (group.courses.length > 0) {
                 <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
                   @for (course of group.courses; track course.courseId) {
-                    <div class="course-chip flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-xs">
-                      <span class="font-semibold text-[var(--color-text-primary)]">{{ course.title }}</span>
+                    <div
+                      class="course-chip flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-xs"
+                    >
+                      <span class="font-semibold text-[var(--color-text-primary)]">{{
+                        course.title
+                      }}</span>
                       <span class="text-[var(--color-text-muted)]">·</span>
-                      <span class="text-[var(--color-text-secondary)]">S{{ course.currentSessionNumber }} / {{ course.sessionCount }}</span>
-                      <span class="ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold" [ngClass]="getLevelBadgeClass(course.level)">
+                      <span class="text-[var(--color-text-secondary)]"
+                        >S{{ course.currentSessionNumber }} / {{ course.sessionCount }}</span
+                      >
+                      <span
+                        class="ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold"
+                        [ngClass]="getLevelBadgeClass(course.level)"
+                      >
                         L{{ course.level }}
                       </span>
                     </div>
                   }
                 </div>
               } @else {
-                <p class="text-xs text-[var(--color-text-muted)] mt-2 pt-2 border-t border-[var(--color-border)]">No courses assigned yet.</p>
+                <p
+                  class="text-xs text-[var(--color-text-muted)] mt-2 pt-2 border-t border-[var(--color-border)]"
+                >
+                  No courses assigned yet.
+                </p>
               }
             </div>
           } @empty {
-            <div class="text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
+            <div
+              class="text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"
+            >
               <i class="pi pi-users text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
-              <p class="text-[var(--color-text-secondary)] font-medium">No groups found matching your criteria</p>
+              <p class="text-[var(--color-text-secondary)] font-medium">
+                No groups found matching your criteria
+              </p>
             </div>
           }
         </div>
@@ -212,7 +281,9 @@ const STATUS_MAP: Record<string, number> = {
         <form (ngSubmit)="saveGroup()" class="flex flex-col gap-4 pt-2">
           <!-- Name -->
           <div>
-            <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Group Name *</label>
+            <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+              >Group Name *</label
+            >
             <input
               type="text"
               [(ngModel)]="formName"
@@ -225,7 +296,9 @@ const STATUS_MAP: Record<string, number> = {
 
           <!-- Instructor -->
           <div>
-            <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Default Instructor *</label>
+            <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+              >Default Instructor *</label
+            >
             <select
               [(ngModel)]="formInstructorId"
               name="defaultInstructorId"
@@ -242,7 +315,9 @@ const STATUS_MAP: Record<string, number> = {
           <!-- Dates Row -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Start Date *</label>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+                >Start Date *</label
+              >
               <input
                 type="date"
                 [(ngModel)]="formStartDate"
@@ -252,7 +327,9 @@ const STATUS_MAP: Record<string, number> = {
               />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">End Date *</label>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+                >End Date *</label
+              >
               <input
                 type="date"
                 [(ngModel)]="formEndDate"
@@ -266,7 +343,9 @@ const STATUS_MAP: Record<string, number> = {
           <!-- Status & Location Row -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Status *</label>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+                >Status *</label
+              >
               <select
                 [(ngModel)]="formStatus"
                 name="status"
@@ -279,7 +358,9 @@ const STATUS_MAP: Record<string, number> = {
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Location</label>
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+                >Location</label
+              >
               <input
                 type="text"
                 [(ngModel)]="formLocation"
@@ -293,10 +374,16 @@ const STATUS_MAP: Record<string, number> = {
           <!-- Course Selection (Create Mode only) -->
           @if (modalMode() === 'create') {
             <div>
-              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">Assigned Courses</label>
-              <div class="max-h-40 overflow-y-auto border border-[var(--color-border)] rounded-xl p-3 bg-[var(--color-surface)] flex flex-col gap-2">
+              <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+                >Assigned Courses</label
+              >
+              <div
+                class="max-h-40 overflow-y-auto border border-[var(--color-border)] rounded-xl p-3 bg-[var(--color-surface)] flex flex-col gap-2"
+              >
                 @for (course of availableCourses(); track course.id) {
-                  <label class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer">
+                  <label
+                    class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer"
+                  >
                     <input
                       type="checkbox"
                       [checked]="isCourseSelected(course.id)"
@@ -304,7 +391,9 @@ const STATUS_MAP: Record<string, number> = {
                       class="rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)]"
                     />
                     <span class="font-medium">{{ course.title }}</span>
-                    <span class="text-[var(--color-text-muted)]">({{ course.topic }} - L{{ course.level }})</span>
+                    <span class="text-[var(--color-text-muted)]"
+                      >({{ course.topic }} - L{{ course.level }})</span
+                    >
                   </label>
                 } @empty {
                   <p class="text-xs text-[var(--color-text-muted)]">No courses available.</p>
@@ -327,7 +416,9 @@ const STATUS_MAP: Record<string, number> = {
               [disabled]="saving()"
               class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
             >
-              {{ saving() ? 'Saving...' : (modalMode() === 'create' ? 'Create Group' : 'Save Changes') }}
+              {{
+                saving() ? 'Saving...' : modalMode() === 'create' ? 'Create Group' : 'Save Changes'
+              }}
             </button>
           </div>
         </form>
@@ -344,8 +435,9 @@ const STATUS_MAP: Record<string, number> = {
       >
         <div class="pt-2">
           <p class="text-sm text-[var(--color-text-primary)]">
-            Are you sure you want to delete group <strong class="text-[var(--color-danger)]">{{ groupToDelete()?.name }}</strong>?
-            This will delete all sessions, schedules, and enrollments linked to this group.
+            Are you sure you want to delete group
+            <strong class="text-[var(--color-danger)]">{{ groupToDelete()?.name }}</strong
+            >? This will delete all sessions, schedules, and enrollments linked to this group.
           </p>
 
           <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-[var(--color-border)]">
@@ -370,7 +462,10 @@ const STATUS_MAP: Record<string, number> = {
     </div>
   `,
   styles: `
-    :host { display: block; width: 100%; }
+    :host {
+      display: block;
+      width: 100%;
+    }
 
     .group-avatar {
       background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
@@ -382,17 +477,44 @@ const STATUS_MAP: Record<string, number> = {
       border: none;
       cursor: pointer;
     }
-    .filter-btn:hover { background: var(--color-background-alt); color: var(--color-text-primary); }
-    .filter-active { background: var(--color-secondary) !important; color: #fff !important; }
+    .filter-btn:hover {
+      background: var(--color-background-alt);
+      color: var(--color-text-primary);
+    }
+    .filter-active {
+      background: var(--color-secondary) !important;
+      color: #fff !important;
+    }
 
-    .status-running { background: color-mix(in srgb, var(--color-success) 12%, transparent); color: var(--color-success); }
-    .status-stopped { background: color-mix(in srgb, var(--color-warning) 12%, transparent); color: var(--color-warning); }
-    .status-completed { background: color-mix(in srgb, var(--color-text-muted) 12%, transparent); color: var(--color-text-muted); }
-    .status-archived { background: color-mix(in srgb, var(--color-text-muted) 8%, transparent); color: var(--color-text-muted); }
+    .status-running {
+      background: color-mix(in srgb, var(--color-success) 12%, transparent);
+      color: var(--color-success);
+    }
+    .status-stopped {
+      background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+      color: var(--color-warning);
+    }
+    .status-completed {
+      background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+      color: var(--color-text-muted);
+    }
+    .status-archived {
+      background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+      color: var(--color-text-muted);
+    }
 
-    .level-1 { background: color-mix(in srgb, var(--color-secondary) 12%, transparent); color: var(--color-secondary); }
-    .level-2 { background: color-mix(in srgb, var(--color-success) 12%, transparent); color: var(--color-success); }
-    .level-default { background: color-mix(in srgb, var(--color-text-muted) 10%, transparent); color: var(--color-text-muted); }
+    .level-1 {
+      background: color-mix(in srgb, var(--color-secondary) 12%, transparent);
+      color: var(--color-secondary);
+    }
+    .level-2 {
+      background: color-mix(in srgb, var(--color-success) 12%, transparent);
+      color: var(--color-success);
+    }
+    .level-default {
+      background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+      color: var(--color-text-muted);
+    }
   `,
 })
 export class GroupsComponent implements OnInit {

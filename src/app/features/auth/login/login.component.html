@@ -1,30 +1,43 @@
-<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-(--color-primary) to-(--color-secondary) p-6">
+<div
+  class="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-(--color-primary) to-(--color-secondary) p-6"
+>
   <!-- Glow Left -->
-  <div class="pointer-events-none absolute -left-20 -top-20 h-80 w-80 rounded-full bg-(--color-primary-content) opacity-35 blur-[80px]"></div>
+  <div
+    class="pointer-events-none absolute -left-20 -top-20 h-80 w-80 rounded-full bg-(--color-primary-content) opacity-35 blur-[80px]"
+  ></div>
 
   <!-- Glow Right -->
-  <div class="pointer-events-none absolute -bottom-30 -right-25 h-100 w-100 rounded-full bg-(--color-secondary) opacity-35 blur-[80px]"></div>
+  <div
+    class="pointer-events-none absolute -bottom-30 -right-25 h-100 w-100 rounded-full bg-(--color-secondary) opacity-35 blur-[80px]"
+  ></div>
 
   <div class="relative z-10 w-full max-w-105">
     <!-- Auth Card -->
-    <div class="w-full rounded-2xl bg-(--color-surface) px-5 py-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-10">
-
+    <div
+      class="w-full rounded-2xl bg-(--color-surface) px-5 py-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-10"
+    >
       <!-- Header -->
       <div>
-        <div class="mx-auto mb-3 flex h-15 w-15 items-center justify-center rounded-2xl bg-linear-to-
-        br from-(--color-primary) to-(--color-secondary) text-[28px] text-(--color-primary-content)">
+        <div
+          class="mx-auto mb-3 flex h-15 w-15 items-center justify-center rounded-2xl bg-linear-to- br from-(--color-primary) to-(--color-secondary) text-[28px] text-(--color-primary-content)"
+        >
           <i class="pi pi-graduation-cap" aria-hidden="true"></i>
         </div>
         <h1 class="m-0 text-2xl font-bold text-(--color-text-primary)">Welcome back</h1>
-        <p class="mb-0 mt-2 text-[15px] text-(--color-text-muted)">Sign in to access your schedule</p>
+        <p class="mb-0 mt-2 text-[15px] text-(--color-text-muted)">
+          Sign in to access your schedule
+        </p>
       </div>
 
       <!-- Form -->
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="mt-6">
-
         <!-- Email Field -->
         <div class="mb-4 text-left">
-          <label for="email" class="mb-1.5 block text-[13px] font-semibold text-(--color-text-secondary)">Email</label>
+          <label
+            for="email"
+            class="mb-1.5 block text-[13px] font-semibold text-(--color-text-secondary)"
+            >Email</label
+          >
           <input
             id="email"
             type="email"
@@ -35,13 +48,19 @@
             [class.!border-(--color-error)]="emailControl.invalid && emailControl.touched"
           />
           @if (emailControl.invalid && emailControl.touched) {
-            <span class="mt-1.5 block text-xs text-(--color-error)">Enter a valid email address.</span>
+            <span class="mt-1.5 block text-xs text-(--color-error)"
+              >Enter a valid email address.</span
+            >
           }
         </div>
 
         <!-- Password Field -->
         <div class="mb-4 text-left">
-          <label for="password" class="mb-1.5 block text-[13px] font-semibold text-(--color-text-secondary)">Password</label>
+          <label
+            for="password"
+            class="mb-1.5 block text-[13px] font-semibold text-(--color-text-secondary)"
+            >Password</label
+          >
           <input
             id="password"
             type="password"
@@ -77,7 +96,9 @@
 
       <!-- Demo Section -->
       <div class="mt-7 border-t border-(--color-border) pt-6 text-left">
-        <p class="m-0 mb-3 text-[13px] font-semibold text-(--color-text-secondary)">Demo accounts — pick one to preview a role</p>
+        <p class="m-0 mb-3 text-[13px] font-semibold text-(--color-text-secondary)">
+          Demo accounts — pick one to preview a role
+        </p>
         <div class="grid grid-cols-2 gap-2.5">
           @for (account of demoAccounts; track account.email) {
             <button
@@ -86,13 +107,14 @@
               class="flex cursor-pointer flex-col gap-0.5 rounded-[10px] border border-(--color-border) bg-(--color-surface-secondary) px-3 py-2.5 text-left text-(--color-text-primary) transition-all duration-200 hover:border-(--color-secondary) hover:shadow-[0_2px_8px_rgba(62,109,181,0.12)]"
             >
               <span class="text-[13px] font-semibold">{{ account.name }}</span>
-              <span class="text-[11px] font-semibold text-(--color-secondary)">{{ roleLabel(account.role) }}</span>
+              <span class="text-[11px] font-semibold text-(--color-secondary)">{{
+                roleLabel(account.role)
+              }}</span>
               <span class="text-[10px] text-(--color-text-muted)">pw: {{ account.password }}</span>
             </button>
           }
         </div>
       </div>
-
     </div>
   </div>
 </div>

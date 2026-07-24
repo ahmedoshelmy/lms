@@ -1,7 +1,11 @@
 .sidebar {
   width: 250px;
   height: 100vh;
-  background: linear-gradient(180deg, var(--color-sidebar-bg-from) 0%, var(--color-sidebar-bg-to) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--color-sidebar-bg-from) 0%,
+    var(--color-sidebar-bg-to) 100%
+  );
   color: white;
   display: flex;
   flex-direction: column;

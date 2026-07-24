@@ -12,8 +12,12 @@ import { NotificationService } from '../../core/services/notification.service';
   template: `
     <div class="p-6 md:p-10 max-w-3xl mx-auto min-h-screen">
       <div class="mb-8">
-        <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">Settings</h1>
-        <p class="text-sm text-[var(--color-text-muted)] mt-1">Application configuration and API management</p>
+        <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+          Settings
+        </h1>
+        <p class="text-sm text-[var(--color-text-muted)] mt-1">
+          Application configuration and API management
+        </p>
       </div>
 
       <!-- API Configuration Card -->
@@ -58,11 +62,7 @@ import { NotificationService } from '../../core/services/notification.service';
             >
               <i class="pi pi-check mr-2"></i> Save
             </button>
-            <button
-              type="button"
-              class="btn-secondary"
-              (click)="resetUrl()"
-            >
+            <button type="button" class="btn-secondary" (click)="resetUrl()">
               <i class="pi pi-refresh mr-2"></i> Reset to Default
             </button>
           </div>
@@ -100,14 +100,17 @@ import { NotificationService } from '../../core/services/notification.service';
     </div>
   `,
   styles: `
-    :host { display: block; width: 100%; }
+    :host {
+      display: block;
+      width: 100%;
+    }
 
     .settings-card {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
     .settings-card__header {
       display: flex;
@@ -118,70 +121,143 @@ import { NotificationService } from '../../core/services/notification.service';
       background: var(--color-surface-secondary);
     }
     .settings-icon {
-      width: 44px; height: 44px; border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 20px; flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      flex-shrink: 0;
     }
     .settings-icon--info {
       background: linear-gradient(135deg, var(--color-info) 0%, var(--color-secondary) 100%);
     }
     .settings-card__title {
-      font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin: 0;
     }
     .settings-card__subtitle {
-      font-size: 13px; color: var(--color-text-muted); margin: 2px 0 0;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin: 2px 0 0;
     }
-    .settings-card__body { padding: 24px; }
+    .settings-card__body {
+      padding: 24px;
+    }
 
     .settings-label {
-      display: block; font-size: 12px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.6px;
-      color: var(--color-text-muted); margin-bottom: 8px;
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
     }
-    .input-row { display: flex; gap: 0; }
+    .input-row {
+      display: flex;
+      gap: 0;
+    }
     .settings-input {
-      flex: 1; padding: 12px 16px;
-      border: 2px solid var(--color-border); border-radius: 10px;
-      font-size: 14px; background: var(--color-surface);
-      color: var(--color-text-primary); font-family: monospace;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      font-family: monospace;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
       outline: none;
     }
     .settings-input:focus {
       border-color: var(--color-secondary);
-      box-shadow: 0 0 0 3px rgba(62,109,181,0.12);
+      box-shadow: 0 0 0 3px rgba(62, 109, 181, 0.12);
     }
     .settings-input.input-changed {
       border-color: var(--color-warning);
     }
 
     .btn-primary {
-      display: inline-flex; align-items: center; padding: 10px 20px;
-      border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
       color: var(--color-primary-content);
-      transition: opacity 0.2s, transform 0.2s;
+      transition:
+        opacity 0.2s,
+        transform 0.2s;
     }
-    .btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
     .btn-secondary {
-      display: inline-flex; align-items: center; padding: 10px 20px;
-      border-radius: 10px; border: 1px solid var(--color-border); cursor: pointer;
-      font-size: 14px; font-weight: 600; background: var(--color-surface-secondary);
-      color: var(--color-text-secondary); transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--color-surface-secondary);
+      color: var(--color-text-secondary);
+      transition: all 0.2s;
     }
-    .btn-secondary:hover { border-color: var(--color-secondary); color: var(--color-secondary); }
+    .btn-secondary:hover {
+      border-color: var(--color-secondary);
+      color: var(--color-secondary);
+    }
 
-    .info-grid { display: flex; flex-direction: column; gap: 0; margin: 0; }
-    .info-row {
-      display: flex; flex-direction: column; gap: 4px;
-      padding: 12px 0; border-bottom: 1px solid var(--color-border);
+    .info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 0;
     }
-    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .info-row dt { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-text-muted); }
-    .info-row dd { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0; font-family: monospace; }
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .info-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .info-row dt {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-muted);
+    }
+    .info-row dd {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin: 0;
+      font-family: monospace;
+    }
   `,
 })
 export class SettingsComponent {

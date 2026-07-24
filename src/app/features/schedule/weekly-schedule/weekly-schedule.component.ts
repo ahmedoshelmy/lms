@@ -175,7 +175,9 @@ interface DayColumn {
                         {{ session.groupName }}
                       </p>
                     </div>
-                    <span class="text-xs text-[var(--color-text-muted)] font-bold whitespace-nowrap">
+                    <span
+                      class="text-xs text-[var(--color-text-muted)] font-bold whitespace-nowrap"
+                    >
                       Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
                     </span>
                   </div>

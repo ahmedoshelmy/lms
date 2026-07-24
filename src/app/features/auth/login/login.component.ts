@@ -28,35 +28,55 @@ export class LoginComponent {
   private route = inject(ActivatedRoute);
 
   // Demo accounts for previewing role-based views during demos.
-  // Passwords are sequential 1..8. Replace with real auth once wired.
   demoAccounts: DemoAccount[] = [
     { name: 'LMS Admin', email: 'admin@lms.com', password: 'pass2word', role: Role.Admin },
     {
       name: 'Mohamed Adel',
-      email: 'mohamed.adel@lms.com',
+      email: 'mohamed.adel@mindvalley.edu',
       password: 'pass2word',
       role: Role.Instructor,
     },
-    { name: 'Tasneem', email: 'tasneem@lms.com', password: 'pass2word', role: Role.Instructor },
+    {
+      name: 'Tasneem',
+      email: 'tasneem@mindvalley.edu',
+      password: 'pass2word',
+      role: Role.Instructor,
+    },
     {
       name: 'Ahmed Saeed',
-      email: 'ahmed.saeed@lms.com',
+      email: 'ahmed.saeed@mindvalley.edu',
       password: 'pass2word',
       role: Role.Instructor,
     },
-    { name: 'Othman', email: 'othman@lms.com', password: 'pass2word', role: Role.Instructor },
+    {
+      name: 'Othman',
+      email: 'othman@mindvalley.edu',
+      password: 'pass2word',
+      role: Role.Instructor,
+    },
     {
       name: 'Mahmoud Khalaf',
-      email: 'mahmoud.khalaf@lms.com',
+      email: 'mahmoud.khalaf@mindvalley.edu',
       password: 'pass2word',
       role: Role.Instructor,
     },
-    { name: 'Salma', email: 'salma@lms.com', password: 'pass2word', role: Role.Instructor },
     {
       name: 'Mahmoud Khaled',
-      email: 'mahmoud.khaled@lms.com',
+      email: 'mahmoud.khaled@mindvalley.edu',
       password: 'pass2word',
       role: Role.Instructor,
+    },
+    {
+      name: 'Adam (Student)',
+      email: 'adam@student.com',
+      password: 'pass2word',
+      role: Role.Student,
+    },
+    {
+      name: 'Joudy (Student)',
+      email: 'joudy@student.com',
+      password: 'pass2word',
+      role: Role.Student,
     },
   ];
 
