@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { forkJoin } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
@@ -26,11 +27,22 @@ export class StudentsComponent implements OnInit {
   saving = signal(false);
   searchQuery = signal('');
 
+  // Group Filter: 'All' | 'Unassigned' | groupName
+  groupFilter = signal<string>('All');
+
+  // Persistent Selected Student IDs across searches and filters
+  selectedStudentIds = signal<Set<number>>(new Set());
+
   // Dialog control
   showStudentModal = signal(false);
   showDeleteModal = signal(false);
+  showBulkModal = signal(false);
   editingStudent = signal<User | null>(null);
   deletingStudent = signal<User | null>(null);
+
+  // Bulk assign controls
+  bulkTargetGroupId = signal<number>(0);
+  bulkAssigning = signal(false);
 
   // Form fields
   formName = signal('');
@@ -39,14 +51,30 @@ export class StudentsComponent implements OnInit {
   formGroupId = signal<number>(0);
 
   filteredStudents = computed(() => {
-    const q = this.searchQuery().toLowerCase();
-    return this.students().filter(
-      (s) =>
+    const q = this.searchQuery().toLowerCase().trim();
+    const gFilter = this.groupFilter();
+
+    return this.students().filter((s) => {
+      let matchesGroup = true;
+      if (gFilter === 'Unassigned') {
+        matchesGroup = !s.groupId && !s.groupName;
+      } else if (gFilter !== 'All') {
+        matchesGroup = s.groupName === gFilter || (!!s.groupId && s.groupId.toString() === gFilter);
+      }
+
+      const matchesSearch =
+        !q ||
         s.name.toLowerCase().includes(q) ||
         s.email.toLowerCase().includes(q) ||
-        (s.groupName && s.groupName.toLowerCase().includes(q))
-    );
+        (s.groupName && s.groupName.toLowerCase().includes(q));
+
+      return matchesGroup && matchesSearch;
+    });
   });
+
+  unassignedCount = computed(
+    () => this.students().filter((s) => !s.groupId && !s.groupName).length
+  );
 
   ngOnInit(): void {
     this.loadData();
@@ -69,6 +97,89 @@ export class StudentsComponent implements OnInit {
         this.groups.set(groups || []);
       },
       error: () => {},
+    });
+  }
+
+  // Selection Helpers
+  isSelected(studentId: number): boolean {
+    return this.selectedStudentIds().has(studentId);
+  }
+
+  toggleSelection(studentId: number): void {
+    const current = new Set(this.selectedStudentIds());
+    if (current.has(studentId)) {
+      current.delete(studentId);
+    } else {
+      current.add(studentId);
+    }
+    this.selectedStudentIds.set(current);
+  }
+
+  toggleSelectAllVisible(): void {
+    const visible = this.filteredStudents();
+    const current = new Set(this.selectedStudentIds());
+    const allVisibleSelected = visible.length > 0 && visible.every((s) => current.has(s.id));
+
+    if (allVisibleSelected) {
+      visible.forEach((s) => current.delete(s.id));
+    } else {
+      visible.forEach((s) => current.add(s.id));
+    }
+    this.selectedStudentIds.set(current);
+  }
+
+  clearSelection(): void {
+    this.selectedStudentIds.set(new Set());
+  }
+
+  isAllVisibleSelected(): boolean {
+    const visible = this.filteredStudents();
+    if (visible.length === 0) return false;
+    return visible.every((s) => this.selectedStudentIds().has(s.id));
+  }
+
+  // Bulk Assign Modal & Execution
+  openBulkAssignModal(): void {
+    if (this.selectedStudentIds().size === 0) {
+      this.notify.showWarn('Please select at least one student.');
+      return;
+    }
+    this.bulkTargetGroupId.set(0);
+    this.showBulkModal.set(true);
+  }
+
+  executeBulkAssign(): void {
+    const selectedIds = Array.from(this.selectedStudentIds());
+    if (selectedIds.length === 0) return;
+
+    const targetGroupId = this.bulkTargetGroupId() || undefined;
+    this.bulkAssigning.set(true);
+
+    const requests = selectedIds.map((id) => {
+      const student = this.students().find((s) => s.id === id);
+      return this.lms.updateUser(id, {
+        name: student?.name || '',
+        email: student?.email || '',
+        role: Role.Student,
+        groupId: targetGroupId,
+      });
+    });
+
+    forkJoin(requests).subscribe({
+      next: () => {
+        const targetGroupObj = this.groups().find((g) => g.id === targetGroupId);
+        const groupNameStr = targetGroupObj ? targetGroupObj.name : 'Unassigned';
+        this.notify.showSuccess(
+          `Successfully assigned ${selectedIds.length} student${selectedIds.length !== 1 ? 's' : ''} to ${groupNameStr}.`
+        );
+        this.bulkAssigning.set(false);
+        this.showBulkModal.set(false);
+        this.clearSelection();
+        this.loadData();
+      },
+      error: () => {
+        this.bulkAssigning.set(false);
+      },
     });
   }
 
