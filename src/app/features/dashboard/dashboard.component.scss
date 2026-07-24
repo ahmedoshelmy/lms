@@ -18,19 +18,18 @@
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  border-color: var(--card-color, var(--color-secondary));
+  border-color: var(--color-secondary);
 }
 .stat-icon {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: var(--card-color, var(--color-secondary));
+  background: var(--card-color, var(--color-neutral-icon-bg));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-neutral-icon, var(--color-text-primary));
   font-size: 20px;
-  opacity: 0.9;
 }
 .stat-value {
   font-size: 28px;
@@ -77,28 +76,28 @@
 }
 
 .status-chip--scheduled {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  border-color: rgba(59, 130, 246, 0.25);
-  .status-chip__dot { background: #3b82f6; }
+  background: color-mix(in srgb, var(--color-info) 10%, transparent);
+  color: var(--color-info);
+  border-color: color-mix(in srgb, var(--color-info) 25%, transparent);
+  .status-chip__dot { background: var(--color-info); }
 }
 .status-chip--running {
-  background: rgba(234, 179, 8, 0.12);
-  color: #ca8a04;
-  border-color: rgba(234, 179, 8, 0.3);
-  .status-chip__dot { background: #eab308; }
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
+  .status-chip__dot { background: var(--color-warning); }
 }
 .status-chip--completed {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border-color: rgba(16, 185, 129, 0.25);
-  .status-chip__dot { background: #10b981; }
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 25%, transparent);
+  .status-chip__dot { background: var(--color-success); }
 }
 .status-chip--cancelled {
-  background: rgba(239, 68, 68, 0.08);
-  color: #dc2626;
-  border-color: rgba(239, 68, 68, 0.2);
-  .status-chip__dot { background: #ef4444; }
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 20%, transparent);
+  .status-chip__dot { background: var(--color-error); }
 }
 
 /* ─── Status badge (per-row inline pill) ────────────────────────── */
@@ -113,20 +112,20 @@
   text-transform: capitalize;
 }
 .status-badge--scheduled {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: color-mix(in srgb, var(--color-info) 10%, transparent);
+  color: var(--color-info);
 }
 .status-badge--running {
-  background: rgba(234, 179, 8, 0.12);
-  color: #ca8a04;
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning);
 }
 .status-badge--completed {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: var(--color-success);
 }
 .status-badge--cancelled {
-  background: rgba(239, 68, 68, 0.08);
-  color: #dc2626;
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-error);
 }
 
 /* ─── Monthly overview stats ────────────────────────────────── */
@@ -161,14 +160,14 @@
   letter-spacing: 0.04em;
 }
 .monthly-stat--scheduled {
-  .monthly-stat__value { color: #3b82f6; }
+  .monthly-stat__value { color: var(--color-info); }
 }
 .monthly-stat--ongoing {
-  .monthly-stat__value { color: #ca8a04; }
+  .monthly-stat__value { color: var(--color-warning); }
 }
 .monthly-stat--completed {
-  .monthly-stat__value { color: #059669; }
+  .monthly-stat__value { color: var(--color-success); }
 }
 .monthly-stat--cancelled {
-  .monthly-stat__value { color: #dc2626; }
+  .monthly-stat__value { color: var(--color-error); }
 }

@@ -45,10 +45,23 @@
   --color-error: #ef4444;
   --color-error-background: #fef3f2;
   --color-error-foreground: #b42318;
+  --color-danger: #ef4444;
 
   --color-info: #3e6db5;
   --color-info-background: #eff8ff;
   --color-info-foreground: #2d5594;
+
+  /* Session type badges */
+  --color-session-group: #8b5cf6;
+  --color-session-group-background: rgba(139, 92, 246, 0.08);
+  --color-session-makeup: #0d9488;
+  --color-session-makeup-background: rgba(13, 148, 136, 0.08);
+  --color-session-trial: #f97316;
+  --color-session-trial-background: rgba(249, 115, 22, 0.08);
+
+  /* Neutral icon backgrounds (stat cards, quick links — non-status UI) */
+  --color-neutral-icon-bg: #f3f4f6;
+  --color-neutral-icon: #374151;
 
   /* Accent (sidebar logo, active state highlight) */
   --color-accent: #1cd39c;
@@ -111,10 +124,23 @@
   --color-error: #f87171;
   --color-error-background: #2e1211;
   --color-error-foreground: #fda29b;
+  --color-danger: #f87171;
 
   --color-info: #5a8fd6;
   --color-info-background: #0c1e33;
   --color-info-foreground: #84caff;
+
+  /* Session type badges */
+  --color-session-group: #a78bfa;
+  --color-session-group-background: rgba(167, 139, 250, 0.12);
+  --color-session-makeup: #2dd4bf;
+  --color-session-makeup-background: rgba(45, 212, 191, 0.12);
+  --color-session-trial: #fb923c;
+  --color-session-trial-background: rgba(251, 146, 60, 0.12);
+
+  /* Neutral icon backgrounds */
+  --color-neutral-icon-bg: #2b2f37;
+  --color-neutral-icon: #d1d5db;
 
   /* Accent */
   --color-accent: #1cd39c;

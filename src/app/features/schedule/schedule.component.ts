@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { WeeklyScheduleComponent } from './weekly-schedule/weekly-schedule.component';
+import { WeeklyScheduleComponent, DensityMode } from './weekly-schedule/weekly-schedule.component';
 import { SessionDetailPanelComponent } from './session-detail-panel/session-detail-panel.component';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -44,6 +44,16 @@ export class ScheduleComponent implements OnInit {
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
   cancelledWarningDismissed = signal(false);
+  locationFilter = signal<string>('');
+  densityMode = signal<DensityMode>('compact');
+
+  readonly uniqueLocations = computed(() => {
+    const set = new Set<string>();
+    for (const s of this.sessions()) {
+      if (s.location) set.add(s.location);
+    }
+    return Array.from(set).sort();
+  });
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);

@@ -101,12 +101,13 @@ export class DashboardComponent implements OnInit {
 
   readonly statCards = computed<StatCard[]>(() => {
     const upcoming = this.upcomingSessions().length;
+    const neutral = 'var(--color-neutral-icon-bg)';
     const cards: StatCard[] = [
       {
         label: 'Sessions This Week',
         value: upcoming,
         icon: 'pi pi-calendar-clock',
-        color: 'var(--color-secondary)',
+        color: neutral,
         link: '/schedule',
         loading: this.loadingUpcoming(),
       },
@@ -114,7 +115,7 @@ export class DashboardComponent implements OnInit {
         label: 'Total Hours',
         value: this.totalHours(),
         icon: 'pi pi-clock',
-        color: 'var(--color-accent)',
+        color: neutral,
         link: '/schedule',
         loading: this.loadingAllSessions(),
       },
@@ -122,7 +123,7 @@ export class DashboardComponent implements OnInit {
         label: 'Courses',
         value: this.courseCount(),
         icon: 'pi pi-book',
-        color: 'var(--color-success)',
+        color: neutral,
         link: '/courses',
         loading: this.loadingCounts(),
       },
@@ -134,7 +135,7 @@ export class DashboardComponent implements OnInit {
           label: 'Instructors',
           value: this.instructorCount(),
           icon: 'pi pi-user',
-          color: 'var(--color-warning)',
+          color: neutral,
           link: '/instructors',
           loading: this.loadingCounts(),
         },
@@ -142,7 +143,7 @@ export class DashboardComponent implements OnInit {
           label: 'Students',
           value: this.studentCount(),
           icon: 'pi pi-users',
-          color: 'var(--color-info)',
+          color: neutral,
           link: '/students',
           loading: this.loadingCounts(),
         },
@@ -150,7 +151,7 @@ export class DashboardComponent implements OnInit {
           label: 'Total Groups',
           value: this.groupCount(),
           icon: 'pi pi-sitemap',
-          color: 'var(--color-primary)',
+          color: neutral,
           link: '/groups',
           loading: this.loadingCounts(),
         }
@@ -161,20 +162,24 @@ export class DashboardComponent implements OnInit {
   });
 
   readonly quickLinks = computed(() => {
-    const links: { label: string; description: string; icon: string; route: string; color: string }[] = [
+    const neutral = 'var(--color-neutral-icon-bg)';
+    const accent = 'var(--color-secondary)';
+    const links: { label: string; description: string; icon: string; route: string; color: string; textColor: string }[] = [
       {
         label: 'Weekly Schedule',
         description: 'View your sessions',
         icon: 'pi pi-calendar-clock',
         route: '/schedule',
-        color: 'var(--color-secondary)',
+        color: accent,
+        textColor: 'var(--color-secondary-content)',
       },
       {
         label: 'Courses',
         description: 'Browse all courses',
         icon: 'pi pi-book',
         route: '/courses',
-        color: 'var(--color-success)',
+        color: neutral,
+        textColor: 'var(--color-neutral-icon)',
       },
     ];
     if (this.isAdmin() || this.isInstructor()) {
@@ -184,14 +189,16 @@ export class DashboardComponent implements OnInit {
           description: 'Mark & review attendance',
           icon: 'pi pi-calendar',
           route: '/attendance',
-          color: 'var(--color-warning)',
+          color: neutral,
+          textColor: 'var(--color-neutral-icon)',
         },
         {
           label: 'Groups',
           description: 'View all groups',
           icon: 'pi pi-sitemap',
           route: '/groups',
-          color: 'var(--color-primary)',
+          color: neutral,
+          textColor: 'var(--color-neutral-icon)',
         }
       );
     }
@@ -202,14 +209,16 @@ export class DashboardComponent implements OnInit {
           description: 'Manage student accounts',
           icon: 'pi pi-graduation-cap',
           route: '/students',
-          color: 'var(--color-warning)',
+          color: neutral,
+          textColor: 'var(--color-neutral-icon)',
         },
         {
           label: 'Instructors',
           description: 'Manage instructor accounts',
           icon: 'pi pi-user',
           route: '/instructors',
-          color: 'var(--color-primary)',
+          color: neutral,
+          textColor: 'var(--color-neutral-icon)',
         },
       );
     }
