@@ -432,9 +432,20 @@
       <div
         class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
       >
-        <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">
-          Course Curriculum Breakdown
-        </h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
+            Course Curriculum Breakdown
+          </h2>
+          @if (isAdmin()) {
+            <button
+              (click)="openAddCourseModal()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow"
+            >
+              <i class="pi pi-plus text-xs"></i>
+              Add Course
+            </button>
+          }
+        </div>
 
         @if (group()!.courses.length === 0) {
           <div
@@ -478,9 +489,26 @@
                     >Session: <strong>S{{ c.currentSessionNumber }}</strong> /
                     {{ c.sessionCount }}</span
                   >
-                  <span class="font-bold text-[var(--color-primary)]">
-                    {{ c.sessionCount }} Sessions
-                  </span>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-[var(--color-primary)]">
+                      {{ c.sessionCount }} Sessions
+                    </span>
+                    @if (isAdmin()) {
+                      <button
+                        type="button"
+                        (click)="regenerateSessions(c); $event.stopPropagation()"
+                        [disabled]="regeneratingCourseId() === c.courseId"
+                        class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-warning)] hover:bg-[color-mix(in_srgb,var(--color-warning)_10%,transparent)] transition-colors cursor-pointer disabled:opacity-50"
+                        title="Regenerate Sessions"
+                      >
+                        @if (regeneratingCourseId() === c.courseId) {
+                          <i class="pi pi-spinner pi-spin text-xs"></i>
+                        } @else {
+                          <i class="pi pi-refresh text-xs"></i>
+                        }
+                      </button>
+                    }
+                  </div>
                 </div>
               </div>
             }
@@ -1066,6 +1094,84 @@
           <i class="pi pi-spinner pi-spin"></i>
         }
         Confirm & Generate Sessions
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Add Course to Group Dialog -->
+<p-dialog
+  [(visible)]="showAddCourseModal"
+  [header]="'Add Course to ' + (group()?.name || 'Group')"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '520px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-4 py-2">
+    <p class="text-xs text-[var(--color-text-secondary)]">
+      Select a course to add to <strong class="text-[var(--color-primary)]">{{ group()?.name }}</strong>.
+      Sessions will be automatically generated weekly based on the group's schedule.
+    </p>
+
+    @if (availableCourses().length === 0) {
+      <div class="text-center py-8 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+        <i class="pi pi-check-circle text-3xl text-[var(--color-success)] mb-2 block"></i>
+        <p class="text-xs font-bold text-[var(--color-text-primary)]">All courses are already added</p>
+        <p class="text-[11px] text-[var(--color-text-muted)] mt-1">This group already has every available course in its curriculum.</p>
+      </div>
+    } @else {
+      <div class="max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+        @for (c of availableCourses(); track c.id) {
+          <div
+            (click)="selectedCourseIdToAdd.set(c.id)"
+            class="p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
+            [class.border-[var(--color-secondary)]]="selectedCourseIdToAdd() === c.id"
+            [class.bg-[var(--color-secondary)]/5]="selectedCourseIdToAdd() === c.id"
+            [class.border-[var(--color-border)]]="selectedCourseIdToAdd() !== c.id"
+            [class.hover:bg-[var(--color-surface-hover)]]="selectedCourseIdToAdd() !== c.id"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="p-2 rounded-lg bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)] shrink-0">
+                <i class="pi pi-book text-sm"></i>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-[var(--color-text-primary)] truncate">{{ c.title }}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)]">
+                    Level {{ c.level }}
+                  </span>
+                  <span class="text-[10px] text-[var(--color-text-muted)]">{{ c.topic }}</span>
+                  <span class="text-[10px] text-[var(--color-text-muted)]">· {{ c.sessionCount }} sessions</span>
+                </div>
+              </div>
+            </div>
+            @if (selectedCourseIdToAdd() === c.id) {
+              <i class="pi pi-check-circle text-base text-[var(--color-secondary)] shrink-0"></i>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border)]">
+      <button
+        (click)="showAddCourseModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="confirmAddCourse()"
+        [disabled]="!selectedCourseIdToAdd() || addingCourse()"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
+      >
+        @if (addingCourse()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Add Course & Generate Sessions
       </button>
     </div>
   </ng-template>

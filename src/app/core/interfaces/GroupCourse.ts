@@ -1,4 +1,5 @@
 export interface GroupCourse {
+  id: number;
   courseId: number;
   title: string;
   topic: string;
