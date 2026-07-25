@@ -6,12 +6,15 @@ import { LmsService } from '../../core/services/lms.service';
 import { Role, ROLE_LABELS } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 
+import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
+
 interface StatCard {
   label: string;
   value: string | number;
   icon: string;
   color: string;
   link?: string;
+  action?: () => void;
   loading?: boolean;
   subtitle?: string;
 }
@@ -32,12 +35,22 @@ export class DashboardComponent implements OnInit {
   loadingUpcoming = signal(false);
   loadingCounts = signal(false);
   loadingAllSessions = signal(false);
+  loadingAttendanceSummary = signal(false);
   upcomingSessions = signal<ScheduleSession[]>([]);
   allSessions = signal<ScheduleSession[]>([]);
   courseCount = signal<number | '—'>('—');
   instructorCount = signal<number | '—'>('—');
   studentCount = signal<number | '—'>('—');
   groupCount = signal<number | '—'>('—');
+  attendedToday = signal<number | '—'>('—');
+  attendedThisWeek = signal<number | '—'>('—');
+  sessionsUpdatedTodayCount = signal<number | '—'>('—');
+  pendingAttendanceCount = signal<number | '—'>('—');
+  updatedSessionsList = signal<PendingAttendanceSessionDto[]>([]);
+  pendingSessionsList = signal<PendingAttendanceSessionDto[]>([]);
+
+  activeSessionModal = signal<'updated' | 'pending' | null>(null);
+
 
   activeStatusFilter = signal<SessionStatusFilter>('all');
 
@@ -127,6 +140,42 @@ export class DashboardComponent implements OnInit {
     const upcoming = this.upcomingSessions().length;
     const cards: StatCard[] = [
       {
+        label: 'Attended Today',
+        value: this.attendedToday(),
+        icon: 'pi pi-user-check',
+        color: 'var(--color-success)',
+        link: '/attendance',
+        loading: this.loadingAttendanceSummary(),
+        subtitle: 'Students present today',
+      },
+      {
+        label: 'Attended This Week',
+        value: this.attendedThisWeek(),
+        icon: 'pi pi-check-square',
+        color: 'var(--color-primary)',
+        link: '/attendance',
+        loading: this.loadingAttendanceSummary(),
+        subtitle: 'Students present this week',
+      },
+      {
+        label: 'Attendance Updated Today',
+        value: this.sessionsUpdatedTodayCount(),
+        icon: 'pi pi-file-edit',
+        color: 'var(--color-warning)',
+        action: () => this.openSessionModal('updated'),
+        loading: this.loadingAttendanceSummary(),
+        subtitle: 'Click to view sessions',
+      },
+      {
+        label: 'Pending Attendance',
+        value: this.pendingAttendanceCount(),
+        icon: 'pi pi-exclamation-circle',
+        color: 'var(--color-danger)',
+        action: () => this.openSessionModal('pending'),
+        loading: this.loadingAttendanceSummary(),
+        subtitle: 'Click to view sessions',
+      },
+      {
         label: 'Sessions This Week',
         value: upcoming,
         icon: 'pi pi-calendar-clock',
@@ -154,6 +203,7 @@ export class DashboardComponent implements OnInit {
         subtitle: 'Active curriculum',
       },
     ];
+
 
     if (this.isAdmin()) {
       cards.push(
@@ -189,6 +239,7 @@ export class DashboardComponent implements OnInit {
 
     return cards;
   });
+
 
   readonly quickLinks = computed(() => {
     const links: {
@@ -256,7 +307,44 @@ export class DashboardComponent implements OnInit {
     this.loadUpcoming();
     this.loadCounts();
     this.loadAllSessions();
+    this.loadAttendanceSummary();
   }
+
+  private loadAttendanceSummary(): void {
+    this.loadingAttendanceSummary.set(true);
+    this.lms.getAttendanceSummary().subscribe({
+      next: (summary) => {
+        this.attendedToday.set(summary?.attendedToday ?? 0);
+        this.attendedThisWeek.set(summary?.attendedThisWeek ?? 0);
+        this.sessionsUpdatedTodayCount.set(summary?.sessionsUpdatedTodayCount ?? 0);
+        this.pendingAttendanceCount.set(summary?.pendingAttendanceSessionsCount ?? 0);
+        this.updatedSessionsList.set(summary?.sessionsUpdatedToday ?? []);
+        this.pendingSessionsList.set(summary?.pendingAttendanceSessions ?? []);
+        this.loadingAttendanceSummary.set(false);
+      },
+      error: () => {
+        this.loadingAttendanceSummary.set(false);
+      },
+    });
+  }
+
+  openSessionModal(type: 'updated' | 'pending'): void {
+    this.activeSessionModal.set(type);
+  }
+
+  closeSessionModal(): void {
+    this.activeSessionModal.set(null);
+  }
+
+  onStatCardClick(card: StatCard, event: Event): void {
+    if (card.action) {
+      event.preventDefault();
+      card.action();
+    }
+  }
+
+
+
 
   setFilter(filter: SessionStatusFilter): void {
     this.activeStatusFilter.set(filter);

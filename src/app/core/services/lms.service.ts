@@ -9,7 +9,9 @@ import {
   CreateAttendanceDto,
   AttendanceResponseDto,
   UpdateAttendanceDto,
+  AttendanceSummaryDto,
 } from '../interfaces/Attendance';
+
 import { Course } from '../interfaces/Course';
 import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
@@ -175,6 +177,11 @@ export class LmsService {
   saveBulkAttendance(sessionId: number, records: BulkAttendanceItem[]): Observable<any> {
     return this.http.post(`${this.getApiUrl()}/Attendance/session/${sessionId}`, records);
   }
+
+  getAttendanceSummary(): Observable<AttendanceSummaryDto> {
+    return this.http.get<AttendanceSummaryDto>(`${this.getApiUrl()}/Attendance/summary`);
+  }
+
 
   // ─── Group Promotion & History ─────────────────────────────────────────────
 

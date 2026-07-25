@@ -44,3 +44,27 @@ export interface BulkAttendanceItem {
   studentId: number;
   status: number;
 }
+
+export interface PendingAttendanceSessionDto {
+  id: number;
+  topic: string;
+  courseTitle: string;
+  groupName: string;
+  instructorId: number;
+  instructorName: string;
+  startsAt: string;
+  endsAt: string;
+  status: string;
+  hasAttendance: boolean;
+}
+
+export interface AttendanceSummaryDto {
+  attendedToday: number;
+  attendedThisWeek: number;
+  sessionsUpdatedTodayCount: number;
+  pendingAttendanceSessionsCount: number;
+  sessionsUpdatedToday: PendingAttendanceSessionDto[];
+  pendingAttendanceSessions: PendingAttendanceSessionDto[];
+}
+
+

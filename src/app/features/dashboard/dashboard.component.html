@@ -38,9 +38,15 @@
   </div>
 
   <!-- Stat Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mb-10">
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mb-10">
     @for (card of statCards(); track card.label) {
-      <a [routerLink]="card.link ?? null" class="stat-card group" [style.--card-color]="card.color">
+      <a
+        [routerLink]="card.action ? null : (card.link ?? null)"
+        (click)="onStatCardClick(card, $event)"
+        class="stat-card group cursor-pointer"
+        [style.--card-color]="card.color"
+      >
+
         <div class="stat-icon">
           <i [class]="card.icon"></i>
         </div>
@@ -57,6 +63,7 @@
       </a>
     }
   </div>
+
 
   <!-- Monthly Overview -->
   @if (!loadingAllSessions() && totalSessionsCount() > 0) {
@@ -313,4 +320,95 @@
       </div>
     }
   </div>
+
+  <!-- Modal for Attendance Updated Today / Pending Attendance Sessions -->
+  @if (activeSessionModal() !== null) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity"
+      (click)="closeSessionModal()"
+    >
+      <div
+        class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl max-h-[85vh] flex flex-col relative"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-[var(--color-border)]">
+          <div>
+            <h2 class="text-xl font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+              @if (activeSessionModal() === 'updated') {
+                <i class="pi pi-file-edit text-[var(--color-warning)]"></i> Attendance Updated Today
+              } @else {
+                <i class="pi pi-exclamation-circle text-[var(--color-danger)]"></i> Pending Attendance Sessions
+              }
+            </h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+              @if (activeSessionModal() === 'updated') {
+                Sessions where attendance was recorded or edited today
+              } @else {
+                Scheduled or completed sessions requiring attendance marking
+              }
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="closeSessionModal()"
+            class="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-border)]/40 transition-colors"
+          >
+            <i class="pi pi-times text-base"></i>
+          </button>
+        </div>
+
+        <div class="overflow-y-auto flex-1 space-y-3 pr-1">
+          @let sessionsList = activeSessionModal() === 'updated' ? updatedSessionsList() : pendingSessionsList();
+          @if (sessionsList.length === 0) {
+            <div class="text-center py-12 text-[var(--color-text-muted)]">
+              <i class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success)]"></i>
+              <p class="text-sm font-semibold text-[var(--color-text-primary)]">No sessions found in this list</p>
+              <p class="text-xs text-[var(--color-text-muted)] mt-1">All attendance records are up to date.</p>
+            </div>
+          } @else {
+            @for (s of sessionsList; track s.id) {
+              <div
+                class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] transition-all shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div class="space-y-1 min-w-0 flex-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]">
+                      {{ s.courseTitle }}
+                    </span>
+                    <span class="text-xs font-semibold text-[var(--color-text-secondary)]">
+                      {{ s.groupName }}
+                    </span>
+                  </div>
+                  <h3 class="text-sm font-bold text-[var(--color-text-primary)] truncate">
+                    {{ s.topic }}
+                  </h3>
+                  <div class="flex items-center gap-3 text-xs text-[var(--color-text-muted)] flex-wrap pt-0.5">
+                    <span class="flex items-center gap-1 text-[var(--color-primary)] font-semibold">
+                      <i class="pi pi-user text-xs"></i> Instructor: {{ s.instructorName }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-clock text-xs"></i> {{ formatDate(s.startsAt) }} at {{ formatTime(s.startsAt) }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <a
+                    [routerLink]="['/attendance']"
+                    [queryParams]="{ sessionId: s.id }"
+                    (click)="closeSessionModal()"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--color-secondary)] text-white hover:bg-[var(--color-secondary-hover)] transition-colors shadow-xs inline-flex items-center gap-1.5"
+                  >
+                    <i class="pi pi-check-square"></i>
+                    {{ s.hasAttendance ? 'View / Edit' : 'Mark Attendance' }}
+                  </a>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
 </div>
+
