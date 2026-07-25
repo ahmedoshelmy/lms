@@ -134,6 +134,10 @@ export class LmsService {
     return this.http.delete<void>(`${this.getApiUrl()}/groups/${id}`);
   }
 
+  removeStudentFromGroup(groupId: number, studentId: number): Observable<Group> {
+    return this.http.delete<Group>(`${this.getApiUrl()}/groups/${groupId}/students/${studentId}`);
+  }
+
   addCourseToGroup(groupId: number, courseId: number): Observable<GroupCourse> {
     return this.http.post<GroupCourse>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseId });
   }

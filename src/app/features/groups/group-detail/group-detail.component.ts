@@ -143,6 +143,7 @@ export class GroupDetailComponent implements OnInit {
   showStudentDetailsModal = signal<boolean>(false);
   showEditStudentModal = signal<boolean>(false);
   showDeleteStudentModal = signal<boolean>(false);
+  showRemoveStudentModal = signal<boolean>(false);
   selectedGroupStudent = signal<GroupStudent | null>(null);
   allGroups = signal<Group[]>([]);
   editFormName = signal<string>('');
@@ -150,6 +151,7 @@ export class GroupDetailComponent implements OnInit {
   editFormGroupId = signal<number>(0);
   savingStudent = signal<boolean>(false);
   deletingStudent = signal<boolean>(false);
+  removingStudent = signal<boolean>(false);
 
   filteredCandidateStudents = computed(() => {
     const q = this.addStudentSearchQuery().toLowerCase().trim();
@@ -575,6 +577,30 @@ export class GroupDetailComponent implements OnInit {
       },
       error: () => {
         this.deletingStudent.set(false);
+      },
+    });
+  }
+
+  openRemoveStudentModal(s: GroupStudent): void {
+    this.selectedGroupStudent.set(s);
+    this.showRemoveStudentModal.set(true);
+  }
+
+  confirmRemoveStudent(): void {
+    const s = this.selectedGroupStudent();
+    if (!s) return;
+
+    this.removingStudent.set(true);
+    this.lmsService.removeStudentFromGroup(this.groupId(), s.studentId).subscribe({
+      next: () => {
+        this.notify.showSuccess(`${s.studentName} has been removed from ${this.group()?.name}.`);
+        this.removingStudent.set(false);
+        this.showRemoveStudentModal.set(false);
+        this.selectedGroupStudent.set(null);
+        this.loadGroupDetail(this.groupId());
+      },
+      error: () => {
+        this.removingStudent.set(false);
       },
     });
   }

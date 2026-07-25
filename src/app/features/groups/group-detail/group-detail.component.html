@@ -415,6 +415,16 @@
                           >
                             <i class="pi pi-trash text-xs"></i>
                           </button>
+                          @if (!s.leftAt) {
+                            <button
+                              type="button"
+                              (click)="openRemoveStudentModal(s)"
+                              class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-warning)] hover:bg-[color-mix(in_srgb,var(--color-warning)_10%,transparent)] transition-colors cursor-pointer"
+                              title="Remove from Group"
+                            >
+                              <i class="pi pi-sign-out text-xs"></i>
+                            </button>
+                          }
                         </div>
                       </td>
                     }
@@ -1037,6 +1047,50 @@
           <i class="pi pi-spinner pi-spin"></i>
         }
         Delete Student
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Remove Student from Group Modal -->
+<p-dialog
+  [(visible)]="showRemoveStudentModal"
+  header="Remove Student from Group"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="py-2 text-xs">
+    <p class="text-[var(--color-text-primary)]">
+      Are you sure you want to remove
+      <strong class="text-[var(--color-warning)] font-bold">{{ selectedGroupStudent()?.studentName }}</strong
+      > from <strong class="text-[var(--color-text-primary)]">{{ group()?.name }}</strong>?
+    </p>
+    <p class="text-[var(--color-text-muted)] mt-2">
+      The student will be marked as "Left" but their account and attendance records will remain intact.
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showRemoveStudentModal.set(false)"
+        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmRemoveStudent()"
+        [disabled]="removingStudent()"
+        class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-warning)] hover:opacity-90 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 shadow"
+      >
+        @if (removingStudent()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Remove from Group
       </button>
     </div>
   </ng-template>
