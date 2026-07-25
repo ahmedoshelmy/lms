@@ -75,6 +75,9 @@ export class GroupDetailComponent implements OnInit {
   showAddCourseModal = signal<boolean>(false);
   selectedCourseIdToAdd = signal<number | null>(null);
   addingCourse = signal<boolean>(false);
+
+  // Regenerate Sessions
+  regeneratingCourseId = signal<number | null>(null);
   availableCourses = computed(() => {
     const grp = this.group();
     if (!grp) return [];
@@ -322,6 +325,25 @@ export class GroupDetailComponent implements OnInit {
       error: (err) => {
         this.notify.showError('Failed to add course: ' + (err.error?.message || 'Error'));
         this.addingCourse.set(false);
+      },
+    });
+  }
+
+  regenerateSessions(groupCourse: GroupCourse): void {
+    const id = this.groupId();
+    if (!id) return;
+
+    this.regeneratingCourseId.set(groupCourse.id);
+    this.lmsService.generateGroupCourseSessions(groupCourse.id).subscribe({
+      next: () => {
+        this.notify.showSuccess('Sessions regenerated for ' + groupCourse.title);
+        this.regeneratingCourseId.set(null);
+        this.loadGroupDetail(id);
+        this.loadScheduleSessions();
+      },
+      error: (err) => {
+        this.notify.showError('Failed to regenerate sessions: ' + (err.error?.message || 'Error'));
+        this.regeneratingCourseId.set(null);
       },
     });
   }

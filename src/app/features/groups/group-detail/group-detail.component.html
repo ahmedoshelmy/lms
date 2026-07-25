@@ -486,9 +486,26 @@
                     >Session: <strong>S{{ c.currentSessionNumber }}</strong> /
                     {{ c.sessionCount }}</span
                   >
-                  <span class="font-bold text-[var(--color-primary)]">
-                    {{ c.sessionCount }} Sessions
-                  </span>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-[var(--color-primary)]">
+                      {{ c.sessionCount }} Sessions
+                    </span>
+                    @if (isAdmin()) {
+                      <button
+                        type="button"
+                        (click)="regenerateSessions(c); $event.stopPropagation()"
+                        [disabled]="regeneratingCourseId() === c.id"
+                        class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-warning)] hover:bg-[color-mix(in_srgb,var(--color-warning)_10%,transparent)] transition-colors cursor-pointer disabled:opacity-50"
+                        title="Regenerate Sessions"
+                      >
+                        @if (regeneratingCourseId() === c.id) {
+                          <i class="pi pi-spinner pi-spin text-xs"></i>
+                        } @else {
+                          <i class="pi pi-refresh text-xs"></i>
+                        }
+                      </button>
+                    }
+                  </div>
                 </div>
               </div>
             }
