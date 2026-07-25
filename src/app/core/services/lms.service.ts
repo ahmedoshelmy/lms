@@ -14,6 +14,7 @@ import {
 
 import { Course } from '../interfaces/Course';
 import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
+import { GroupCourse } from '../interfaces/GroupCourse';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
 import {
   GroupHistory,
@@ -131,6 +132,14 @@ export class LmsService {
 
   deleteGroup(id: number): Observable<void> {
     return this.http.delete<void>(`${this.getApiUrl()}/groups/${id}`);
+  }
+
+  addCourseToGroup(groupId: number, courseId: number): Observable<GroupCourse> {
+    return this.http.post<GroupCourse>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseId });
+  }
+
+  generateGroupCourseSessions(groupCourseId: number): Observable<any> {
+    return this.http.post(`${this.getApiUrl()}/schedule/generate-sessions/${groupCourseId}`, {});
   }
 
   // ─── Schedule ────────────────────────────────────────────────────────────

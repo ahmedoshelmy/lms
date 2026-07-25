@@ -11,6 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { Group, GroupStudent, UpdateGroupPayload } from '../../../core/interfaces/Group';
+import { GroupCourse } from '../../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import { User } from '../../../core/interfaces/User';
 import { Course } from '../../../core/interfaces/Course';
@@ -69,6 +70,17 @@ export class GroupDetailComponent implements OnInit {
   showPromoteModal = signal<boolean>(false);
   selectedTargetCourseId: number | null = null;
   promoting = signal<boolean>(false);
+
+  // Add Course Modal
+  showAddCourseModal = signal<boolean>(false);
+  selectedCourseIdToAdd = signal<number | null>(null);
+  addingCourse = signal<boolean>(false);
+  availableCourses = computed(() => {
+    const grp = this.group();
+    if (!grp) return [];
+    const existingIds = new Set(grp.courses.map((c) => c.courseId));
+    return this.courses().filter((c) => !existingIds.has(c.id));
+  });
 
   // Computed recommendation for next level
   recommendedNextLevel = computed(() => {
@@ -275,6 +287,43 @@ export class GroupDetailComponent implements OnInit {
           this.promoting.set(false);
         },
       });
+  }
+
+  openAddCourseModal(): void {
+    this.selectedCourseIdToAdd.set(null);
+    this.showAddCourseModal.set(true);
+  }
+
+  confirmAddCourse(): void {
+    const id = this.groupId();
+    const courseId = this.selectedCourseIdToAdd();
+    if (!id || !courseId) return;
+
+    this.addingCourse.set(true);
+    this.lmsService.addCourseToGroup(id, courseId).subscribe({
+      next: (groupCourse: GroupCourse) => {
+        this.lmsService.generateGroupCourseSessions(groupCourse.id).subscribe({
+          next: () => {
+            this.notify.showSuccess('Course added and sessions generated!');
+            this.addingCourse.set(false);
+            this.showAddCourseModal.set(false);
+            this.selectedCourseIdToAdd.set(null);
+            this.loadGroupDetail(id);
+            this.loadScheduleSessions();
+          },
+          error: (err) => {
+            this.notify.showWarn('Course added but session generation failed: ' + (err.error?.message || 'Error'));
+            this.addingCourse.set(false);
+            this.showAddCourseModal.set(false);
+            this.loadGroupDetail(id);
+          },
+        });
+      },
+      error: (err) => {
+        this.notify.showError('Failed to add course: ' + (err.error?.message || 'Error'));
+        this.addingCourse.set(false);
+      },
+    });
   }
 
   loadScheduleSessions(): void {
