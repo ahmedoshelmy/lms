@@ -61,6 +61,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     roles: [Role.Admin],
     showInMenu: true,
   },
+  {
+    path: 'history',
+    label: 'History & Events',
+    icon: 'pi pi-history',
+    roles: [Role.Admin, Role.Instructor],
+    showInMenu: true,
+  },
 ];
 
 export function getRolesForPath(path: string): Role[] {

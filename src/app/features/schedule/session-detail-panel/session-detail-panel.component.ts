@@ -20,6 +20,19 @@ function sessionStatusToApiEnum(statusStr: string): number {
   return SessionStatus.Scheduled;
 }
 
+function getMonday(d: Date): Date {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function isSameWeek(d1: Date, d2: Date): boolean {
+  return getMonday(d1).getTime() === getMonday(d2).getTime();
+}
+
 @Component({
   selector: 'app-session-detail-panel',
   standalone: true,
@@ -42,7 +55,10 @@ export class SessionDetailPanelComponent {
   editStartTime = signal<string>('');
   editEndTime = signal<string>('');
   editDate = signal<string>('');
+  shiftUpcomingSchedule = signal<boolean>(true);
   saving = signal(false);
+
+  showFutureWeekConfirmModal = signal<boolean>(false);
 
   /** True when the pending status is Cancelled */
   readonly isCancelled = computed(() => (this.editStatus() ?? '').toLowerCase().includes('cancel'));
@@ -134,6 +150,29 @@ export class SessionDetailPanelComponent {
   saveChanges(): void {
     const s = this.session();
     if (!s) return;
+
+    if (this.editDate() && s.startsAt) {
+      const originalDate = new Date(s.startsAt);
+      const newDate = new Date(this.editDate());
+
+      if (!isSameWeek(originalDate, newDate) && newDate > originalDate) {
+        // Moving to future week triggers cancellation & shift confirmation prompt
+        this.showFutureWeekConfirmModal.set(true);
+        return;
+      }
+    }
+
+    this.executeSave();
+  }
+
+  confirmFutureWeekShift(): void {
+    this.showFutureWeekConfirmModal.set(false);
+    this.cancelSessionWithShift();
+  }
+
+  executeSave(): void {
+    const s = this.session();
+    if (!s) return;
     this.saving.set(true);
 
     let computedStartsAt = s.startsAt;
@@ -206,6 +245,28 @@ export class SessionDetailPanelComponent {
         this.sessionUpdated.emit(optimistic);
       },
     });
+  }
+
+  cancelSessionWithShift(): void {
+    const s = this.session();
+    if (!s) return;
+    this.saving.set(true);
+
+    this.lms
+      .cancelAndShiftSession(s.id, {
+        shiftUpcomingSchedule: this.shiftUpcomingSchedule(),
+      })
+      .subscribe({
+        next: (updated) => {
+          this.saving.set(false);
+          this.notify.showSuccess('Session cancelled & upcoming schedule shifted (+1 week)!');
+          this.sessionUpdated.emit({ ...s, ...updated, status: 'Cancelled' });
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.notify.showError('Failed to cancel session: ' + (err.error?.message || 'Error'));
+        },
+      });
   }
 
   formatTime(isoString: string): string {

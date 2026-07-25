@@ -87,6 +87,13 @@ export const routes: Routes = [
             (c) => c.InstructorsComponent
           ),
       },
+      {
+        path: 'history',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('history') },
+        loadComponent: () =>
+          import('./features/history/history.component').then((c) => c.HistoryComponent),
+      },
       { path: 'users', redirectTo: 'students', pathMatch: 'full' },
 
       {

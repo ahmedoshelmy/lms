@@ -1,0 +1,267 @@
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-[var(--color-primary)]">History & Events</h1>
+      <p class="text-sm text-[var(--color-secondary)]">
+        Track group course progression over time and inspect session history & schedule audit logs.
+      </p>
+    </div>
+
+    <!-- View Mode Tabs -->
+    <div class="flex items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-1 shadow-xs">
+      <button
+        (click)="setTab('groups')"
+        [class.bg-[var(--color-primary)]]="activeTab() === 'groups'"
+        [class.text-white]="activeTab() === 'groups'"
+        [class.text-[var(--color-primary)]]="activeTab() !== 'groups'"
+        class="px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2"
+      >
+        <i class="pi pi-sitemap"></i> Group Course History
+      </button>
+      <button
+        (click)="setTab('sessions')"
+        [class.bg-[var(--color-primary)]]="activeTab() === 'sessions'"
+        [class.text-white]="activeTab() === 'sessions'"
+        [class.text-[var(--color-primary)]]="activeTab() !== 'sessions'"
+        class="px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2"
+      >
+        <i class="pi pi-calendar"></i> Session Audit Log
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--color-surface)] p-4 rounded-xl border border-[var(--color-border)] shadow-xs">
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+        Search
+      </label>
+      <div class="relative">
+        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-secondary)]"></i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="Search groups, courses, topics..."
+          class="w-full pl-9 pr-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+        />
+      </div>
+    </div>
+
+    <div *ngIf="activeTab() === 'sessions'">
+      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+        Group Filter
+      </label>
+      <select
+        [(ngModel)]="groupFilter"
+        (change)="onFilterChange()"
+        class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+      >
+        <option value="All">All Groups</option>
+        <option *ngFor="let g of groupsHistory()" [value]="g.groupId">{{ g.groupName }}</option>
+      </select>
+    </div>
+
+    <div *ngIf="activeTab() === 'sessions'">
+      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+        Status Filter
+      </label>
+      <select
+        [(ngModel)]="statusFilter"
+        (change)="onFilterChange()"
+        class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+      >
+        <option value="All">All Statuses</option>
+        <option value="Completed">Completed</option>
+        <option value="Scheduled">Scheduled</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading()" class="flex justify-center items-center py-16">
+    <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4"></p-progressSpinner>
+  </div>
+
+  <!-- TAB 1: GROUP COURSE HISTORY -->
+  <div *ngIf="!loading() && activeTab() === 'groups'" class="space-y-4">
+    <div *ngIf="filteredGroupsHistory().length === 0" class="text-center py-12 text-[var(--color-secondary)]">
+      <i class="pi pi-inbox text-4xl mb-2"></i>
+      <p>No group course history records found.</p>
+    </div>
+
+    <div
+      *ngFor="let g of filteredGroupsHistory()"
+      class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs p-6 hover:shadow-md transition-shadow space-y-4"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-4">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 (click)="viewGroup(g.groupId)" class="text-lg font-bold text-[var(--color-primary)] hover:underline cursor-pointer">
+              {{ g.groupName }}
+            </h2>
+            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+              {{ g.currentStatus }}
+            </span>
+          </div>
+          <p class="text-xs text-[var(--color-secondary)] mt-1">
+            Instructor: <span class="font-medium">{{ g.defaultInstructorName }}</span>
+          </p>
+        </div>
+
+        <button
+          *ngIf="isAdmin()"
+          (click)="openPromoteDialog(g)"
+          class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-colors flex items-center gap-1.5 self-start sm:self-auto"
+        >
+          <i class="pi pi-arrow-up-right"></i> Promote / Add Level
+        </button>
+      </div>
+
+      <!-- Course Level Timeline / Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          *ngFor="let c of g.courseHistory"
+          class="bg-[var(--color-background)] rounded-lg p-4 border border-[var(--color-border)] space-y-3 relative overflow-hidden"
+        >
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-sm text-[var(--color-primary)]">
+              {{ c.courseTitle }}
+            </h3>
+            <span
+              [class]="c.isCompleted ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'"
+              class="px-2 py-0.5 text-xs font-bold rounded-md"
+            >
+              {{ c.isCompleted ? 'Finished (100%)' : c.completedSessions + '/' + c.totalSessions + ' Done' }}
+            </span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div>
+            <div class="flex justify-between text-xs text-[var(--color-secondary)] mb-1">
+              <span>Progress</span>
+              <span>{{ c.progressPercentage }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+              <div
+                class="bg-[var(--color-primary)] h-full transition-all duration-300"
+                [style.width.%]="c.progressPercentage"
+              ></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-[var(--color-secondary)] pt-2 border-t border-[var(--color-border)]">
+            <div>
+              <span>Completed: </span>
+              <span class="font-bold text-green-600">{{ c.completedSessions }}</span>
+            </div>
+            <div *ngIf="c.cancelledSessions > 0">
+              <span>Cancelled: </span>
+              <span class="font-bold text-red-500">{{ c.cancelledSessions }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SESSION & EVENT AUDIT LOG -->
+  <div *ngIf="!loading() && activeTab() === 'sessions'" class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-[var(--color-background)] border-b border-[var(--color-border)] text-xs uppercase font-semibold text-[var(--color-secondary)]">
+          <tr>
+            <th class="p-4">Date & Time</th>
+            <th class="p-4">Group</th>
+            <th class="p-4">Course & Topic</th>
+            <th class="p-4">Instructor</th>
+            <th class="p-4">Status</th>
+            <th class="p-4">Type</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--color-border)]">
+          <tr *ngFor="let s of filteredSessionsHistory()" class="hover:bg-[var(--color-surface-hover)] transition-colors">
+            <td class="p-4 font-medium text-[var(--color-primary)]">
+              <div>{{ s.startsAt | date: 'mediumDate' }}</div>
+              <div class="text-xs text-[var(--color-secondary)]">{{ s.startsAt | date: 'shortTime' }} - {{ s.endsAt | date: 'shortTime' }}</div>
+            </td>
+            <td class="p-4 font-semibold text-[var(--color-primary)]">{{ s.groupName }}</td>
+            <td class="p-4">
+              <div class="font-medium text-[var(--color-primary)]">{{ s.courseTitle }}</div>
+              <div class="text-xs text-[var(--color-secondary)]">{{ s.topic }}</div>
+            </td>
+            <td class="p-4 text-[var(--color-secondary)]">{{ s.instructorName }}</td>
+            <td class="p-4">
+              <span
+                [ngClass]="{
+                  'bg-green-100 text-green-800': s.status === 'Completed',
+                  'bg-red-100 text-red-800': s.status === 'Cancelled',
+                  'bg-blue-100 text-blue-800': s.status === 'Scheduled'
+                }"
+                class="px-2.5 py-1 text-xs font-bold rounded-full"
+              >
+                {{ s.status }}
+              </span>
+            </td>
+            <td class="p-4 text-xs text-[var(--color-secondary)] font-medium">{{ s.type }}</td>
+          </tr>
+          <tr *ngIf="filteredSessionsHistory().length === 0">
+            <td colspan="6" class="text-center py-12 text-[var(--color-secondary)]">
+              No sessions match the criteria.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PROMOTE NEXT LEVEL DIALOG -->
+<p-dialog
+  [(visible)]="showPromoteModal"
+  [modal]="true"
+  header="Promote Group to Next Level"
+  [style]="{ width: '450px' }"
+  styleClass="custom-dialog"
+>
+  <div class="space-y-4 pt-2">
+    <p class="text-sm text-[var(--color-secondary)]">
+      Promoting group <strong class="text-[var(--color-primary)]">{{ selectedGroupHistory?.groupName }}</strong> will add the next course level to its curriculum and automatically schedule recurring weekly sessions.
+    </p>
+
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+        Select Target Course Level
+      </label>
+      <select
+        [(ngModel)]="selectedTargetCourseId"
+        class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+      >
+        <option [ngValue]="null">-- Auto Detect Next Level --</option>
+        <option *ngFor="let c of courses()" [value]="c.id">
+          {{ c.title }} ({{ c.topic }} Level {{ c.level }} - {{ c.sessionCount }} sessions)
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 pt-4 border-t border-[var(--color-border)]">
+      <button
+        (click)="showPromoteModal = false"
+        class="px-4 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] text-[var(--color-secondary)] hover:bg-[var(--color-surface-hover)]"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="confirmPromote()"
+        [disabled]="promoting"
+        class="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] flex items-center gap-2"
+      >
+        <i *ngIf="promoting" class="pi pi-spin pi-spinner"></i>
+        <span>Confirm & Generate Sessions</span>
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -13,6 +13,12 @@ import {
 import { Course } from '../interfaces/Course';
 import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
+import {
+  GroupHistory,
+  PromoteGroupNextLevelPayload,
+  CancelSessionPayload,
+  SessionHistoryFilter,
+} from '../interfaces/History';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -168,5 +174,39 @@ export class LmsService {
 
   saveBulkAttendance(sessionId: number, records: BulkAttendanceItem[]): Observable<any> {
     return this.http.post(`${this.getApiUrl()}/Attendance/session/${sessionId}`, records);
+  }
+
+  // ─── Group Promotion & History ─────────────────────────────────────────────
+
+  promoteGroupNextLevel(groupId: number, payload: PromoteGroupNextLevelPayload): Observable<Group> {
+    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/promote`, payload);
+  }
+
+  getGroupHistory(groupId: number): Observable<GroupHistory> {
+    return this.http.get<GroupHistory>(`${this.getApiUrl()}/groups/${groupId}/history`);
+  }
+
+  getAllGroupsHistory(): Observable<GroupHistory[]> {
+    return this.http.get<GroupHistory[]>(`${this.getApiUrl()}/groups/history`);
+  }
+
+  cancelAndShiftSession(sessionId: number, payload: CancelSessionPayload): Observable<ScheduleSession> {
+    return this.http.post<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${sessionId}/cancel`, payload);
+  }
+
+  getSessionHistory(filter?: SessionHistoryFilter): Observable<ScheduleSession[]> {
+    let url = `${this.getApiUrl()}/Schedule/history`;
+    const params: string[] = [];
+    if (filter) {
+      if (filter.groupId) params.push(`groupId=${filter.groupId}`);
+      if (filter.instructorId) params.push(`instructorId=${filter.instructorId}`);
+      if (filter.status) params.push(`status=${filter.status}`);
+      if (filter.from) params.push(`from=${filter.from}`);
+      if (filter.to) params.push(`to=${filter.to}`);
+    }
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
+    }
+    return this.http.get<ScheduleSession[]>(url);
   }
 }

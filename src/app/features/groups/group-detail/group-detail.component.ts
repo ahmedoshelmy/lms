@@ -13,6 +13,8 @@ import { Role } from '../../../core/interfaces/Role';
 import { Group, GroupStudent, UpdateGroupPayload } from '../../../core/interfaces/Group';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import { User } from '../../../core/interfaces/User';
+import { Course } from '../../../core/interfaces/Course';
+import { GroupHistory } from '../../../core/interfaces/History';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -60,6 +62,31 @@ export class GroupDetailComponent implements OnInit {
 
   sessions = signal<ScheduleSession[]>([]);
   instructors = signal<User[]>([]);
+  groupHistory = signal<GroupHistory | null>(null);
+  courses = signal<Course[]>([]);
+
+  // Promote Modal
+  showPromoteModal = signal<boolean>(false);
+  selectedTargetCourseId: number | null = null;
+  promoting = signal<boolean>(false);
+
+  // Computed recommendation for next level
+  recommendedNextLevel = computed(() => {
+    const gh = this.groupHistory();
+    if (!gh || !gh.courseHistory || gh.courseHistory.length === 0) return null;
+    const lastCourse = gh.courseHistory[gh.courseHistory.length - 1];
+    if (lastCourse && lastCourse.isCompleted) {
+      const nextLevelStr = (parseInt(lastCourse.level, 10) + 1).toString();
+      const match = this.courses().find(
+        (c) => c.topic.toLowerCase() === lastCourse.topic.toLowerCase() && c.level === nextLevelStr
+      );
+      return {
+        completedCourseTitle: lastCourse.courseTitle,
+        recommendedCourse: match,
+      };
+    }
+    return null;
+  });
 
   // Edit Modal Signals
   showEditModal = signal<boolean>(false);
@@ -175,7 +202,9 @@ export class GroupDetailComponent implements OnInit {
         if (!isNaN(id)) {
           this.groupId.set(id);
           this.loadGroupDetail(id);
+          this.loadGroupHistory(id);
           this.loadScheduleSessions();
+          this.loadCourses();
           if (this.isAdmin()) {
             this.loadInstructors();
           }
@@ -196,6 +225,56 @@ export class GroupDetailComponent implements OnInit {
         this.notify.showError('Failed to load group details');
       },
     });
+  }
+
+  loadGroupHistory(id: number): void {
+    this.lmsService.getGroupHistory(id).subscribe({
+      next: (data) => this.groupHistory.set(data),
+      error: () => {},
+    });
+  }
+
+  loadCourses(): void {
+    this.lmsService.getCourses().subscribe({
+      next: (data) => this.courses.set(data || []),
+      error: () => {},
+    });
+  }
+
+  openPromoteDialog(): void {
+    const rec = this.recommendedNextLevel();
+    if (rec && rec.recommendedCourse) {
+      this.selectedTargetCourseId = rec.recommendedCourse.id;
+    } else {
+      this.selectedTargetCourseId = null;
+    }
+    this.showPromoteModal.set(true);
+  }
+
+  confirmPromoteGroup(): void {
+    const id = this.groupId();
+    if (!id) return;
+    this.promoting.set(true);
+
+    this.lmsService
+      .promoteGroupNextLevel(id, {
+        targetCourseId: this.selectedTargetCourseId || undefined,
+        autoGenerateSessions: true,
+      })
+      .subscribe({
+        next: () => {
+          this.notify.showSuccess('Group promoted to next level!');
+          this.showPromoteModal.set(false);
+          this.promoting.set(false);
+          this.loadGroupDetail(id);
+          this.loadGroupHistory(id);
+          this.loadScheduleSessions();
+        },
+        error: (err) => {
+          this.notify.showError('Failed to promote group: ' + (err.error?.message || 'Error'));
+          this.promoting.set(false);
+        },
+      });
   }
 
   loadScheduleSessions(): void {
