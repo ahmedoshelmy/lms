@@ -78,7 +78,8 @@ function handle401Error(
         refreshTokenSubject.next(null);
 
         authService.logout();
-        router.navigate(['/auth/login']);
+        const currentUrl = router.url && router.url !== '/login' ? router.url : '/dashboard';
+        router.navigate(['/login'], { queryParams: { returnUrl: currentUrl } });
         return throwError(() => refreshError);
       })
     );
