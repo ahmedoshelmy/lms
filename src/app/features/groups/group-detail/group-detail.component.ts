@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
 import { LmsService } from '../../../core/services/lms.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -37,7 +38,7 @@ const STATUS_MAP: Record<string, number> = {
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, ButtonModule, DialogModule],
+  imports: [CommonModule, FormsModule, ProgressSpinnerModule, ButtonModule, DialogModule, SelectModule],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss',
 })
@@ -78,6 +79,18 @@ export class GroupDetailComponent implements OnInit {
   addStudentSearchQuery = signal<string>('');
   selectedStudentToMove = signal<User | null>(null);
   movingStudent = signal<boolean>(false);
+
+  // Admin Student Management Modal Signals
+  showStudentDetailsModal = signal<boolean>(false);
+  showEditStudentModal = signal<boolean>(false);
+  showDeleteStudentModal = signal<boolean>(false);
+  selectedGroupStudent = signal<GroupStudent | null>(null);
+  allGroups = signal<Group[]>([]);
+  editFormName = signal<string>('');
+  editFormEmail = signal<string>('');
+  editFormGroupId = signal<number>(0);
+  savingStudent = signal<boolean>(false);
+  deletingStudent = signal<boolean>(false);
 
   filteredCandidateStudents = computed(() => {
     const q = this.addStudentSearchQuery().toLowerCase().trim();
@@ -307,6 +320,87 @@ export class GroupDetailComponent implements OnInit {
           this.movingStudent.set(false);
         },
       });
+  }
+
+  // ─── Admin Student Management Methods ─────────────────────────────────────
+
+  openStudentDetailsModal(s: GroupStudent): void {
+    this.selectedGroupStudent.set(s);
+    this.showStudentDetailsModal.set(true);
+  }
+
+  openEditStudentModal(s: GroupStudent): void {
+    this.selectedGroupStudent.set(s);
+    this.editFormName.set(s.studentName);
+    this.editFormEmail.set(s.studentEmail);
+    this.editFormGroupId.set(this.groupId());
+
+    this.lmsService.getGroups().subscribe({
+      next: (groups) => {
+        this.allGroups.set(groups || []);
+        this.showEditStudentModal.set(true);
+      },
+      error: () => {
+        this.showEditStudentModal.set(true);
+      },
+    });
+  }
+
+  saveStudentChanges(): void {
+    const s = this.selectedGroupStudent();
+    if (!s) return;
+
+    const name = this.editFormName().trim();
+    const email = this.editFormEmail().trim();
+    const groupId = this.editFormGroupId() || undefined;
+
+    if (!name || !email) {
+      this.notify.showWarn('Please enter name and email.');
+      return;
+    }
+
+    this.savingStudent.set(true);
+    this.lmsService
+      .updateUser(s.studentId, {
+        name,
+        email,
+        role: Role.Student,
+        groupId,
+      })
+      .subscribe({
+        next: () => {
+          this.notify.showSuccess(`Student ${name} updated.`);
+          this.savingStudent.set(false);
+          this.showEditStudentModal.set(false);
+          this.loadGroupDetail(this.groupId());
+        },
+        error: () => {
+          this.savingStudent.set(false);
+        },
+      });
+  }
+
+  openDeleteStudentModal(s: GroupStudent): void {
+    this.selectedGroupStudent.set(s);
+    this.showDeleteStudentModal.set(true);
+  }
+
+  confirmDeleteStudent(): void {
+    const s = this.selectedGroupStudent();
+    if (!s) return;
+
+    this.deletingStudent.set(true);
+    this.lmsService.deleteUser(s.studentId).subscribe({
+      next: () => {
+        this.notify.showSuccess(`Student ${s.studentName} deleted.`);
+        this.deletingStudent.set(false);
+        this.showDeleteStudentModal.set(false);
+        this.loadGroupDetail(this.groupId());
+      },
+      error: () => {
+        this.deletingStudent.set(false);
+      },
+    });
   }
 
   goBack(): void {

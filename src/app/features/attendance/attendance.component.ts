@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
+import { DialogModule } from 'primeng/dialog';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -13,6 +14,7 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { AttendanceResponseDto, BulkAttendanceItem } from '../../core/interfaces/Attendance';
 import { AttendanceStatus } from '../../core/enums/AttendanceStatus';
 import { User } from '../../core/interfaces/User';
+import { Group } from '../../core/interfaces/Group';
 
 export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
 
@@ -64,7 +66,7 @@ export function normalizeAttendanceStatus(raw: any): StudentStatus {
 @Component({
   selector: 'app-attendance',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, SelectModule],
+  imports: [CommonModule, FormsModule, ProgressSpinnerModule, SelectModule, DialogModule],
   templateUrl: './attendance.component.html',
   styleUrl: './attendance.component.scss',
 })
@@ -74,6 +76,8 @@ export class AttendanceComponent implements OnInit {
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   private platformId = inject(PLATFORM_ID);
+
+  readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
   sessions = signal<ScheduleSession[]>([]);
   students = signal<User[]>([]);
@@ -90,6 +94,19 @@ export class AttendanceComponent implements OnInit {
   selectedGroupFilter = signal<string>('all');
   dateRangeFilter = signal<DateRangeFilter>('all');
   selectedStudentIds = signal<number[]>([]);
+
+  // Admin Student Management Modal Signals
+  groups = signal<Group[]>([]);
+  showStudentDetailsModal = signal<boolean>(false);
+  showEditStudentModal = signal<boolean>(false);
+  showDeleteStudentModal = signal<boolean>(false);
+  selectedStudentUser = signal<User | null>(null);
+  selectedStudentRec = signal<StudentAttendanceRecord | null>(null);
+  formStudentName = signal<string>('');
+  formStudentEmail = signal<string>('');
+  formStudentGroupId = signal<number>(0);
+  savingStudent = signal<boolean>(false);
+  deletingStudent = signal<boolean>(false);
 
   readonly selectedSession = computed(() => {
     const detail = this.sessionDetail();
@@ -672,5 +689,124 @@ export class AttendanceComponent implements OnInit {
     if (norm.includes('completed')) return 'session-status-completed';
     if (norm.includes('cancel')) return 'session-status-cancelled';
     return 'session-status-scheduled';
+  }
+
+  // ─── Admin Student Management Methods ─────────────────────────────────────
+
+  openStudentDetailsModal(rec: StudentAttendanceRecord): void {
+    this.selectedStudentRec.set(rec);
+    this.selectedStudentUser.set(null);
+    this.showStudentDetailsModal.set(true);
+
+    this.lms.getStudents().subscribe({
+      next: (users) => {
+        const match = users?.find((u) => u.id === rec.studentId);
+        if (match) {
+          this.selectedStudentUser.set(match);
+        }
+      },
+    });
+  }
+
+  openEditStudentModal(rec: StudentAttendanceRecord): void {
+    this.selectedStudentRec.set(rec);
+    this.formStudentName.set(rec.studentName);
+    this.formStudentEmail.set(rec.studentEmail);
+    this.formStudentGroupId.set(0);
+
+    this.lms.getGroups().subscribe({
+      next: (groups) => {
+        this.groups.set(groups || []);
+      },
+    });
+
+    this.lms.getStudents().subscribe({
+      next: (users) => {
+        const match = users?.find((u) => u.id === rec.studentId);
+        if (match) {
+          this.selectedStudentUser.set(match);
+          this.formStudentGroupId.set(match.groupId || 0);
+        }
+        this.showEditStudentModal.set(true);
+      },
+      error: () => {
+        this.showEditStudentModal.set(true);
+      },
+    });
+  }
+
+  saveStudentChanges(): void {
+    const rec = this.selectedStudentRec();
+    if (!rec) return;
+
+    const name = this.formStudentName().trim();
+    const email = this.formStudentEmail().trim();
+    const groupId = this.formStudentGroupId() || undefined;
+
+    if (!name || !email) {
+      this.notify.showWarn('Please enter student name and email.');
+      return;
+    }
+
+    this.savingStudent.set(true);
+    this.lms
+      .updateUser(rec.studentId, {
+        name,
+        email,
+        role: Role.Student,
+        groupId,
+      })
+      .subscribe({
+        next: () => {
+          this.notify.showSuccess(`Student ${name} updated.`);
+          this.savingStudent.set(false);
+          this.showEditStudentModal.set(false);
+
+          // Update local record
+          this.records.update((list) =>
+            list.map((r) =>
+              r.studentId === rec.studentId
+                ? { ...r, studentName: name, studentEmail: email }
+                : r
+            )
+          );
+
+          // Reload current session details
+          const sId = this.selectedSessionId();
+          if (sId) this.loadAttendanceForSession(sId);
+        },
+        error: () => {
+          this.savingStudent.set(false);
+        },
+      });
+  }
+
+  openDeleteStudentModal(rec: StudentAttendanceRecord): void {
+    this.selectedStudentRec.set(rec);
+    this.showDeleteStudentModal.set(true);
+  }
+
+  confirmDeleteStudent(): void {
+    const rec = this.selectedStudentRec();
+    if (!rec) return;
+
+    this.deletingStudent.set(true);
+    this.lms.deleteUser(rec.studentId).subscribe({
+      next: () => {
+        this.notify.showSuccess(`Student ${rec.studentName} deleted.`);
+        this.deletingStudent.set(false);
+        this.showDeleteStudentModal.set(false);
+
+        // Remove from local records
+        this.records.update((list) => list.filter((r) => r.studentId !== rec.studentId));
+
+        // Reload current session
+        const sId = this.selectedSessionId();
+        if (sId) this.loadAttendanceForSession(sId);
+      },
+      error: () => {
+        this.deletingStudent.set(false);
+      },
+    });
   }
 }
