@@ -78,6 +78,16 @@ export class GroupDetailComponent implements OnInit {
 
   // Regenerate Sessions
   regeneratingCourseId = signal<number | null>(null);
+  groupCourseIdMap = computed(() => {
+    const map = new Map<number, number>();
+    const gh = this.groupHistory();
+    if (gh?.courseHistory) {
+      for (const ch of gh.courseHistory) {
+        map.set(ch.courseId, ch.groupCourseId);
+      }
+    }
+    return map;
+  });
   availableCourses = computed(() => {
     const grp = this.group();
     if (!grp) return [];
@@ -312,6 +322,7 @@ export class GroupDetailComponent implements OnInit {
             this.showAddCourseModal.set(false);
             this.selectedCourseIdToAdd.set(null);
             this.loadGroupDetail(id);
+            this.loadGroupHistory(id);
             this.loadScheduleSessions();
           },
           error: (err) => {
@@ -319,6 +330,7 @@ export class GroupDetailComponent implements OnInit {
             this.addingCourse.set(false);
             this.showAddCourseModal.set(false);
             this.loadGroupDetail(id);
+            this.loadGroupHistory(id);
           },
         });
       },
@@ -333,12 +345,19 @@ export class GroupDetailComponent implements OnInit {
     const id = this.groupId();
     if (!id) return;
 
-    this.regeneratingCourseId.set(groupCourse.id);
-    this.lmsService.generateGroupCourseSessions(groupCourse.id).subscribe({
+    const groupCourseId = this.groupCourseIdMap().get(groupCourse.courseId);
+    if (!groupCourseId) {
+      this.notify.showError('Could not find group course ID. Please reload and try again.');
+      return;
+    }
+
+    this.regeneratingCourseId.set(groupCourse.courseId);
+    this.lmsService.generateGroupCourseSessions(groupCourseId).subscribe({
       next: () => {
         this.notify.showSuccess('Sessions regenerated for ' + groupCourse.title);
         this.regeneratingCourseId.set(null);
         this.loadGroupDetail(id);
+        this.loadGroupHistory(id);
         this.loadScheduleSessions();
       },
       error: (err) => {
