@@ -9,7 +9,9 @@
     </div>
 
     <!-- View Mode Tabs -->
-    <div class="flex items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-1 shadow-xs">
+    <div
+      class="flex items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-1 shadow-xs"
+    >
       <button
         (click)="setTab('groups')"
         [class.bg-[var(--color-primary)]]="activeTab() === 'groups'"
@@ -32,13 +34,19 @@
   </div>
 
   <!-- Search & Filters -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--color-surface)] p-4 rounded-xl border border-[var(--color-border)] shadow-xs">
+  <div
+    class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[var(--color-surface)] p-4 rounded-xl border border-[var(--color-border)] shadow-xs"
+  >
     <div>
-      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+      <label
+        class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
+      >
         Search
       </label>
       <div class="relative">
-        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-secondary)]"></i>
+        <i
+          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-secondary)]"
+        ></i>
         <input
           type="text"
           [(ngModel)]="searchQuery"
@@ -49,7 +57,9 @@
     </div>
 
     <div *ngIf="activeTab() === 'sessions'">
-      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+      <label
+        class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
+      >
         Group Filter
       </label>
       <select
@@ -63,7 +73,9 @@
     </div>
 
     <div *ngIf="activeTab() === 'sessions'">
-      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+      <label
+        class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
+      >
         Status Filter
       </label>
       <select
@@ -86,7 +98,10 @@
 
   <!-- TAB 1: GROUP COURSE HISTORY -->
   <div *ngIf="!loading() && activeTab() === 'groups'" class="space-y-4">
-    <div *ngIf="filteredGroupsHistory().length === 0" class="text-center py-12 text-[var(--color-secondary)]">
+    <div
+      *ngIf="filteredGroupsHistory().length === 0"
+      class="text-center py-12 text-[var(--color-secondary)]"
+    >
       <i class="pi pi-inbox text-4xl mb-2"></i>
       <p>No group course history records found.</p>
     </div>
@@ -95,13 +110,20 @@
       *ngFor="let g of filteredGroupsHistory()"
       class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs p-6 hover:shadow-md transition-shadow space-y-4"
     >
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-4">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--color-border)] pb-4"
+      >
         <div>
           <div class="flex items-center gap-3">
-            <h2 (click)="viewGroup(g.groupId)" class="text-lg font-bold text-[var(--color-primary)] hover:underline cursor-pointer">
+            <h2
+              (click)="viewGroup(g.groupId)"
+              class="text-lg font-bold text-[var(--color-primary)] hover:underline cursor-pointer"
+            >
               {{ g.groupName }}
             </h2>
-            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+            <span
+              class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+            >
               {{ g.currentStatus }}
             </span>
           </div>
@@ -130,10 +152,16 @@
               {{ c.courseTitle }}
             </h3>
             <span
-              [class]="c.isCompleted ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'"
+              [class]="
+                c.isCompleted ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+              "
               class="px-2 py-0.5 text-xs font-bold rounded-md"
             >
-              {{ c.isCompleted ? 'Finished (100%)' : c.completedSessions + '/' + c.totalSessions + ' Done' }}
+              {{
+                c.isCompleted
+                  ? 'Finished (100%)'
+                  : c.completedSessions + '/' + c.totalSessions + ' Done'
+              }}
             </span>
           </div>
 
@@ -151,7 +179,9 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-xs text-[var(--color-secondary)] pt-2 border-t border-[var(--color-border)]">
+          <div
+            class="flex items-center justify-between text-xs text-[var(--color-secondary)] pt-2 border-t border-[var(--color-border)]"
+          >
             <div>
               <span>Completed: </span>
               <span class="font-bold text-green-600">{{ c.completedSessions }}</span>
@@ -167,10 +197,15 @@
   </div>
 
   <!-- TAB 2: SESSION & EVENT AUDIT LOG -->
-  <div *ngIf="!loading() && activeTab() === 'sessions'" class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden">
+  <div
+    *ngIf="!loading() && activeTab() === 'sessions'"
+    class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden"
+  >
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm">
-        <thead class="bg-[var(--color-background)] border-b border-[var(--color-border)] text-xs uppercase font-semibold text-[var(--color-secondary)]">
+        <thead
+          class="bg-[var(--color-background)] border-b border-[var(--color-border)] text-xs uppercase font-semibold text-[var(--color-secondary)]"
+        >
           <tr>
             <th class="p-4">Date & Time</th>
             <th class="p-4">Group</th>
@@ -181,10 +216,15 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--color-border)]">
-          <tr *ngFor="let s of filteredSessionsHistory()" class="hover:bg-[var(--color-surface-hover)] transition-colors">
+          <tr
+            *ngFor="let s of filteredSessionsHistory()"
+            class="hover:bg-[var(--color-surface-hover)] transition-colors"
+          >
             <td class="p-4 font-medium text-[var(--color-primary)]">
               <div>{{ s.startsAt | date: 'mediumDate' }}</div>
-              <div class="text-xs text-[var(--color-secondary)]">{{ s.startsAt | date: 'shortTime' }} - {{ s.endsAt | date: 'shortTime' }}</div>
+              <div class="text-xs text-[var(--color-secondary)]">
+                {{ s.startsAt | date: 'shortTime' }} - {{ s.endsAt | date: 'shortTime' }}
+              </div>
             </td>
             <td class="p-4 font-semibold text-[var(--color-primary)]">{{ s.groupName }}</td>
             <td class="p-4">
@@ -197,7 +237,7 @@
                 [ngClass]="{
                   'bg-green-100 text-green-800': s.status === 'Completed',
                   'bg-red-100 text-red-800': s.status === 'Cancelled',
-                  'bg-blue-100 text-blue-800': s.status === 'Scheduled'
+                  'bg-blue-100 text-blue-800': s.status === 'Scheduled',
                 }"
                 class="px-2.5 py-1 text-xs font-bold rounded-full"
               >
@@ -227,11 +267,16 @@
 >
   <div class="space-y-4 pt-2">
     <p class="text-sm text-[var(--color-secondary)]">
-      Promoting group <strong class="text-[var(--color-primary)]">{{ selectedGroupHistory?.groupName }}</strong> will add the next course level to its curriculum and automatically schedule recurring weekly sessions.
+      Promoting group
+      <strong class="text-[var(--color-primary)]">{{ selectedGroupHistory?.groupName }}</strong>
+      will add the next course level to its curriculum and automatically schedule recurring weekly
+      sessions.
     </p>
 
     <div>
-      <label class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1">
+      <label
+        class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
+      >
         Select Target Course Level
       </label>
       <select

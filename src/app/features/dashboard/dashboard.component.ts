@@ -1,5 +1,5 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, signal, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LmsService } from '../../core/services/lms.service';
@@ -31,6 +31,7 @@ export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled
 export class DashboardComponent implements OnInit {
   private auth = inject(AuthService);
   private lms = inject(LmsService);
+  private platformId = inject(PLATFORM_ID);
 
   loadingUpcoming = signal(false);
   loadingCounts = signal(false);
@@ -50,7 +51,6 @@ export class DashboardComponent implements OnInit {
   pendingSessionsList = signal<PendingAttendanceSessionDto[]>([]);
 
   activeSessionModal = signal<'updated' | 'pending' | null>(null);
-
 
   activeStatusFilter = signal<SessionStatusFilter>('all');
 
@@ -204,7 +204,6 @@ export class DashboardComponent implements OnInit {
       },
     ];
 
-
     if (this.isAdmin()) {
       cards.push(
         {
@@ -239,7 +238,6 @@ export class DashboardComponent implements OnInit {
 
     return cards;
   });
-
 
   readonly quickLinks = computed(() => {
     const links: {
@@ -304,6 +302,9 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     this.loadUpcoming();
     this.loadCounts();
     this.loadAllSessions();
@@ -342,9 +343,6 @@ export class DashboardComponent implements OnInit {
       card.action();
     }
   }
-
-
-
 
   setFilter(filter: SessionStatusFilter): void {
     this.activeStatusFilter.set(filter);

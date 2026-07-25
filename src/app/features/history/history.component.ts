@@ -158,7 +158,9 @@ export class HistoryComponent implements OnInit {
           this.loadData();
         },
         error: (err) => {
-          this.notify.showError('Failed to promote group: ' + (err.error?.message || 'Error occurred'));
+          this.notify.showError(
+            'Failed to promote group: ' + (err.error?.message || 'Error occurred')
+          );
           this.promoting = false;
         },
       });

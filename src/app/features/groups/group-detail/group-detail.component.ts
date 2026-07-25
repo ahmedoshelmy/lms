@@ -40,7 +40,14 @@ const STATUS_MAP: Record<string, number> = {
 @Component({
   selector: 'app-group-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, ButtonModule, DialogModule, SelectModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ProgressSpinnerModule,
+    ButtonModule,
+    DialogModule,
+    SelectModule,
+  ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss',
 })
@@ -121,9 +128,7 @@ export class GroupDetailComponent implements OnInit {
 
   filteredCandidateStudents = computed(() => {
     const q = this.addStudentSearchQuery().toLowerCase().trim();
-    const currentStudentIds = new Set(
-      (this.group()?.students || []).map((s) => s.studentId)
-    );
+    const currentStudentIds = new Set((this.group()?.students || []).map((s) => s.studentId));
 
     return this.allSystemStudents().filter((st) => {
       if (currentStudentIds.has(st.id)) return false;
@@ -183,7 +188,9 @@ export class GroupDetailComponent implements OnInit {
       if (typeof valA === 'number' && typeof valB === 'number') {
         return dir === 'asc' ? valA - valB : valB - valA;
       }
-      const comp = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
+      const comp = valA
+        .toString()
+        .localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
       return dir === 'asc' ? comp : -comp;
     });
   });

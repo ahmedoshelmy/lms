@@ -64,6 +64,13 @@
   --color-neutral-icon-bg: #f3f4f6;
   --color-neutral-icon: #374151;
 
+  /* Chart & Peak Highlights */
+  --color-chart-peak: #f59e0b;
+  --color-chart-peak-bg: #fef3c7;
+  --color-chart-peak-text: #b45309;
+  --color-chart-low-bg: #f1f5f9;
+  --color-chart-low-text: #475467;
+
   /* Accent (sidebar logo, active state highlight) */
   --color-accent: #1cd39c;
   --color-accent-hover: #15a87a;
@@ -150,6 +157,13 @@
   /* Neutral icon backgrounds */
   --color-neutral-icon-bg: #2b2f37;
   --color-neutral-icon: #d1d5db;
+
+  /* Chart & Peak Highlights */
+  --color-chart-peak: #fbbf24;
+  --color-chart-peak-bg: #36200d;
+  --color-chart-peak-text: #fde68a;
+  --color-chart-low-bg: #1e293b;
+  --color-chart-low-text: #94a3b8;
 
   /* Accent */
   --color-accent: #1cd39c;

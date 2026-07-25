@@ -231,7 +231,9 @@ export class AttendanceComponent implements OnInit {
       let valA: any = a[col] || '';
       let valB: any = b[col] || '';
 
-      const comp = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
+      const comp = valA
+        .toString()
+        .localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
       return dir === 'asc' ? comp : -comp;
     });
   });
@@ -765,9 +767,7 @@ export class AttendanceComponent implements OnInit {
           // Update local record
           this.records.update((list) =>
             list.map((r) =>
-              r.studentId === rec.studentId
-                ? { ...r, studentName: name, studentEmail: email }
-                : r
+              r.studentId === rec.studentId ? { ...r, studentName: name, studentEmail: email } : r
             )
           );
 

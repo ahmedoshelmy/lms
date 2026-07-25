@@ -738,7 +738,10 @@
             </tr>
           } @empty {
             <tr>
-              <td [attr.colspan]="isAdmin() ? 5 : 4" class="text-center py-12 text-[var(--color-text-muted)] font-medium">
+              <td
+                [attr.colspan]="isAdmin() ? 5 : 4"
+                class="text-center py-12 text-[var(--color-text-muted)] font-medium"
+              >
                 No students found matching your search or status filter.
               </td>
             </tr>
@@ -800,7 +803,9 @@
   >
     <div class="py-3 space-y-4">
       <div class="flex items-center gap-3.5 pb-4 border-b border-[var(--color-border)]">
-        <div class="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-extrabold text-base flex items-center justify-center shrink-0">
+        <div
+          class="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-extrabold text-base flex items-center justify-center shrink-0"
+        >
           {{ initials(selectedStudentRec()?.studentName || '') }}
         </div>
         <div>
@@ -814,12 +819,24 @@
       </div>
 
       <div class="grid grid-cols-2 gap-3 text-xs">
-        <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]">
-          <p class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">Role</p>
+        <div
+          class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]"
+        >
+          <p
+            class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1"
+          >
+            Role
+          </p>
           <p class="font-bold text-[var(--color-text-primary)]">Student</p>
         </div>
-        <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]">
-          <p class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1">Assigned Group</p>
+        <div
+          class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]"
+        >
+          <p
+            class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1"
+          >
+            Assigned Group
+          </p>
           <p class="font-bold text-[var(--color-secondary)]">
             {{ selectedStudentUser()?.groupName || selectedSession()?.groupName || 'Unassigned' }}
           </p>

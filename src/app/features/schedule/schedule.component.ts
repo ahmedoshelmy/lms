@@ -1,16 +1,16 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import {
-  WeeklyScheduleComponent,
-  DensityMode,
-  ViewMode,
-} from './weekly-schedule/weekly-schedule.component';
+import { WeeklyScheduleComponent, DensityMode } from './weekly-schedule/weekly-schedule.component';
 import { SessionDetailPanelComponent } from './session-detail-panel/session-detail-panel.component';
+import { DailyScheduleMatrixComponent } from './components/daily-schedule-matrix/daily-schedule-matrix.component';
+import { DailyAvailabilityMatrixComponent } from './components/daily-availability-matrix/daily-availability-matrix.component';
+import { InstructorAvailabilityMatrixComponent } from './components/instructor-availability-matrix/instructor-availability-matrix.component';
+import { ScheduleAnalyticsComponent } from './components/schedule-analytics/schedule-analytics.component';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -18,6 +18,14 @@ import { HttpClient } from '@angular/common/http';
 import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
+
+export type ExtendedViewMode =
+  | 'weekly'
+  | 'daily'
+  | 'daily-schedule'
+  | 'daily-availability'
+  | 'instructor-availability'
+  | 'analytics';
 
 @Component({
   selector: 'app-schedule',
@@ -31,6 +39,10 @@ import { User } from '../../core/interfaces/User';
     ProgressSpinnerModule,
     WeeklyScheduleComponent,
     SessionDetailPanelComponent,
+    DailyScheduleMatrixComponent,
+    DailyAvailabilityMatrixComponent,
+    InstructorAvailabilityMatrixComponent,
+    ScheduleAnalyticsComponent,
   ],
   templateUrl: './schedule.component.html',
   styleUrl: './schedule.component.scss',
@@ -41,13 +53,14 @@ export class ScheduleComponent implements OnInit {
   private auth = inject(AuthService);
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
+  private platformId = inject(PLATFORM_ID);
 
   sessions = signal<ScheduleSession[]>([]);
   instructors = signal<User[]>([]);
   selectedInstructorId = signal<number>(0);
   currentWeekStart = signal<Date>(new Date());
   currentDate = signal<Date>(new Date());
-  viewMode = signal<ViewMode>('weekly');
+  viewMode = signal<ExtendedViewMode>('weekly');
 
   // Filter signals
   searchQuery = signal<string>('');
@@ -125,6 +138,10 @@ export class ScheduleComponent implements OnInit {
 
   ngOnInit(): void {
     this.calculateWeekStart();
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
 
     if (this.isAdmin) {
       this.loadInstructors();

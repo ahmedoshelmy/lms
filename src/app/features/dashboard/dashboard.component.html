@@ -46,7 +46,6 @@
         class="stat-card group cursor-pointer"
         [style.--card-color]="card.color"
       >
-
         <div class="stat-icon">
           <i [class]="card.icon"></i>
         </div>
@@ -63,7 +62,6 @@
       </a>
     }
   </div>
-
 
   <!-- Monthly Overview -->
   @if (!loadingAllSessions() && totalSessionsCount() > 0) {
@@ -331,13 +329,16 @@
         class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl max-h-[85vh] flex flex-col relative"
         (click)="$event.stopPropagation()"
       >
-        <div class="flex items-center justify-between pb-4 mb-4 border-b border-[var(--color-border)]">
+        <div
+          class="flex items-center justify-between pb-4 mb-4 border-b border-[var(--color-border)]"
+        >
           <div>
             <h2 class="text-xl font-bold text-[var(--color-text-primary)] flex items-center gap-2">
               @if (activeSessionModal() === 'updated') {
                 <i class="pi pi-file-edit text-[var(--color-warning)]"></i> Attendance Updated Today
               } @else {
-                <i class="pi pi-exclamation-circle text-[var(--color-danger)]"></i> Pending Attendance Sessions
+                <i class="pi pi-exclamation-circle text-[var(--color-danger)]"></i> Pending
+                Attendance Sessions
               }
             </h2>
             <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
@@ -358,12 +359,19 @@
         </div>
 
         <div class="overflow-y-auto flex-1 space-y-3 pr-1">
-          @let sessionsList = activeSessionModal() === 'updated' ? updatedSessionsList() : pendingSessionsList();
+          @let sessionsList =
+            activeSessionModal() === 'updated' ? updatedSessionsList() : pendingSessionsList();
           @if (sessionsList.length === 0) {
             <div class="text-center py-12 text-[var(--color-text-muted)]">
-              <i class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success)]"></i>
-              <p class="text-sm font-semibold text-[var(--color-text-primary)]">No sessions found in this list</p>
-              <p class="text-xs text-[var(--color-text-muted)] mt-1">All attendance records are up to date.</p>
+              <i
+                class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success)]"
+              ></i>
+              <p class="text-sm font-semibold text-[var(--color-text-primary)]">
+                No sessions found in this list
+              </p>
+              <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                All attendance records are up to date.
+              </p>
             </div>
           } @else {
             @for (s of sessionsList; track s.id) {
@@ -372,7 +380,9 @@
               >
                 <div class="space-y-1 min-w-0 flex-1">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]">
+                    <span
+                      class="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]"
+                    >
                       {{ s.courseTitle }}
                     </span>
                     <span class="text-xs font-semibold text-[var(--color-text-secondary)]">
@@ -382,12 +392,15 @@
                   <h3 class="text-sm font-bold text-[var(--color-text-primary)] truncate">
                     {{ s.topic }}
                   </h3>
-                  <div class="flex items-center gap-3 text-xs text-[var(--color-text-muted)] flex-wrap pt-0.5">
+                  <div
+                    class="flex items-center gap-3 text-xs text-[var(--color-text-muted)] flex-wrap pt-0.5"
+                  >
                     <span class="flex items-center gap-1 text-[var(--color-primary)] font-semibold">
                       <i class="pi pi-user text-xs"></i> Instructor: {{ s.instructorName }}
                     </span>
                     <span class="flex items-center gap-1">
-                      <i class="pi pi-clock text-xs"></i> {{ formatDate(s.startsAt) }} at {{ formatTime(s.startsAt) }}
+                      <i class="pi pi-clock text-xs"></i> {{ formatDate(s.startsAt) }} at
+                      {{ formatTime(s.startsAt) }}
                     </span>
                   </div>
                 </div>
@@ -411,4 +424,3 @@
     </div>
   }
 </div>
-

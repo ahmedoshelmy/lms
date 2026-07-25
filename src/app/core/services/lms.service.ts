@@ -182,7 +182,6 @@ export class LmsService {
     return this.http.get<AttendanceSummaryDto>(`${this.getApiUrl()}/Attendance/summary`);
   }
 
-
   // ─── Group Promotion & History ─────────────────────────────────────────────
 
   promoteGroupNextLevel(groupId: number, payload: PromoteGroupNextLevelPayload): Observable<Group> {
@@ -197,8 +196,14 @@ export class LmsService {
     return this.http.get<GroupHistory[]>(`${this.getApiUrl()}/groups/history`);
   }
 
-  cancelAndShiftSession(sessionId: number, payload: CancelSessionPayload): Observable<ScheduleSession> {
-    return this.http.post<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${sessionId}/cancel`, payload);
+  cancelAndShiftSession(
+    sessionId: number,
+    payload: CancelSessionPayload
+  ): Observable<ScheduleSession> {
+    return this.http.post<ScheduleSession>(
+      `${this.getApiUrl()}/Schedule/sessions/${sessionId}/cancel`,
+      payload
+    );
   }
 
   getSessionHistory(filter?: SessionHistoryFilter): Observable<ScheduleSession[]> {

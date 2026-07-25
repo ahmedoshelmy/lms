@@ -1,7 +1,7 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { MessageService } from 'primeng/api';
 
@@ -22,6 +22,6 @@ export const appConfig: ApplicationConfig = {
       // Use data-theme="dark" so PrimeNG and the CSS token system stay in sync
       theme: { preset: Aura, options: { darkModeSelector: '[data-theme="dark"]' } },
     }),
-    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([errorInterceptor, authInterceptor])),
   ],
 };

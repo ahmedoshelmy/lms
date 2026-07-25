@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LmsService } from '../../core/services/lms.service';
@@ -22,29 +22,27 @@ interface TopicGroup {
 export class CoursesComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
+  private platformId = inject(PLATFORM_ID);
 
   courses = signal<Course[]>([]);
-  loading = signal(true);
-  searchQuery = signal('');
+  loading = signal<boolean>(false);
+  searchQuery = signal<string>('');
   groupByTopic = signal(false);
   collapsedTopics = signal<Set<string>>(new Set());
 
-  filteredCourses = computed(() => {
-    const query = this.searchQuery().toLowerCase().trim();
-    if (!query) return this.courses();
+  readonly filteredCourses = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    if (!q) return this.courses();
     return this.courses().filter(
       (c) =>
-        c.title.toLowerCase().includes(query) ||
-        c.topic.toLowerCase().includes(query) ||
-        c.level.toLowerCase().includes(query) ||
-        c.groupCount.toString().includes(query) ||
-        c.studentCount.toString().includes(query) ||
-        c.sessionCount.toString().includes(query) ||
-        c.description.toLowerCase().includes(query)
+        (c.title || '').toLowerCase().includes(q) ||
+        (c.description || '').toLowerCase().includes(q) ||
+        (c.topic || '').toLowerCase().includes(q) ||
+        (c.level || '').toLowerCase().includes(q)
     );
   });
 
-  topicGroups = computed<TopicGroup[]>(() => {
+  readonly topicGroups = computed<TopicGroup[]>(() => {
     const courses = this.filteredCourses();
     const collapsed = this.collapsedTopics();
     const map = new Map<string, Course[]>();
@@ -65,7 +63,9 @@ export class CoursesComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadCourses();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadCourses();
+    }
   }
 
   loadCourses(): void {

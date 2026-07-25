@@ -603,7 +603,9 @@
       <p class="text-xs text-[var(--color-text-primary)]">
         Are you sure you want to delete
         <strong class="text-red-600 font-bold"
-          >{{ selectedStudentIds().size }} selected student{{ selectedStudentIds().size !== 1 ? 's' : '' }}</strong
+          >{{ selectedStudentIds().size }} selected student{{
+            selectedStudentIds().size !== 1 ? 's' : ''
+          }}</strong
         >? This action cannot be undone.
       </p>
     </div>
@@ -626,7 +628,9 @@
           @if (bulkDeleting()) {
             <i class="pi pi-spinner pi-spin"></i>
           }
-          Delete {{ selectedStudentIds().size }} Student{{ selectedStudentIds().size !== 1 ? 's' : '' }}
+          Delete {{ selectedStudentIds().size }} Student{{
+            selectedStudentIds().size !== 1 ? 's' : ''
+          }}
         </button>
       </div>
     </ng-template>

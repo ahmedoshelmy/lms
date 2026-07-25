@@ -85,7 +85,9 @@ export class InstructorsComponent implements OnInit {
       if (typeof valA === 'number' && typeof valB === 'number') {
         return dir === 'asc' ? valA - valB : valB - valA;
       }
-      const comp = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
+      const comp = valA
+        .toString()
+        .localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
       return dir === 'asc' ? comp : -comp;
     });
   });

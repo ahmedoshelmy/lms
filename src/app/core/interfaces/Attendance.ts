@@ -66,5 +66,3 @@ export interface AttendanceSummaryDto {
   sessionsUpdatedToday: PendingAttendanceSessionDto[];
   pendingAttendanceSessions: PendingAttendanceSessionDto[];
 }
-
-
