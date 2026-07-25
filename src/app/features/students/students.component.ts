@@ -40,9 +40,11 @@ export class StudentsComponent implements OnInit {
   editingStudent = signal<User | null>(null);
   deletingStudent = signal<User | null>(null);
 
-  // Bulk assign controls
+  // Bulk assign & delete controls
   bulkTargetGroupId = signal<number>(0);
   bulkAssigning = signal(false);
+  showBulkDeleteModal = signal(false);
+  bulkDeleting = signal(false);
 
   // Form fields
   formName = signal('');
@@ -316,6 +318,34 @@ export class StudentsComponent implements OnInit {
     }
   }
 
+  openBulkDeleteModal(): void {
+    if (this.selectedStudentIds().size === 0) return;
+    this.showBulkDeleteModal.set(true);
+  }
+
+  confirmBulkDelete(): void {
+    const selectedIds = Array.from(this.selectedStudentIds());
+    if (selectedIds.length === 0) return;
+
+    this.bulkDeleting.set(true);
+    const requests = selectedIds.map((id) => this.lms.deleteUser(id));
+
+    forkJoin(requests).subscribe({
+      next: () => {
+        this.notify.showSuccess(
+          `Successfully deleted ${selectedIds.length} student${selectedIds.length !== 1 ? 's' : ''}.`
+        );
+        this.bulkDeleting.set(false);
+        this.showBulkDeleteModal.set(false);
+        this.clearSelection();
+        this.loadData();
+      },
+      error: () => {
+        this.bulkDeleting.set(false);
+      },
+    });
+  }
+
   confirmDelete(): void {
     const student = this.deletingStudent();
     if (!student) return;
@@ -327,6 +357,14 @@ export class StudentsComponent implements OnInit {
         this.saving.set(false);
         this.showDeleteModal.set(false);
         this.deletingStudent.set(null);
+
+        // Remove from selection if present
+        const currentSet = new Set(this.selectedStudentIds());
+        if (currentSet.has(student.id)) {
+          currentSet.delete(student.id);
+          this.selectedStudentIds.set(currentSet);
+        }
+
         this.loadData();
       },
       error: () => {

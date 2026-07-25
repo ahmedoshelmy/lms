@@ -234,18 +234,30 @@
             </p>
           </div>
 
-          <!-- Search Filter -->
-          <div class="relative w-full sm:w-64">
-            <input
-              type="text"
-              [ngModel]="studentSearchQuery()"
-              (ngModelChange)="studentSearchQuery.set($event)"
-              placeholder="Search student..."
-              class="w-full pl-9 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
-            />
-            <i
-              class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]"
-            ></i>
+          <!-- Search & Add Actions -->
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <div class="relative w-full sm:w-64">
+              <input
+                type="text"
+                [ngModel]="studentSearchQuery()"
+                (ngModelChange)="studentSearchQuery.set($event)"
+                placeholder="Search student..."
+                class="w-full pl-9 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
+              />
+              <i
+                class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]"
+              ></i>
+            </div>
+            @if (isAdmin()) {
+              <button
+                type="button"
+                (click)="openAddStudentModal()"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow"
+              >
+                <i class="pi pi-user-plus text-xs"></i>
+                Add / Move Student
+              </button>
+            }
           </div>
         </div>
 
@@ -630,6 +642,121 @@
         class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50"
       >
         Save Changes
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Add / Move Student Modal -->
+<p-dialog
+  [(visible)]="showAddStudentModal"
+  [header]="'Add Student to ' + (group()?.name || 'Group')"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '540px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-4 py-2">
+    <p class="text-xs text-[var(--color-text-muted)]">
+      Search for an existing student in the system to assign or move them into
+      <strong class="text-[var(--color-text-primary)]">{{ group()?.name }}</strong>.
+    </p>
+
+    <!-- Search Input -->
+    <div class="relative">
+      <input
+        type="text"
+        [ngModel]="addStudentSearchQuery()"
+        (ngModelChange)="addStudentSearchQuery.set($event)"
+        placeholder="Search student name, email, or current group..."
+        class="w-full pl-9 pr-4 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all"
+      />
+      <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]"></i>
+    </div>
+
+    <!-- Candidate Students List -->
+    <div class="max-h-60 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+      @if (filteredCandidateStudents().length === 0) {
+        <div class="text-center py-8 border border-dashed border-[var(--color-border)] rounded-xl">
+          <i class="pi pi-user text-3xl text-[var(--color-text-muted)] opacity-40 mb-2 block"></i>
+          <p class="text-xs text-[var(--color-text-muted)]">No candidate students found.</p>
+        </div>
+      } @else {
+        @for (st of filteredCandidateStudents(); track st.id) {
+          <div
+            (click)="selectStudentToMove(st)"
+            class="p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
+            [class.border-[var(--color-secondary)]]="selectedStudentToMove()?.id === st.id"
+            [class.bg-[var(--color-secondary)]/5]="selectedStudentToMove()?.id === st.id"
+            [class.border-[var(--color-border)]]="selectedStudentToMove()?.id !== st.id"
+            [class.hover:bg-[var(--color-surface-hover)]]="selectedStudentToMove()?.id !== st.id"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span
+                class="w-8 h-8 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center shrink-0"
+              >
+                {{ st.name.slice(0, 2).toUpperCase() }}
+              </span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-[var(--color-text-primary)] truncate">{{ st.name }}</p>
+                <p class="text-[11px] text-[var(--color-text-muted)] truncate">{{ st.email }}</p>
+              </div>
+            </div>
+
+            <div class="shrink-0 flex items-center gap-2">
+              @if (st.groupName) {
+                <span
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                >
+                  {{ st.groupName }}
+                </span>
+              } @else {
+                <span
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-500/10 text-gray-600 border border-gray-500/20"
+                >
+                  Unassigned
+                </span>
+              }
+
+              @if (selectedStudentToMove()?.id === st.id) {
+                <i class="pi pi-check-circle text-base text-[var(--color-secondary)]"></i>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Selected Info Banner -->
+    @if (selectedStudentToMove()) {
+      <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 flex items-center gap-2">
+        <i class="pi pi-info-circle text-sm shrink-0"></i>
+        <span>
+          Will move <strong>{{ selectedStudentToMove()?.name }}</strong> from
+          <strong>{{ selectedStudentToMove()?.groupName || 'Unassigned' }}</strong> to
+          <strong>{{ group()?.name }}</strong>.
+        </span>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border)]">
+      <button
+        (click)="showAddStudentModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="confirmMoveStudent()"
+        [disabled]="!selectedStudentToMove() || movingStudent()"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
+      >
+        @if (movingStudent()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Move Student to {{ group()?.name }}
       </button>
     </div>
   </ng-template>

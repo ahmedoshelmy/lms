@@ -72,6 +72,28 @@ export class GroupDetailComponent implements OnInit {
 
   statusOptions = STATUS_OPTIONS;
 
+  // Add / Move Student Modal Signals
+  showAddStudentModal = signal<boolean>(false);
+  allSystemStudents = signal<User[]>([]);
+  addStudentSearchQuery = signal<string>('');
+  selectedStudentToMove = signal<User | null>(null);
+  movingStudent = signal<boolean>(false);
+
+  filteredCandidateStudents = computed(() => {
+    const q = this.addStudentSearchQuery().toLowerCase().trim();
+    const currentStudentIds = new Set(
+      (this.group()?.students || []).map((s) => s.studentId)
+    );
+
+    return this.allSystemStudents().filter((st) => {
+      if (currentStudentIds.has(st.id)) return false;
+      const matchesName = st.name.toLowerCase().includes(q);
+      const matchesEmail = st.email.toLowerCase().includes(q);
+      const matchesGroup = (st.groupName || '').toLowerCase().includes(q);
+      return !q || matchesName || matchesEmail || matchesGroup;
+    });
+  });
+
   studentSortColumn = signal<string>('studentName');
   studentSortDirection = signal<'asc' | 'desc'>('asc');
 
@@ -239,6 +261,52 @@ export class GroupDetailComponent implements OnInit {
     }
     if (totalSessions === 0) return 0;
     return Math.round((completedSessions / totalSessions) * 100);
+  }
+
+  openAddStudentModal(): void {
+    this.addStudentSearchQuery.set('');
+    this.selectedStudentToMove.set(null);
+    this.lmsService.getStudents().subscribe({
+      next: (users) => {
+        const studentsOnly = (users || []).filter((u) => u.role === Role.Student);
+        this.allSystemStudents.set(studentsOnly);
+        this.showAddStudentModal.set(true);
+      },
+      error: () => {
+        this.notify.showError('Failed to load students list.');
+      },
+    });
+  }
+
+  selectStudentToMove(student: User): void {
+    this.selectedStudentToMove.set(student);
+  }
+
+  confirmMoveStudent(): void {
+    const student = this.selectedStudentToMove();
+    const grp = this.group();
+    if (!student || !grp) return;
+
+    this.movingStudent.set(true);
+    this.lmsService
+      .updateUser(student.id, {
+        name: student.name,
+        email: student.email,
+        role: Role.Student,
+        groupId: grp.id,
+      })
+      .subscribe({
+        next: () => {
+          this.notify.showSuccess(`Added ${student.name} to ${grp.name}`);
+          this.movingStudent.set(false);
+          this.showAddStudentModal.set(false);
+          this.selectedStudentToMove.set(null);
+          this.loadGroupDetail(grp.id);
+        },
+        error: () => {
+          this.movingStudent.set(false);
+        },
+      });
   }
 
   goBack(): void {
