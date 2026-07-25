@@ -267,9 +267,21 @@
                 </div>
               </div>
 
-              <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">
-                {{ s.status }}
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">
+                  {{ s.status }}
+                </span>
+                <a
+                  [routerLink]="['/attendance']"
+                  [queryParams]="{ sessionId: s.id }"
+                  (click)="$event.stopPropagation()"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all shadow-xs"
+                  title="Go to Attendance for this session"
+                >
+                  <i class="pi pi-check-square text-[10px]"></i>
+                  Attendance
+                </a>
+              </div>
             </div>
 
             <div

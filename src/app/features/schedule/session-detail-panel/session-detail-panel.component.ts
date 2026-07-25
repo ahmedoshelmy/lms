@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
+import { RouterLink } from '@angular/router';
 import { ScheduleSession, UpdateSessionPayload } from '../../../core/interfaces/ScheduleSession';
 import { LmsService } from '../../../core/services/lms.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -22,7 +23,7 @@ function sessionStatusToApiEnum(statusStr: string): number {
 @Component({
   selector: 'app-session-detail-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, SelectModule],
+  imports: [CommonModule, FormsModule, RouterLink, DialogModule, ButtonModule, SelectModule],
   templateUrl: `./session-detail-panel.component.html`,
   styleUrl: './session-detail-panel.component.scss',
 })

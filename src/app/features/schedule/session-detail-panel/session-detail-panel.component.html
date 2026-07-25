@@ -218,26 +218,39 @@
   }
 
   <ng-template pTemplate="footer">
-    <div class="flex items-center justify-end gap-2">
-      <button
-        pButton
-        type="button"
-        label="Close"
-        icon="pi pi-times"
-        class="p-button-outlined p-button-secondary cursor-pointer"
-        (click)="closed.emit()"
-      ></button>
-      @if (isAdmin()) {
+    <div class="flex items-center justify-between gap-2 w-full">
+      @if (session(); as s) {
+        <a
+          [routerLink]="['/attendance']"
+          [queryParams]="{ sessionId: s.id }"
+          (click)="closed.emit()"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow"
+        >
+          <i class="pi pi-check-square text-xs"></i>
+          Take / View Attendance
+        </a>
+      }
+      <div class="flex items-center gap-2 ml-auto">
         <button
           pButton
           type="button"
-          [label]="saving() ? 'Saving…' : 'Save Changes'"
-          [icon]="saving() ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
-          class="p-button-primary cursor-pointer"
-          [disabled]="saving()"
-          (click)="saveChanges()"
+          label="Close"
+          icon="pi pi-times"
+          class="p-button-outlined p-button-secondary cursor-pointer"
+          (click)="closed.emit()"
         ></button>
-      }
+        @if (isAdmin()) {
+          <button
+            pButton
+            type="button"
+            [label]="saving() ? 'Saving…' : 'Save Changes'"
+            [icon]="saving() ? 'pi pi-spinner pi-spin' : 'pi pi-check'"
+            class="p-button-primary cursor-pointer"
+            [disabled]="saving()"
+            (click)="saveChanges()"
+          ></button>
+        }
+      </div>
     </div>
   </ng-template>
 </p-dialog>
