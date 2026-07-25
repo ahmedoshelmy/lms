@@ -72,17 +72,58 @@ export class GroupDetailComponent implements OnInit {
 
   statusOptions = STATUS_OPTIONS;
 
+  studentSortColumn = signal<string>('studentName');
+  studentSortDirection = signal<'asc' | 'desc'>('asc');
+
+  toggleStudentSort(col: string): void {
+    if (this.studentSortColumn() === col) {
+      this.studentSortDirection.set(this.studentSortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.studentSortColumn.set(col);
+      this.studentSortDirection.set('asc');
+    }
+  }
+
+  getStudentSortIcon(col: string): string {
+    if (this.studentSortColumn() !== col)
+      return 'pi-sort-alt text-[var(--color-text-muted)] opacity-40';
+    return this.studentSortDirection() === 'asc'
+      ? 'pi-sort-amount-up-alt text-[var(--color-secondary)] font-bold'
+      : 'pi-sort-amount-down text-[var(--color-secondary)] font-bold';
+  }
+
   filteredStudents = computed(() => {
     const q = this.studentSearchQuery().toLowerCase().trim();
     const grp = this.group();
     if (!grp || !grp.students) return [];
-    if (!q) return grp.students;
-    return grp.students.filter(
-      (s) =>
-        s.studentName.toLowerCase().includes(q) ||
-        s.studentEmail.toLowerCase().includes(q) ||
-        s.studentId.toString().includes(q)
-    );
+
+    const list = !q
+      ? [...grp.students]
+      : grp.students.filter(
+          (s) =>
+            s.studentName.toLowerCase().includes(q) ||
+            s.studentEmail.toLowerCase().includes(q) ||
+            s.studentId.toString().includes(q)
+        );
+
+    const col = this.studentSortColumn();
+    const dir = this.studentSortDirection();
+
+    return list.sort((a: any, b: any) => {
+      let valA: any = a[col] || '';
+      let valB: any = b[col] || '';
+
+      if (col === 'joinedAt') {
+        valA = a.joinedAt ? new Date(a.joinedAt).getTime() : 0;
+        valB = b.joinedAt ? new Date(b.joinedAt).getTime() : 0;
+      }
+
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return dir === 'asc' ? valA - valB : valB - valA;
+      }
+      const comp = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
+      return dir === 'asc' ? comp : -comp;
+    });
   });
 
   groupSessions = computed(() => {

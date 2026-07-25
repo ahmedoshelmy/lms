@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -40,6 +40,7 @@ export class ScheduleComponent implements OnInit {
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
   private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
 
   sessions = signal<ScheduleSession[]>([]);
   instructors = signal<User[]>([]);
@@ -55,11 +56,14 @@ export class ScheduleComponent implements OnInit {
   levelFilter = signal<string>('');
   instructorFilter = signal<string>('');
   locationFilter = signal<string>('');
+  statusFilter = signal<string>('');
   densityMode = signal<DensityMode>('compact');
 
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
   cancelledWarningDismissed = signal(false);
+
+  readonly uniqueStatuses = computed(() => ['Scheduled', 'Completed', 'Cancelled']);
 
   readonly uniqueCourses = computed(() => {
     const set = new Set<string>();
@@ -214,6 +218,27 @@ export class ScheduleComponent implements OnInit {
         }
         this.sessions.set(sessions);
         this.loading.set(false);
+
+        // Check if query parameter specifies a target sessionId
+        const queryParams = this.route.snapshot.queryParams;
+        const targetId = Number(queryParams['sessionId'] || queryParams['id']);
+        if (targetId && !this.selectedSession()) {
+          const found = sessions.find((s) => s.id === targetId);
+          if (found) {
+            this.selectedSession.set(found);
+          } else {
+            this.lmsService.getSessionDetails(targetId).subscribe({
+              next: (detail) => {
+                if (detail && detail.startsAt) {
+                  const d = new Date(detail.startsAt);
+                  this.currentWeekStart.set(this.getWeekStartForDate(d));
+                  this.selectedSession.set(detail);
+                  this.loadSchedule();
+                }
+              },
+            });
+          }
+        }
       },
       error: (err) => {
         this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
@@ -309,6 +334,7 @@ export class ScheduleComponent implements OnInit {
     this.levelFilter.set('');
     this.instructorFilter.set('');
     this.locationFilter.set('');
+    this.statusFilter.set('');
   }
 
   hasActiveFilters(): boolean {
@@ -318,7 +344,8 @@ export class ScheduleComponent implements OnInit {
       !!this.topicFilter() ||
       !!this.levelFilter() ||
       !!this.instructorFilter() ||
-      !!this.locationFilter()
+      !!this.locationFilter() ||
+      !!this.statusFilter()
     );
   }
 

@@ -270,9 +270,33 @@
                 <tr
                   class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
                 >
-                  <th class="py-3 px-4">Student</th>
-                  <th class="py-3 px-4">Email</th>
-                  <th class="py-3 px-4">Joined Date</th>
+                  <th
+                    (click)="toggleStudentSort('studentName')"
+                    class="py-3 px-4 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+                  >
+                    <div class="flex items-center gap-1.5">
+                      <span>Student</span>
+                      <i class="pi text-xs" [ngClass]="getStudentSortIcon('studentName')"></i>
+                    </div>
+                  </th>
+                  <th
+                    (click)="toggleStudentSort('studentEmail')"
+                    class="py-3 px-4 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+                  >
+                    <div class="flex items-center gap-1.5">
+                      <span>Email</span>
+                      <i class="pi text-xs" [ngClass]="getStudentSortIcon('studentEmail')"></i>
+                    </div>
+                  </th>
+                  <th
+                    (click)="toggleStudentSort('joinedAt')"
+                    class="py-3 px-4 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+                  >
+                    <div class="flex items-center gap-1.5">
+                      <span>Joined Date</span>
+                      <i class="pi text-xs" [ngClass]="getStudentSortIcon('joinedAt')"></i>
+                    </div>
+                  </th>
                   <th class="py-3 px-4">Status</th>
                 </tr>
               </thead>

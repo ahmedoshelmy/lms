@@ -185,6 +185,18 @@
         </p-select>
       }
 
+      <!-- Status filter -->
+      <p-select
+        [options]="uniqueStatuses()"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event || '')"
+        placeholder="All Statuses"
+        class="w-full sm:w-[140px]"
+        [showClear]="true"
+        (onClear)="statusFilter.set('')"
+      >
+      </p-select>
+
       <!-- Clear filters -->
       @if (hasActiveFilters()) {
         <button
@@ -286,6 +298,7 @@
       [levelFilter]="levelFilter()"
       [instructorFilter]="instructorFilter()"
       [locationFilter]="locationFilter()"
+      [statusFilter]="statusFilter()"
       [densityMode]="densityMode()"
       [isAdmin]="isAdmin"
       (sessionSelected)="onSessionSelected($event)"

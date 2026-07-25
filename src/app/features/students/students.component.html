@@ -268,10 +268,42 @@
                 title="Select/Deselect All Visible"
               />
             </th>
-            <th class="px-4 py-3.5">Student</th>
-            <th class="px-4 py-3.5">Email</th>
-            <th class="px-4 py-3.5">Assigned Group</th>
-            <th class="px-4 py-3.5">Joined</th>
+            <th
+              (click)="toggleSort('name')"
+              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center gap-1.5">
+                <span>Student</span>
+                <i class="pi text-xs" [ngClass]="getSortIcon('name')"></i>
+              </div>
+            </th>
+            <th
+              (click)="toggleSort('email')"
+              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center gap-1.5">
+                <span>Email</span>
+                <i class="pi text-xs" [ngClass]="getSortIcon('email')"></i>
+              </div>
+            </th>
+            <th
+              (click)="toggleSort('group')"
+              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center gap-1.5">
+                <span>Assigned Group</span>
+                <i class="pi text-xs" [ngClass]="getSortIcon('group')"></i>
+              </div>
+            </th>
+            <th
+              (click)="toggleSort('joined')"
+              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center gap-1.5">
+                <span>Joined</span>
+                <i class="pi text-xs" [ngClass]="getSortIcon('joined')"></i>
+              </div>
+            </th>
             <th class="px-4 py-3.5 text-right">Actions</th>
           </tr>
         </thead>

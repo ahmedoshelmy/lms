@@ -10,13 +10,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Role } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
+import { SessionStatus } from '../../../core/enums/SessionStatus';
 
 function sessionStatusToApiEnum(statusStr: string): number {
   const norm = (statusStr || '').toLowerCase();
-  if (norm.includes('cancel')) return 3;
-  if (norm.includes('completed')) return 2;
-  if (norm.includes('running') || norm.includes('ongoing')) return 1;
-  return 0;
+  if (norm.includes('cancel')) return SessionStatus.Cancelled;
+  if (norm.includes('completed')) return SessionStatus.Completed;
+  return SessionStatus.Scheduled;
 }
 
 @Component({
@@ -50,7 +50,6 @@ export class SessionDetailPanelComponent {
 
   readonly statusBadgeClass = computed(() => {
     const normStatus = (this.session()?.status ?? '').toLowerCase();
-    if (normStatus.includes('running')) return 'status-ongoing-badge';
     if (normStatus.includes('completed')) return 'status-completed-badge';
     if (normStatus.includes('cancel')) return 'status-cancelled-badge';
     return 'status-scheduled-badge';

@@ -128,6 +128,7 @@ export class WeeklyScheduleComponent {
   levelFilter = input<string>('');
   instructorFilter = input<string>('');
   locationFilter = input<string>('');
+  statusFilter = input<string>('');
   densityMode = input<DensityMode>('compact');
   isAdmin = input<boolean>(false);
 
@@ -185,6 +186,7 @@ export class WeeklyScheduleComponent {
     const level = this.levelFilter().trim().toLowerCase();
     const inst = this.instructorFilter().trim().toLowerCase();
     const loc = this.locationFilter().trim().toLowerCase();
+    const status = this.statusFilter().trim().toLowerCase();
     const cat = this.activeCategory();
 
     return this.sessions().filter((s) => {
@@ -211,7 +213,9 @@ export class WeeklyScheduleComponent {
       }
       // 6. Location filter
       if (loc && (s.location || '').toLowerCase() !== loc) return false;
-      // 7. Category Pill filter
+      // 7. Status filter
+      if (status && !(s.status || '').toLowerCase().includes(status)) return false;
+      // 8. Category Pill filter
       if (cat !== 'all') {
         const sessionCat = this.getCategory(s).key;
         if (sessionCat !== cat) return false;
@@ -362,7 +366,6 @@ export class WeeklyScheduleComponent {
 
   getStatusBadgeClass(status: string): string {
     const n = (status ?? '').toLowerCase();
-    if (n.includes('running')) return 'badge-ongoing';
     if (n.includes('completed')) return 'badge-completed';
     if (n.includes('cancel')) return 'badge-cancelled';
     return 'badge-scheduled';

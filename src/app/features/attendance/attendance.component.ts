@@ -26,7 +26,7 @@ export interface StudentAttendanceRecord {
 }
 
 export type RosterFilterOption = 'all' | StudentStatus;
-export type SessionStatusFilter = 'all' | 'scheduled' | 'running' | 'completed' | 'cancelled';
+export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
 
 export function statusToApiEnum(status: StudentStatus): AttendanceStatus {
@@ -147,7 +147,6 @@ export class AttendanceComponent implements OnInit {
       // 1. Status Filter
       const normStatus = (s.status ?? '').toLowerCase();
       if (statusFilter === 'scheduled' && !normStatus.includes('scheduled')) return false;
-      if (statusFilter === 'running' && !normStatus.includes('running')) return false;
       if (statusFilter === 'completed' && !normStatus.includes('completed')) return false;
       if (statusFilter === 'cancelled' && !normStatus.includes('cancel')) return false;
 
@@ -175,17 +174,48 @@ export class AttendanceComponent implements OnInit {
     return elapsed > 24 * 60 * 60 * 1000;
   });
 
+  rosterSortColumn = signal<string>('studentName');
+  rosterSortDirection = signal<'asc' | 'desc'>('asc');
+
+  toggleRosterSort(col: string): void {
+    if (this.rosterSortColumn() === col) {
+      this.rosterSortDirection.set(this.rosterSortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.rosterSortColumn.set(col);
+      this.rosterSortDirection.set('asc');
+    }
+  }
+
+  getRosterSortIcon(col: string): string {
+    if (this.rosterSortColumn() !== col)
+      return 'pi-sort-alt text-[var(--color-text-muted)] opacity-40';
+    return this.rosterSortDirection() === 'asc'
+      ? 'pi-sort-amount-up-alt text-[var(--color-secondary)] font-bold'
+      : 'pi-sort-amount-down text-[var(--color-secondary)] font-bold';
+  }
+
   readonly filteredRecords = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const filter = this.rosterStatusFilter();
 
-    return this.records().filter((r) => {
+    const list = this.records().filter((r) => {
       const matchesSearch =
         !q || r.studentName.toLowerCase().includes(q) || r.studentEmail.toLowerCase().includes(q);
 
       const matchesStatus = filter === 'all' || r.status === filter;
 
       return matchesSearch && matchesStatus;
+    });
+
+    const col = this.rosterSortColumn();
+    const dir = this.rosterSortDirection();
+
+    return list.sort((a: any, b: any) => {
+      let valA: any = a[col] || '';
+      let valB: any = b[col] || '';
+
+      const comp = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
+      return dir === 'asc' ? comp : -comp;
     });
   });
 

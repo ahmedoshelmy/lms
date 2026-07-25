@@ -16,7 +16,7 @@ interface StatCard {
   subtitle?: string;
 }
 
-export type SessionStatusFilter = 'all' | 'scheduled' | 'running' | 'completed' | 'cancelled';
+export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-dashboard',
@@ -46,11 +46,6 @@ export class DashboardComponent implements OnInit {
       this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
         .length
   );
-  readonly runningCount = computed(
-    () =>
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('running'))
-        .length
-  );
   readonly completedCount = computed(
     () =>
       this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
@@ -69,7 +64,6 @@ export class DashboardComponent implements OnInit {
     return sessions.filter((s) => {
       const norm = (s.status ?? '').toLowerCase();
       if (filter === 'scheduled') return norm.includes('scheduled');
-      if (filter === 'running') return norm.includes('running');
       if (filter === 'completed') return norm.includes('completed');
       if (filter === 'cancelled') return norm.includes('cancel');
       return true;
@@ -89,10 +83,6 @@ export class DashboardComponent implements OnInit {
     () =>
       this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled')).length
   );
-  readonly allOngoingCount = computed(
-    () =>
-      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('ongoing')).length
-  );
   readonly allCompletedCount = computed(
     () =>
       this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed')).length
@@ -103,10 +93,9 @@ export class DashboardComponent implements OnInit {
 
   readonly monthlyProgressPercentages = computed(() => {
     const total = this.totalSessionsCount();
-    if (!total) return { scheduled: 0, ongoing: 0, completed: 0, cancelled: 0 };
+    if (!total) return { scheduled: 0, completed: 0, cancelled: 0 };
     return {
       scheduled: Math.round((this.allScheduledCount() / total) * 100),
-      ongoing: Math.round((this.allOngoingCount() / total) * 100),
       completed: Math.round((this.allCompletedCount() / total) * 100),
       cancelled: Math.round((this.allCancelledCount() / total) * 100),
     };
@@ -366,7 +355,6 @@ export class DashboardComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     const norm = (status ?? '').toLowerCase();
-    if (norm.includes('running')) return 'status-badge--running';
     if (norm.includes('completed')) return 'status-badge--completed';
     if (norm.includes('cancel')) return 'status-badge--cancelled';
     return 'status-badge--scheduled';

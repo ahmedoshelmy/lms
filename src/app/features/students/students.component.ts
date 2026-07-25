@@ -50,11 +50,31 @@ export class StudentsComponent implements OnInit {
   formPassword = signal('');
   formGroupId = signal<number>(0);
 
+  // Sorting state
+  sortColumn = signal<string>('name');
+  sortDirection = signal<'asc' | 'desc'>('asc');
+
+  toggleSort(col: string): void {
+    if (this.sortColumn() === col) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(col);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  getSortIcon(col: string): string {
+    if (this.sortColumn() !== col) return 'pi-sort-alt text-[var(--color-text-muted)] opacity-40';
+    return this.sortDirection() === 'asc'
+      ? 'pi-sort-amount-up-alt text-[var(--color-secondary)] font-bold'
+      : 'pi-sort-amount-down text-[var(--color-secondary)] font-bold';
+  }
+
   filteredStudents = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const gFilter = this.groupFilter();
 
-    return this.students().filter((s) => {
+    const list = this.students().filter((s) => {
       let matchesGroup = true;
       if (gFilter === 'Unassigned') {
         matchesGroup = !s.groupId && !s.groupName;
@@ -69,6 +89,34 @@ export class StudentsComponent implements OnInit {
         (s.groupName && s.groupName.toLowerCase().includes(q));
 
       return matchesGroup && matchesSearch;
+    });
+
+    const col = this.sortColumn();
+    const dir = this.sortDirection();
+
+    return list.sort((a, b) => {
+      let valA: any = '';
+      let valB: any = '';
+
+      if (col === 'name') {
+        valA = a.name || '';
+        valB = b.name || '';
+      } else if (col === 'email') {
+        valA = a.email || '';
+        valB = b.email || '';
+      } else if (col === 'group') {
+        valA = a.groupName || '';
+        valB = b.groupName || '';
+      } else if (col === 'joined') {
+        valA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        valB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      }
+
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return dir === 'asc' ? valA - valB : valB - valA;
+      }
+      const comp = valA.toString().localeCompare(valB.toString(), undefined, { numeric: true, sensitivity: 'base' });
+      return dir === 'asc' ? comp : -comp;
     });
   });
 

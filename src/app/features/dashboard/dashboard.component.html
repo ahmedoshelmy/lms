@@ -86,11 +86,6 @@
           [attr.title]="'Scheduled: ' + monthlyProgressPercentages().scheduled + '%'"
         ></div>
         <div
-          class="monthly-progress-bar__segment monthly-progress-bar__segment--ongoing"
-          [style.width.%]="monthlyProgressPercentages().ongoing"
-          [attr.title]="'Ongoing: ' + monthlyProgressPercentages().ongoing + '%'"
-        ></div>
-        <div
           class="monthly-progress-bar__segment monthly-progress-bar__segment--completed"
           [style.width.%]="monthlyProgressPercentages().completed"
           [attr.title]="'Completed: ' + monthlyProgressPercentages().completed + '%'"
@@ -102,7 +97,7 @@
         ></div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="monthly-stat">
           <p class="monthly-stat__value">{{ totalSessionsCount() }}</p>
           <p class="monthly-stat__label">Total Sessions</p>
@@ -110,10 +105,6 @@
         <div class="monthly-stat monthly-stat--scheduled">
           <p class="monthly-stat__value">{{ allScheduledCount() }}</p>
           <p class="monthly-stat__label">Scheduled</p>
-        </div>
-        <div class="monthly-stat monthly-stat--ongoing">
-          <p class="monthly-stat__value">{{ allOngoingCount() }}</p>
-          <p class="monthly-stat__label">Ongoing</p>
         </div>
         <div class="monthly-stat monthly-stat--completed">
           <p class="monthly-stat__value">{{ allCompletedCount() }}</p>
@@ -195,17 +186,6 @@
             </button>
           }
 
-          @if (runningCount() > 0) {
-            <button
-              type="button"
-              class="chip-btn chip-btn--running"
-              [class.active]="activeStatusFilter() === 'running'"
-              (click)="setFilter('running')"
-            >
-              <span class="chip-dot"></span> Running ({{ runningCount() }})
-            </button>
-          }
-
           @if (completedCount() > 0) {
             <button
               type="button"
@@ -264,7 +244,8 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         @for (s of filteredSessions(); track s.id) {
           <a
-            routerLink="/schedule"
+            [routerLink]="['/schedule']"
+            [queryParams]="{ sessionId: s.id }"
             class="session-card p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between gap-4 group"
           >
             <div class="flex items-start justify-between gap-3">

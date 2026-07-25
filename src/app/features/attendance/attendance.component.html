@@ -163,14 +163,6 @@
         <button
           type="button"
           class="session-chip-btn"
-          [class.active]="sessionStatusFilter() === 'running'"
-          (click)="setSessionStatusFilter('running')"
-        >
-          Running
-        </button>
-        <button
-          type="button"
-          class="session-chip-btn"
           [class.active]="sessionStatusFilter() === 'completed'"
           (click)="setSessionStatusFilter('completed')"
         >
@@ -591,13 +583,35 @@
                 class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
               />
             </th>
-            <th class="th-cell">Student</th>
-            <th class="th-cell">Email</th>
-            <th class="th-cell text-center">
-              Attendance Status
-              @if (isLocked()) {
-                <i class="pi pi-lock ml-1 text-[var(--color-warning-foreground)] text-xs"></i>
-              }
+            <th
+              (click)="toggleRosterSort('studentName')"
+              class="th-cell cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center gap-1.5">
+                <span>Student</span>
+                <i class="pi text-xs" [ngClass]="getRosterSortIcon('studentName')"></i>
+              </div>
+            </th>
+            <th
+              (click)="toggleRosterSort('studentEmail')"
+              class="th-cell cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center gap-1.5">
+                <span>Email</span>
+                <i class="pi text-xs" [ngClass]="getRosterSortIcon('studentEmail')"></i>
+              </div>
+            </th>
+            <th
+              (click)="toggleRosterSort('status')"
+              class="th-cell text-center cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
+            >
+              <div class="flex items-center justify-center gap-1.5">
+                <span>Attendance Status</span>
+                <i class="pi text-xs" [ngClass]="getRosterSortIcon('status')"></i>
+                @if (isLocked()) {
+                  <i class="pi pi-lock ml-1 text-[var(--color-warning-foreground)] text-xs"></i>
+                }
+              </div>
             </th>
           </tr>
         </thead>
