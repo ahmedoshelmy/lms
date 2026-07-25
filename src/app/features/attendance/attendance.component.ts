@@ -33,12 +33,12 @@ export function statusToApiEnum(status: StudentStatus): AttendanceStatus {
   switch (status) {
     case 'Present':
       return AttendanceStatus.Present;
+    case 'Absent':
+      return AttendanceStatus.Absent;
     case 'Late':
       return AttendanceStatus.Late;
     case 'Excused':
       return AttendanceStatus.Excused;
-    case 'Absent':
-      return AttendanceStatus.Absent;
     default:
       return AttendanceStatus.Present;
   }
@@ -49,15 +49,15 @@ export function normalizeAttendanceStatus(raw: any): StudentStatus {
   if (typeof raw === 'string') {
     const s = raw.trim().toLowerCase();
     if (s === 'present' || s === '1') return 'Present';
-    if (s === 'late' || s === '2') return 'Late';
-    if (s === 'excused' || s === '3') return 'Excused';
-    if (s === 'absent' || s === '0') return 'Absent';
+    if (s === 'absent' || s === '2') return 'Absent';
+    if (s === 'late' || s === '3') return 'Late';
+    if (s === 'excused' || s === '4') return 'Excused';
     if (s === 'pending') return 'Pending';
   }
   if (raw === 1) return 'Present';
-  if (raw === 2) return 'Late';
-  if (raw === 3) return 'Excused';
-  if (raw === 0) return 'Absent';
+  if (raw === 2) return 'Absent';
+  if (raw === 3) return 'Late';
+  if (raw === 4) return 'Excused';
   return 'Pending';
 }
 
@@ -342,8 +342,6 @@ export class AttendanceComponent implements OnInit {
     this.isDirty.set(false);
     this.selectedStudentIds.set([]);
 
-    const isAdmin = this.auth.hasRole(Role.Admin);
-
     // Call GET /api/Schedule/sessions/{id} endpoint
     this.lms
       .getSessionDetails(sessionId)
@@ -363,64 +361,25 @@ export class AttendanceComponent implements OnInit {
               status: att.status,
             }));
 
-            if (isAdmin) {
-              this.lms
-                .getStudents()
-                .pipe(catchError(() => of([])))
-                .subscribe({
-                  next: (users) => {
-                    const studentUsers = (users || []).filter((u) => u.role === Role.Student);
-                    this.students.set(studentUsers);
-                    this.buildRecordsFromApi(sessionId, apiAtts, studentUsers);
-                  },
-                });
-            } else {
-              this.buildRecordsFromApi(sessionId, apiAtts, []);
-            }
+            this.buildRecordsFromApi(sessionId, apiAtts, []);
           } else {
             // Fallback to legacy getSessionAttendance API if getSessionDetails is unavailable
-            this.loadLegacySessionAttendance(sessionId, isAdmin);
+            this.loadLegacySessionAttendance(sessionId);
           }
         },
         error: () => {
-          this.loadLegacySessionAttendance(sessionId, isAdmin);
+          this.loadLegacySessionAttendance(sessionId);
         },
       });
   }
 
-  private loadLegacySessionAttendance(sessionId: number, isAdmin: boolean): void {
+  private loadLegacySessionAttendance(sessionId: number): void {
     this.lms.getSessionAttendance(sessionId).subscribe({
       next: (apiRecords: AttendanceResponseDto[]) => {
-        if (isAdmin) {
-          this.lms
-            .getStudents()
-            .pipe(catchError(() => of([])))
-            .subscribe({
-              next: (users) => {
-                const studentUsers = (users || []).filter((u) => u.role === Role.Student);
-                this.students.set(studentUsers);
-                this.buildRecordsFromApi(sessionId, apiRecords, studentUsers);
-              },
-            });
-        } else {
-          this.buildRecordsFromApi(sessionId, apiRecords, []);
-        }
+        this.buildRecordsFromApi(sessionId, apiRecords, []);
       },
       error: () => {
-        if (isAdmin) {
-          this.lms
-            .getStudents()
-            .pipe(catchError(() => of([])))
-            .subscribe({
-              next: (users) => {
-                const studentUsers = (users || []).filter((u) => u.role === Role.Student);
-                this.students.set(studentUsers);
-                this.buildRecordsFromApi(sessionId, [], studentUsers);
-              },
-            });
-        } else {
-          this.buildRecordsFromApi(sessionId, [], []);
-        }
+        this.buildRecordsFromApi(sessionId, [], []);
       },
     });
   }
