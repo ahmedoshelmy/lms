@@ -660,6 +660,10 @@ export class GroupDetailComponent implements OnInit {
     this.router.navigate(['/groups']);
   }
 
+  viewInstructor(instructorId: number): void {
+    this.router.navigate(['/instructors', instructorId]);
+  }
+
   openCourseSessionsModal(gc: GroupCourse): void {
     this.selectedCourseForSessions.set(gc);
     this.showCourseSessionsModal.set(true);

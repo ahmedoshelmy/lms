@@ -89,15 +89,19 @@
         >
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
-              <span
-                class="w-10 h-10 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center border border-[var(--color-secondary)]/20 shrink-0"
+              <button
+                (click)="viewInstructor(instructor)"
+                class="w-10 h-10 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center border border-[var(--color-secondary)]/20 shrink-0 hover:bg-[var(--color-secondary)]/20 transition-colors cursor-pointer"
               >
                 {{ initials(instructor.name) }}
-              </span>
+              </button>
               <div class="min-w-0">
-                <p class="font-bold text-sm text-[var(--color-text-primary)] truncate">
+                <button
+                  (click)="viewInstructor(instructor)"
+                  class="font-bold text-sm text-[var(--color-text-primary)] truncate hover:text-[var(--color-secondary)] transition-colors cursor-pointer text-left"
+                >
                   {{ instructor.name }}
-                </p>
+                </button>
                 <p class="text-xs text-[var(--color-text-muted)] truncate">
                   {{ instructor.email }}
                 </p>
@@ -119,6 +123,14 @@
             </span>
 
             <div class="flex items-center gap-1">
+              <button
+                type="button"
+                (click)="viewInstructor(instructor)"
+                class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
+                title="View Details"
+              >
+                <i class="pi pi-eye text-xs"></i>
+              </button>
               <button
                 type="button"
                 (click)="openEditModal(instructor)"
@@ -194,14 +206,18 @@
             <tr class="hover:bg-[var(--color-surface-hover)] transition-colors">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <span
-                    class="w-9 h-9 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center border border-[var(--color-secondary)]/20"
+                  <button
+                    (click)="viewInstructor(instructor)"
+                    class="w-9 h-9 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center border border-[var(--color-secondary)]/20 hover:bg-[var(--color-secondary)]/20 transition-colors cursor-pointer"
                   >
                     {{ initials(instructor.name) }}
-                  </span>
-                  <span class="font-semibold text-[var(--color-text-primary)]">{{
-                    instructor.name
-                  }}</span>
+                  </button>
+                  <button
+                    (click)="viewInstructor(instructor)"
+                    class="font-semibold text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer text-left"
+                  >
+                    {{ instructor.name }}
+                  </button>
                 </div>
               </td>
               <td class="px-6 py-4 text-[var(--color-text-muted)]">{{ instructor.email }}</td>
@@ -217,6 +233,14 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="viewInstructor(instructor)"
+                    class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
+                    title="View Details"
+                  >
+                    <i class="pi pi-eye"></i>
+                  </button>
                   <button
                     type="button"
                     (click)="openEditModal(instructor)"

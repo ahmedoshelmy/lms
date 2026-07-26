@@ -93,9 +93,12 @@
             >
               <div class="flex items-center gap-1.5">
                 <i class="pi pi-user text-[var(--color-secondary)]"></i>
-                <span class="font-medium text-[var(--color-text-primary)]">{{
-                  group()!.defaultInstructorName
-                }}</span>
+                <button
+                  (click)="viewInstructor(group()!.defaultInstructorId)"
+                  class="font-medium text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
+                >
+                  {{ group()!.defaultInstructorName }}
+                </button>
                 @if (group()!.defaultInstructorEmail) {
                   <span class="text-[var(--color-text-muted)]"
                     >({{ group()!.defaultInstructorEmail }})</span

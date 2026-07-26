@@ -6,6 +6,7 @@ import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
 import { StudentDetails } from '../interfaces/StudentDetails';
+import { InstructorDetails, InstructorStats } from '../interfaces/InstructorDetails';
 import {
   CreateAttendanceDto,
   AttendanceResponseDto,
@@ -111,6 +112,14 @@ export class LmsService {
 
   getStudentDetails(id: number): Observable<StudentDetails> {
     return this.http.get<StudentDetails>(`${this.getApiUrl()}/students/${id}/details`);
+  }
+
+  getInstructorDetails(id: number): Observable<InstructorDetails> {
+    return this.http.get<InstructorDetails>(`${this.getApiUrl()}/instructors/${id}/details`);
+  }
+
+  getInstructorStats(id: number): Observable<InstructorStats> {
+    return this.http.get<InstructorStats>(`${this.getApiUrl()}/instructors/${id}/stats`);
   }
 
   // ─── Courses ─────────────────────────────────────────────────────────────

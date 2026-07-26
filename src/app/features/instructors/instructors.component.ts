@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { LmsService } from '../../core/services/lms.service';
@@ -18,6 +19,7 @@ import { User } from '../../core/interfaces/User';
 export class InstructorsComponent implements OnInit {
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
+  private router = inject(Router);
 
   instructors = signal<User[]>([]);
   loading = signal(false);
@@ -224,5 +226,9 @@ export class InstructorsComponent implements OnInit {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  viewInstructor(instructor: User): void {
+    this.router.navigate(['/instructors', instructor.id]);
   }
 }
