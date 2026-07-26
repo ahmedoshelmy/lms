@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { forkJoin } from 'rxjs';
@@ -20,6 +21,7 @@ import { User } from '../../core/interfaces/User';
 export class StudentsComponent implements OnInit {
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
+  private router = inject(Router);
 
   students = signal<User[]>([]);
   groups = signal<Group[]>([]);
@@ -264,13 +266,8 @@ export class StudentsComponent implements OnInit {
     const password = this.formPassword().trim();
     const groupId = this.formGroupId() || undefined;
 
-    if (!name || !email) {
-      this.notify.showWarn('Please enter name and email.');
-      return;
-    }
-
-    if (!this.editingStudent() && !password) {
-      this.notify.showWarn('Password is required for new students.');
+    if (!name) {
+      this.notify.showWarn('Please enter student name.');
       return;
     }
 
@@ -281,7 +278,7 @@ export class StudentsComponent implements OnInit {
       this.lms
         .updateUser(studentId, {
           name,
-          email,
+          email: email || this.editingStudent()!.email,
           role: Role.Student,
           password: password || undefined,
           groupId: groupId || undefined,
@@ -298,11 +295,16 @@ export class StudentsComponent implements OnInit {
           },
         });
     } else {
+      const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const randomId = Math.floor(1000 + Math.random() * 9000);
+      const dummyEmail = email || `${cleanName || 'student'}.${randomId}@lms.local`;
+      const dummyPassword = password || 'pass2word';
+
       this.lms
         .createUser({
           name,
-          email,
-          password,
+          email: dummyEmail,
+          password: dummyPassword,
           role: Role.Student,
           groupId: groupId || undefined,
         })
@@ -382,6 +384,10 @@ export class StudentsComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  viewStudent(student: User): void {
+    this.router.navigate(['/students', student.id]);
   }
 
   formatDate(iso?: string): string {

@@ -2,9 +2,13 @@ import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angul
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Course } from '../../core/interfaces/Course';
+import { Role } from '../../core/interfaces/Role';
 
 interface TopicGroup {
   topic: string;
@@ -15,7 +19,7 @@ interface TopicGroup {
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, ButtonModule],
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.scss',
 })
@@ -23,12 +27,27 @@ export class CoursesComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private platformId = inject(PLATFORM_ID);
+  private auth = inject(AuthService);
 
   courses = signal<Course[]>([]);
   loading = signal<boolean>(false);
+  saving = signal<boolean>(false);
   searchQuery = signal<string>('');
   groupByTopic = signal(false);
   collapsedTopics = signal<Set<string>>(new Set());
+
+  showCourseModal = signal(false);
+  showDeleteModal = signal(false);
+  editingCourse = signal<Course | null>(null);
+  deletingCourse = signal<Course | null>(null);
+
+  formTitle = signal('');
+  formDescription = signal('');
+  formTopic = signal('');
+  formLevel = signal('');
+  formSessionCount = signal('');
+
+  readonly isAdmin = computed(() => this.auth.currentRole() === Role.Admin);
 
   readonly filteredCourses = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
@@ -78,6 +97,92 @@ export class CoursesComponent implements OnInit {
       error: (err) => {
         this.notify.showError(`Failed to load courses: ${err.message || 'Server error'}`);
         this.loading.set(false);
+      },
+    });
+  }
+
+  openCreateModal(): void {
+    this.editingCourse.set(null);
+    this.formTitle.set('');
+    this.formDescription.set('');
+    this.formTopic.set('');
+    this.formLevel.set('');
+    this.formSessionCount.set('');
+    this.showCourseModal.set(true);
+  }
+
+  openEditModal(course: Course): void {
+    this.editingCourse.set(course);
+    this.formTitle.set(course.title);
+    this.formDescription.set(course.description);
+    this.formTopic.set(course.topic);
+    this.formLevel.set(course.level);
+    this.formSessionCount.set(course.sessionCount);
+    this.showCourseModal.set(true);
+  }
+
+  openDeleteModal(course: Course): void {
+    this.deletingCourse.set(course);
+    this.showDeleteModal.set(true);
+  }
+
+  saveCourse(): void {
+    const title = this.formTitle().trim();
+    const description = this.formDescription().trim();
+    const topic = this.formTopic().trim();
+    const level = this.formLevel().trim();
+    const sessionCount = this.formSessionCount().trim();
+
+    if (!title || !description || !topic || !level || !sessionCount) {
+      this.notify.showWarn('Please fill in all required fields.');
+      return;
+    }
+
+    this.saving.set(true);
+    const payload = { title, description, topic, level, sessionCount };
+
+    if (this.editingCourse()) {
+      this.lmsService.updateCourse(this.editingCourse()!.id, payload).subscribe({
+        next: () => {
+          this.notify.showSuccess('Course updated successfully.');
+          this.saving.set(false);
+          this.showCourseModal.set(false);
+          this.loadCourses();
+        },
+        error: () => {
+          this.saving.set(false);
+        },
+      });
+    } else {
+      this.lmsService.createCourse(payload).subscribe({
+        next: () => {
+          this.notify.showSuccess('Course created successfully.');
+          this.saving.set(false);
+          this.showCourseModal.set(false);
+          this.loadCourses();
+        },
+        error: () => {
+          this.saving.set(false);
+        },
+      });
+    }
+  }
+
+  confirmDelete(): void {
+    const course = this.deletingCourse();
+    if (!course) return;
+
+    this.saving.set(true);
+    this.lmsService.deleteCourse(course.id).subscribe({
+      next: () => {
+        this.notify.showSuccess(`Course "${course.title}" deleted.`);
+        this.saving.set(false);
+        this.showDeleteModal.set(false);
+        this.deletingCourse.set(null);
+        this.loadCourses();
+      },
+      error: () => {
+        this.saving.set(false);
       },
     });
   }

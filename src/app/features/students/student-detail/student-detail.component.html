@@ -1,0 +1,685 @@
+<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+  <!-- Back Button & Breadcrumbs -->
+  <div class="flex items-center gap-3 mb-6">
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-xs font-semibold hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] transition-all duration-200 shadow-sm"
+    >
+      <i class="pi pi-arrow-left text-xs"></i>
+      Back to Students
+    </button>
+    <span class="text-[var(--color-text-muted)] text-xs">/</span>
+    <span class="text-xs font-bold text-[var(--color-text-primary)]">
+      {{ student() ? student()!.name : 'Student Details' }}
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-24">
+      <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
+    </div>
+  } @else if (student()) {
+    <!-- Main Student Card Banner -->
+    <div
+      class="p-6 md:p-8 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm mb-8 relative overflow-hidden"
+    >
+      <!-- Ambient Top Accent Gradient Bar -->
+      <div
+        class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"
+      ></div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <!-- Left: Student Avatar & Info -->
+        <div class="flex items-start gap-4">
+          <div
+            class="w-16 h-16 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-md"
+          >
+            {{ initials(student()!.name) }}
+          </div>
+          <div>
+            <h1
+              class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight"
+            >
+              {{ student()!.name }}
+            </h1>
+            <div
+              class="flex flex-wrap items-center gap-4 mt-2 text-xs text-[var(--color-text-secondary)]"
+            >
+              <div class="flex items-center gap-1.5">
+                <i class="pi pi-envelope text-[var(--color-secondary)]"></i>
+                <span class="font-medium">{{ student()!.email }}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i class="pi pi-calendar text-[var(--color-text-muted)]"></i>
+                <span>Joined {{ formatDate(student()!.createdAt) }}</span>
+              </div>
+              @if (student()!.currentGroup) {
+                <div class="flex items-center gap-1.5">
+                  <i class="pi pi-sitemap text-[var(--color-primary)]"></i>
+                  <span class="font-semibold text-[var(--color-primary)]">
+                    {{ student()!.currentGroup!.groupName }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Actions -->
+        @if (isAdmin()) {
+          <div class="flex items-center gap-3 shrink-0">
+            <button
+              (click)="openEditModal()"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md"
+            >
+              <i class="pi pi-pencil text-xs"></i>
+              Edit Student
+            </button>
+            <button
+              (click)="openDeleteModal()"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-300 text-red-600 font-semibold text-xs hover:bg-red-50 transition-all duration-200"
+            >
+              <i class="pi pi-trash text-xs"></i>
+              Delete
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Quick Metrics Summary Grid -->
+      <div
+        class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--color-border)]"
+      >
+        <div
+          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
+        >
+          <span
+            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
+          >
+            Attendance Rate
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-percentage text-lg text-[var(--color-success)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ attendanceStats().attendanceRate }}%
+            </span>
+          </div>
+        </div>
+
+        <div
+          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
+        >
+          <span
+            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
+          >
+            Total Sessions
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-calendar text-lg text-[var(--color-secondary)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ attendanceStats().total }}
+            </span>
+          </div>
+        </div>
+
+        <div
+          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
+        >
+          <span
+            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
+          >
+            Present / Late
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-check-circle text-lg text-[var(--color-success)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ attendanceStats().present + attendanceStats().late }}
+            </span>
+          </div>
+        </div>
+
+        <div
+          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
+        >
+          <span
+            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
+          >
+            Absent
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-times-circle text-lg text-[var(--color-error)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ attendanceStats().absent }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div
+      class="flex items-center gap-2 mb-6 border-b border-[var(--color-border)] pb-2 overflow-x-auto"
+    >
+      <button
+        (click)="activeTab.set('attendance')"
+        [class.tab-active]="activeTab() === 'attendance'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-check-square"></i>
+        Attendance History ({{ student()!.attendanceHistory.length }})
+      </button>
+
+      <button
+        (click)="activeTab.set('groups')"
+        [class.tab-active]="activeTab() === 'groups'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-sitemap"></i>
+        Group History ({{ student()!.groupHistory.length }})
+      </button>
+
+      <button
+        (click)="activeTab.set('upcoming')"
+        [class.tab-active]="activeTab() === 'upcoming'"
+        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
+      >
+        <i class="pi pi-calendar-clock"></i>
+        Upcoming Sessions ({{ student()!.upcomingSessions.length }})
+      </button>
+    </div>
+
+    <!-- TAB 1: ATTENDANCE HISTORY -->
+    @if (activeTab() === 'attendance') {
+      <div
+        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
+      >
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Attendance Records</h2>
+            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+              Complete history of session attendance for this student
+            </p>
+          </div>
+
+          <!-- Attendance Summary Pills -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)] border border-[color-mix(in_srgb,var(--color-success)_20%,transparent)]"
+            >
+              {{ attendanceStats().present }} Present
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+            >
+              {{ attendanceStats().late }} Late
+            </span>
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)] border border-[color-mix(in_srgb,var(--color-error)_20%,transparent)]"
+            >
+              {{ attendanceStats().absent }} Absent
+            </span>
+            @if (attendanceStats().excused > 0) {
+              <span
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20"
+              >
+                {{ attendanceStats().excused }} Excused
+              </span>
+            }
+          </div>
+        </div>
+
+        @if (student()!.attendanceHistory.length === 0) {
+          <div
+            class="text-center py-16 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
+          >
+            <i class="pi pi-check-square text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
+            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">No Attendance Records</h3>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1">
+              This student has not attended any sessions yet.
+            </p>
+          </div>
+        } @else {
+          <!-- Mobile Card View -->
+          <div class="block md:hidden space-y-3">
+            @for (record of student()!.attendanceHistory; track record.sessionId) {
+              <div
+                class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm"
+              >
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <div class="min-w-0 flex-1">
+                    <p class="font-bold text-sm text-[var(--color-text-primary)] truncate">
+                      {{ record.topic || 'Regular Session' }}
+                    </p>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                      {{ record.courseTitle }}
+                    </p>
+                  </div>
+                  <span
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0"
+                    [ngClass]="getAttendanceStatusCss(record.attendanceStatus)"
+                  >
+                    {{ record.attendanceStatus }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-calendar text-[10px]"></i>
+                    <span>{{ formatDateTime(record.startsAt) }}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-user text-[10px]"></i>
+                    <span>{{ record.instructorName }}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-sitemap text-[10px]"></i>
+                    <span>{{ record.groupName }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Desktop Table View -->
+          <div class="hidden md:block overflow-x-auto">
+            <table
+              class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse"
+            >
+              <thead>
+                <tr
+                  class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
+                >
+                  <th class="py-3 px-4">Session Topic</th>
+                  <th class="py-3 px-4">Course</th>
+                  <th class="py-3 px-4">Date & Time</th>
+                  <th class="py-3 px-4">Instructor</th>
+                  <th class="py-3 px-4">Group</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4">Session</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--color-border)]">
+                @for (record of student()!.attendanceHistory; track record.sessionId) {
+                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors duration-150">
+                    <td class="py-3.5 px-4 font-bold text-[var(--color-text-primary)]">
+                      {{ record.topic || 'Regular Session' }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)] font-medium">
+                      {{ record.courseTitle }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-secondary)] font-medium">
+                      {{ formatDateTime(record.startsAt) }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)]">
+                      <div class="flex items-center gap-1.5">
+                        <i class="pi pi-user text-[10px] text-[var(--color-text-muted)]"></i>
+                        {{ record.instructorName }}
+                      </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)]">
+                      <span
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]"
+                      >
+                        {{ record.groupName }}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                        [ngClass]="getAttendanceStatusCss(record.attendanceStatus)"
+                      >
+                        <i class="pi text-[8px]" [ngClass]="getAttendanceIcon(record.attendanceStatus)"></i>
+                        {{ record.attendanceStatus }}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span
+                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                        [ngClass]="getSessionStatusCss(record.sessionStatus)"
+                      >
+                        {{ record.sessionStatus }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB 2: GROUP HISTORY -->
+    @if (activeTab() === 'groups') {
+      <div
+        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
+      >
+        <div class="mb-6">
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Group Enrollment History</h2>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            All groups this student has been enrolled in
+          </p>
+        </div>
+
+        @if (student()!.groupHistory.length === 0) {
+          <div
+            class="text-center py-16 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
+          >
+            <i class="pi pi-sitemap text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
+            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">No Group History</h3>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1">
+              This student has not been enrolled in any groups.
+            </p>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (group of student()!.groupHistory; track group.groupId) {
+              <div
+                class="p-5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)]"
+              >
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
+                  <div class="flex items-center gap-3">
+                    <a
+                      [routerLink]="['/groups', group.groupId]"
+                      class="w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-sm flex items-center justify-center border border-[var(--color-primary)]/20 hover:bg-[var(--color-primary)]/20 transition-colors"
+                    >
+                      {{ group.groupName.charAt(0).toUpperCase() }}
+                    </a>
+                    <div>
+                      <a
+                        [routerLink]="['/groups', group.groupId]"
+                        class="text-sm font-bold text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors"
+                      >
+                        {{ group.groupName }}
+                      </a>
+                      <div class="flex items-center gap-2 mt-0.5 text-[11px] text-[var(--color-text-muted)]">
+                        <span>Joined {{ formatDate(group.joinedAt) }}</span>
+                        @if (group.leftAt) {
+                          <span>• Left {{ formatDate(group.leftAt) }}</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <span
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                    [class]="group.leftAt
+                      ? 'bg-gray-500/10 text-gray-600'
+                      : 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]'"
+                  >
+                    {{ group.leftAt ? 'Completed' : 'Active' }}
+                  </span>
+                </div>
+
+                @if (group.courses.length > 0) {
+                  <div class="flex flex-wrap gap-2 mt-2 pt-3 border-t border-[var(--color-border)]">
+                    @for (course of group.courses; track course.title) {
+                      <span
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[var(--color-secondary)]/8 text-[var(--color-secondary)] border border-[var(--color-secondary)]/15"
+                      >
+                        <i class="pi pi-book text-[8px]"></i>
+                        {{ course.title }} (L{{ course.level }})
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- TAB 3: UPCOMING SESSIONS -->
+    @if (activeTab() === 'upcoming') {
+      <div
+        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
+      >
+        <div class="mb-6">
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Upcoming Sessions</h2>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            Scheduled sessions this student is expected to attend
+          </p>
+        </div>
+
+        @if (student()!.upcomingSessions.length === 0) {
+          <div
+            class="text-center py-16 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
+          >
+            <i class="pi pi-calendar-clock text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
+            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">No Upcoming Sessions</h3>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1">
+              There are no scheduled sessions for this student's groups.
+            </p>
+          </div>
+        } @else {
+          <!-- Mobile Card View -->
+          <div class="block md:hidden space-y-3">
+            @for (session of student()!.upcomingSessions; track session.sessionId) {
+              <div
+                class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm"
+              >
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <div class="min-w-0 flex-1">
+                    <p class="font-bold text-sm text-[var(--color-text-primary)] truncate">
+                      {{ session.topic || 'Regular Session' }}
+                    </p>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                      {{ session.courseTitle }}
+                    </p>
+                  </div>
+                  <span
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0"
+                    [ngClass]="getSessionStatusCss(session.status)"
+                  >
+                    {{ session.status }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-calendar text-[10px]"></i>
+                    <span>{{ formatDateTime(session.startsAt) }}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-user text-[10px]"></i>
+                    <span>{{ session.instructorName }}</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <i class="pi pi-tag text-[10px]"></i>
+                    <span>{{ session.type }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Desktop Table View -->
+          <div class="hidden md:block overflow-x-auto">
+            <table
+              class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse"
+            >
+              <thead>
+                <tr
+                  class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
+                >
+                  <th class="py-3 px-4">Topic</th>
+                  <th class="py-3 px-4">Course</th>
+                  <th class="py-3 px-4">Date & Time</th>
+                  <th class="py-3 px-4">Instructor</th>
+                  <th class="py-3 px-4">Group</th>
+                  <th class="py-3 px-4">Type</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--color-border)]">
+                @for (session of student()!.upcomingSessions; track session.sessionId) {
+                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors duration-150">
+                    <td class="py-3.5 px-4 font-bold text-[var(--color-text-primary)]">
+                      {{ session.topic || 'Regular Session' }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)] font-medium">
+                      {{ session.courseTitle }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-secondary)] font-medium">
+                      {{ formatDateTime(session.startsAt) }}
+                    </td>
+                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)]">
+                      <div class="flex items-center gap-1.5">
+                        <i class="pi pi-user text-[10px] text-[var(--color-text-muted)]"></i>
+                        {{ session.instructorName }}
+                      </div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]"
+                      >
+                        {{ session.groupName }}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span
+                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                      >
+                        {{ session.type }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Edit Student Dialog -->
+<p-dialog
+  [(visible)]="showEditModal"
+  header="Edit Student Details"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '520px' }"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="rounded-2xl overflow-hidden"
+>
+  <div class="flex flex-col gap-4 py-2">
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >Full Name *</label
+      >
+      <input
+        type="text"
+        [ngModel]="formName()"
+        (ngModelChange)="formName.set($event)"
+        placeholder="e.g. John Doe"
+        class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >Email Address</label
+      >
+      <input
+        type="email"
+        [ngModel]="formEmail()"
+        (ngModelChange)="formEmail.set($event)"
+        placeholder="student@example.com"
+        class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >New Password (leave blank to keep current)</label
+      >
+      <input
+        type="password"
+        [ngModel]="formPassword()"
+        (ngModelChange)="formPassword.set($event)"
+        placeholder="••••••••"
+        class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >Assigned Group</label
+      >
+      <select
+        [ngModel]="formGroupId()"
+        (ngModelChange)="formGroupId.set($event)"
+        class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] cursor-pointer"
+      >
+        <option value="0">-- Unassigned --</option>
+        @for (grp of groups(); track grp.id) {
+          <option [value]="grp.id">{{ grp.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showEditModal.set(false)"
+        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="saveStudent()"
+        [disabled]="saving()"
+        class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-primary)] text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+      >
+        @if (saving()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Save Changes
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Delete Modal -->
+<p-dialog
+  [(visible)]="showDeleteModal"
+  header="Confirm Delete"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="py-2">
+    <p class="text-xs text-[var(--color-text-primary)]">
+      Are you sure you want to delete
+      <strong class="text-[var(--color-primary)]">{{ student()?.name }}</strong
+      >? This action cannot be undone. All attendance records will be permanently removed.
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showDeleteModal.set(false)"
+        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmDelete()"
+        [disabled]="deleting()"
+        class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+      >
+        @if (deleting()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Delete Student
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

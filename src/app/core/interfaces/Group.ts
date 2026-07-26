@@ -30,6 +30,12 @@ export interface Group {
   students?: GroupStudent[];
   schedules?: GroupSchedule[];
   courses: GroupCourse[];
+  currentCourseTitle?: string;
+  currentCourseLevel?: string;
+  currentCourseRemainingSessions?: number;
+  nextCourseTitle?: string;
+  nextCourseLevel?: string;
+  nextCourseTotalSessions?: number;
 }
 
 export interface CreateGroupPayload {
@@ -49,4 +55,23 @@ export interface UpdateGroupPayload {
   defaultInstructorId: number;
   status: number;
   location?: string;
+}
+
+export interface GroupScheduleSlot {
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+}
+
+export interface UpdateGroupSchedulePayload {
+  schedules: GroupScheduleSlot[];
+  updateUpcomingSessions: boolean;
+}
+
+export interface GenerateCustomSessionsPayload {
+  groupCourseId: number;
+  count?: number;
+  startFromDate?: string;
+  includeTodayIfMatching: boolean;
 }

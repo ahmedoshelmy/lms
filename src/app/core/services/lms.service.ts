@@ -5,6 +5,7 @@ import { Role } from '../interfaces/Role';
 import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
+import { StudentDetails } from '../interfaces/StudentDetails';
 import {
   CreateAttendanceDto,
   AttendanceResponseDto,
@@ -12,8 +13,8 @@ import {
   AttendanceSummaryDto,
 } from '../interfaces/Attendance';
 
-import { Course } from '../interfaces/Course';
-import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
+import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
+import { Group, CreateGroupPayload, UpdateGroupPayload, UpdateGroupSchedulePayload, GenerateCustomSessionsPayload } from '../interfaces/Group';
 import { GroupCourse } from '../interfaces/GroupCourse';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
 import {
@@ -108,10 +109,26 @@ export class LmsService {
     return this.http.delete<void>(`${this.getApiUrl()}/users/${id}`);
   }
 
+  getStudentDetails(id: number): Observable<StudentDetails> {
+    return this.http.get<StudentDetails>(`${this.getApiUrl()}/students/${id}/details`);
+  }
+
   // ─── Courses ─────────────────────────────────────────────────────────────
 
   getCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.getApiUrl()}/courses`);
+  }
+
+  createCourse(payload: CreateCoursePayload): Observable<Course> {
+    return this.http.post<Course>(`${this.getApiUrl()}/courses`, payload);
+  }
+
+  updateCourse(id: number, payload: UpdateCoursePayload): Observable<Course> {
+    return this.http.put<Course>(`${this.getApiUrl()}/courses/${id}`, payload);
+  }
+
+  deleteCourse(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/courses/${id}`);
   }
 
   getGroups(): Observable<Group[]> {
@@ -138,12 +155,35 @@ export class LmsService {
     return this.http.delete<Group>(`${this.getApiUrl()}/groups/${groupId}/students/${studentId}`);
   }
 
-  addCourseToGroup(groupId: number, courseId: number): Observable<GroupCourse> {
-    return this.http.post<GroupCourse>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseId });
+  addCourseToGroup(groupId: number, courseId: number): Observable<Group> {
+    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseId });
   }
 
   generateGroupCourseSessions(groupCourseId: number): Observable<any> {
     return this.http.post(`${this.getApiUrl()}/schedule/generate-sessions/${groupCourseId}`, {});
+  }
+
+  removeCourseFromGroup(groupId: number, courseId: number, confirmDeleteSessions = false): Observable<Group> {
+    let url = `${this.getApiUrl()}/groups/${groupId}/courses/${courseId}`;
+    if (confirmDeleteSessions) {
+      url += `?confirmDeleteSessions=true`;
+    }
+    return this.http.delete<Group>(url);
+  }
+
+  updateGroupCourseSessions(groupId: number, groupCourseId: number, totalSessions: number): Observable<Group> {
+    return this.http.put<Group>(
+      `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}/sessions`,
+      { totalSessions }
+    );
+  }
+
+  updateGroupSchedule(groupId: number, payload: UpdateGroupSchedulePayload): Observable<Group> {
+    return this.http.put<Group>(`${this.getApiUrl()}/groups/${groupId}/schedule`, payload);
+  }
+
+  generateCustomSessions(payload: GenerateCustomSessionsPayload): Observable<any> {
+    return this.http.post(`${this.getApiUrl()}/schedule/generate-custom`, payload);
   }
 
   // ─── Schedule ────────────────────────────────────────────────────────────
