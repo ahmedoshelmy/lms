@@ -33,7 +33,7 @@
         </button>
       }
 
-      @if (selectedSession() && !isLocked()) {
+      @if (selectedSession() && !isAttendanceDisabled()) {
         <button
           (click)="saveAttendance()"
           [disabled]="saving()"
@@ -133,6 +133,43 @@
           }
         </select>
       </div>
+
+      <!-- Instructor Dropdown Filter (Admin Only) -->
+      @if (isAdmin()) {
+        <div class="w-full md:w-64">
+          <label
+            class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
+          >
+            Filter Instructor
+          </label>
+          <p-select
+            [options]="instructors()"
+            [ngModel]="selectedInstructorFilter()"
+            (ngModelChange)="setInstructorFilter($event)"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="All Instructors"
+            class="w-full"
+            [filter]="true"
+            filterBy="name"
+          >
+            <ng-template pTemplate="selectedItem" let-selected>
+              @if (selected) {
+                <div class="truncate text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                  <i class="pi pi-user text-[var(--color-secondary)]"></i>
+                  <span>{{ selected.name }}</span>
+                </div>
+              }
+            </ng-template>
+            <ng-template pTemplate="item" let-inst>
+              <div class="py-1 flex items-center gap-2 text-xs font-bold">
+                <i class="pi pi-user text-[var(--color-secondary)]"></i>
+                <span>{{ inst.name }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      }
     </div>
 
     <!-- Row 2: Status Filter Tabs & Date Range Chips -->
@@ -363,8 +400,37 @@
       </div>
     }
 
-    <!-- 24-hour Lock Warning Banner -->
-    @if (isLocked()) {
+    <!-- Session Status Warning Banners -->
+    @if (isCancelled()) {
+      <div
+        class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-error)] bg-[var(--color-error-background)]"
+      >
+        <i class="pi pi-times-circle text-2xl text-[var(--color-error-foreground)] flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-[var(--color-error-foreground)]">
+            Session Cancelled
+          </p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            This session has been cancelled. Attendance records cannot be taken or modified for cancelled sessions.
+          </p>
+        </div>
+      </div>
+    } @else if (isUpcoming()) {
+      <div
+        class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-info)] bg-[var(--color-info-background)]"
+      >
+        <i class="pi pi-clock text-2xl text-[var(--color-info-foreground)] flex-shrink-0"></i>
+        <div>
+          <p class="text-sm font-bold text-[var(--color-info-foreground)]">
+            Attendance Not Open Yet
+          </p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            This session is scheduled for {{ formatDate(selectedSession()?.startsAt) }} at {{ formatTime(selectedSession()?.startsAt) }}.
+            Attendance marking will open once the session begins.
+          </p>
+        </div>
+      </div>
+    } @else if (isLocked()) {
       <div
         class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-warning)] bg-[var(--color-warning-background)]"
       >
@@ -485,7 +551,7 @@
     <!-- Quick Actions & Contextual Bulk Action Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
       <div class="flex items-center gap-2 flex-wrap">
-        @if (selectedStudentIds().length > 0 && !isLocked()) {
+        @if (selectedStudentIds().length > 0 && !isAttendanceDisabled()) {
           <div
             class="px-3.5 py-1.5 rounded-xl bg-[var(--color-info-background)] border border-[var(--color-info)] text-xs font-bold text-[var(--color-info-foreground)] flex items-center gap-2"
           >
@@ -519,7 +585,7 @@
               Absent
             </button>
           </div>
-        } @else if (!isLocked()) {
+        } @else if (!isAttendanceDisabled()) {
           <span
             class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2"
             >Quick Mark All:</span
@@ -579,7 +645,7 @@
                 type="checkbox"
                 [checked]="isAllSelected()"
                 (change)="toggleSelectAll($any($event.target).checked)"
-                [disabled]="isLocked() || filteredRecords().length === 0"
+                [disabled]="isAttendanceDisabled() || filteredRecords().length === 0"
                 class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
               />
             </th>
@@ -608,7 +674,7 @@
               <div class="flex items-center justify-center gap-1.5">
                 <span>Attendance Status</span>
                 <i class="pi text-xs" [ngClass]="getRosterSortIcon('status')"></i>
-                @if (isLocked()) {
+                @if (isAttendanceDisabled()) {
                   <i class="pi pi-lock ml-1 text-[var(--color-warning-foreground)] text-xs"></i>
                 }
               </div>
@@ -622,7 +688,7 @@
           @for (rec of filteredRecords(); track rec.studentId) {
             <tr
               class="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-hover)] transition-colors"
-              [class.opacity-70]="isLocked()"
+              [class.opacity-70]="isAttendanceDisabled()"
               [class.bg-[rgba(56,189,248,0.04)]]="isStudentSelected(rec.studentId)"
             >
               <td class="td-cell text-center">
@@ -630,7 +696,7 @@
                   type="checkbox"
                   [checked]="isStudentSelected(rec.studentId)"
                   (change)="toggleStudentSelection(rec.studentId)"
-                  [disabled]="isLocked()"
+                  [disabled]="isAttendanceDisabled()"
                   class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
                 />
               </td>
@@ -664,7 +730,7 @@
                     type="button"
                     (click)="setStatus(rec, 'Present')"
                     [class.active-present]="rec.status === 'Present'"
-                    [disabled]="isLocked()"
+                    [disabled]="isAttendanceDisabled()"
                     class="status-btn btn-present"
                   >
                     <i class="pi pi-check text-xs"></i>
@@ -675,7 +741,7 @@
                     type="button"
                     (click)="setStatus(rec, 'Late')"
                     [class.active-late]="rec.status === 'Late'"
-                    [disabled]="isLocked()"
+                    [disabled]="isAttendanceDisabled()"
                     class="status-btn btn-late"
                   >
                     <i class="pi pi-clock text-xs"></i>
@@ -686,7 +752,7 @@
                     type="button"
                     (click)="setStatus(rec, 'Excused')"
                     [class.active-excused]="rec.status === 'Excused'"
-                    [disabled]="isLocked()"
+                    [disabled]="isAttendanceDisabled()"
                     class="status-btn btn-excused"
                   >
                     <i class="pi pi-info-circle text-xs"></i>
@@ -697,7 +763,7 @@
                     type="button"
                     (click)="setStatus(rec, 'Absent')"
                     [class.active-absent]="rec.status === 'Absent'"
-                    [disabled]="isLocked()"
+                    [disabled]="isAttendanceDisabled()"
                     class="status-btn btn-absent"
                   >
                     <i class="pi pi-times text-xs"></i>

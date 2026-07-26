@@ -93,6 +93,8 @@ export class AttendanceComponent implements OnInit {
   sessionStatusFilter = signal<SessionStatusFilter>('all');
   selectedGroupFilter = signal<string>('all');
   dateRangeFilter = signal<DateRangeFilter>('all');
+  instructors = signal<User[]>([]);
+  selectedInstructorFilter = signal<number>(0);
   selectedStudentIds = signal<number[]>([]);
 
   // Admin Student Management Modal Signals
@@ -129,7 +131,8 @@ export class AttendanceComponent implements OnInit {
     return (
       this.sessionStatusFilter() !== 'all' ||
       this.selectedGroupFilter() !== 'all' ||
-      this.dateRangeFilter() !== 'all'
+      this.dateRangeFilter() !== 'all' ||
+      this.selectedInstructorFilter() !== 0
     );
   });
 
@@ -140,11 +143,12 @@ export class AttendanceComponent implements OnInit {
     return Math.min(100, Math.round((s.currentSessionNumber / s.totalSessions) * 100));
   });
 
-  /** Filtered list of sessions based on Status, Group, and Date Range filters */
+  /** Filtered list of sessions based on Status, Group, Date Range, and Instructor filters */
   readonly filteredSessionsList = computed(() => {
     const statusFilter = this.sessionStatusFilter();
     const groupFilter = this.selectedGroupFilter();
     const dateFilter = this.dateRangeFilter();
+    const instFilter = this.selectedInstructorFilter();
     const all = this.sessions();
 
     const now = new Date();
@@ -161,6 +165,18 @@ export class AttendanceComponent implements OnInit {
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime();
 
     return all.filter((s) => {
+      // 0. Instructor Filter for Admin
+      if (instFilter !== 0) {
+        const selectedInst = this.instructors().find((i) => i.id === instFilter);
+        const matchesInstId =
+          String(s.instructorId) === String(instFilter);
+        const matchesInstName =
+          selectedInst && s.instructorName
+            ? s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase())
+            : false;
+        if (!matchesInstId && !matchesInstName) return false;
+      }
+
       // 1. Status Filter
       const normStatus = (s.status ?? '').toLowerCase();
       if (statusFilter === 'scheduled' && !normStatus.includes('scheduled')) return false;
@@ -190,6 +206,45 @@ export class AttendanceComponent implements OnInit {
     const elapsed = Date.now() - new Date(s.startsAt).getTime();
     return elapsed > 24 * 60 * 60 * 1000;
   });
+
+  /** True when the session is cancelled */
+  readonly isCancelled = computed(() => {
+    const s = this.selectedSession();
+    if (!s) return false;
+    return (s.status ?? '').toLowerCase().includes('cancel');
+  });
+
+  /** True when the session is scheduled for a future day (after today) */
+  readonly isUpcoming = computed(() => {
+    const s = this.selectedSession();
+    if (!s) return false;
+    const start = new Date(s.startsAt);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    return start.getTime() > todayEnd.getTime();
+  });
+
+  /** True when attendance marking is disabled (upcoming, cancelled, or 24h locked) */
+  readonly isAttendanceDisabled = computed(() => {
+    return this.isUpcoming() || this.isCancelled() || this.isLocked();
+  });
+
+  /** Helper to verify attendance modification permission and display appropriate alert if disabled */
+  checkAttendanceAllowed(): boolean {
+    if (this.isCancelled()) {
+      this.notify.showError('Attendance cannot be taken or modified for cancelled sessions.');
+      return false;
+    }
+    if (this.isUpcoming()) {
+      this.notify.showError('Attendance cannot be marked before the session begins.');
+      return false;
+    }
+    if (this.isLocked()) {
+      this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
+      return false;
+    }
+    return true;
+  }
 
   rosterSortColumn = signal<string>('studentName');
   rosterSortDirection = signal<'asc' | 'desc'>('asc');
@@ -254,6 +309,17 @@ export class AttendanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    if (this.isAdmin()) {
+      this.lms.getInstructors().subscribe({
+        next: (users) => {
+          const filtered = (users || []).filter((u) => u.role === Role.Instructor);
+          this.instructors.set([
+            { id: 0, name: 'All Instructors', email: '', role: Role.Instructor },
+            ...filtered,
+          ]);
+        },
+      });
+    }
   }
 
   loadData(): void {
@@ -304,10 +370,16 @@ export class AttendanceComponent implements OnInit {
     this.syncSelectedSessionWithFilter();
   }
 
+  setInstructorFilter(instId: number): void {
+    this.selectedInstructorFilter.set(instId);
+    this.syncSelectedSessionWithFilter();
+  }
+
   resetFilters(): void {
     this.sessionStatusFilter.set('all');
     this.selectedGroupFilter.set('all');
     this.dateRangeFilter.set('all');
+    this.selectedInstructorFilter.set(0);
     this.syncSelectedSessionWithFilter();
   }
 
@@ -477,10 +549,7 @@ export class AttendanceComponent implements OnInit {
   }
 
   setStatus(record: StudentAttendanceRecord, status: StudentStatus): void {
-    if (this.isLocked()) {
-      this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
-      return;
-    }
+    if (!this.checkAttendanceAllowed()) return;
     if (record.status === status) return;
 
     this.records.update((list) =>
@@ -490,19 +559,13 @@ export class AttendanceComponent implements OnInit {
   }
 
   bulkSetStatus(status: StudentStatus): void {
-    if (this.isLocked()) {
-      this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
-      return;
-    }
+    if (!this.checkAttendanceAllowed()) return;
     this.records.update((list) => list.map((r) => ({ ...r, status })));
     this.isDirty.set(true);
   }
 
   bulkSetSelectedStatus(status: StudentStatus): void {
-    if (this.isLocked()) {
-      this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
-      return;
-    }
+    if (!this.checkAttendanceAllowed()) return;
     const selectedSet = new Set(this.selectedStudentIds());
     if (selectedSet.size === 0) return;
 
@@ -569,10 +632,7 @@ export class AttendanceComponent implements OnInit {
   }
 
   saveAttendance(): void {
-    if (this.isLocked()) {
-      this.notify.showError('Attendance cannot be changed after 24 hours from session start.');
-      return;
-    }
+    if (!this.checkAttendanceAllowed()) return;
     const sessionId = this.selectedSessionId();
     if (!sessionId) return;
 

@@ -276,16 +276,34 @@
                 <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">
                   {{ s.status }}
                 </span>
-                <a
-                  [routerLink]="['/attendance']"
-                  [queryParams]="{ sessionId: s.id }"
-                  (click)="$event.stopPropagation()"
-                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all shadow-xs"
-                  title="Go to Attendance for this session"
-                >
-                  <i class="pi pi-check-square text-[10px]"></i>
-                  Attendance
-                </a>
+                @if (isSessionCancelled(s)) {
+                  <span
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)] cursor-not-allowed border border-[var(--color-border)]"
+                    title="Attendance disabled for cancelled session"
+                  >
+                    <i class="pi pi-times text-[10px]"></i>
+                    Cancelled
+                  </span>
+                } @else if (isSessionFutureDay(s)) {
+                  <span
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[var(--color-info-background)] text-[var(--color-info-foreground)] border border-[var(--color-info)]"
+                    title="Attendance opens on session date"
+                  >
+                    <i class="pi pi-clock text-[10px]"></i>
+                    Upcoming
+                  </span>
+                } @else {
+                  <a
+                    [routerLink]="['/attendance']"
+                    [queryParams]="{ sessionId: s.id }"
+                    (click)="$event.stopPropagation()"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white transition-all shadow-xs"
+                    title="Go to Attendance for this session"
+                  >
+                    <i class="pi pi-check-square text-[10px]"></i>
+                    Attendance
+                  </a>
+                }
               </div>
             </div>
 

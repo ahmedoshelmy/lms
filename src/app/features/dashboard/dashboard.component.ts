@@ -127,6 +127,18 @@ export class DashboardComponent implements OnInit {
     return 'pi pi-graduation-cap';
   });
 
+  isSessionCancelled(s: ScheduleSession): boolean {
+    return (s.status ?? '').toLowerCase().includes('cancel');
+  }
+
+  isSessionFutureDay(s: ScheduleSession): boolean {
+    if (!s.startsAt) return false;
+    const start = new Date(s.startsAt);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    return start.getTime() > todayEnd.getTime();
+  }
+
   readonly todayFormatted = computed(() => {
     return new Date().toLocaleDateString('en-US', {
       weekday: 'long',
@@ -142,7 +154,7 @@ export class DashboardComponent implements OnInit {
       {
         label: 'Attended Today',
         value: this.attendedToday(),
-        icon: 'pi pi-user-check',
+        icon: 'pi pi-check-circle',
         color: 'var(--color-success)',
         link: '/attendance',
         loading: this.loadingAttendanceSummary(),
