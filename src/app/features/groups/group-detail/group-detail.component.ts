@@ -189,7 +189,7 @@ export class GroupDetailComponent implements OnInit {
     return this.allSystemStudents().filter((st) => {
       if (currentStudentIds.has(st.id)) return false;
       const matchesName = st.name.toLowerCase().includes(q);
-      const matchesEmail = st.email.toLowerCase().includes(q);
+      const matchesEmail = (st.email || '').toLowerCase().includes(q);
       const matchesGroup = (st.groupName || '').toLowerCase().includes(q);
       return !q || matchesName || matchesEmail || matchesGroup;
     });

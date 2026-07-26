@@ -1,7 +1,8 @@
 export interface StudentDetails {
   id: number;
   name: string;
-  email: string;
+  email?: string;
+  phone?: string;
   createdAt: string;
   currentGroup: StudentGroup | null;
   groupHistory: StudentGroup[];

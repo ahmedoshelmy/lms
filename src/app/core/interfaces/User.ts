@@ -3,10 +3,10 @@ import { Role } from './Role';
 export interface User {
   id: number;
   name: string;
-  email: string;
+  email?: string;
+  phone?: string;
   role: Role;
   accessToken?: string;
-  phone?: string;
   bio?: string;
   avatarUrl?: string;
   location?: string;
@@ -18,7 +18,8 @@ export interface User {
 
 export interface CreateUserPayload {
   name: string;
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
   role: Role;
   groupId?: number;
@@ -26,7 +27,8 @@ export interface CreateUserPayload {
 
 export interface UpdateUserPayload {
   name: string;
-  email: string;
+  email?: string;
+  phone?: string;
   password?: string;
   role: Role;
   groupId?: number;

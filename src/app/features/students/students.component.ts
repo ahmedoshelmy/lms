@@ -51,6 +51,7 @@ export class StudentsComponent implements OnInit {
   // Form fields
   formName = signal('');
   formEmail = signal('');
+  formPhone = signal('');
   formPassword = signal('');
   formGroupId = signal<number>(0);
 
@@ -89,7 +90,7 @@ export class StudentsComponent implements OnInit {
       const matchesSearch =
         !q ||
         s.name.toLowerCase().includes(q) ||
-        s.email.toLowerCase().includes(q) ||
+        (s.email && s.email.toLowerCase().includes(q)) ||
         (s.groupName && s.groupName.toLowerCase().includes(q));
 
       return matchesGroup && matchesSearch;
@@ -241,6 +242,7 @@ export class StudentsComponent implements OnInit {
     this.editingStudent.set(null);
     this.formName.set('');
     this.formEmail.set('');
+    this.formPhone.set('');
     this.formPassword.set('');
     this.formGroupId.set(0);
     this.showStudentModal.set(true);
@@ -249,7 +251,8 @@ export class StudentsComponent implements OnInit {
   openEditModal(student: User): void {
     this.editingStudent.set(student);
     this.formName.set(student.name);
-    this.formEmail.set(student.email);
+    this.formEmail.set(student.email || '');
+    this.formPhone.set(student.phone || '');
     this.formPassword.set('');
     this.formGroupId.set(student.groupId || 0);
     this.showStudentModal.set(true);
@@ -263,6 +266,7 @@ export class StudentsComponent implements OnInit {
   saveStudent(): void {
     const name = this.formName().trim();
     const email = this.formEmail().trim();
+    const phone = this.formPhone().trim();
     const password = this.formPassword().trim();
     const groupId = this.formGroupId() || undefined;
 
@@ -278,7 +282,8 @@ export class StudentsComponent implements OnInit {
       this.lms
         .updateUser(studentId, {
           name,
-          email: email || this.editingStudent()!.email,
+          email: email || undefined,
+          phone: phone || undefined,
           role: Role.Student,
           password: password || undefined,
           groupId: groupId || undefined,
@@ -304,6 +309,7 @@ export class StudentsComponent implements OnInit {
         .createUser({
           name,
           email: dummyEmail,
+          phone: phone || undefined,
           password: dummyPassword,
           role: Role.Student,
           groupId: groupId || undefined,

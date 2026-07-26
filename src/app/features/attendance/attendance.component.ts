@@ -498,7 +498,7 @@ export class AttendanceComponent implements OnInit {
         recs.push({
           studentId: st.id,
           studentName: st.name,
-          studentEmail: st.email,
+          studentEmail: st.email || '',
           status: normalizeAttendanceStatus(apiRec.status),
           recordId: apiRec.id,
           isSaved: true,
@@ -508,7 +508,7 @@ export class AttendanceComponent implements OnInit {
         recs.push({
           studentId: st.id,
           studentName: st.name,
-          studentEmail: st.email,
+          studentEmail: st.email || '',
           status: normalizeAttendanceStatus(storedMap[st.id]?.status ?? 'Pending'),
           recordId: storedMap[st.id]?.recordId ? Number(storedMap[st.id].recordId) : undefined,
           isSaved: false,

@@ -58,7 +58,7 @@ export class InstructorsComponent implements OnInit {
   filteredInstructors = computed(() => {
     const q = this.searchQuery().toLowerCase();
     const list = this.instructors().filter(
-      (inst) => inst.name.toLowerCase().includes(q) || inst.email.toLowerCase().includes(q)
+      (inst) => inst.name.toLowerCase().includes(q) || (inst.email || '').toLowerCase().includes(q)
     );
 
     const col = this.sortColumn();
@@ -120,7 +120,7 @@ export class InstructorsComponent implements OnInit {
   openEditModal(instructor: User): void {
     this.editingInstructor.set(instructor);
     this.formName.set(instructor.name);
-    this.formEmail.set(instructor.email);
+    this.formEmail.set(instructor.email || '');
     this.formPassword.set('');
     this.showInstructorModal.set(true);
   }

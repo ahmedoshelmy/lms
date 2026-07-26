@@ -45,6 +45,7 @@ export class StudentDetailComponent implements OnInit {
   saving = signal<boolean>(false);
   formName = signal<string>('');
   formEmail = signal<string>('');
+  formPhone = signal<string>('');
   formPassword = signal<string>('');
   formGroupId = signal<number>(0);
 
@@ -107,7 +108,8 @@ export class StudentDetailComponent implements OnInit {
     const s = this.student();
     if (!s) return;
     this.formName.set(s.name);
-    this.formEmail.set(s.email);
+    this.formEmail.set(s.email || '');
+    this.formPhone.set(s.phone || '');
     this.formPassword.set('');
     this.formGroupId.set(s.currentGroup?.groupId || 0);
     this.showEditModal.set(true);
@@ -119,6 +121,7 @@ export class StudentDetailComponent implements OnInit {
 
     const name = this.formName().trim();
     const email = this.formEmail().trim();
+    const phone = this.formPhone().trim();
     const password = this.formPassword().trim();
     const groupId = this.formGroupId() || undefined;
 
@@ -131,7 +134,8 @@ export class StudentDetailComponent implements OnInit {
     this.lmsService
       .updateUser(s.id, {
         name,
-        email: email || s.email,
+        email: email || undefined,
+        phone: phone || undefined,
         role: Role.Student,
         password: password || undefined,
         groupId,

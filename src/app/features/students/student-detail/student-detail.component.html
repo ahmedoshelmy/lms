@@ -48,8 +48,14 @@
             >
               <div class="flex items-center gap-1.5">
                 <i class="pi pi-envelope text-[var(--color-secondary)]"></i>
-                <span class="font-medium">{{ student()!.email }}</span>
+                <span class="font-medium">{{ student()!.email || '—' }}</span>
               </div>
+              @if (student()!.phone) {
+                <div class="flex items-center gap-1.5">
+                  <i class="pi pi-phone text-[var(--color-primary)]"></i>
+                  <span class="font-medium">{{ student()!.phone }}</span>
+                </div>
+              }
               <div class="flex items-center gap-1.5">
                 <i class="pi pi-calendar text-[var(--color-text-muted)]"></i>
                 <span>Joined {{ formatDate(student()!.createdAt) }}</span>
@@ -578,13 +584,26 @@
 
     <div>
       <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-        >Email Address</label
+        >Email Address (optional)</label
       >
       <input
         type="email"
         [ngModel]="formEmail()"
         (ngModelChange)="formEmail.set($event)"
         placeholder="student@example.com"
+        class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >Phone Number (optional)</label
+      >
+      <input
+        type="tel"
+        [ngModel]="formPhone()"
+        (ngModelChange)="formPhone.set($event)"
+        placeholder="e.g. +20 123 456 7890"
         class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
       />
     </div>
