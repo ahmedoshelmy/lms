@@ -155,7 +155,9 @@
           >
             <ng-template pTemplate="selectedItem" let-selected>
               @if (selected) {
-                <div class="truncate text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                <div
+                  class="truncate text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2"
+                >
                   <i class="pi pi-user text-[var(--color-secondary)]"></i>
                   <span>{{ selected.name }}</span>
                 </div>
@@ -405,13 +407,14 @@
       <div
         class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-error)] bg-[var(--color-error-background)]"
       >
-        <i class="pi pi-times-circle text-2xl text-[var(--color-error-foreground)] flex-shrink-0"></i>
+        <i
+          class="pi pi-times-circle text-2xl text-[var(--color-error-foreground)] flex-shrink-0"
+        ></i>
         <div>
-          <p class="text-sm font-bold text-[var(--color-error-foreground)]">
-            Session Cancelled
-          </p>
+          <p class="text-sm font-bold text-[var(--color-error-foreground)]">Session Cancelled</p>
           <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            This session has been cancelled. Attendance records cannot be taken or modified for cancelled sessions.
+            This session has been cancelled. Attendance records cannot be taken or modified for
+            cancelled sessions.
           </p>
         </div>
       </div>
@@ -425,8 +428,9 @@
             Attendance Not Open Yet
           </p>
           <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            This session is scheduled for {{ formatDate(selectedSession()?.startsAt) }} at {{ formatTime(selectedSession()?.startsAt) }}.
-            Attendance marking will open once the session begins.
+            This session is scheduled for {{ formatDate(selectedSession()?.startsAt) }} at
+            {{ formatTime(selectedSession()?.startsAt) }}. Attendance marking will open once the
+            session begins.
           </p>
         </div>
       </div>
@@ -1064,34 +1068,47 @@
   >
     @if (historyStudent(); as std) {
       <div class="space-y-4 py-2 text-xs">
-        <div class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+        <div
+          class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
+        >
           <div class="avatar-circle w-10 h-10 text-sm">
             {{ initials(std.studentName) }}
           </div>
           <div>
-            <h4 class="font-extrabold text-sm text-[var(--color-text-primary)]">{{ std.studentName }}</h4>
+            <h4 class="font-extrabold text-sm text-[var(--color-text-primary)]">
+              {{ std.studentName }}
+            </h4>
             <p class="text-xs text-[var(--color-text-muted)]">{{ std.studentEmail }}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-          <div class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">Current Session Status</span>
+          <div
+            class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]"
+          >
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase"
+              >Current Session Status</span
+            >
             <p
               class="text-sm font-extrabold mt-1"
               [ngClass]="{
                 'text-[var(--color-success-foreground)]': std.status === 'Present',
-                'text-[var(--color-warning-foreground)]': std.status === 'Late' || std.status === 'Pending',
+                'text-[var(--color-warning-foreground)]':
+                  std.status === 'Late' || std.status === 'Pending',
                 'text-[var(--color-info-foreground)]': std.status === 'Excused',
-                'text-[var(--color-error-foreground)]': std.status === 'Absent'
+                'text-[var(--color-error-foreground)]': std.status === 'Absent',
               }"
             >
               {{ std.status }}
             </p>
           </div>
 
-          <div class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">Engagement Level</span>
+          <div
+            class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]"
+          >
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase"
+              >Engagement Level</span
+            >
             <p class="text-sm font-extrabold text-[var(--color-secondary)] mt-1">High</p>
           </div>
         </div>

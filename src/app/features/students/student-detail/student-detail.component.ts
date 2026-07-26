@@ -20,7 +20,14 @@ import {
 @Component({
   selector: 'app-student-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProgressSpinnerModule, ButtonModule, DialogModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ProgressSpinnerModule,
+    ButtonModule,
+    DialogModule,
+  ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
 })

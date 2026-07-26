@@ -240,7 +240,9 @@
             class="text-center py-16 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
           >
             <i class="pi pi-check-square text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
-            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">No Attendance Records</h3>
+            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
+              No Attendance Records
+            </h3>
             <p class="text-xs text-[var(--color-text-muted)] mt-1">
               This student has not attended any sessions yet.
             </p>
@@ -268,7 +270,9 @@
                     {{ record.attendanceStatus }}
                   </span>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                <div
+                  class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]"
+                >
                   <div class="flex items-center gap-1">
                     <i class="pi pi-calendar text-[10px]"></i>
                     <span>{{ formatDateTime(record.startsAt) }}</span>
@@ -334,7 +338,10 @@
                         class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
                         [ngClass]="getAttendanceStatusCss(record.attendanceStatus)"
                       >
-                        <i class="pi text-[8px]" [ngClass]="getAttendanceIcon(record.attendanceStatus)"></i>
+                        <i
+                          class="pi text-[8px]"
+                          [ngClass]="getAttendanceIcon(record.attendanceStatus)"
+                        ></i>
                         {{ record.attendanceStatus }}
                       </span>
                     </td>
@@ -361,7 +368,9 @@
         class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
       >
         <div class="mb-6">
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Group Enrollment History</h2>
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
+            Group Enrollment History
+          </h2>
           <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
             All groups this student has been enrolled in
           </p>
@@ -398,7 +407,9 @@
                       >
                         {{ group.groupName }}
                       </a>
-                      <div class="flex items-center gap-2 mt-0.5 text-[11px] text-[var(--color-text-muted)]">
+                      <div
+                        class="flex items-center gap-2 mt-0.5 text-[11px] text-[var(--color-text-muted)]"
+                      >
                         <span>Joined {{ formatDate(group.joinedAt) }}</span>
                         @if (group.leftAt) {
                           <span>• Left {{ formatDate(group.leftAt) }}</span>
@@ -408,9 +419,11 @@
                   </div>
                   <span
                     class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-                    [class]="group.leftAt
-                      ? 'bg-gray-500/10 text-gray-600'
-                      : 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]'"
+                    [class]="
+                      group.leftAt
+                        ? 'bg-gray-500/10 text-gray-600'
+                        : 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]'
+                    "
                   >
                     {{ group.leftAt ? 'Completed' : 'Active' }}
                   </span>
@@ -480,7 +493,9 @@
                     {{ session.status }}
                   </span>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                <div
+                  class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]"
+                >
                   <div class="flex items-center gap-1">
                     <i class="pi pi-calendar text-[10px]"></i>
                     <span>{{ formatDateTime(session.startsAt) }}</span>

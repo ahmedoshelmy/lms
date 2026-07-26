@@ -10,7 +10,13 @@ import { LmsService } from '../../../core/services/lms.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
-import { Group, GroupStudent, UpdateGroupPayload, UpdateGroupSchedulePayload, GenerateCustomSessionsPayload } from '../../../core/interfaces/Group';
+import {
+  Group,
+  GroupStudent,
+  UpdateGroupPayload,
+  UpdateGroupSchedulePayload,
+  GenerateCustomSessionsPayload,
+} from '../../../core/interfaces/Group';
 import { GroupCourse } from '../../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import { User } from '../../../core/interfaces/User';
@@ -178,7 +184,9 @@ export class GroupDetailComponent implements OnInit {
 
   // Edit Schedule Modal
   showEditScheduleModal = signal<boolean>(false);
-  editScheduleSlots = signal<{ dayOfWeek: string; startTime: string; endTime: string; location: string }[]>([]);
+  editScheduleSlots = signal<
+    { dayOfWeek: string; startTime: string; endTime: string; location: string }[]
+  >([]);
   editScheduleUpdateUpcoming = signal<boolean>(false);
   savingSchedule = signal<boolean>(false);
 
@@ -263,14 +271,14 @@ export class GroupDetailComponent implements OnInit {
   courseSessions = computed(() => {
     const course = this.selectedCourseForSessions();
     if (!course) return [];
-    return this.groupSessions().filter(s => s.courseId === course.courseId);
+    return this.groupSessions().filter((s) => s.courseId === course.courseId);
   });
 
   // Add Course: selected course details preview
   selectedCourseToAddDetails = computed(() => {
     const id = this.selectedCourseIdToAdd();
     if (!id) return null;
-    return this.courses().find(c => c.id === id) || null;
+    return this.courses().find((c) => c.id === id) || null;
   });
 
   ngOnInit(): void {
@@ -388,7 +396,10 @@ export class GroupDetailComponent implements OnInit {
             this.loadScheduleSessions();
           },
           error: (err) => {
-            this.notify.showWarn('Course added but session generation failed: ' + (err.error?.message || err.message || 'Error'));
+            this.notify.showWarn(
+              'Course added but session generation failed: ' +
+                (err.error?.message || err.message || 'Error')
+            );
             this.addingCourse.set(false);
             this.showAddCourseModal.set(false);
             this.loadGroupDetail(id);
@@ -702,7 +713,7 @@ export class GroupDetailComponent implements OnInit {
   openRemoveCourseModal(courseId: number): void {
     const grp = this.group();
     if (!grp) return;
-    const course = grp.courses.find(c => c.courseId === courseId);
+    const course = grp.courses.find((c) => c.courseId === courseId);
     if (!course) return;
 
     this.removingCourseId.set(courseId);
@@ -778,7 +789,7 @@ export class GroupDetailComponent implements OnInit {
     const grp = this.group();
     if (!grp) return;
 
-    const slots = (grp.schedules || []).map(s => ({
+    const slots = (grp.schedules || []).map((s) => ({
       dayOfWeek: s.dayOfWeek,
       startTime: s.startTime,
       endTime: s.endTime,
@@ -795,18 +806,18 @@ export class GroupDetailComponent implements OnInit {
   }
 
   addScheduleSlot(): void {
-    this.editScheduleSlots.update(slots => [
+    this.editScheduleSlots.update((slots) => [
       ...slots,
-      { dayOfWeek: 'Sunday', startTime: '10:00', endTime: '12:00', location: '' }
+      { dayOfWeek: 'Sunday', startTime: '10:00', endTime: '12:00', location: '' },
     ]);
   }
 
   removeScheduleSlot(index: number): void {
-    this.editScheduleSlots.update(slots => slots.filter((_, i) => i !== index));
+    this.editScheduleSlots.update((slots) => slots.filter((_, i) => i !== index));
   }
 
   updateSlotDayOfWeek(index: number, value: string): void {
-    this.editScheduleSlots.update(slots => {
+    this.editScheduleSlots.update((slots) => {
       const copy = [...slots];
       copy[index] = { ...copy[index], dayOfWeek: value };
       return copy;
@@ -814,7 +825,7 @@ export class GroupDetailComponent implements OnInit {
   }
 
   updateSlotStartTime(index: number, value: string): void {
-    this.editScheduleSlots.update(slots => {
+    this.editScheduleSlots.update((slots) => {
       const copy = [...slots];
       copy[index] = { ...copy[index], startTime: value };
       return copy;
@@ -822,7 +833,7 @@ export class GroupDetailComponent implements OnInit {
   }
 
   updateSlotEndTime(index: number, value: string): void {
-    this.editScheduleSlots.update(slots => {
+    this.editScheduleSlots.update((slots) => {
       const copy = [...slots];
       copy[index] = { ...copy[index], endTime: value };
       return copy;
@@ -830,7 +841,7 @@ export class GroupDetailComponent implements OnInit {
   }
 
   updateSlotLocation(index: number, value: string): void {
-    this.editScheduleSlots.update(slots => {
+    this.editScheduleSlots.update((slots) => {
       const copy = [...slots];
       copy[index] = { ...copy[index], location: value };
       return copy;
@@ -849,7 +860,7 @@ export class GroupDetailComponent implements OnInit {
 
     this.savingSchedule.set(true);
     const payload: UpdateGroupSchedulePayload = {
-      schedules: slots.map(s => ({
+      schedules: slots.map((s) => ({
         dayOfWeek: s.dayOfWeek,
         startTime: s.startTime,
         endTime: s.endTime,

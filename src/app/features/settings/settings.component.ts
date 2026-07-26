@@ -81,10 +81,16 @@ import { NotificationService } from '../../core/services/notification.service';
           </div>
         </div>
         <div class="settings-card__body space-y-4">
-          <div class="flex items-center justify-between gap-4 flex-wrap pb-4 border-b border-[var(--color-border)]">
+          <div
+            class="flex items-center justify-between gap-4 flex-wrap pb-4 border-b border-[var(--color-border)]"
+          >
             <div>
-              <p class="text-sm font-bold text-[var(--color-text-primary)]">Backend Server Health</p>
-              <p class="text-xs text-[var(--color-text-muted)]">Ping current API base URL endpoint</p>
+              <p class="text-sm font-bold text-[var(--color-text-primary)]">
+                Backend Server Health
+              </p>
+              <p class="text-xs text-[var(--color-text-muted)]">
+                Ping current API base URL endpoint
+              </p>
             </div>
             <div class="flex items-center gap-3">
               @if (healthStatus()) {
@@ -96,8 +102,18 @@ import { NotificationService } from '../../core/services/notification.service';
                       : 'bg-[var(--color-error-background)] text-[var(--color-error-foreground)] border border-[var(--color-error)]'
                   "
                 >
-                  <i [class]="healthStatus() === 'healthy' ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'"></i>
-                  {{ healthStatus() === 'healthy' ? 'Online (' + latencyMs() + 'ms)' : 'Offline / Error' }}
+                  <i
+                    [class]="
+                      healthStatus() === 'healthy'
+                        ? 'pi pi-check-circle'
+                        : 'pi pi-exclamation-triangle'
+                    "
+                  ></i>
+                  {{
+                    healthStatus() === 'healthy'
+                      ? 'Online (' + latencyMs() + 'ms)'
+                      : 'Offline / Error'
+                  }}
                 </span>
               }
               <button
@@ -117,14 +133,14 @@ import { NotificationService } from '../../core/services/notification.service';
 
           <div class="flex items-center justify-between gap-4 flex-wrap pt-2">
             <div>
-              <p class="text-sm font-bold text-[var(--color-text-primary)]">Offline Local Storage Cache</p>
-              <p class="text-xs text-[var(--color-text-muted)]">Clear cached attendance sheets and offline fallback state</p>
+              <p class="text-sm font-bold text-[var(--color-text-primary)]">
+                Offline Local Storage Cache
+              </p>
+              <p class="text-xs text-[var(--color-text-muted)]">
+                Clear cached attendance sheets and offline fallback state
+              </p>
             </div>
-            <button
-              type="button"
-              class="btn-secondary"
-              (click)="clearCache()"
-            >
+            <button type="button" class="btn-secondary" (click)="clearCache()">
               <i class="pi pi-trash mr-2 text-[var(--color-error)]"></i> Clear Cache
             </button>
           </div>

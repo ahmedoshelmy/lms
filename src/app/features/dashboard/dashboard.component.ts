@@ -131,6 +131,10 @@ export class DashboardComponent implements OnInit {
     return (s.status ?? '').toLowerCase().includes('cancel');
   }
 
+  isSessionCompleted(s: ScheduleSession): boolean {
+    return (s.status ?? '').toLowerCase().includes('completed');
+  }
+
   isSessionFutureDay(s: ScheduleSession): boolean {
     if (!s.startsAt) return false;
     const start = new Date(s.startsAt);
@@ -148,45 +152,48 @@ export class DashboardComponent implements OnInit {
     });
   });
 
-  readonly statCards = computed<StatCard[]>(() => {
+  readonly attendanceStatCards = computed<StatCard[]>(() => [
+    {
+      label: 'Attended Today',
+      value: this.attendedToday(),
+      icon: 'pi pi-check-circle',
+      color: 'var(--color-success)',
+      link: '/attendance',
+      loading: this.loadingAttendanceSummary(),
+      subtitle: 'Students present today',
+    },
+    {
+      label: 'Attended This Week',
+      value: this.attendedThisWeek(),
+      icon: 'pi pi-check-square',
+      color: 'var(--color-primary)',
+      link: '/attendance',
+      loading: this.loadingAttendanceSummary(),
+      subtitle: 'Students present this week',
+    },
+    {
+      label: 'Updated Today',
+      value: this.sessionsUpdatedTodayCount(),
+      icon: 'pi pi-file-edit',
+      color: 'var(--color-warning)',
+      action: () => this.openSessionModal('updated'),
+      loading: this.loadingAttendanceSummary(),
+      subtitle: 'Click to view sessions',
+    },
+    {
+      label: 'Pending Attendance',
+      value: this.pendingAttendanceCount(),
+      icon: 'pi pi-exclamation-circle',
+      color: 'var(--color-danger)',
+      action: () => this.openSessionModal('pending'),
+      loading: this.loadingAttendanceSummary(),
+      subtitle: 'Click to view sessions',
+    },
+  ]);
+
+  readonly overviewStatCards = computed<StatCard[]>(() => {
     const upcoming = this.upcomingSessions().length;
     const cards: StatCard[] = [
-      {
-        label: 'Attended Today',
-        value: this.attendedToday(),
-        icon: 'pi pi-check-circle',
-        color: 'var(--color-success)',
-        link: '/attendance',
-        loading: this.loadingAttendanceSummary(),
-        subtitle: 'Students present today',
-      },
-      {
-        label: 'Attended This Week',
-        value: this.attendedThisWeek(),
-        icon: 'pi pi-check-square',
-        color: 'var(--color-primary)',
-        link: '/attendance',
-        loading: this.loadingAttendanceSummary(),
-        subtitle: 'Students present this week',
-      },
-      {
-        label: 'Attendance Updated Today',
-        value: this.sessionsUpdatedTodayCount(),
-        icon: 'pi pi-file-edit',
-        color: 'var(--color-warning)',
-        action: () => this.openSessionModal('updated'),
-        loading: this.loadingAttendanceSummary(),
-        subtitle: 'Click to view sessions',
-      },
-      {
-        label: 'Pending Attendance',
-        value: this.pendingAttendanceCount(),
-        icon: 'pi pi-exclamation-circle',
-        color: 'var(--color-danger)',
-        action: () => this.openSessionModal('pending'),
-        loading: this.loadingAttendanceSummary(),
-        subtitle: 'Click to view sessions',
-      },
       {
         label: 'Sessions This Week',
         value: upcoming,

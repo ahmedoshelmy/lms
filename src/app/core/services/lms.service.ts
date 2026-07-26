@@ -15,7 +15,13 @@ import {
 } from '../interfaces/Attendance';
 
 import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
-import { Group, CreateGroupPayload, UpdateGroupPayload, UpdateGroupSchedulePayload, GenerateCustomSessionsPayload } from '../interfaces/Group';
+import {
+  Group,
+  CreateGroupPayload,
+  UpdateGroupPayload,
+  UpdateGroupSchedulePayload,
+  GenerateCustomSessionsPayload,
+} from '../interfaces/Group';
 import { GroupCourse } from '../interfaces/GroupCourse';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
 import {
@@ -172,7 +178,11 @@ export class LmsService {
     return this.http.post(`${this.getApiUrl()}/schedule/generate-sessions/${groupCourseId}`, {});
   }
 
-  removeCourseFromGroup(groupId: number, courseId: number, confirmDeleteSessions = false): Observable<Group> {
+  removeCourseFromGroup(
+    groupId: number,
+    courseId: number,
+    confirmDeleteSessions = false
+  ): Observable<Group> {
     let url = `${this.getApiUrl()}/groups/${groupId}/courses/${courseId}`;
     if (confirmDeleteSessions) {
       url += `?confirmDeleteSessions=true`;
@@ -180,7 +190,11 @@ export class LmsService {
     return this.http.delete<Group>(url);
   }
 
-  updateGroupCourseSessions(groupId: number, groupCourseId: number, totalSessions: number): Observable<Group> {
+  updateGroupCourseSessions(
+    groupId: number,
+    groupCourseId: number,
+    totalSessions: number
+  ): Observable<Group> {
     return this.http.put<Group>(
       `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}/sessions`,
       { totalSessions }

@@ -489,7 +489,9 @@
                     </span>
                     <div class="flex items-center gap-2">
                       @if (c.isCompleted) {
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]">
+                        <span
+                          class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]"
+                        >
                           Completed
                         </span>
                       }
@@ -508,19 +510,29 @@
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-[var(--color-border)]">
-                  <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-2">
+                  <div
+                    class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-2"
+                  >
                     <span>
                       Session: <strong>S{{ c.currentSessionNumber }}</strong> /
                       <strong>{{ c.totalSessions }}</strong>
                     </span>
-                    <span class="font-semibold" [class.text-[var(--color-success)]]="c.remainingSessions === 0" [class.text-[var(--color-warning)]]="c.remainingSessions > 0">
+                    <span
+                      class="font-semibold"
+                      [class.text-[var(--color-success)]]="c.remainingSessions === 0"
+                      [class.text-[var(--color-warning)]]="c.remainingSessions > 0"
+                    >
                       {{ c.remainingSessions }} remaining
                     </span>
                   </div>
-                  <div class="w-full h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mb-3">
+                  <div
+                    class="w-full h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mb-3"
+                  >
                     <div
                       class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
-                      [style.width.%]="c.totalSessions > 0 ? (c.currentSessionNumber / c.totalSessions * 100) : 0"
+                      [style.width.%]="
+                        c.totalSessions > 0 ? (c.currentSessionNumber / c.totalSessions) * 100 : 0
+                      "
                     ></div>
                   </div>
                   <div class="flex items-center justify-between">
@@ -591,9 +603,7 @@
         class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
       >
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
-            Weekly Schedule Slots
-          </h2>
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Weekly Schedule Slots</h2>
           @if (isAdmin()) {
             <button
               (click)="openEditScheduleModal()"
@@ -1133,11 +1143,15 @@
   <div class="py-2 text-xs">
     <p class="text-[var(--color-text-primary)]">
       Are you sure you want to remove
-      <strong class="text-[var(--color-warning)] font-bold">{{ selectedGroupStudent()?.studentName }}</strong
-      > from <strong class="text-[var(--color-text-primary)]">{{ group()?.name }}</strong>?
+      <strong class="text-[var(--color-warning)] font-bold">{{
+        selectedGroupStudent()?.studentName
+      }}</strong>
+      from <strong class="text-[var(--color-text-primary)]">{{ group()?.name }}</strong
+      >?
     </p>
     <p class="text-[var(--color-text-muted)] mt-2">
-      The student will be marked as "Left" but their account and attendance records will remain intact.
+      The student will be marked as "Left" but their account and attendance records will remain
+      intact.
     </p>
   </div>
 
@@ -1233,15 +1247,20 @@
 >
   <div class="space-y-4 py-2">
     <p class="text-xs text-[var(--color-text-secondary)]">
-      Select a course to add to <strong class="text-[var(--color-primary)]">{{ group()?.name }}</strong>.
-      Sessions will be automatically generated weekly based on the group's schedule.
+      Select a course to add to
+      <strong class="text-[var(--color-primary)]">{{ group()?.name }}</strong
+      >. Sessions will be automatically generated weekly based on the group's schedule.
     </p>
 
     @if (availableCourses().length === 0) {
       <div class="text-center py-8 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
         <i class="pi pi-check-circle text-3xl text-[var(--color-success)] mb-2 block"></i>
-        <p class="text-xs font-bold text-[var(--color-text-primary)]">All courses are already added</p>
-        <p class="text-[11px] text-[var(--color-text-muted)] mt-1">This group already has every available course in its curriculum.</p>
+        <p class="text-xs font-bold text-[var(--color-text-primary)]">
+          All courses are already added
+        </p>
+        <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+          This group already has every available course in its curriculum.
+        </p>
       </div>
     } @else {
       <div class="max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
@@ -1255,17 +1274,25 @@
             [class.hover:bg-[var(--color-surface-hover)]]="selectedCourseIdToAdd() !== c.id"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <div class="p-2 rounded-lg bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)] shrink-0">
+              <div
+                class="p-2 rounded-lg bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)] shrink-0"
+              >
                 <i class="pi pi-book text-sm"></i>
               </div>
               <div class="min-w-0">
-                <p class="text-xs font-bold text-[var(--color-text-primary)] truncate">{{ c.title }}</p>
+                <p class="text-xs font-bold text-[var(--color-text-primary)] truncate">
+                  {{ c.title }}
+                </p>
                 <div class="flex items-center gap-2 mt-0.5">
-                  <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)]">
+                  <span
+                    class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)]"
+                  >
                     Level {{ c.level }}
                   </span>
                   <span class="text-[10px] text-[var(--color-text-muted)]">{{ c.topic }}</span>
-                  <span class="text-[10px] text-[var(--color-text-muted)]">· {{ c.sessionCount }} sessions</span>
+                  <span class="text-[10px] text-[var(--color-text-muted)]"
+                    >· {{ c.sessionCount }} sessions</span
+                  >
                 </div>
               </div>
             </div>
@@ -1278,12 +1305,15 @@
     }
 
     @if (selectedCourseToAddDetails(); as details) {
-      <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40">
+      <div
+        class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40"
+      >
         <p class="text-xs text-blue-700 dark:text-blue-300 font-semibold flex items-center gap-2">
           <i class="pi pi-info-circle text-sm shrink-0"></i>
           <span>
-            <strong>{{ details.title }}</strong> has <strong>{{ details.sessionCount }}</strong> sessions.
-            They will be generated weekly based on the group's schedule.
+            <strong>{{ details.title }}</strong> has
+            <strong>{{ details.sessionCount }}</strong> sessions. They will be generated weekly
+            based on the group's schedule.
           </span>
         </p>
       </div>
@@ -1327,11 +1357,14 @@
 >
   <div class="space-y-4 py-2">
     <p class="text-xs text-[var(--color-text-secondary)]">
-      Update the total session count for <strong class="text-[var(--color-primary)]">{{ editingCourseTitle() }}</strong>.
-      Remaining sessions and progress will be recalculated automatically.
+      Update the total session count for
+      <strong class="text-[var(--color-primary)]">{{ editingCourseTitle() }}</strong
+      >. Remaining sessions and progress will be recalculated automatically.
     </p>
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Total Sessions</label>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
+        >Total Sessions</label
+      >
       <input
         type="number"
         [ngModel]="editTotalSessionsValue()"
@@ -1375,13 +1408,17 @@
 >
   <div class="space-y-3 py-2">
     <p class="text-xs text-[var(--color-text-primary)]">
-      Are you sure you want to remove <strong class="text-red-600">{{ removingCourseTitle() }}</strong> from this group?
+      Are you sure you want to remove
+      <strong class="text-red-600">{{ removingCourseTitle() }}</strong> from this group?
     </p>
     @if (removingCourseSessionCount() > 0) {
-      <div class="p-3 rounded-xl bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-800/40">
+      <div
+        class="p-3 rounded-xl bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-800/40"
+      >
         <p class="text-xs text-red-700 dark:text-red-300 font-semibold">
           <i class="pi pi-exclamation-triangle mr-1"></i>
-          This course has {{ removingCourseSessionCount() }} scheduled sessions. Removing it will also delete all associated sessions.
+          This course has {{ removingCourseSessionCount() }} scheduled sessions. Removing it will
+          also delete all associated sessions.
         </p>
       </div>
     }
@@ -1433,10 +1470,14 @@
 >
   <div class="space-y-4 py-2">
     <p class="text-xs text-[var(--color-text-secondary)]">
-      Generate sessions for <strong class="text-[var(--color-primary)]">{{ customGenerateCourseTitle() }}</strong>.
+      Generate sessions for
+      <strong class="text-[var(--color-primary)]">{{ customGenerateCourseTitle() }}</strong
+      >.
     </p>
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Number of Sessions</label>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
+        >Number of Sessions</label
+      >
       <input
         type="number"
         [ngModel]="customGenerateCount()"
@@ -1446,14 +1487,18 @@
       />
     </div>
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Start From Date (optional)</label>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
+        >Start From Date (optional)</label
+      >
       <input
         type="date"
         [ngModel]="customGenerateStartDate()"
         (ngModelChange)="customGenerateStartDate.set($event)"
         class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
       />
-      <p class="text-[10px] text-[var(--color-text-muted)] mt-1">Leave empty to start from the next schedule match.</p>
+      <p class="text-[10px] text-[var(--color-text-muted)] mt-1">
+        Leave empty to start from the next schedule match.
+      </p>
     </div>
     <div class="flex items-center gap-2">
       <input
@@ -1502,11 +1547,15 @@
 >
   <div class="space-y-4 py-2">
     <p class="text-xs text-[var(--color-text-secondary)]">
-      Modify the weekly schedule slots for <strong class="text-[var(--color-primary)]">{{ group()?.name }}</strong>.
+      Modify the weekly schedule slots for
+      <strong class="text-[var(--color-primary)]">{{ group()?.name }}</strong
+      >.
     </p>
 
     @for (slot of editScheduleSlots(); track $index; let i = $index) {
-      <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] space-y-3">
+      <div
+        class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] space-y-3"
+      >
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-[var(--color-text-muted)]">Slot {{ i + 1 }}</span>
           @if (editScheduleSlots().length > 1) {
@@ -1521,7 +1570,9 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Day</label>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+              >Day</label
+            >
             <select
               [ngModel]="slot.dayOfWeek"
               (ngModelChange)="updateSlotDayOfWeek(i, $event)"
@@ -1537,7 +1588,9 @@
             </select>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Location</label>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+              >Location</label
+            >
             <input
               type="text"
               [ngModel]="slot.location"
@@ -1549,7 +1602,9 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Start Time</label>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+              >Start Time</label
+            >
             <input
               type="time"
               [ngModel]="slot.startTime"
@@ -1558,7 +1613,9 @@
             />
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">End Time</label>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+              >End Time</label
+            >
             <input
               type="time"
               [ngModel]="slot.endTime"
@@ -1578,7 +1635,9 @@
       <i class="pi pi-plus mr-1"></i> Add Schedule Slot
     </button>
 
-    <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40">
+    <div
+      class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40"
+    >
       <label class="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
@@ -1632,7 +1691,9 @@
       <div class="text-center py-8 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
         <i class="pi pi-calendar-times text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
         <p class="text-xs font-bold text-[var(--color-text-primary)]">No sessions generated yet</p>
-        <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Sessions for this course have not been generated.</p>
+        <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+          Sessions for this course have not been generated.
+        </p>
       </div>
     } @else {
       <div class="flex items-center gap-3 mb-3">
@@ -1641,13 +1702,15 @@
         </span>
         <span class="text-[10px] text-[var(--color-text-muted)]">·</span>
         <span class="text-xs text-[var(--color-text-secondary)]">
-          {{ courseSessions() | slice:0:1 }} - {{ courseSessions() | slice:-1 }}
+          {{ courseSessions() | slice: 0 : 1 }} - {{ courseSessions() | slice: -1 }}
         </span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
           <thead>
-            <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+            <tr
+              class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
+            >
               <th class="py-2.5 px-3">#</th>
               <th class="py-2.5 px-3">Topic</th>
               <th class="py-2.5 px-3">Date & Time</th>
@@ -1669,7 +1732,10 @@
                   {{ sess.instructorName }}
                 </td>
                 <td class="py-2.5 px-3">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" [ngClass]="getStatusCss(sess.status)">
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                    [ngClass]="getStatusCss(sess.status)"
+                  >
                     {{ sess.status }}
                   </span>
                 </td>

@@ -170,8 +170,7 @@ export class AttendanceComponent implements OnInit {
       // 0. Instructor Filter for Admin
       if (instFilter !== 0) {
         const selectedInst = this.instructors().find((i) => i.id === instFilter);
-        const matchesInstId =
-          String(s.instructorId) === String(instFilter);
+        const matchesInstId = String(s.instructorId) === String(instFilter);
         const matchesInstName =
           selectedInst && s.instructorName
             ? s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase())

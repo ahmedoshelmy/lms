@@ -15,7 +15,14 @@ import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 @Component({
   selector: 'app-instructor-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ProgressSpinnerModule, ButtonModule, DialogModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ProgressSpinnerModule,
+    ButtonModule,
+    DialogModule,
+  ],
   templateUrl: './instructor-detail.component.html',
   styleUrl: './instructor-detail.component.scss',
 })

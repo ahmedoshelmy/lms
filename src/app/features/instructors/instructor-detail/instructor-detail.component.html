@@ -201,27 +201,33 @@
             <button
               (click)="sessionFilter.set('all')"
               class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
-              [class]="sessionFilter() === 'all'
-                ? 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20'
-                : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-secondary)]/40'"
+              [class]="
+                sessionFilter() === 'all'
+                  ? 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20'
+                  : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-secondary)]/40'
+              "
             >
               All ({{ sessionStats().total }})
             </button>
             <button
               (click)="sessionFilter.set('completed')"
               class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
-              [class]="sessionFilter() === 'completed'
-                ? 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)] border border-[color-mix(in_srgb,var(--color-success)_20%,transparent)]'
-                : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-success)]/40'"
+              [class]="
+                sessionFilter() === 'completed'
+                  ? 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)] border border-[color-mix(in_srgb,var(--color-success)_20%,transparent)]'
+                  : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-success)]/40'
+              "
             >
               Completed ({{ sessionStats().completed }})
             </button>
             <button
               (click)="sessionFilter.set('scheduled')"
               class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
-              [class]="sessionFilter() === 'scheduled'
-                ? 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
-                : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-blue-500/40'"
+              [class]="
+                sessionFilter() === 'scheduled'
+                  ? 'bg-blue-500/10 text-blue-600 border border-blue-500/20'
+                  : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-blue-500/40'
+              "
             >
               Scheduled ({{ sessionStats().scheduled }})
             </button>
@@ -229,9 +235,11 @@
               <button
                 (click)="sessionFilter.set('cancelled')"
                 class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
-                [class]="sessionFilter() === 'cancelled'
-                  ? 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)] border border-[color-mix(in_srgb,var(--color-error)_20%,transparent)]'
-                  : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-error)]/40'"
+                [class]="
+                  sessionFilter() === 'cancelled'
+                    ? 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)] border border-[color-mix(in_srgb,var(--color-error)_20%,transparent)]'
+                    : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-error)]/40'
+                "
               >
                 Cancelled ({{ sessionStats().cancelled }})
               </button>
@@ -276,7 +284,9 @@
                     {{ session.status }}
                   </span>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                <div
+                  class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]"
+                >
                   <div class="flex items-center gap-1">
                     <i class="pi pi-calendar text-[10px]"></i>
                     <span>{{ formatDateTime(session.startsAt) }}</span>
@@ -355,7 +365,10 @@
                         class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
                         [ngClass]="getSessionStatusCss(session.status)"
                       >
-                        <i class="pi text-[8px]" [ngClass]="getSessionStatusIcon(session.status)"></i>
+                        <i
+                          class="pi text-[8px]"
+                          [ngClass]="getSessionStatusIcon(session.status)"
+                        ></i>
                         {{ session.status }}
                       </span>
                     </td>
@@ -412,7 +425,9 @@
                     {{ session.type }}
                   </span>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]">
+                <div
+                  class="flex flex-wrap items-center gap-3 text-[11px] text-[var(--color-text-muted)]"
+                >
                   <div class="flex items-center gap-1">
                     <i class="pi pi-calendar text-[10px]"></i>
                     <span>{{ formatDateTime(session.startsAt) }}</span>
@@ -537,7 +552,9 @@
                       >
                         {{ group.name }}
                       </a>
-                      <div class="flex items-center gap-2 mt-0.5 text-[11px] text-[var(--color-text-muted)]">
+                      <div
+                        class="flex items-center gap-2 mt-0.5 text-[11px] text-[var(--color-text-muted)]"
+                      >
                         <span>{{ group.studentCount }} students</span>
                       </div>
                     </div>
