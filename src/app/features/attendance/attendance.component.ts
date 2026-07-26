@@ -93,6 +93,8 @@ export class AttendanceComponent implements OnInit {
   sessionStatusFilter = signal<SessionStatusFilter>('all');
   selectedGroupFilter = signal<string>('all');
   dateRangeFilter = signal<DateRangeFilter>('all');
+  instructors = signal<User[]>([]);
+  selectedInstructorFilter = signal<number>(0);
   selectedStudentIds = signal<number[]>([]);
 
   // Admin Student Management Modal Signals
@@ -129,7 +131,8 @@ export class AttendanceComponent implements OnInit {
     return (
       this.sessionStatusFilter() !== 'all' ||
       this.selectedGroupFilter() !== 'all' ||
-      this.dateRangeFilter() !== 'all'
+      this.dateRangeFilter() !== 'all' ||
+      this.selectedInstructorFilter() !== 0
     );
   });
 
@@ -140,11 +143,12 @@ export class AttendanceComponent implements OnInit {
     return Math.min(100, Math.round((s.currentSessionNumber / s.totalSessions) * 100));
   });
 
-  /** Filtered list of sessions based on Status, Group, and Date Range filters */
+  /** Filtered list of sessions based on Status, Group, Date Range, and Instructor filters */
   readonly filteredSessionsList = computed(() => {
     const statusFilter = this.sessionStatusFilter();
     const groupFilter = this.selectedGroupFilter();
     const dateFilter = this.dateRangeFilter();
+    const instFilter = this.selectedInstructorFilter();
     const all = this.sessions();
 
     const now = new Date();
@@ -161,6 +165,18 @@ export class AttendanceComponent implements OnInit {
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime();
 
     return all.filter((s) => {
+      // 0. Instructor Filter for Admin
+      if (instFilter !== 0) {
+        const selectedInst = this.instructors().find((i) => i.id === instFilter);
+        const matchesInstId =
+          String(s.instructorId) === String(instFilter);
+        const matchesInstName =
+          selectedInst && s.instructorName
+            ? s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase())
+            : false;
+        if (!matchesInstId && !matchesInstName) return false;
+      }
+
       // 1. Status Filter
       const normStatus = (s.status ?? '').toLowerCase();
       if (statusFilter === 'scheduled' && !normStatus.includes('scheduled')) return false;
@@ -293,6 +309,17 @@ export class AttendanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    if (this.isAdmin()) {
+      this.lms.getInstructors().subscribe({
+        next: (users) => {
+          const filtered = (users || []).filter((u) => u.role === Role.Instructor);
+          this.instructors.set([
+            { id: 0, name: 'All Instructors', email: '', role: Role.Instructor },
+            ...filtered,
+          ]);
+        },
+      });
+    }
   }
 
   loadData(): void {
@@ -343,10 +370,16 @@ export class AttendanceComponent implements OnInit {
     this.syncSelectedSessionWithFilter();
   }
 
+  setInstructorFilter(instId: number): void {
+    this.selectedInstructorFilter.set(instId);
+    this.syncSelectedSessionWithFilter();
+  }
+
   resetFilters(): void {
     this.sessionStatusFilter.set('all');
     this.selectedGroupFilter.set('all');
     this.dateRangeFilter.set('all');
+    this.selectedInstructorFilter.set(0);
     this.syncSelectedSessionWithFilter();
   }
 

@@ -133,6 +133,43 @@
           }
         </select>
       </div>
+
+      <!-- Instructor Dropdown Filter (Admin Only) -->
+      @if (isAdmin()) {
+        <div class="w-full md:w-64">
+          <label
+            class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
+          >
+            Filter Instructor
+          </label>
+          <p-select
+            [options]="instructors()"
+            [ngModel]="selectedInstructorFilter()"
+            (ngModelChange)="setInstructorFilter($event)"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="All Instructors"
+            class="w-full"
+            [filter]="true"
+            filterBy="name"
+          >
+            <ng-template pTemplate="selectedItem" let-selected>
+              @if (selected) {
+                <div class="truncate text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                  <i class="pi pi-user text-[var(--color-secondary)]"></i>
+                  <span>{{ selected.name }}</span>
+                </div>
+              }
+            </ng-template>
+            <ng-template pTemplate="item" let-inst>
+              <div class="py-1 flex items-center gap-2 text-xs font-bold">
+                <i class="pi pi-user text-[var(--color-secondary)]"></i>
+                <span>{{ inst.name }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      }
     </div>
 
     <!-- Row 2: Status Filter Tabs & Date Range Chips -->

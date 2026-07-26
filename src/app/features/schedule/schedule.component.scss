@@ -12,25 +12,38 @@
   }
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .density-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  border: none;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-weight: 600;
-  &:hover {
-    background: var(--color-surface);
+  white-space: nowrap;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+
+  &:hover:not(.density-btn--active) {
+    background: var(--color-background);
     color: var(--color-text-primary);
   }
+
   &.density-btn--active {
     background: var(--color-secondary);
-    color: #fff;
-    box-shadow: 0 1px 4px rgba(62, 109, 181, 0.25);
+    color: #ffffff;
+    border-color: var(--color-secondary);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--color-secondary) 30%, transparent);
   }
 }
