@@ -368,8 +368,16 @@ export class GroupDetailComponent implements OnInit {
 
     this.addingCourse.set(true);
     this.lmsService.addCourseToGroup(id, courseId).subscribe({
-      next: (groupCourse: GroupCourse) => {
-        this.lmsService.generateGroupCourseSessions(groupCourse.id).subscribe({
+      next: (group: Group) => {
+        const addedCourse = group.courses?.find((c) => c.courseId === courseId);
+        if (!addedCourse) {
+          this.notify.showError('Course added but could not find group course entry.');
+          this.addingCourse.set(false);
+          this.showAddCourseModal.set(false);
+          this.loadGroupDetail(id);
+          return;
+        }
+        this.lmsService.generateGroupCourseSessions(addedCourse.id).subscribe({
           next: () => {
             this.notify.showSuccess('Course added and sessions generated!');
             this.addingCourse.set(false);
@@ -380,7 +388,7 @@ export class GroupDetailComponent implements OnInit {
             this.loadScheduleSessions();
           },
           error: (err) => {
-            this.notify.showWarn('Course added but session generation failed: ' + (err.error?.message || 'Error'));
+            this.notify.showWarn('Course added but session generation failed: ' + (err.error?.message || err.message || 'Error'));
             this.addingCourse.set(false);
             this.showAddCourseModal.set(false);
             this.loadGroupDetail(id);
