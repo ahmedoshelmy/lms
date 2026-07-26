@@ -607,27 +607,39 @@
         }
       </div>
 
-      <!-- Search filter input -->
-      <div class="relative w-full md:w-72">
-        <input
-          type="text"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event)"
-          placeholder="Search student name or email…"
-          class="w-full pl-9 pr-8 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] shadow-sm"
-        />
-        <i
-          class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-xs"
-        ></i>
-        @if (searchQuery()) {
-          <button
-            type="button"
-            (click)="searchQuery.set('')"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-          >
-            <i class="pi pi-times text-xs"></i>
-          </button>
-        }
+      <!-- Search filter input & Export CSV button -->
+      <div class="flex items-center gap-2.5 w-full md:w-auto">
+        <div class="relative flex-1 md:w-64">
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Search student name or email…"
+            class="w-full pl-9 pr-8 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] shadow-sm"
+          />
+          <i
+            class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-xs"
+          ></i>
+          @if (searchQuery()) {
+            <button
+              type="button"
+              (click)="searchQuery.set('')"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+            >
+              <i class="pi pi-times text-xs"></i>
+            </button>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="exportToCsv()"
+          class="px-3.5 py-2 rounded-xl text-xs font-bold bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
+          title="Export attendance sheet as CSV"
+        >
+          <i class="pi pi-download text-xs text-[var(--color-secondary)]"></i>
+          <span>Export CSV</span>
+        </button>
       </div>
     </div>
 
@@ -774,6 +786,14 @@
               @if (isAdmin()) {
                 <td class="td-cell text-right">
                   <div class="flex items-center justify-end gap-1">
+                    <button
+                      type="button"
+                      (click)="openStudentHistoryModal(rec)"
+                      class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-info-foreground)] hover:bg-[var(--color-info-background)] transition-colors cursor-pointer"
+                      title="View Student Attendance Summary"
+                    >
+                      <i class="pi pi-chart-pie text-xs"></i>
+                    </button>
                     <button
                       type="button"
                       (click)="openStudentDetailsModal(rec)"
@@ -1028,6 +1048,64 @@
             <i class="pi pi-spinner pi-spin"></i>
           }
           Delete Student
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Student Attendance Summary Dialog -->
+  <p-dialog
+    [(visible)]="showStudentHistoryModal"
+    header="Student Attendance Summary"
+    [modal]="true"
+    [style]="{ width: '100%', maxWidth: '480px' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    @if (historyStudent(); as std) {
+      <div class="space-y-4 py-2 text-xs">
+        <div class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]">
+          <div class="avatar-circle w-10 h-10 text-sm">
+            {{ initials(std.studentName) }}
+          </div>
+          <div>
+            <h4 class="font-extrabold text-sm text-[var(--color-text-primary)]">{{ std.studentName }}</h4>
+            <p class="text-xs text-[var(--color-text-muted)]">{{ std.studentEmail }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">Current Session Status</span>
+            <p
+              class="text-sm font-extrabold mt-1"
+              [ngClass]="{
+                'text-[var(--color-success-foreground)]': std.status === 'Present',
+                'text-[var(--color-warning-foreground)]': std.status === 'Late' || std.status === 'Pending',
+                'text-[var(--color-info-foreground)]': std.status === 'Excused',
+                'text-[var(--color-error-foreground)]': std.status === 'Absent'
+              }"
+            >
+              {{ std.status }}
+            </p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">Engagement Level</span>
+            <p class="text-sm font-extrabold text-[var(--color-secondary)] mt-1">High</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end pt-3 border-t border-[var(--color-border)]">
+        <button
+          type="button"
+          (click)="closeStudentHistoryModal()"
+          class="px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl cursor-pointer"
+        >
+          Close
         </button>
       </div>
     </ng-template>

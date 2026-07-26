@@ -44,9 +44,9 @@ export interface TimeSlot {
       <div class="min-w-[900px]">
         <table class="w-full border-collapse text-left text-xs">
           <thead>
-            <tr class="bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)]">
+            <tr class="sticky top-0 z-20 bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)] shadow-xs">
               <th
-                class="sticky left-0 z-10 w-48 border-b border-r border-[var(--color-border)] bg-[var(--color-surface-secondary)] px-3 py-2.5 font-semibold"
+                class="sticky left-0 z-30 w-48 border-b border-r border-[var(--color-border)] bg-[var(--color-surface-secondary)] px-3 py-2.5 font-semibold"
               >
                 Instructor
               </th>
