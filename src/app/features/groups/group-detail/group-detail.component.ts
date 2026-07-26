@@ -10,7 +10,7 @@ import { LmsService } from '../../../core/services/lms.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
-import { Group, GroupStudent, UpdateGroupPayload } from '../../../core/interfaces/Group';
+import { Group, GroupStudent, UpdateGroupPayload, UpdateGroupSchedulePayload, GenerateCustomSessionsPayload } from '../../../core/interfaces/Group';
 import { GroupCourse } from '../../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import { User } from '../../../core/interfaces/User';
@@ -152,6 +152,35 @@ export class GroupDetailComponent implements OnInit {
   savingStudent = signal<boolean>(false);
   deletingStudent = signal<boolean>(false);
   removingStudent = signal<boolean>(false);
+
+  // Edit Total Sessions Modal
+  showEditSessionsModal = signal<boolean>(false);
+  editingGroupCourseId = signal<number>(0);
+  editingCourseTitle = signal<string>('');
+  editTotalSessionsValue = signal<number>(0);
+  savingSessions = signal<boolean>(false);
+
+  // Remove Course Confirmation
+  showRemoveCourseModal = signal<boolean>(false);
+  removingCourseId = signal<number>(0);
+  removingCourseTitle = signal<string>('');
+  removingCourseSessionCount = signal<number>(0);
+  removingCourse = signal<boolean>(false);
+
+  // Custom Session Generation Modal
+  showCustomGenerateModal = signal<boolean>(false);
+  customGenerateGroupCourseId = signal<number>(0);
+  customGenerateCourseTitle = signal<string>('');
+  customGenerateCount = signal<number | null>(null);
+  customGenerateStartDate = signal<string>('');
+  customGenerateIncludeToday = signal<boolean>(true);
+  generatingCustom = signal<boolean>(false);
+
+  // Edit Schedule Modal
+  showEditScheduleModal = signal<boolean>(false);
+  editScheduleSlots = signal<{ dayOfWeek: string; startTime: string; endTime: string; location: string }[]>([]);
+  editScheduleUpdateUpcoming = signal<boolean>(false);
+  savingSchedule = signal<boolean>(false);
 
   filteredCandidateStudents = computed(() => {
     const q = this.addStudentSearchQuery().toLowerCase().trim();
@@ -446,8 +475,7 @@ export class GroupDetailComponent implements OnInit {
     let totalSessions = 0;
     let completedSessions = 0;
     for (const c of group.courses) {
-      const total = parseInt(c.sessionCount || '0', 10) || 0;
-      totalSessions += total;
+      totalSessions += c.totalSessions || 0;
       completedSessions += c.currentSessionNumber || 0;
     }
     if (totalSessions === 0) return 0;
@@ -607,5 +635,209 @@ export class GroupDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/groups']);
+  }
+
+  openEditSessionsModal(gc: GroupCourse): void {
+    this.editingGroupCourseId.set(this.groupCourseIdMap().get(gc.courseId) || 0);
+    this.editingCourseTitle.set(gc.title);
+    this.editTotalSessionsValue.set(gc.totalSessions);
+    this.showEditSessionsModal.set(true);
+  }
+
+  saveTotalSessions(): void {
+    const groupId = this.groupId();
+    const groupCourseId = this.editingGroupCourseId();
+    const totalSessions = this.editTotalSessionsValue();
+    if (!groupId || !groupCourseId || totalSessions < 1) return;
+
+    this.savingSessions.set(true);
+    this.lmsService.updateGroupCourseSessions(groupId, groupCourseId, totalSessions).subscribe({
+      next: () => {
+        this.notify.showSuccess('Total sessions updated successfully.');
+        this.savingSessions.set(false);
+        this.showEditSessionsModal.set(false);
+        this.loadGroupDetail(groupId);
+        this.loadGroupHistory(groupId);
+        this.loadScheduleSessions();
+      },
+      error: (err) => {
+        this.notify.showError('Failed to update sessions: ' + (err.error?.message || 'Error'));
+        this.savingSessions.set(false);
+      },
+    });
+  }
+
+  openRemoveCourseModal(courseId: number): void {
+    const grp = this.group();
+    if (!grp) return;
+    const course = grp.courses.find(c => c.courseId === courseId);
+    if (!course) return;
+
+    this.removingCourseId.set(courseId);
+    this.removingCourseTitle.set(course.title);
+    this.removingCourseSessionCount.set(course.scheduledSessionCount);
+    this.showRemoveCourseModal.set(true);
+  }
+
+  confirmRemoveCourse(forceDelete: boolean): void {
+    const groupId = this.groupId();
+    const courseId = this.removingCourseId();
+    if (!groupId || !courseId) return;
+
+    this.removingCourse.set(true);
+    this.lmsService.removeCourseFromGroup(groupId, courseId, forceDelete).subscribe({
+      next: () => {
+        this.notify.showSuccess('Course removed from group.');
+        this.removingCourse.set(false);
+        this.showRemoveCourseModal.set(false);
+        this.loadGroupDetail(groupId);
+        this.loadGroupHistory(groupId);
+        this.loadScheduleSessions();
+      },
+      error: (err) => {
+        this.notify.showError('Failed to remove course: ' + (err.error?.message || 'Error'));
+        this.removingCourse.set(false);
+      },
+    });
+  }
+
+  openCustomGenerateModal(gc: GroupCourse): void {
+    const groupCourseId = this.groupCourseIdMap().get(gc.courseId) || 0;
+    this.customGenerateGroupCourseId.set(groupCourseId);
+    this.customGenerateCourseTitle.set(gc.title);
+    this.customGenerateCount.set(gc.remainingSessions);
+    this.customGenerateStartDate.set('');
+    this.customGenerateIncludeToday.set(true);
+    this.showCustomGenerateModal.set(true);
+  }
+
+  submitCustomGenerate(): void {
+    const count = this.customGenerateCount();
+    if (!count || count < 1) {
+      this.notify.showError('Please enter a valid session count.');
+      return;
+    }
+
+    this.generatingCustom.set(true);
+    const payload: GenerateCustomSessionsPayload = {
+      groupCourseId: this.customGenerateGroupCourseId(),
+      count: count,
+      startFromDate: this.customGenerateStartDate() || undefined,
+      includeTodayIfMatching: this.customGenerateIncludeToday(),
+    };
+
+    this.lmsService.generateCustomSessions(payload).subscribe({
+      next: () => {
+        this.notify.showSuccess(`${count} sessions generated successfully.`);
+        this.generatingCustom.set(false);
+        this.showCustomGenerateModal.set(false);
+        this.loadGroupDetail(this.groupId());
+        this.loadGroupHistory(this.groupId());
+        this.loadScheduleSessions();
+      },
+      error: (err) => {
+        this.notify.showError('Failed to generate sessions: ' + (err.error?.message || 'Error'));
+        this.generatingCustom.set(false);
+      },
+    });
+  }
+
+  openEditScheduleModal(): void {
+    const grp = this.group();
+    if (!grp) return;
+
+    const slots = (grp.schedules || []).map(s => ({
+      dayOfWeek: s.dayOfWeek,
+      startTime: s.startTime,
+      endTime: s.endTime,
+      location: s.location || '',
+    }));
+
+    if (slots.length === 0) {
+      slots.push({ dayOfWeek: 'Sunday', startTime: '10:00', endTime: '12:00', location: '' });
+    }
+
+    this.editScheduleSlots.set(JSON.parse(JSON.stringify(slots)));
+    this.editScheduleUpdateUpcoming.set(false);
+    this.showEditScheduleModal.set(true);
+  }
+
+  addScheduleSlot(): void {
+    this.editScheduleSlots.update(slots => [
+      ...slots,
+      { dayOfWeek: 'Sunday', startTime: '10:00', endTime: '12:00', location: '' }
+    ]);
+  }
+
+  removeScheduleSlot(index: number): void {
+    this.editScheduleSlots.update(slots => slots.filter((_, i) => i !== index));
+  }
+
+  updateSlotDayOfWeek(index: number, value: string): void {
+    this.editScheduleSlots.update(slots => {
+      const copy = [...slots];
+      copy[index] = { ...copy[index], dayOfWeek: value };
+      return copy;
+    });
+  }
+
+  updateSlotStartTime(index: number, value: string): void {
+    this.editScheduleSlots.update(slots => {
+      const copy = [...slots];
+      copy[index] = { ...copy[index], startTime: value };
+      return copy;
+    });
+  }
+
+  updateSlotEndTime(index: number, value: string): void {
+    this.editScheduleSlots.update(slots => {
+      const copy = [...slots];
+      copy[index] = { ...copy[index], endTime: value };
+      return copy;
+    });
+  }
+
+  updateSlotLocation(index: number, value: string): void {
+    this.editScheduleSlots.update(slots => {
+      const copy = [...slots];
+      copy[index] = { ...copy[index], location: value };
+      return copy;
+    });
+  }
+
+  saveSchedule(): void {
+    const groupId = this.groupId();
+    if (!groupId) return;
+
+    const slots = this.editScheduleSlots();
+    if (slots.length === 0) {
+      this.notify.showError('At least one schedule slot is required.');
+      return;
+    }
+
+    this.savingSchedule.set(true);
+    const payload: UpdateGroupSchedulePayload = {
+      schedules: slots.map(s => ({
+        dayOfWeek: s.dayOfWeek,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        location: s.location || undefined,
+      })),
+      updateUpcomingSessions: this.editScheduleUpdateUpcoming(),
+    };
+
+    this.lmsService.updateGroupSchedule(groupId, payload).subscribe({
+      next: () => {
+        this.notify.showSuccess('Schedule updated successfully.');
+        this.savingSchedule.set(false);
+        this.showEditScheduleModal.set(false);
+        this.loadGroupDetail(groupId);
+        this.loadScheduleSessions();
+      },
+      error: (err) => {
+        this.notify.showError('Failed to update schedule: ' + (err.error?.message || 'Error'));
+        this.savingSchedule.set(false);
+      },
+    });
   }
 }

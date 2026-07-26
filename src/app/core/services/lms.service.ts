@@ -13,7 +13,7 @@ import {
 } from '../interfaces/Attendance';
 
 import { Course } from '../interfaces/Course';
-import { Group, CreateGroupPayload, UpdateGroupPayload } from '../interfaces/Group';
+import { Group, CreateGroupPayload, UpdateGroupPayload, UpdateGroupSchedulePayload, GenerateCustomSessionsPayload } from '../interfaces/Group';
 import { GroupCourse } from '../interfaces/GroupCourse';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
 import {
@@ -144,6 +144,29 @@ export class LmsService {
 
   generateGroupCourseSessions(groupCourseId: number): Observable<any> {
     return this.http.post(`${this.getApiUrl()}/schedule/generate-sessions/${groupCourseId}`, {});
+  }
+
+  removeCourseFromGroup(groupId: number, courseId: number, confirmDeleteSessions = false): Observable<Group> {
+    let url = `${this.getApiUrl()}/groups/${groupId}/courses/${courseId}`;
+    if (confirmDeleteSessions) {
+      url += `?confirmDeleteSessions=true`;
+    }
+    return this.http.delete<Group>(url);
+  }
+
+  updateGroupCourseSessions(groupId: number, groupCourseId: number, totalSessions: number): Observable<Group> {
+    return this.http.put<Group>(
+      `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}/sessions`,
+      { totalSessions }
+    );
+  }
+
+  updateGroupSchedule(groupId: number, payload: UpdateGroupSchedulePayload): Observable<Group> {
+    return this.http.put<Group>(`${this.getApiUrl()}/groups/${groupId}/schedule`, payload);
+  }
+
+  generateCustomSessions(payload: GenerateCustomSessionsPayload): Observable<any> {
+    return this.http.post(`${this.getApiUrl()}/schedule/generate-custom`, payload);
   }
 
   // ─── Schedule ────────────────────────────────────────────────────────────

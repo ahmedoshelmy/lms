@@ -7,4 +7,8 @@ export interface GroupCourse {
   sessionCount: string;
   orderIndex: number;
   currentSessionNumber: number;
+  totalSessions: number;
+  remainingSessions: number;
+  isCompleted: boolean;
+  scheduledSessionCount: number;
 }

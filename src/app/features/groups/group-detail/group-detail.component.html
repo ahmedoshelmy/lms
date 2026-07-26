@@ -479,9 +479,16 @@
                     >
                       Level {{ c.level }}
                     </span>
-                    <span class="text-xs font-semibold text-[var(--color-text-muted)]">
-                      Order Index: #{{ c.orderIndex }}
-                    </span>
+                    <div class="flex items-center gap-2">
+                      @if (c.isCompleted) {
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]">
+                          Completed
+                        </span>
+                      }
+                      <span class="text-xs font-semibold text-[var(--color-text-muted)]">
+                        Order: #{{ c.orderIndex }}
+                      </span>
+                    </div>
                   </div>
 
                   <h3 class="text-base font-bold text-[var(--color-text-primary)] leading-snug">
@@ -492,32 +499,67 @@
                   </p>
                 </div>
 
-                <div
-                  class="mt-4 pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-xs text-[var(--color-text-secondary)]"
-                >
-                  <span
-                    >Session: <strong>S{{ c.currentSessionNumber }}</strong> /
-                    {{ c.sessionCount }}</span
-                  >
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-[var(--color-primary)]">
-                      {{ c.sessionCount }} Sessions
+                <div class="mt-4 pt-3 border-t border-[var(--color-border)]">
+                  <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-2">
+                    <span>
+                      Session: <strong>S{{ c.currentSessionNumber }}</strong> /
+                      <strong>{{ c.totalSessions }}</strong>
                     </span>
-                    @if (isAdmin()) {
-                      <button
-                        type="button"
-                        (click)="regenerateSessions(c); $event.stopPropagation()"
-                        [disabled]="regeneratingCourseId() === c.courseId"
-                        class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-warning)] hover:bg-[color-mix(in_srgb,var(--color-warning)_10%,transparent)] transition-colors cursor-pointer disabled:opacity-50"
-                        title="Regenerate Sessions"
-                      >
-                        @if (regeneratingCourseId() === c.courseId) {
-                          <i class="pi pi-spinner pi-spin text-xs"></i>
-                        } @else {
-                          <i class="pi pi-refresh text-xs"></i>
-                        }
-                      </button>
-                    }
+                    <span class="font-semibold" [class.text-[var(--color-success)]]="c.remainingSessions === 0" [class.text-[var(--color-warning)]]="c.remainingSessions > 0">
+                      {{ c.remainingSessions }} remaining
+                    </span>
+                  </div>
+                  <div class="w-full h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mb-3">
+                    <div
+                      class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
+                      [style.width.%]="c.totalSessions > 0 ? (c.currentSessionNumber / c.totalSessions * 100) : 0"
+                    ></div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[var(--color-primary)]">
+                      {{ c.scheduledSessionCount }} scheduled
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                      @if (isAdmin()) {
+                        <button
+                          type="button"
+                          (click)="openEditSessionsModal(c); $event.stopPropagation()"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                          title="Edit Total Sessions"
+                        >
+                          <i class="pi pi-pencil text-xs"></i>
+                        </button>
+                        <button
+                          type="button"
+                          (click)="openCustomGenerateModal(c); $event.stopPropagation()"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-success)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer"
+                          title="Generate Custom Sessions"
+                        >
+                          <i class="pi pi-calendar-plus text-xs"></i>
+                        </button>
+                        <button
+                          type="button"
+                          (click)="regenerateSessions(c); $event.stopPropagation()"
+                          [disabled]="regeneratingCourseId() === c.courseId"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-warning)] hover:bg-[color-mix(in_srgb,var(--color-warning)_10%,transparent)] transition-colors cursor-pointer disabled:opacity-50"
+                          title="Regenerate Sessions"
+                        >
+                          @if (regeneratingCourseId() === c.courseId) {
+                            <i class="pi pi-spinner pi-spin text-xs"></i>
+                          } @else {
+                            <i class="pi pi-refresh text-xs"></i>
+                          }
+                        </button>
+                        <button
+                          type="button"
+                          (click)="openRemoveCourseModal(c.courseId); $event.stopPropagation()"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          title="Remove Course"
+                        >
+                          <i class="pi pi-trash text-xs"></i>
+                        </button>
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
@@ -532,9 +574,20 @@
       <div
         class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
       >
-        <h2 class="text-lg font-bold text-[var(--color-text-primary)] mb-4">
-          Weekly Schedule Slots
-        </h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
+            Weekly Schedule Slots
+          </h2>
+          @if (isAdmin()) {
+            <button
+              (click)="openEditScheduleModal()"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow"
+            >
+              <i class="pi pi-pencil text-xs"></i>
+              Edit Schedule
+            </button>
+          }
+        </div>
 
         @if (!group()!.schedules || group()!.schedules!.length === 0) {
           <div
@@ -1226,6 +1279,308 @@
           <i class="pi pi-spinner pi-spin"></i>
         }
         Add Course & Generate Sessions
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Edit Total Sessions Dialog -->
+<p-dialog
+  [(visible)]="showEditSessionsModal"
+  header="Edit Total Sessions"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '420px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-4 py-2">
+    <p class="text-xs text-[var(--color-text-secondary)]">
+      Update the total session count for <strong class="text-[var(--color-primary)]">{{ editingCourseTitle() }}</strong>.
+      Remaining sessions and progress will be recalculated automatically.
+    </p>
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Total Sessions</label>
+      <input
+        type="number"
+        [ngModel]="editTotalSessionsValue()"
+        (ngModelChange)="editTotalSessionsValue.set($event)"
+        min="1"
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+      />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button
+        (click)="showEditSessionsModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="saveTotalSessions()"
+        [disabled]="savingSessions()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50 cursor-pointer shadow"
+      >
+        @if (savingSessions()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Save Changes
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Remove Course Confirmation Dialog -->
+<p-dialog
+  [(visible)]="showRemoveCourseModal"
+  header="Remove Course from Group"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-3 py-2">
+    <p class="text-xs text-[var(--color-text-primary)]">
+      Are you sure you want to remove <strong class="text-red-600">{{ removingCourseTitle() }}</strong> from this group?
+    </p>
+    @if (removingCourseSessionCount() > 0) {
+      <div class="p-3 rounded-xl bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-800/40">
+        <p class="text-xs text-red-700 dark:text-red-300 font-semibold">
+          <i class="pi pi-exclamation-triangle mr-1"></i>
+          This course has {{ removingCourseSessionCount() }} scheduled sessions. Removing it will also delete all associated sessions.
+        </p>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button
+        (click)="showRemoveCourseModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      @if (removingCourseSessionCount() > 0) {
+        <button
+          (click)="confirmRemoveCourse(true)"
+          [disabled]="removingCourse()"
+          class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 disabled:opacity-50 cursor-pointer shadow"
+        >
+          @if (removingCourse()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          }
+          Remove & Delete Sessions
+        </button>
+      } @else {
+        <button
+          (click)="confirmRemoveCourse(false)"
+          [disabled]="removingCourse()"
+          class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 disabled:opacity-50 cursor-pointer shadow"
+        >
+          @if (removingCourse()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          }
+          Remove Course
+        </button>
+      }
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Custom Session Generation Dialog -->
+<p-dialog
+  [(visible)]="showCustomGenerateModal"
+  header="Generate Custom Sessions"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-4 py-2">
+    <p class="text-xs text-[var(--color-text-secondary)]">
+      Generate sessions for <strong class="text-[var(--color-primary)]">{{ customGenerateCourseTitle() }}</strong>.
+    </p>
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Number of Sessions</label>
+      <input
+        type="number"
+        [ngModel]="customGenerateCount()"
+        (ngModelChange)="customGenerateCount.set($event)"
+        min="1"
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+      />
+    </div>
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">Start From Date (optional)</label>
+      <input
+        type="date"
+        [ngModel]="customGenerateStartDate()"
+        (ngModelChange)="customGenerateStartDate.set($event)"
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+      />
+      <p class="text-[10px] text-[var(--color-text-muted)] mt-1">Leave empty to start from the next schedule match.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <input
+        type="checkbox"
+        [ngModel]="customGenerateIncludeToday()"
+        (ngModelChange)="customGenerateIncludeToday.set($event)"
+        id="includeToday"
+        class="rounded border-[var(--color-border)]"
+      />
+      <label for="includeToday" class="text-xs text-[var(--color-text-secondary)]">
+        Include today if schedule matches and time is in the future
+      </label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button
+        (click)="showCustomGenerateModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="submitCustomGenerate()"
+        [disabled]="generatingCustom()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-semibold hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 cursor-pointer shadow"
+      >
+        @if (generatingCustom()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Generate Sessions
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Edit Schedule Dialog -->
+<p-dialog
+  [(visible)]="showEditScheduleModal"
+  header="Edit Weekly Schedule"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '560px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-4 py-2">
+    <p class="text-xs text-[var(--color-text-secondary)]">
+      Modify the weekly schedule slots for <strong class="text-[var(--color-primary)]">{{ group()?.name }}</strong>.
+    </p>
+
+    @for (slot of editScheduleSlots(); track $index; let i = $index) {
+      <div class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[var(--color-text-muted)]">Slot {{ i + 1 }}</span>
+          @if (editScheduleSlots().length > 1) {
+            <button
+              type="button"
+              (click)="removeScheduleSlot(i)"
+              class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+            >
+              <i class="pi pi-times text-xs"></i>
+            </button>
+          }
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Day</label>
+            <select
+              [ngModel]="slot.dayOfWeek"
+              (ngModelChange)="updateSlotDayOfWeek(i, $event)"
+              class="w-full px-2 py-1.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            >
+              <option>Sunday</option>
+              <option>Monday</option>
+              <option>Tuesday</option>
+              <option>Wednesday</option>
+              <option>Thursday</option>
+              <option>Friday</option>
+              <option>Saturday</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Location</label>
+            <input
+              type="text"
+              [ngModel]="slot.location"
+              (ngModelChange)="updateSlotLocation(i, $event)"
+              placeholder="Optional"
+              class="w-full px-2 py-1.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Start Time</label>
+            <input
+              type="time"
+              [ngModel]="slot.startTime"
+              (ngModelChange)="updateSlotStartTime(i, $event)"
+              class="w-full px-2 py-1.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">End Time</label>
+            <input
+              type="time"
+              [ngModel]="slot.endTime"
+              (ngModelChange)="updateSlotEndTime(i, $event)"
+              class="w-full px-2 py-1.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <button
+      type="button"
+      (click)="addScheduleSlot()"
+      class="w-full py-2 border-2 border-dashed border-[var(--color-border)] rounded-xl text-xs font-semibold text-[var(--color-text-muted)] hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
+    >
+      <i class="pi pi-plus mr-1"></i> Add Schedule Slot
+    </button>
+
+    <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          [ngModel]="editScheduleUpdateUpcoming()"
+          (ngModelChange)="editScheduleUpdateUpcoming.set($event)"
+          class="rounded border-blue-400"
+        />
+        <span class="text-xs text-blue-700 dark:text-blue-300 font-semibold">
+          Apply schedule changes to all upcoming scheduled sessions
+        </span>
+      </label>
+      <p class="text-[10px] text-blue-600 dark:text-blue-400 mt-1 ml-6">
+        Past/completed sessions will remain unchanged.
+      </p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button
+        (click)="showEditScheduleModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="saveSchedule()"
+        [disabled]="savingSchedule()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50 cursor-pointer shadow"
+      >
+        @if (savingSchedule()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Save Schedule
       </button>
     </div>
   </ng-template>
