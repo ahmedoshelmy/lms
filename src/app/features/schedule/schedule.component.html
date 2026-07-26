@@ -60,7 +60,7 @@
           [class.density-btn--active]="viewMode() === 'daily-availability'"
           (click)="viewMode.set('daily-availability')"
         >
-          <i class="pi pi-user-check mr-1 text-xs"></i>
+          <i class="pi pi-user mr-1 text-xs"></i>
           Daily Availability
         </button>
 
@@ -198,8 +198,8 @@
         </p-select>
       }
 
-      <!-- Instructor filter (Admin only) -->
-      @if (isAdmin && uniqueInstructors().length > 0) {
+      <!-- Instructor filter -->
+      @if (uniqueInstructors().length > 0) {
         <p-select
           [options]="uniqueInstructors()"
           [ngModel]="instructorFilter()"
