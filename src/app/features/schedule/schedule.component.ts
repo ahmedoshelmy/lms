@@ -25,7 +25,8 @@ export type ExtendedViewMode =
   | 'daily-schedule'
   | 'daily-availability'
   | 'instructor-availability'
-  | 'analytics';
+  | 'analytics'
+  | 'monthly';
 
 @Component({
   selector: 'app-schedule',
@@ -119,6 +120,40 @@ export class ScheduleComponent implements OnInit {
       if (s.location) set.add(s.location);
     }
     return Array.from(set).sort();
+  });
+
+  readonly conflictingSessionIds = computed<Set<number>>(() => {
+    const list = this.sessions();
+    const conflicts = new Set<number>();
+
+    for (let i = 0; i < list.length; i++) {
+      const s1 = list[i];
+      if (!s1.startsAt || !s1.endsAt) continue;
+      const start1 = new Date(s1.startsAt).getTime();
+      const end1 = new Date(s1.endsAt).getTime();
+
+      for (let j = i + 1; j < list.length; j++) {
+        const s2 = list[j];
+        if (!s2.startsAt || !s2.endsAt) continue;
+        const start2 = new Date(s2.startsAt).getTime();
+        const end2 = new Date(s2.endsAt).getTime();
+
+        const isTimeOverlap = start1 < end2 && start2 < end1;
+        if (isTimeOverlap) {
+          const sameInstructor =
+            s1.instructorName &&
+            s2.instructorName &&
+            s1.instructorName.toLowerCase() !== 'unassigned' &&
+            s1.instructorName === s2.instructorName;
+
+          if (sameInstructor) {
+            conflicts.add(s1.id);
+            conflicts.add(s2.id);
+          }
+        }
+      }
+    }
+    return conflicts;
   });
 
   get isAdmin(): boolean {

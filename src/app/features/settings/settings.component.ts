@@ -69,6 +69,68 @@ import { NotificationService } from '../../core/services/notification.service';
         </div>
       </div>
 
+      <!-- Health Check & Diagnostics Card -->
+      <div class="settings-card mt-6">
+        <div class="settings-card__header">
+          <div class="settings-icon settings-icon--info">
+            <i class="pi pi-heart-fill"></i>
+          </div>
+          <div>
+            <h2 class="settings-card__title">Connection & Cache Diagnostics</h2>
+            <p class="settings-card__subtitle">Test API latency and manage local storage cache</p>
+          </div>
+        </div>
+        <div class="settings-card__body space-y-4">
+          <div class="flex items-center justify-between gap-4 flex-wrap pb-4 border-b border-[var(--color-border)]">
+            <div>
+              <p class="text-sm font-bold text-[var(--color-text-primary)]">Backend Server Health</p>
+              <p class="text-xs text-[var(--color-text-muted)]">Ping current API base URL endpoint</p>
+            </div>
+            <div class="flex items-center gap-3">
+              @if (healthStatus()) {
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
+                  [ngClass]="
+                    healthStatus() === 'healthy'
+                      ? 'bg-[var(--color-success-background)] text-[var(--color-success-foreground)] border border-[var(--color-success)]'
+                      : 'bg-[var(--color-error-background)] text-[var(--color-error-foreground)] border border-[var(--color-error)]'
+                  "
+                >
+                  <i [class]="healthStatus() === 'healthy' ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'"></i>
+                  {{ healthStatus() === 'healthy' ? 'Online (' + latencyMs() + 'ms)' : 'Offline / Error' }}
+                </span>
+              }
+              <button
+                type="button"
+                class="btn-secondary"
+                (click)="pingHealth()"
+                [disabled]="pinging()"
+              >
+                @if (pinging()) {
+                  <i class="pi pi-spinner pi-spin mr-2"></i> Testing…
+                } @else {
+                  <i class="pi pi-bolt mr-2 text-[var(--color-warning)]"></i> Test Connection
+                }
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 flex-wrap pt-2">
+            <div>
+              <p class="text-sm font-bold text-[var(--color-text-primary)]">Offline Local Storage Cache</p>
+              <p class="text-xs text-[var(--color-text-muted)]">Clear cached attendance sheets and offline fallback state</p>
+            </div>
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="clearCache()"
+            >
+              <i class="pi pi-trash mr-2 text-[var(--color-error)]"></i> Clear Cache
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- App Info Card -->
       <div class="settings-card mt-6">
         <div class="settings-card__header">
@@ -268,6 +330,10 @@ export class SettingsComponent {
   currentSavedUrl = signal(this.lms.getApiUrl());
   apiUrl = this.lms.getApiUrl();
 
+  pinging = signal(false);
+  healthStatus = signal<'healthy' | 'unhealthy' | null>(null);
+  latencyMs = signal<number>(0);
+
   constructor() {
     this.lms.apiUrl$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((url) => {
       this.currentSavedUrl.set(url);
@@ -285,5 +351,40 @@ export class SettingsComponent {
   resetUrl(): void {
     this.lms.resetApiUrl();
     this.notify.showInfo('API URL reset to default.');
+  }
+
+  pingHealth(): void {
+    this.pinging.set(true);
+    this.healthStatus.set(null);
+    const start = performance.now();
+
+    this.lms.getSchedule().subscribe({
+      next: () => {
+        const elapsed = Math.round(performance.now() - start);
+        this.latencyMs.set(elapsed);
+        this.healthStatus.set('healthy');
+        this.pinging.set(false);
+        this.notify.showSuccess(`Backend server reachable (${elapsed}ms latency).`);
+      },
+      error: () => {
+        this.healthStatus.set('unhealthy');
+        this.pinging.set(false);
+        this.notify.showError('Backend server ping failed or unreachable.');
+      },
+    });
+  }
+
+  clearCache(): void {
+    if (typeof window !== 'undefined') {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('lms_attendance_')) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+      this.notify.showSuccess(`Cleared ${keysToRemove.length} cached attendance record(s).`);
+    }
   }
 }

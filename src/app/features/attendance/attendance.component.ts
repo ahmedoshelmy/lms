@@ -102,6 +102,8 @@ export class AttendanceComponent implements OnInit {
   showStudentDetailsModal = signal<boolean>(false);
   showEditStudentModal = signal<boolean>(false);
   showDeleteStudentModal = signal<boolean>(false);
+  showStudentHistoryModal = signal<boolean>(false);
+  historyStudent = signal<StudentAttendanceRecord | null>(null);
   selectedStudentUser = signal<User | null>(null);
   selectedStudentRec = signal<StudentAttendanceRecord | null>(null);
   formStudentName = signal<string>('');
@@ -381,6 +383,40 @@ export class AttendanceComponent implements OnInit {
     this.dateRangeFilter.set('all');
     this.selectedInstructorFilter.set(0);
     this.syncSelectedSessionWithFilter();
+  }
+
+  exportToCsv(): void {
+    const session = this.selectedSession();
+    const records = this.filteredRecords();
+    if (!records || records.length === 0) {
+      this.notify.showWarn('No student records available to export.');
+      return;
+    }
+
+    const headers = ['Student ID', 'Student Name', 'Email', 'Attendance Status'];
+    const rows = records.map((r) => [
+      r.studentId,
+      `"${r.studentName.replace(/"/g, '""')}"`,
+      `"${r.studentEmail.replace(/"/g, '""')}"`,
+      `"${r.status}"`,
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    const sessionName = session
+      ? `session_${session.id}_${session.courseTitle.replace(/[^a-zA-Z0-9]/g, '_')}`
+      : 'attendance';
+    link.setAttribute('download', `${sessionName}_roster.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.notify.showSuccess('Attendance roster exported as CSV.');
   }
 
   private syncSelectedSessionWithFilter(): void {
@@ -754,6 +790,16 @@ export class AttendanceComponent implements OnInit {
   }
 
   // ─── Admin Student Management Methods ─────────────────────────────────────
+
+  openStudentHistoryModal(rec: StudentAttendanceRecord): void {
+    this.historyStudent.set(rec);
+    this.showStudentHistoryModal.set(true);
+  }
+
+  closeStudentHistoryModal(): void {
+    this.showStudentHistoryModal.set(false);
+    this.historyStudent.set(null);
+  }
 
   openStudentDetailsModal(rec: StudentAttendanceRecord): void {
     this.selectedStudentRec.set(rec);
