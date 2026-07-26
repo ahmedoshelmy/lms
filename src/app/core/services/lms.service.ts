@@ -5,6 +5,7 @@ import { Role } from '../interfaces/Role';
 import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
+import { StudentDetails } from '../interfaces/StudentDetails';
 import {
   CreateAttendanceDto,
   AttendanceResponseDto,
@@ -106,6 +107,10 @@ export class LmsService {
 
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.getApiUrl()}/users/${id}`);
+  }
+
+  getStudentDetails(id: number): Observable<StudentDetails> {
+    return this.http.get<StudentDetails>(`${this.getApiUrl()}/students/${id}/details`);
   }
 
   // ─── Courses ─────────────────────────────────────────────────────────────

@@ -8,6 +8,8 @@ export interface SessionAttendanceItem {
 
 export interface ScheduleSession {
   id: number;
+  groupCourseId: number;
+  courseId: number;
   courseTitle: string;
   groupName: string;
   groupId: number;

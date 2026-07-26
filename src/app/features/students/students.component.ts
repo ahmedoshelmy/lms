@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { forkJoin } from 'rxjs';
@@ -20,6 +21,7 @@ import { User } from '../../core/interfaces/User';
 export class StudentsComponent implements OnInit {
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
+  private router = inject(Router);
 
   students = signal<User[]>([]);
   groups = signal<Group[]>([]);
@@ -382,6 +384,10 @@ export class StudentsComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  viewStudent(student: User): void {
+    this.router.navigate(['/students', student.id]);
   }
 
   formatDate(iso?: string): string {

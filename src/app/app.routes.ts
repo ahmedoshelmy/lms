@@ -79,6 +79,15 @@ export const routes: Routes = [
           import('./features/students/students.component').then((c) => c.StudentsComponent),
       },
       {
+        path: 'students/:id',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('students') },
+        loadComponent: () =>
+          import('./features/students/student-detail/student-detail.component').then(
+            (c) => c.StudentDetailComponent
+          ),
+      },
+      {
         path: 'instructors',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('instructors') },

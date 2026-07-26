@@ -200,12 +200,17 @@
                   class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-0 cursor-pointer shrink-0 mt-0.5"
                 />
                 <span
-                  class="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
+                  class="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0 cursor-pointer"
+                  (click)="viewStudent(student)"
+                  title="View Student Details"
                 >
                   {{ initials(student.name) }}
                 </span>
                 <div class="min-w-0">
-                  <p class="font-bold text-sm text-[var(--color-text-primary)] truncate">
+                  <p
+                    class="font-bold text-sm text-[var(--color-text-primary)] truncate cursor-pointer hover:text-[var(--color-secondary)] transition-colors"
+                    (click)="viewStudent(student)"
+                  >
                     {{ student.name }}
                   </p>
                   <p class="text-xs text-[var(--color-text-muted)] truncate">
@@ -236,6 +241,14 @@
               </div>
 
               <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  (click)="viewStudent(student)"
+                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
+                  title="View Student Details"
+                >
+                  <i class="pi pi-eye text-xs"></i>
+                </button>
                 <button
                   type="button"
                   (click)="openEditModal(student)"
@@ -335,11 +348,17 @@
               <td class="px-4 py-3.5">
                 <div class="flex items-center gap-3">
                   <span
-                    class="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
+                    class="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0 cursor-pointer"
+                    (click)="viewStudent(student)"
                   >
                     {{ initials(student.name) }}
                   </span>
-                  <span class="font-bold text-[var(--color-text-primary)]">{{ student.name }}</span>
+                  <span
+                    class="font-bold text-[var(--color-text-primary)] cursor-pointer hover:text-[var(--color-secondary)] transition-colors"
+                    (click)="viewStudent(student)"
+                  >
+                    {{ student.name }}
+                  </span>
                 </div>
               </td>
               <td class="px-4 py-3.5 text-[var(--color-text-muted)] font-medium">
@@ -366,6 +385,14 @@
               </td>
               <td class="px-4 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
+                  <button
+                    type="button"
+                    (click)="viewStudent(student)"
+                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
+                    title="View Student Details"
+                  >
+                    <i class="pi pi-eye text-xs"></i>
+                  </button>
                   <button
                     type="button"
                     (click)="openEditModal(student)"

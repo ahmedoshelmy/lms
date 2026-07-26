@@ -257,6 +257,22 @@ export class GroupDetailComponent implements OnInit {
     return this.sessions().filter((s) => s.groupId === grp.id || s.groupName === grp.name);
   });
 
+  // View Course Sessions Modal
+  showCourseSessionsModal = signal<boolean>(false);
+  selectedCourseForSessions = signal<GroupCourse | null>(null);
+  courseSessions = computed(() => {
+    const course = this.selectedCourseForSessions();
+    if (!course) return [];
+    return this.groupSessions().filter(s => s.courseId === course.courseId);
+  });
+
+  // Add Course: selected course details preview
+  selectedCourseToAddDetails = computed(() => {
+    const id = this.selectedCourseIdToAdd();
+    if (!id) return null;
+    return this.courses().find(c => c.id === id) || null;
+  });
+
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const idParam = params.get('id');
@@ -531,8 +547,7 @@ export class GroupDetailComponent implements OnInit {
   // ─── Admin Student Management Methods ─────────────────────────────────────
 
   openStudentDetailsModal(s: GroupStudent): void {
-    this.selectedGroupStudent.set(s);
-    this.showStudentDetailsModal.set(true);
+    this.router.navigate(['/students', s.studentId]);
   }
 
   openEditStudentModal(s: GroupStudent): void {
@@ -635,6 +650,11 @@ export class GroupDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/groups']);
+  }
+
+  openCourseSessionsModal(gc: GroupCourse): void {
+    this.selectedCourseForSessions.set(gc);
+    this.showCourseSessionsModal.set(true);
   }
 
   openEditSessionsModal(gc: GroupCourse): void {
