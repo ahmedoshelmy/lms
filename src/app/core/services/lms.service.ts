@@ -13,7 +13,7 @@ import {
   AttendanceSummaryDto,
 } from '../interfaces/Attendance';
 
-import { Course } from '../interfaces/Course';
+import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
 import { Group, CreateGroupPayload, UpdateGroupPayload, UpdateGroupSchedulePayload, GenerateCustomSessionsPayload } from '../interfaces/Group';
 import { GroupCourse } from '../interfaces/GroupCourse';
 import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
@@ -117,6 +117,18 @@ export class LmsService {
 
   getCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.getApiUrl()}/courses`);
+  }
+
+  createCourse(payload: CreateCoursePayload): Observable<Course> {
+    return this.http.post<Course>(`${this.getApiUrl()}/courses`, payload);
+  }
+
+  updateCourse(id: number, payload: UpdateCoursePayload): Observable<Course> {
+    return this.http.put<Course>(`${this.getApiUrl()}/courses/${id}`, payload);
+  }
+
+  deleteCourse(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/courses/${id}`);
   }
 
   getGroups(): Observable<Group[]> {

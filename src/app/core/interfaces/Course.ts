@@ -9,3 +9,13 @@ export interface Course {
   groupCount: number;
   studentCount: number;
 }
+
+export interface CreateCoursePayload {
+  title: string;
+  description: string;
+  topic: string;
+  level: string;
+  sessionCount: string;
+}
+
+export interface UpdateCoursePayload extends CreateCoursePayload {}
