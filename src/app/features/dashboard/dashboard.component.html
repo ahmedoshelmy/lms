@@ -1,33 +1,4 @@
 <div class="dashboard-page p-5 md:p-8 lg:p-10 max-w-[1440px] mx-auto min-h-screen">
-  <!-- Hero Greeting Banner -->
-  <div class="dashboard-hero mb-6 lg:mb-8">
-    <div class="dashboard-hero__glow" aria-hidden="true"></div>
-    <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <div class="min-w-0">
-        <div class="flex items-center gap-2.5 mb-1.5 flex-wrap">
-          <span class="role-badge-pill">
-            <i [class]="roleIcon()"></i>
-            {{ userRole() }}
-          </span>
-          <span class="hero-date"> <i class="pi pi-calendar"></i> {{ todayFormatted() }} </span>
-        </div>
-        <h1 class="hero-title">
-          Welcome back, <span class="hero-title__name">{{ userName() }}</span>
-        </h1>
-        <p class="hero-subtitle">Here is your learning & management overview.</p>
-      </div>
-
-      <div class="flex items-center gap-2.5 flex-shrink-0">
-        <a routerLink="/schedule" class="hero-btn hero-btn--primary">
-          <i class="pi pi-calendar-plus"></i> View Schedule
-        </a>
-        <a routerLink="/courses" class="hero-btn hero-btn--secondary">
-          <i class="pi pi-book"></i> Courses
-        </a>
-      </div>
-    </div>
-  </div>
-
   <!-- View Toggle -->
   <div class="view-toggle-bar mb-6">
     <div class="view-toggle">

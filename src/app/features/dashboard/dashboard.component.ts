@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LmsService } from '../../core/services/lms.service';
-import { Role, ROLE_LABELS } from '../../core/interfaces/Role';
+import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 
@@ -125,18 +125,8 @@ export class DashboardComponent implements OnInit {
     };
   });
 
-  readonly userName = computed(() => this.auth.currentUser()?.name ?? 'User');
-  readonly userRole = computed(() => {
-    const role = this.auth.currentUser()?.role;
-    return role ? ROLE_LABELS[role] : 'Member';
-  });
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
-  readonly roleIcon = computed(() => {
-    if (this.isAdmin()) return 'pi pi-shield';
-    if (this.isInstructor()) return 'pi pi-user-edit';
-    return 'pi pi-graduation-cap';
-  });
 
   readonly viewLabel = computed(() => {
     const v = this.activeView();
@@ -273,44 +263,53 @@ export class DashboardComponent implements OnInit {
     }));
   });
 
-  readonly attendanceStatCards = computed<StatCard[]>(() => [
-    {
-      label: 'Attended Today',
-      value: this.attendedToday(),
-      icon: 'pi pi-check-circle',
-      color: 'var(--color-success)',
-      link: '/attendance',
-      loading: this.loadingAttendanceSummary(),
-      subtitle: 'Students present today',
-    },
-    {
-      label: 'Attended This Week',
-      value: this.attendedThisWeek(),
-      icon: 'pi pi-check-square',
-      color: 'var(--color-primary)',
-      link: '/attendance',
-      loading: this.loadingAttendanceSummary(),
-      subtitle: 'Students present this week',
-    },
-    {
-      label: 'Updated Today',
-      value: this.sessionsUpdatedTodayCount(),
-      icon: 'pi pi-file-edit',
-      color: 'var(--color-warning)',
-      action: () => this.openSessionModal('updated'),
-      loading: this.loadingAttendanceSummary(),
-      subtitle: 'Click to view sessions',
-    },
-    {
-      label: 'Pending Attendance',
-      value: this.pendingAttendanceCount(),
-      icon: 'pi pi-exclamation-circle',
-      color: 'var(--color-danger)',
-      action: () => this.openSessionModal('pending'),
-      loading: this.loadingAttendanceSummary(),
-      subtitle: 'Click to view sessions',
-    },
-  ]);
+  readonly attendanceStatCards = computed<StatCard[]>(() => {
+    const view = this.activeView();
+    const viewLabel = this.viewLabel();
+    const attendedValue = view === 'today' ? this.attendedToday() : this.attendedThisWeek();
+    const attendedLabel = view === 'today' ? 'Attended Today' : `Attended ${viewLabel}`;
+    const attendedSubtitle = view === 'today' ? 'Students present today' : `Students present ${viewLabel.toLowerCase()}`;
+    const sessionCount = this.intervalSessions().length;
+
+    return [
+      {
+        label: attendedLabel,
+        value: attendedValue,
+        icon: 'pi pi-check-circle',
+        color: 'var(--color-success)',
+        link: '/attendance',
+        loading: this.loadingAttendanceSummary(),
+        subtitle: attendedSubtitle,
+      },
+      {
+        label: `Sessions ${viewLabel}`,
+        value: sessionCount,
+        icon: 'pi pi-calendar-clock',
+        color: 'var(--color-secondary)',
+        link: '/schedule',
+        loading: this.loadingUpcoming(),
+        subtitle: `${this.viewIntervalLabel()}`,
+      },
+      {
+        label: 'Updated Today',
+        value: this.sessionsUpdatedTodayCount(),
+        icon: 'pi pi-file-edit',
+        color: 'var(--color-warning)',
+        action: () => this.openSessionModal('updated'),
+        loading: this.loadingAttendanceSummary(),
+        subtitle: 'Click to view sessions',
+      },
+      {
+        label: 'Pending Attendance',
+        value: this.pendingAttendanceCount(),
+        icon: 'pi pi-exclamation-circle',
+        color: 'var(--color-danger)',
+        action: () => this.openSessionModal('pending'),
+        loading: this.loadingAttendanceSummary(),
+        subtitle: 'Click to view sessions',
+      },
+    ];
+  });
 
   readonly overviewStatCards = computed<StatCard[]>(() => {
     const sessions = this.intervalSessions().length;
@@ -580,15 +579,6 @@ export class DashboardComponent implements OnInit {
     todayEnd.setHours(23, 59, 59, 999);
     return start.getTime() > todayEnd.getTime();
   }
-
-  readonly todayFormatted = computed(() => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  });
 
   formatTime(iso: string): string {
     return new Date(iso).toLocaleTimeString('en-US', {
