@@ -1,0 +1,286 @@
+<div class="session-detail-page">
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading session details...</p>
+    </div>
+  } @else if (session(); as s) {
+    <!-- Breadcrumb & Back -->
+    <div class="breadcrumb-bar">
+      <button type="button" class="back-btn" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i> Back to Schedule
+      </button>
+      <div class="breadcrumb-pills">
+        <a routerLink="/schedule" class="breadcrumb-pill">Schedule</a>
+        <span class="breadcrumb-sep"><i class="pi pi-chevron-right"></i></span>
+        <span class="breadcrumb-pill breadcrumb-pill--active">Session #{{ s.id }}</span>
+      </div>
+    </div>
+
+    <!-- Hero Header -->
+    <div class="session-hero">
+      <div class="session-hero__glow" aria-hidden="true"></div>
+      <div class="relative z-10">
+        <div class="session-hero__top">
+          <div class="flex items-center gap-2 flex-wrap mb-2">
+            <span class="session-badge" [ngClass]="getStatusBadgeClass(s.status)">{{ s.status }}</span>
+            @if (s.type) {
+              <span class="type-badge">{{ s.type }}</span>
+            }
+            <span class="session-number">
+              Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}
+            </span>
+          </div>
+          <h1 class="session-hero__title">{{ s.topic }}</h1>
+          <p class="session-hero__subtitle">{{ s.courseTitle }} &middot; {{ s.groupName }}</p>
+        </div>
+
+        <div class="session-hero__meta">
+          <div class="meta-item">
+            <i class="pi pi-calendar"></i>
+            <span>{{ formatDate(s.startsAt) }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="pi pi-clock"></i>
+            <span>{{ formatTime(s.startsAt) }} - {{ formatTime(s.endsAt) }}</span>
+          </div>
+          <div class="meta-item">
+            <i class="pi pi-hourglass"></i>
+            <span>{{ s.durationMinutes }} min</span>
+          </div>
+          @if (s.instructorName) {
+            <div class="meta-item">
+              <i class="pi pi-user"></i>
+              <span>{{ s.instructorName }}</span>
+            </div>
+          }
+          @if (s.location) {
+            <div class="meta-item">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ s.location }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+      <div class="quick-stat-card">
+        <div class="quick-stat-card__icon quick-stat-card__icon--total">
+          <i class="pi pi-users"></i>
+        </div>
+        <div>
+          <p class="quick-stat-card__value">{{ totalCount() }}</p>
+          <p class="quick-stat-card__label">Total Students</p>
+        </div>
+      </div>
+      <div class="quick-stat-card">
+        <div class="quick-stat-card__icon quick-stat-card__icon--present">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <div>
+          <p class="quick-stat-card__value">{{ presentCount() }}</p>
+          <p class="quick-stat-card__label">Present</p>
+        </div>
+      </div>
+      <div class="quick-stat-card">
+        <div class="quick-stat-card__icon quick-stat-card__icon--absent">
+          <i class="pi pi-times-circle"></i>
+        </div>
+        <div>
+          <p class="quick-stat-card__value">{{ absentCount() }}</p>
+          <p class="quick-stat-card__label">Absent</p>
+        </div>
+      </div>
+      <div class="quick-stat-card">
+        <div class="quick-stat-card__icon quick-stat-card__icon--late">
+          <i class="pi pi-exclamation-circle"></i>
+        </div>
+        <div>
+          <p class="quick-stat-card__value">{{ lateCount() }}</p>
+          <p class="quick-stat-card__label">Late</p>
+        </div>
+      </div>
+      <div class="quick-stat-card">
+        <div class="quick-stat-card__icon quick-stat-card__icon--rate">
+          <i class="pi pi-percentage"></i>
+        </div>
+        <div>
+          <p class="quick-stat-card__value">{{ presentRate() }}%</p>
+          <p class="quick-stat-card__label">Attendance Rate</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Section -->
+    <div class="attendance-section">
+      <div class="attendance-header">
+        <div>
+          <h2 class="attendance-title"><i class="pi pi-check-square"></i> Attendance Roster</h2>
+          <p class="attendance-desc">Mark and manage student attendance for this session</p>
+        </div>
+
+        @if (isAttendanceDisabled()) {
+          <div class="attendance-locked">
+            <i class="pi pi-lock"></i>
+            @if (isCancelled()) {
+              <span>Cancelled session</span>
+            } @else if (isUpcoming()) {
+              <span>Session not yet started</span>
+            } @else {
+              <span>Locked (24h passed)</span>
+            }
+          </div>
+        } @else {
+          <div class="attendance-actions">
+            <button type="button" class="action-btn action-btn--secondary" (click)="resetChanges()" [disabled]="!isDirty()">
+              <i class="pi pi-replay"></i> Reset
+            </button>
+            <button type="button" class="action-btn action-btn--primary" (click)="saveAttendance()" [disabled]="saving() || !isDirty()">
+              @if (saving()) {
+                <i class="pi pi-spin pi-spinner"></i> Saving...
+              } @else {
+                <i class="pi pi-check"></i> Save Attendance
+              }
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (!isAttendanceDisabled()) {
+        <!-- Bulk Actions -->
+        <div class="bulk-actions">
+          <span class="bulk-label">Bulk mark all as:</span>
+          <button type="button" class="bulk-btn bulk-btn--present" (click)="bulkSetStatus('Present')">Present</button>
+          <button type="button" class="bulk-btn bulk-btn--absent" (click)="bulkSetStatus('Absent')">Absent</button>
+          <button type="button" class="bulk-btn bulk-btn--late" (click)="bulkSetStatus('Late')">Late</button>
+          <button type="button" class="bulk-btn bulk-btn--excused" (click)="bulkSetStatus('Excused')">Excused</button>
+        </div>
+      }
+
+      <!-- Filter & Search -->
+      <div class="roster-toolbar">
+        <div class="search-box">
+          <i class="pi pi-search"></i>
+          <input type="text" placeholder="Search students..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" />
+        </div>
+        <div class="filter-pills">
+          <button type="button" class="filter-pill" [class.filter-pill--active]="rosterStatusFilter() === 'all'" (click)="rosterStatusFilter.set('all')">
+            All ({{ totalCount() }})
+          </button>
+          @if (presentCount() > 0) {
+            <button type="button" class="filter-pill filter-pill--present" [class.filter-pill--active]="rosterStatusFilter() === 'Present'" (click)="rosterStatusFilter.set('Present')">
+              Present ({{ presentCount() }})
+            </button>
+          }
+          @if (absentCount() > 0) {
+            <button type="button" class="filter-pill filter-pill--absent" [class.filter-pill--active]="rosterStatusFilter() === 'Absent'" (click)="rosterStatusFilter.set('Absent')">
+              Absent ({{ absentCount() }})
+            </button>
+          }
+          @if (lateCount() > 0) {
+            <button type="button" class="filter-pill filter-pill--late" [class.filter-pill--active]="rosterStatusFilter() === 'Late'" (click)="rosterStatusFilter.set('Late')">
+              Late ({{ lateCount() }})
+            </button>
+          }
+          @if (excusedCount() > 0) {
+            <button type="button" class="filter-pill filter-pill--excused" [class.filter-pill--active]="rosterStatusFilter() === 'Excused'" (click)="rosterStatusFilter.set('Excused')">
+              Excused ({{ excusedCount() }})
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Attendance Progress Bar -->
+      @if (totalCount() > 0) {
+        <div class="attendance-progress">
+          <div class="attendance-progress__bar">
+            <div class="attendance-progress__segment attendance-progress__segment--present" [style.width.%]="presentRate()" title="Present"></div>
+            @if (lateCount() > 0) {
+              <div class="attendance-progress__segment attendance-progress__segment--late" [style.width.%]="(lateCount() / totalCount()) * 100" title="Late"></div>
+            }
+          </div>
+          <span class="attendance-progress__label">{{ presentRate() }}% attendance rate</span>
+        </div>
+      }
+
+      <!-- Roster Table -->
+      @if (filteredRecords().length === 0) {
+        <div class="empty-roster">
+          <i class="pi pi-users text-4xl mb-3 opacity-30 text-[var(--color-secondary)]"></i>
+          <p class="font-bold text-[var(--color-text-primary)]">No students in this session</p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-1">This session has no enrolled students yet.</p>
+        </div>
+      } @else {
+        <div class="roster-table-wrap">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th class="roster-th">#</th>
+                <th class="roster-th">Student</th>
+                <th class="roster-th">Status</th>
+                @if (!isAttendanceDisabled()) {
+                  <th class="roster-th roster-th--actions">Actions</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (rec of filteredRecords(); track rec.studentId; let i = $index) {
+                <tr class="roster-row">
+                  <td class="roster-td roster-td--index">{{ i + 1 }}</td>
+                  <td class="roster-td roster-td--student">
+                    <div class="student-cell">
+                      <div class="student-avatar" [ngClass]="getRecordStatusClass(rec.status)">
+                        {{ initials(rec.studentName) }}
+                      </div>
+                      <div class="student-info">
+                        <span class="student-name">{{ rec.studentName }}</span>
+                        <span class="student-email">{{ rec.studentEmail }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="roster-td">
+                    <span class="record-badge" [ngClass]="getRecordStatusClass(rec.status)">{{ rec.status }}</span>
+                  </td>
+                  @if (!isAttendanceDisabled()) {
+                    <td class="roster-td roster-td--actions">
+                      <div class="status-btns">
+                        <button type="button" class="status-btn status-btn--present" [class.status-btn--active]="rec.status === 'Present'" (click)="setStatus(rec, 'Present')" title="Mark Present">
+                          <i class="pi pi-check"></i>
+                        </button>
+                        <button type="button" class="status-btn status-btn--absent" [class.status-btn--active]="rec.status === 'Absent'" (click)="setStatus(rec, 'Absent')" title="Mark Absent">
+                          <i class="pi pi-times"></i>
+                        </button>
+                        <button type="button" class="status-btn status-btn--late" [class.status-btn--active]="rec.status === 'Late'" (click)="setStatus(rec, 'Late')" title="Mark Late">
+                          <i class="pi pi-clock"></i>
+                        </button>
+                        <button type="button" class="status-btn status-btn--excused" [class.status-btn--active]="rec.status === 'Excused'" (click)="setStatus(rec, 'Excused')" title="Mark Excused">
+                          <i class="pi pi-shield"></i>
+                        </button>
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <!-- Session Sequence Progress -->
+    @if (s.totalSessions > 0) {
+      <div class="sequence-card">
+        <div class="sequence-header">
+          <h3 class="sequence-title"><i class="pi pi-chart-line"></i> Session Progress</h3>
+          <span class="sequence-label">Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}</span>
+        </div>
+        <div class="sequence-bar">
+          <div class="sequence-bar__fill" [style.width.%]="(s.currentSessionNumber / s.totalSessions) * 100"></div>
+        </div>
+        <p class="sequence-desc">{{ s.courseTitle }} &middot; {{ ((s.currentSessionNumber / s.totalSessions) * 100) | number:'1.0-0' }}% complete</p>
+      </div>
+    }
+  }
+</div>

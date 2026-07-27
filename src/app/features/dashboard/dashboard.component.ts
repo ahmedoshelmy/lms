@@ -5,7 +5,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { LmsService } from '../../core/services/lms.service';
 import { Role, ROLE_LABELS } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
-
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 
 interface StatCard {
@@ -20,6 +19,14 @@ interface StatCard {
 }
 
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
+export type DashboardView = 'today' | 'week' | 'month';
+
+export interface ChartBar {
+  label: string;
+  value: number;
+  percent: number;
+  color: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -51,28 +58,28 @@ export class DashboardComponent implements OnInit {
   pendingSessionsList = signal<PendingAttendanceSessionDto[]>([]);
 
   activeSessionModal = signal<'updated' | 'pending' | null>(null);
-
   activeStatusFilter = signal<SessionStatusFilter>('all');
+  activeView = signal<DashboardView>('week');
 
   readonly scheduledCount = computed(
     () =>
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
+      this.intervalSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
         .length
   );
   readonly completedCount = computed(
     () =>
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
+      this.intervalSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
         .length
   );
   readonly cancelledCount = computed(
     () =>
-      this.upcomingSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel'))
+      this.intervalSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel'))
         .length
   );
 
   readonly filteredSessions = computed(() => {
     const filter = this.activeStatusFilter();
-    const sessions = this.upcomingSessions();
+    const sessions = this.intervalSessions();
     if (filter === 'all') return sessions;
     return sessions.filter((s) => {
       const norm = (s.status ?? '').toLowerCase();
@@ -84,24 +91,28 @@ export class DashboardComponent implements OnInit {
   });
 
   readonly totalHours = computed(() => {
-    const sessions = this.allSessions();
+    const sessions = this.intervalSessions();
     if (!sessions.length) return 0;
     const totalMinutes = sessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
     return Math.round((totalMinutes / 60) * 10) / 10;
   });
 
-  readonly totalSessionsCount = computed(() => this.allSessions().length);
+  readonly totalSessionsCount = computed(() => this.intervalSessions().length);
 
   readonly allScheduledCount = computed(
     () =>
-      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled')).length
+      this.intervalSessions().filter((s) => (s.status ?? '').toLowerCase().includes('scheduled'))
+        .length
   );
   readonly allCompletedCount = computed(
     () =>
-      this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed')).length
+      this.intervalSessions().filter((s) => (s.status ?? '').toLowerCase().includes('completed'))
+        .length
   );
   readonly allCancelledCount = computed(
-    () => this.allSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel')).length
+    () =>
+      this.intervalSessions().filter((s) => (s.status ?? '').toLowerCase().includes('cancel'))
+        .length
   );
 
   readonly monthlyProgressPercentages = computed(() => {
@@ -127,29 +138,139 @@ export class DashboardComponent implements OnInit {
     return 'pi pi-graduation-cap';
   });
 
-  isSessionCancelled(s: ScheduleSession): boolean {
-    return (s.status ?? '').toLowerCase().includes('cancel');
-  }
+  readonly viewLabel = computed(() => {
+    const v = this.activeView();
+    if (v === 'today') return 'Today';
+    if (v === 'week') return 'This Week';
+    return 'This Month';
+  });
 
-  isSessionCompleted(s: ScheduleSession): boolean {
-    return (s.status ?? '').toLowerCase().includes('completed');
-  }
+  readonly viewIntervalLabel = computed(() => {
+    const v = this.activeView();
+    if (v === 'today') {
+      const d = new Date();
+      return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    }
+    if (v === 'week') {
+      const sessions = this.intervalSessions();
+      if (!sessions.length) return 'No sessions';
+      const starts = sessions.map((s) => new Date(s.startsAt).getTime());
+      const from = new Date(Math.min(...starts));
+      const to = new Date(Math.max(...starts));
+      return `${this.formatShortDate(from.toISOString())} - ${this.formatShortDate(to.toISOString())}`;
+    }
+    const now = new Date();
+    return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  });
 
-  isSessionFutureDay(s: ScheduleSession): boolean {
-    if (!s.startsAt) return false;
-    const start = new Date(s.startsAt);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-    return start.getTime() > todayEnd.getTime();
-  }
+  // ─── Interval Sessions (the sessions for the selected view) ──────────
+  readonly intervalSessions = computed(() => {
+    const view = this.activeView();
+    const now = new Date();
 
-  readonly todayFormatted = computed(() => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    if (view === 'today') {
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+      return this.allSessions().filter((s) => {
+        const t = new Date(s.startsAt).getTime();
+        return t >= todayStart.getTime() && t < todayEnd.getTime();
+      });
+    }
+
+    if (view === 'week') {
+      return this.upcomingSessions();
+    }
+
+    return this.allSessions();
+  });
+
+  // ─── Sessions per Instructor (chart data) ─────────────────────────────
+  readonly sessionsPerInstructor = computed<ChartBar[]>(() => {
+    const sessions = this.intervalSessions();
+    const map = new Map<string, number>();
+    sessions.forEach((s) => {
+      const name = s.instructorName || 'Unassigned';
+      map.set(name, (map.get(name) || 0) + 1);
     });
+    const max = Math.max(...Array.from(map.values()), 1);
+    const colors = [
+      'var(--color-secondary)',
+      'var(--color-success)',
+      'var(--color-warning)',
+      'var(--color-primary)',
+      'var(--color-danger)',
+      'var(--color-info)',
+    ];
+    return Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([label, value], i) => ({
+        label,
+        value,
+        percent: Math.round((value / max) * 100),
+        color: colors[i % colors.length],
+      }));
+  });
+
+  // ─── Sessions per Course (chart data) ─────────────────────────────────
+  readonly sessionsPerCourse = computed<ChartBar[]>(() => {
+    const sessions = this.intervalSessions();
+    const map = new Map<string, number>();
+    sessions.forEach((s) => {
+      const name = s.courseTitle || 'Unknown';
+      map.set(name, (map.get(name) || 0) + 1);
+    });
+    const max = Math.max(...Array.from(map.values()), 1);
+    const colors = [
+      'var(--color-info)',
+      'var(--color-success)',
+      'var(--color-warning)',
+      'var(--color-secondary)',
+      'var(--color-primary)',
+      'var(--color-danger)',
+    ];
+    return Array.from(map.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([label, value], i) => ({
+        label,
+        value,
+        percent: Math.round((value / max) * 100),
+        color: colors[i % colors.length],
+      }));
+  });
+
+  // ─── Status Distribution (for donut chart) ────────────────────────────
+  readonly statusDistribution = computed(() => {
+    const total = this.totalSessionsCount();
+    return {
+      scheduled: this.allScheduledCount(),
+      completed: this.allCompletedCount(),
+      cancelled: this.allCancelledCount(),
+      total,
+      scheduledPercent: total ? Math.round((this.allScheduledCount() / total) * 100) : 0,
+      completedPercent: total ? Math.round((this.allCompletedCount() / total) * 100) : 0,
+      cancelledPercent: total ? Math.round((this.allCancelledCount() / total) * 100) : 0,
+    };
+  });
+
+  // ─── Daily Session Count (for bar chart) ──────────────────────────────
+  readonly dailySessionCounts = computed(() => {
+    const sessions = this.intervalSessions();
+    const map = new Map<string, number>();
+    sessions.forEach((s) => {
+      const date = s.startsAt.split('T')[0];
+      map.set(date, (map.get(date) || 0) + 1);
+    });
+    const sorted = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    const max = Math.max(...sorted.map(([, v]) => v), 1);
+    return sorted.map(([date, count]) => ({
+      date,
+      label: this.formatDayLabel(date),
+      count,
+      percent: Math.round((count / max) * 100),
+    }));
   });
 
   readonly attendanceStatCards = computed<StatCard[]>(() => [
@@ -192,25 +313,25 @@ export class DashboardComponent implements OnInit {
   ]);
 
   readonly overviewStatCards = computed<StatCard[]>(() => {
-    const upcoming = this.upcomingSessions().length;
+    const sessions = this.intervalSessions().length;
     const cards: StatCard[] = [
       {
-        label: 'Sessions This Week',
-        value: upcoming,
+        label: `Sessions (${this.viewLabel()})`,
+        value: sessions,
         icon: 'pi pi-calendar-clock',
         color: 'var(--color-secondary)',
         link: '/schedule',
         loading: this.loadingUpcoming(),
-        subtitle: 'Scheduled across week',
+        subtitle: `${this.viewIntervalLabel()}`,
       },
       {
-        label: 'Total Hours',
+        label: 'Hours',
         value: this.totalHours(),
         icon: 'pi pi-clock',
         color: 'var(--color-accent)',
         link: '/schedule',
-        loading: this.loadingAllSessions(),
-        subtitle: 'Tracked this month',
+        loading: this.loadingUpcoming(),
+        subtitle: `Total in ${this.viewLabel().toLowerCase()}`,
       },
       {
         label: 'Courses',
@@ -244,7 +365,7 @@ export class DashboardComponent implements OnInit {
           subtitle: 'Enrolled learners',
         },
         {
-          label: 'Total Groups',
+          label: 'Groups',
           value: this.groupCount(),
           icon: 'pi pi-sitemap',
           color: 'var(--color-primary)',
@@ -330,6 +451,11 @@ export class DashboardComponent implements OnInit {
     this.loadAttendanceSummary();
   }
 
+  setView(view: DashboardView): void {
+    this.activeView.set(view);
+    this.activeStatusFilter.set('all');
+  }
+
   private loadAttendanceSummary(): void {
     this.loadingAttendanceSummary.set(true);
     this.lms.getAttendanceSummary().subscribe({
@@ -380,7 +506,6 @@ export class DashboardComponent implements OnInit {
     const to = new Date(from);
     to.setDate(to.getDate() + 7);
 
-    // Use LmsService to fetch all sessions for all instructors for the entire current week
     this.lms.getSchedule(from, to).subscribe({
       next: (sessions) => {
         const sorted = (sessions || []).sort(
@@ -398,7 +523,6 @@ export class DashboardComponent implements OnInit {
   private loadCounts(): void {
     this.loadingCounts.set(true);
 
-    // Fetch courses count for everyone
     this.lms.getCourses().subscribe({
       next: (courses) => {
         this.courseCount.set(courses?.length ?? 0);
@@ -407,7 +531,6 @@ export class DashboardComponent implements OnInit {
       error: () => this.loadingCounts.set(false),
     });
 
-    // Admin-only: fetch instructors + students + groups counts
     if (this.isAdmin()) {
       this.lms.getInstructors().subscribe({
         next: (instructors) => this.instructorCount.set(instructors?.length ?? 0),
@@ -442,6 +565,31 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  isSessionCancelled(s: ScheduleSession): boolean {
+    return (s.status ?? '').toLowerCase().includes('cancel');
+  }
+
+  isSessionCompleted(s: ScheduleSession): boolean {
+    return (s.status ?? '').toLowerCase().includes('completed');
+  }
+
+  isSessionFutureDay(s: ScheduleSession): boolean {
+    if (!s.startsAt) return false;
+    const start = new Date(s.startsAt);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    return start.getTime() > todayEnd.getTime();
+  }
+
+  readonly todayFormatted = computed(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  });
+
   formatTime(iso: string): string {
     return new Date(iso).toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -456,6 +604,24 @@ export class DashboardComponent implements OnInit {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  formatShortDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  formatDayLabel(dateStr: string): string {
+    const d = new Date(dateStr + 'T12:00:00');
+    const now = new Date();
+    const isToday =
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate();
+    if (isToday) return 'Today';
+    return d.toLocaleDateString('en-US', { weekday: 'short' });
   }
 
   getStatusBadgeClass(status: string): string {

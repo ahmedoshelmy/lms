@@ -20,6 +20,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'sessions',
+    label: 'Session Detail',
+    icon: 'pi pi-calendar',
+    roles: ALL_ROLES,
+    showInMenu: false,
+  },
+  {
     path: 'schedule',
     label: 'Schedule',
     icon: 'pi pi-calendar-clock',

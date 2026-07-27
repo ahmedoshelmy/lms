@@ -49,6 +49,15 @@ export const routes: Routes = [
       },
 
       {
+        path: 'sessions/:id',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('sessions') },
+        loadComponent: () =>
+          import('./features/sessions/session-detail/session-detail.component').then(
+            (c) => c.SessionDetailComponent
+          ),
+      },
+      {
         path: 'attendance',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('attendance') },
