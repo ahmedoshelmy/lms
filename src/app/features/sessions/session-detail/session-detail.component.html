@@ -61,8 +61,154 @@
             </div>
           }
         </div>
+
+        @if (canEdit() && !isEditing()) {
+          <div class="session-hero__edit">
+            <button type="button" class="edit-trigger-btn" (click)="startEditing()">
+              <i class="pi pi-pencil"></i> Edit Session
+            </button>
+          </div>
+        }
       </div>
     </div>
+
+    <!-- Edit Session Section (Admin only) -->
+    @if (canEdit() && isEditing()) {
+      <div class="edit-section">
+        <div class="edit-section__header">
+          <div class="edit-section__title-row">
+            <i class="pi pi-pencil"></i>
+            <p class="edit-section__title">Edit Session</p>
+          </div>
+          <button type="button" class="edit-section__close" (click)="cancelEditing()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <div class="edit-section__body">
+          <!-- Assign Instructor -->
+          <div class="edit-field">
+            <label class="edit-label" for="edit-instructor">Assign Instructor</label>
+            <p-select
+              inputId="edit-instructor"
+              [options]="instructors()"
+              [ngModel]="editInstructorId()"
+              (ngModelChange)="editInstructorId.set($event)"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select instructor"
+              [filter]="true"
+              filterBy="name"
+              styleClass="w-full"
+            >
+              <ng-template pTemplate="selectedItem" let-sel>
+                @if (sel) {
+                  <div class="flex items-center gap-2">
+                    <span class="edit-avatar">{{ sel.name.charAt(0).toUpperCase() }}</span>
+                    <span class="text-sm font-semibold text-[var(--color-text-primary)]">{{ sel.name }}</span>
+                  </div>
+                }
+              </ng-template>
+            </p-select>
+          </div>
+
+          <!-- Date -->
+          <div class="edit-field">
+            <label class="edit-label" for="edit-session-date">
+              Session Date
+              <span class="edit-label__hint">(Same Week = Reschedule, Next Week = Cancel &amp; Shift)</span>
+            </label>
+            <input
+              id="edit-session-date"
+              type="date"
+              [ngModel]="editDate()"
+              (ngModelChange)="editDate.set($event)"
+              class="edit-input"
+            />
+          </div>
+
+          <!-- Time -->
+          <div class="edit-field-row">
+            <div class="edit-field">
+              <label class="edit-label" for="edit-start-time">Start Time</label>
+              <input
+                id="edit-start-time"
+                type="time"
+                [ngModel]="editStartTime()"
+                (ngModelChange)="editStartTime.set($event)"
+                class="edit-input"
+              />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label" for="edit-end-time">End Time</label>
+              <input
+                id="edit-end-time"
+                type="time"
+                [ngModel]="editEndTime()"
+                (ngModelChange)="editEndTime.set($event)"
+                class="edit-input"
+              />
+            </div>
+          </div>
+
+          <!-- Status / Cancel Toggle -->
+          <div class="edit-field">
+            <label class="edit-label">Session Status</label>
+            @if (isEditCancelled()) {
+              <div class="cancel-confirm-box">
+                <label class="cancel-confirm-check">
+                  <input
+                    type="checkbox"
+                    [ngModel]="shiftUpcomingSchedule()"
+                    (ngModelChange)="shiftUpcomingSchedule.set($event)"
+                  />
+                  Shift upcoming sessions forward by +1 week
+                </label>
+                <div class="cancel-confirm-actions">
+                  <button
+                    type="button"
+                    (click)="cancelSessionWithShift()"
+                    [disabled]="saving()"
+                    class="cancel-confirm-btn"
+                  >
+                    <i class="pi pi-ban"></i>
+                    Confirm Cancel &amp; Shift
+                  </button>
+                  <button type="button" (click)="toggleEditCancelStatus()" class="cancel-undo-btn">
+                    Undo
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="cancel-toggle-row">
+                <button type="button" (click)="toggleEditCancelStatus()" class="cancel-trigger-btn">
+                  <i class="pi pi-ban"></i> Cancel Session
+                </button>
+                <span class="status-current-badge">{{ editStatus() || 'Scheduled' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="edit-section__footer">
+          <button type="button" class="edit-footer-btn edit-footer-btn--secondary" (click)="cancelEditing()">
+            <i class="pi pi-times"></i> Cancel
+          </button>
+          <button
+            type="button"
+            class="edit-footer-btn edit-footer-btn--primary"
+            [disabled]="saving()"
+            (click)="saveSessionChanges()"
+          >
+            @if (saving()) {
+              <i class="pi pi-spin pi-spinner"></i> Saving...
+            } @else {
+              <i class="pi pi-check"></i> Save Changes
+            }
+          </button>
+        </div>
+      </div>
+    }
 
     <!-- Quick Stats -->
     <div class="quick-stats">
@@ -284,3 +430,51 @@
     }
   }
 </div>
+
+<!-- Future Week Confirmation Dialog -->
+<p-dialog
+  [(visible)]="showFutureWeekConfirmModal"
+  header="Confirm Reschedule to Future Week"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="future-week-dialog">
+    <div class="future-week-warning">
+      <div class="future-week-warning__title">
+        <i class="pi pi-exclamation-triangle"></i>
+        Moving Session to a Future Week
+      </div>
+      <p>
+        Moving this session to a future week ({{ editDate() }}) will mark the session slot on the
+        current week as <strong>Cancelled</strong> and shift all upcoming sessions forward by +1
+        week to ensure complete topic coverage.
+      </p>
+      <p>Do you want to proceed with cancelling the current slot and shifting the schedule?</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="future-week-footer">
+      <button
+        type="button"
+        (click)="showFutureWeekConfirmModal.set(false)"
+        class="future-week-footer__cancel"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmFutureWeekShift()"
+        [disabled]="saving()"
+        class="future-week-footer__confirm"
+      >
+        @if (saving()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Proceed with Cancel &amp; Shift
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
