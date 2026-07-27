@@ -1,147 +1,52 @@
-<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen pb-28">
+<div class="sessions-page p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
   <!-- Page Hero Header -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
-      <div class="flex items-center gap-3 mb-1">
-        <h1
-          class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight"
-        >
-          Sessions & Attendance
-        </h1>
-        @if (isDirty()) {
-          <span
-            class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--color-warning-background)] text-[var(--color-warning-foreground)] border border-[var(--color-warning)] animate-pulse"
-          >
-            ● Unsaved Edits
-          </span>
-        }
-      </div>
-      <p class="text-sm text-[var(--color-text-muted)]">
-        Manage class sessions, track roster attendance, and export reports
+      <h1 class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+        Sessions & Attendance
+      </h1>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">
+        Browse and manage all class sessions. Click a session to view details and mark attendance.
       </p>
-    </div>
-
-    <div class="flex items-center gap-3 flex-wrap">
-      @if (selectedSession()) {
-        <button
-          type="button"
-          (click)="exportAttendanceCsv()"
-          class="px-4 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] text-[var(--color-text-primary)] text-xs font-bold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-        >
-          <i class="pi pi-download text-xs text-[var(--color-secondary)]"></i>
-          Export CSV
-        </button>
-      }
-
-      @if (selectedSession() && !isAttendanceDisabled()) {
-        <button
-          (click)="saveAttendance()"
-          [disabled]="saving()"
-          class="btn-save-sheet px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-          [ngClass]="
-            isDirty()
-              ? 'bg-[var(--color-success)] hover:bg-[var(--color-success-hover)] ring-2 ring-[var(--color-success)] ring-offset-2'
-              : 'bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)]'
-          "
-        >
-          @if (saving()) {
-            <i class="pi pi-spinner pi-spin"></i>
-            Saving…
-          } @else {
-            <i class="pi pi-check-circle"></i>
-            Save Sheet
-          }
-        </button>
-      }
     </div>
   </div>
 
-  <!-- Advanced Session Filters & Picker Bar -->
-  <div
-    class="p-6 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-6 space-y-4"
-  >
-    <!-- Row 1: Dropdown Session Picker & Group Filter -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between mb-2">
-          <label
-            class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
-          >
-            Select Session
-          </label>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-[var(--color-secondary)]">
-              Showing {{ filteredSessionsList().length }} of {{ sessions().length }}
-            </span>
-            @if (hasActiveFilters()) {
-              <button
-                type="button"
-                (click)="resetFilters()"
-                class="text-xs font-bold text-[var(--color-error-foreground)] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <i class="pi pi-refresh text-xs"></i> Reset
-              </button>
-            }
-          </div>
-        </div>
-        <p-select
-          [options]="filteredSessionsList()"
-          [ngModel]="selectedSessionId()"
-          (ngModelChange)="onSessionChange($event)"
-          optionLabel="topic"
-          optionValue="id"
-          placeholder="Choose a session"
-          class="w-full"
-          [filter]="true"
-          filterBy="topic,courseTitle,groupName"
-        >
-          <ng-template pTemplate="selectedItem" let-selected>
-            @if (selected) {
-              <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
-                {{ selected.topic }} ({{ selected.groupName }})
-              </div>
-            } @else {
-              <span class="text-sm text-[var(--color-text-muted)]">No session matching filter</span>
-            }
-          </ng-template>
-          <ng-template pTemplate="item" let-s>
-            <div class="py-1">
-              <p class="text-sm font-bold text-[var(--color-text-primary)]">{{ s.topic }}</p>
-              <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-                {{ s.courseTitle }} · {{ s.groupName }} · {{ formatDate(s.startsAt) }}
-              </p>
-            </div>
-          </ng-template>
-        </p-select>
+  <!-- Filters Bar -->
+  <div class="filters-bar">
+    <!-- Row 1: Search + Group + Instructor -->
+    <div class="filters-row">
+      <div class="search-input-wrap">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search sessions by topic, course, group..."
+        />
+        @if (searchQuery()) {
+          <button type="button" class="search-clear" (click)="searchQuery.set('')">
+            <i class="pi pi-times"></i>
+          </button>
+        }
       </div>
 
-      <!-- Cohort Group Dropdown Filter -->
-      <div class="w-full md:w-64">
-        <label
-          class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
-        >
-          Filter Cohort Group
-        </label>
+      <div class="filter-select-wrap">
+        <label class="filter-label">Group</label>
         <select
           [ngModel]="selectedGroupFilter()"
           (ngModelChange)="setGroupFilter($event)"
-          class="w-full p-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-semibold text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] shadow-sm cursor-pointer"
+          class="filter-select"
         >
-          <option value="all">All Groups ({{ uniqueGroups().length }})</option>
+          <option value="all">All Groups</option>
           @for (grp of uniqueGroups(); track grp) {
             <option [value]="grp">{{ grp }}</option>
           }
         </select>
       </div>
 
-      <!-- Instructor Dropdown Filter (Admin Only) -->
       @if (isAdmin()) {
-        <div class="w-full md:w-64">
-          <label
-            class="block text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-2"
-          >
-            Filter Instructor
-          </label>
+        <div class="filter-select-wrap">
+          <label class="filter-label">Instructor</label>
           <p-select
             [options]="instructors()"
             [ngModel]="selectedInstructorFilter()"
@@ -155,976 +60,145 @@
           >
             <ng-template pTemplate="selectedItem" let-selected>
               @if (selected) {
-                <div
-                  class="truncate text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-2"
-                >
-                  <i class="pi pi-user text-[var(--color-secondary)]"></i>
-                  <span>{{ selected.name }}</span>
+                <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
+                  {{ selected.name }}
                 </div>
               }
             </ng-template>
             <ng-template pTemplate="item" let-inst>
-              <div class="py-1 flex items-center gap-2 text-xs font-bold">
-                <i class="pi pi-user text-[var(--color-secondary)]"></i>
-                <span>{{ inst.name }}</span>
-              </div>
+              <div class="py-1 text-sm font-semibold">{{ inst.name }}</div>
             </ng-template>
           </p-select>
         </div>
       }
     </div>
 
-    <!-- Row 2: Status Filter Tabs & Date Range Chips -->
-    <div
-      class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[var(--color-border)]"
-    >
-      <!-- Session Status Chips -->
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-1"
-          >Status:</span
-        >
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="sessionStatusFilter() === 'all'"
-          (click)="setSessionStatusFilter('all')"
-        >
-          All ({{ sessions().length }})
+    <!-- Row 2: Status + Date chips -->
+    <div class="filters-row filters-row--chips">
+      <div class="chip-group">
+        <span class="chip-group__label">Status:</span>
+        <button type="button" class="filter-chip" [class.filter-chip--active]="sessionStatusFilter() === 'all'" (click)="setSessionStatusFilter('all')">
+          All ({{ sessionStats().total }})
         </button>
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="sessionStatusFilter() === 'scheduled'"
-          (click)="setSessionStatusFilter('scheduled')"
-        >
-          Scheduled
+        <button type="button" class="filter-chip filter-chip--scheduled" [class.filter-chip--active]="sessionStatusFilter() === 'scheduled'" (click)="setSessionStatusFilter('scheduled')">
+          <span class="filter-chip__dot"></span> Scheduled ({{ sessionStats().scheduled }})
         </button>
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="sessionStatusFilter() === 'completed'"
-          (click)="setSessionStatusFilter('completed')"
-        >
-          Completed
+        <button type="button" class="filter-chip filter-chip--completed" [class.filter-chip--active]="sessionStatusFilter() === 'completed'" (click)="setSessionStatusFilter('completed')">
+          <span class="filter-chip__dot"></span> Completed ({{ sessionStats().completed }})
+        </button>
+        <button type="button" class="filter-chip filter-chip--cancelled" [class.filter-chip--active]="sessionStatusFilter() === 'cancelled'" (click)="setSessionStatusFilter('cancelled')">
+          <span class="filter-chip__dot"></span> Cancelled ({{ sessionStats().cancelled }})
         </button>
       </div>
 
-      <!-- Date Range Filter Chips -->
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-1"
-          >Date:</span
-        >
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="dateRangeFilter() === 'all'"
-          (click)="setDateRangeFilter('all')"
-        >
-          All Time
-        </button>
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="dateRangeFilter() === 'today'"
-          (click)="setDateRangeFilter('today')"
-        >
-          Today
-        </button>
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="dateRangeFilter() === 'week'"
-          (click)="setDateRangeFilter('week')"
-        >
-          This Week
-        </button>
-        <button
-          type="button"
-          class="session-chip-btn"
-          [class.active]="dateRangeFilter() === 'month'"
-          (click)="setDateRangeFilter('month')"
-        >
-          This Month
-        </button>
+      <div class="chip-group">
+        <span class="chip-group__label">Date:</span>
+        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'all'" (click)="setDateRangeFilter('all')">All Time</button>
+        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'today'" (click)="setDateRangeFilter('today')">Today</button>
+        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'week'" (click)="setDateRangeFilter('week')">This Week</button>
+        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'month'" (click)="setDateRangeFilter('month')">This Month</button>
       </div>
+
+      @if (hasActiveFilters()) {
+        <button type="button" class="reset-btn" (click)="resetFilters()">
+          <i class="pi pi-refresh"></i> Reset All
+        </button>
+      }
     </div>
   </div>
 
-  <!-- Main Content -->
+  <!-- Session List -->
   @if (loading()) {
-    <div class="flex justify-center items-center py-20">
-      <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
+    <div class="loading-wrap">
+      <div class="loading-spinner"></div>
+      <p>Loading sessions...</p>
     </div>
-  } @else if (!selectedSession()) {
-    <div
-      class="text-center py-24 bg-[var(--color-surface)] border border-dashed border-[var(--color-border)] rounded-3xl shadow-sm"
-    >
-      <div
-        class="w-16 h-16 rounded-full bg-[var(--color-info-background)] flex items-center justify-center mx-auto mb-4"
-      >
-        <i class="pi pi-filter-slash text-3xl text-[var(--color-secondary)]"></i>
+  } @else if (filteredSessions().length === 0) {
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i class="pi pi-calendar-times"></i>
       </div>
-      <h2 class="text-lg font-bold text-[var(--color-text-primary)]">No matching session found</h2>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1 max-w-sm mx-auto">
-        No sessions match your current group, date, or status filter selection.
+      <h3 class="empty-state__title">No sessions found</h3>
+      <p class="empty-state__desc">
+        @if (hasActiveFilters()) {
+          No sessions match your current filters. Try adjusting your criteria.
+        } @else {
+          No sessions have been scheduled yet.
+        }
       </p>
       @if (hasActiveFilters()) {
-        <button
-          type="button"
-          (click)="resetFilters()"
-          class="mt-4 px-5 py-2.5 rounded-xl bg-[var(--color-secondary)] text-white font-bold text-xs shadow-md hover:bg-[var(--color-secondary-hover)] transition-all cursor-pointer inline-flex items-center gap-2"
-        >
-          <i class="pi pi-refresh"></i> Reset All Filters
+        <button type="button" class="empty-state__btn" (click)="resetFilters()">
+          <i class="pi pi-refresh"></i> Reset Filters
         </button>
       }
     </div>
   } @else {
-    <!-- Session Info Glass Card -->
-    @if (selectedSession(); as session) {
-      <div
-        class="p-6 rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-6 relative overflow-hidden"
-      >
-        <!-- Header row -->
-        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
-          <div>
-            <div class="flex items-center gap-2 flex-wrap mb-2">
-              <span
-                class="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm"
-                [ngClass]="getStatusBadgeClass(session.status)"
-              >
-                {{ session.status }}
-              </span>
-              <span
-                class="inline-flex px-3 py-1 rounded-full text-[10px] font-semibold bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)] uppercase tracking-wider border border-[var(--color-border)]"
-              >
-                {{ session.type }}
-              </span>
-              @if (session.currentSessionNumber && session.totalSessions) {
-                <span
-                  class="inline-flex px-3 py-1 rounded-full text-[10px] font-bold bg-[var(--color-info-background)] text-[var(--color-info-foreground)] uppercase tracking-wider border border-[var(--color-info)]"
-                >
-                  Session {{ session.currentSessionNumber }} of {{ session.totalSessions }}
+    <div class="session-list">
+      @for (session of filteredSessions(); track session.id) {
+        <button type="button" class="session-row" (click)="openSession(session)">
+          <div class="session-row__accent" [ngClass]="getStatusBadgeClass(session.status)"></div>
+          <div class="session-row__body">
+            <div class="session-row__top">
+              <div class="session-row__info">
+                <div class="session-row__icon" [ngClass]="getStatusBadgeClass(session.status)">
+                  <i class="pi pi-calendar-clock"></i>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="session-row__topic">{{ session.topic }}</h3>
+                  <p class="session-row__course">{{ session.courseTitle }}</p>
+                </div>
+              </div>
+              <div class="session-row__badges">
+                <span class="session-status-badge" [ngClass]="getStatusBadgeClass(session.status)">
+                  {{ session.status }}
                 </span>
-              }
-            </div>
-            <h2 class="text-xl md:text-2xl font-extrabold text-[var(--color-text-primary)]">
-              {{ session.topic }}
-            </h2>
-            <p class="text-sm text-[var(--color-secondary)] font-bold mt-0.5">
-              {{ session.courseTitle }}
-            </p>
-          </div>
-
-          <div
-            class="flex flex-col gap-1 md:text-right text-sm bg-[var(--color-background)] p-3 rounded-2xl border border-[var(--color-border)]"
-          >
-            <span
-              class="font-bold text-[var(--color-secondary)] flex items-center md:justify-end gap-1.5"
-            >
-              <i class="pi pi-calendar"></i>{{ formatDate(session.startsAt) }}
-            </span>
-            <span
-              class="text-xs text-[var(--color-text-muted)] flex items-center md:justify-end gap-1.5"
-            >
-              <i class="pi pi-clock"></i>{{ formatTime(session.startsAt) }} –
-              {{ formatTime(session.endsAt) }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Session Sequence Progress Bar -->
-        @if (session.currentSessionNumber && session.totalSessions) {
-          <div class="mb-5">
-            <div
-              class="flex items-center justify-between text-xs text-[var(--color-text-muted)] font-bold mb-1.5"
-            >
-              <span>Curriculum Progress</span>
-              <span>{{ sessionProgressPercent() }}% Completed</span>
-            </div>
-            <div
-              class="w-full h-2 rounded-full bg-[var(--color-background-alt)] overflow-hidden flex"
-            >
-              <div
-                class="h-full bg-gradient-to-r from-[var(--color-secondary)] to-[var(--color-accent)] transition-all duration-500 rounded-full"
-                [style.width.%]="sessionProgressPercent()"
-              ></div>
-            </div>
-          </div>
-        }
-
-        <!-- Details grid -->
-        <div
-          class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-[var(--color-border)]"
-        >
-          <div>
-            <p
-              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
-            >
-              Cohort Group
-            </p>
-            <p class="text-sm font-bold text-[var(--color-text-primary)]">
-              {{ session.groupName }}
-            </p>
-          </div>
-          <div>
-            <p
-              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
-            >
-              Instructor
-            </p>
-            <p class="text-sm font-bold text-[var(--color-secondary)]">
-              {{ session.instructorName || 'Unassigned' }}
-            </p>
-          </div>
-          @if (session.location) {
-            <div>
-              <p
-                class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
-              >
-                Location
-              </p>
-              <p class="text-sm font-bold text-[var(--color-text-primary)] truncate">
-                {{ session.location }}
-              </p>
-            </div>
-          }
-          <div>
-            <p
-              class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] mb-0.5"
-            >
-              Duration
-            </p>
-            <p class="text-sm font-bold text-[var(--color-text-primary)]">
-              {{ session.durationMinutes }} min
-            </p>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Session Status Warning Banners -->
-    @if (isCancelled()) {
-      <div
-        class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-error)] bg-[var(--color-error-background)]"
-      >
-        <i
-          class="pi pi-times-circle text-2xl text-[var(--color-error-foreground)] flex-shrink-0"
-        ></i>
-        <div>
-          <p class="text-sm font-bold text-[var(--color-error-foreground)]">Session Cancelled</p>
-          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            This session has been cancelled. Attendance records cannot be taken or modified for
-            cancelled sessions.
-          </p>
-        </div>
-      </div>
-    } @else if (isUpcoming()) {
-      <div
-        class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-info)] bg-[var(--color-info-background)]"
-      >
-        <i class="pi pi-clock text-2xl text-[var(--color-info-foreground)] flex-shrink-0"></i>
-        <div>
-          <p class="text-sm font-bold text-[var(--color-info-foreground)]">
-            Attendance Not Open Yet
-          </p>
-          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            This session is scheduled for {{ formatDate(selectedSession()?.startsAt) }} at
-            {{ formatTime(selectedSession()?.startsAt) }}. Attendance marking will open once the
-            session begins.
-          </p>
-        </div>
-      </div>
-    } @else if (isLocked()) {
-      <div
-        class="flex items-center gap-3 px-5 py-4 mb-6 rounded-2xl border border-[var(--color-warning)] bg-[var(--color-warning-background)]"
-      >
-        <i class="pi pi-lock text-2xl text-[var(--color-warning-foreground)] flex-shrink-0"></i>
-        <div>
-          <p class="text-sm font-bold text-[var(--color-warning-foreground)]">
-            Attendance Sheet Locked
-          </p>
-          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            More than 24 hours have elapsed since session start. Attendance records are locked in
-            read-only state.
-          </p>
-        </div>
-      </div>
-    }
-
-    <!-- Attendance Metrics & Filter Cards (6 Columns) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6">
-      <button
-        type="button"
-        (click)="setRosterFilter('all')"
-        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
-        [class.border-[var(--color-secondary)]]="rosterStatusFilter() === 'all'"
-        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'all'"
-      >
-        <span class="text-[10px] text-[var(--color-text-muted)] font-bold uppercase"
-          >Total Roster</span
-        >
-        <p class="text-xl font-extrabold text-[var(--color-text-primary)] mt-1">
-          {{ records().length }}
-        </p>
-      </button>
-
-      <button
-        type="button"
-        (click)="setRosterFilter('Pending')"
-        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border border-dashed transition-all text-left cursor-pointer"
-        [class.border-[var(--color-warning)]]="rosterStatusFilter() === 'Pending'"
-        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Pending'"
-      >
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] text-[var(--color-warning-foreground)] font-bold uppercase"
-            >Pending</span
-          >
-          <i class="pi pi-hourglass text-xs text-[var(--color-warning-foreground)]"></i>
-        </div>
-        <p class="text-xl font-extrabold text-[var(--color-warning-foreground)] mt-1">
-          {{ countByStatus('Pending') }}
-        </p>
-      </button>
-
-      <button
-        type="button"
-        (click)="setRosterFilter('Present')"
-        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
-        [class.border-[var(--color-success)]]="rosterStatusFilter() === 'Present'"
-        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Present'"
-      >
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] text-[var(--color-success-foreground)] font-bold uppercase"
-            >Present</span
-          >
-          <span class="text-[10px] font-extrabold text-[var(--color-success-foreground)]"
-            >{{ presentRate() }}%</span
-          >
-        </div>
-        <p class="text-xl font-extrabold text-[var(--color-success-foreground)] mt-1">
-          {{ countByStatus('Present') }}
-        </p>
-      </button>
-
-      <button
-        type="button"
-        (click)="setRosterFilter('Late')"
-        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
-        [class.border-[var(--color-warning)]]="rosterStatusFilter() === 'Late'"
-        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Late'"
-      >
-        <span class="text-[10px] text-[var(--color-warning-foreground)] font-bold uppercase"
-          >Late</span
-        >
-        <p class="text-xl font-extrabold text-[var(--color-warning-foreground)] mt-1">
-          {{ countByStatus('Late') }}
-        </p>
-      </button>
-
-      <button
-        type="button"
-        (click)="setRosterFilter('Excused')"
-        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
-        [class.border-[var(--color-info)]]="rosterStatusFilter() === 'Excused'"
-        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Excused'"
-      >
-        <span class="text-[10px] text-[var(--color-info-foreground)] font-bold uppercase"
-          >Excused</span
-        >
-        <p class="text-xl font-extrabold text-[var(--color-info-foreground)] mt-1">
-          {{ countByStatus('Excused') }}
-        </p>
-      </button>
-
-      <button
-        type="button"
-        (click)="setRosterFilter('Absent')"
-        class="stat-pill p-3.5 rounded-2xl bg-[var(--color-surface)] border transition-all text-left cursor-pointer"
-        [class.border-[var(--color-error)]]="rosterStatusFilter() === 'Absent'"
-        [class.border-[var(--color-border)]]="rosterStatusFilter() !== 'Absent'"
-      >
-        <span class="text-[10px] text-[var(--color-error-foreground)] font-bold uppercase"
-          >Absent</span
-        >
-        <p class="text-xl font-extrabold text-[var(--color-error-foreground)] mt-1">
-          {{ countByStatus('Absent') }}
-        </p>
-      </button>
-    </div>
-
-    <!-- Quick Actions & Contextual Bulk Action Bar -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-2 flex-wrap">
-        @if (selectedStudentIds().length > 0 && !isAttendanceDisabled()) {
-          <div
-            class="px-3.5 py-1.5 rounded-xl bg-[var(--color-info-background)] border border-[var(--color-info)] text-xs font-bold text-[var(--color-info-foreground)] flex items-center gap-2"
-          >
-            <span>Selected ({{ selectedStudentIds().length }}) Students:</span>
-            <button
-              type="button"
-              (click)="bulkSetSelectedStatus('Present')"
-              class="px-2 py-0.5 rounded bg-[var(--color-success)] text-white hover:opacity-90 cursor-pointer"
-            >
-              Present
-            </button>
-            <button
-              type="button"
-              (click)="bulkSetSelectedStatus('Late')"
-              class="px-2 py-0.5 rounded bg-[var(--color-warning)] text-white hover:opacity-90 cursor-pointer"
-            >
-              Late
-            </button>
-            <button
-              type="button"
-              (click)="bulkSetSelectedStatus('Excused')"
-              class="px-2 py-0.5 rounded bg-[var(--color-secondary)] text-white hover:opacity-90 cursor-pointer"
-            >
-              Excused
-            </button>
-            <button
-              type="button"
-              (click)="bulkSetSelectedStatus('Absent')"
-              class="px-2 py-0.5 rounded bg-[var(--color-error)] text-white hover:opacity-90 cursor-pointer"
-            >
-              Absent
-            </button>
-          </div>
-        } @else if (!isAttendanceDisabled()) {
-          <span
-            class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] mr-2"
-            >Quick Mark All:</span
-          >
-          <button
-            type="button"
-            (click)="bulkSetStatus('Present')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-success-background)] text-[var(--color-success-foreground)] border border-[var(--color-success)] hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5"
-          >
-            <i class="pi pi-check-circle"></i> Present
-          </button>
-          <button
-            type="button"
-            (click)="bulkSetStatus('Absent')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-error-background)] text-[var(--color-error-foreground)] border border-[var(--color-error)] hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5"
-          >
-            <i class="pi pi-times-circle"></i> Absent
-          </button>
-        }
-      </div>
-
-      <!-- Search filter input & Export CSV button -->
-      <div class="flex items-center gap-2.5 w-full md:w-auto">
-        <div class="relative flex-1 md:w-64">
-          <input
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
-            placeholder="Search student name or email…"
-            class="w-full pl-9 pr-8 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] shadow-sm"
-          />
-          <i
-            class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-xs"
-          ></i>
-          @if (searchQuery()) {
-            <button
-              type="button"
-              (click)="searchQuery.set('')"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-            >
-              <i class="pi pi-times text-xs"></i>
-            </button>
-          }
-        </div>
-
-        <button
-          type="button"
-          (click)="exportToCsv()"
-          class="px-3.5 py-2 rounded-xl text-xs font-bold bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
-          title="Export attendance sheet as CSV"
-        >
-          <i class="pi pi-download text-xs text-[var(--color-secondary)]"></i>
-          <span>Export CSV</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Student Roster Table Container -->
-    <div
-      class="overflow-x-auto rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm mb-8"
-    >
-      <table class="w-full min-w-[620px] border-collapse">
-        <thead>
-          <tr
-            class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-left"
-          >
-            <th class="th-cell w-12 text-center">
-              <input
-                type="checkbox"
-                [checked]="isAllSelected()"
-                (change)="toggleSelectAll($any($event.target).checked)"
-                [disabled]="isAttendanceDisabled() || filteredRecords().length === 0"
-                class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
-              />
-            </th>
-            <th
-              (click)="toggleRosterSort('studentName')"
-              class="th-cell cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center gap-1.5">
-                <span>Student</span>
-                <i class="pi text-xs" [ngClass]="getRosterSortIcon('studentName')"></i>
-              </div>
-            </th>
-            <th
-              (click)="toggleRosterSort('studentEmail')"
-              class="th-cell cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center gap-1.5">
-                <span>Email</span>
-                <i class="pi text-xs" [ngClass]="getRosterSortIcon('studentEmail')"></i>
-              </div>
-            </th>
-            <th
-              (click)="toggleRosterSort('status')"
-              class="th-cell text-center cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center justify-center gap-1.5">
-                <span>Attendance Status</span>
-                <i class="pi text-xs" [ngClass]="getRosterSortIcon('status')"></i>
-                @if (isAttendanceDisabled()) {
-                  <i class="pi pi-lock ml-1 text-[var(--color-warning-foreground)] text-xs"></i>
+                @if (isToday(session.startsAt)) {
+                  <span class="today-badge">Today</span>
+                }
+                @if (session.currentSessionNumber && session.totalSessions) {
+                  <span class="sequence-badge">
+                    {{ session.currentSessionNumber }}/{{ session.totalSessions }}
+                  </span>
                 }
               </div>
-            </th>
-            @if (isAdmin()) {
-              <th class="th-cell text-right">Actions</th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (rec of filteredRecords(); track rec.studentId) {
-            <tr
-              class="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-hover)] transition-colors"
-              [class.opacity-70]="isAttendanceDisabled()"
-              [class.bg-[rgba(56,189,248,0.04)]]="isStudentSelected(rec.studentId)"
-            >
-              <td class="td-cell text-center">
-                <input
-                  type="checkbox"
-                  [checked]="isStudentSelected(rec.studentId)"
-                  (change)="toggleStudentSelection(rec.studentId)"
-                  [disabled]="isAttendanceDisabled()"
-                  class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
-                />
-              </td>
-              <td class="td-cell">
-                <div class="flex items-center gap-3">
-                  <div class="avatar-circle">
-                    {{ initials(rec.studentName) }}
-                  </div>
-                  <div>
-                    <div class="flex items-center gap-2">
-                      <p class="font-bold text-sm text-[var(--color-text-primary)]">
-                        {{ rec.studentName }}
-                      </p>
-                      @if (rec.status === 'Pending') {
-                        <span
-                          class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[var(--color-warning-background)] text-[var(--color-warning-foreground)] border border-[var(--color-warning)]"
-                        >
-                          Pending
-                        </span>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="td-cell text-sm text-[var(--color-text-muted)]">
-                {{ rec.studentEmail }}
-              </td>
-              <td class="td-cell">
-                <div class="flex items-center justify-center gap-1 sm:gap-2">
-                  <button
-                    type="button"
-                    (click)="setStatus(rec, 'Present')"
-                    [class.active-present]="rec.status === 'Present'"
-                    [disabled]="isAttendanceDisabled()"
-                    class="status-btn btn-present"
-                  >
-                    <i class="pi pi-check text-xs"></i>
-                    <span class="hidden sm:inline">Present</span>
-                  </button>
+            </div>
+            <div class="session-row__bottom">
+              <div class="session-row__meta">
+                <span class="session-row__meta-item">
+                  <i class="pi pi-users"></i> {{ session.groupName }}
+                </span>
+                @if (session.instructorName) {
+                  <span class="session-row__meta-item">
+                    <i class="pi pi-user"></i> {{ session.instructorName }}
+                  </span>
+                }
+                @if (session.location) {
+                  <span class="session-row__meta-item">
+                    <i class="pi pi-map-marker"></i> {{ session.location }}
+                  </span>
+                }
+              </div>
+              <div class="session-row__time">
+                <span class="session-row__date">
+                  <i class="pi pi-calendar"></i> {{ formatDate(session.startsAt) }}
+                </span>
+                <span class="session-row__clock">
+                  {{ formatTime(session.startsAt) }} - {{ formatTime(session.endsAt) }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="session-row__arrow">
+            <i class="pi pi-chevron-right"></i>
+          </div>
+        </button>
+      }
+    </div>
 
-                  <button
-                    type="button"
-                    (click)="setStatus(rec, 'Late')"
-                    [class.active-late]="rec.status === 'Late'"
-                    [disabled]="isAttendanceDisabled()"
-                    class="status-btn btn-late"
-                  >
-                    <i class="pi pi-clock text-xs"></i>
-                    <span class="hidden sm:inline">Late</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="setStatus(rec, 'Excused')"
-                    [class.active-excused]="rec.status === 'Excused'"
-                    [disabled]="isAttendanceDisabled()"
-                    class="status-btn btn-excused"
-                  >
-                    <i class="pi pi-info-circle text-xs"></i>
-                    <span class="hidden sm:inline">Excused</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="setStatus(rec, 'Absent')"
-                    [class.active-absent]="rec.status === 'Absent'"
-                    [disabled]="isAttendanceDisabled()"
-                    class="status-btn btn-absent"
-                  >
-                    <i class="pi pi-times text-xs"></i>
-                    <span class="hidden sm:inline">Absent</span>
-                  </button>
-                </div>
-              </td>
-              @if (isAdmin()) {
-                <td class="td-cell text-right">
-                  <div class="flex items-center justify-end gap-1">
-                    <button
-                      type="button"
-                      (click)="openStudentHistoryModal(rec)"
-                      class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-info-foreground)] hover:bg-[var(--color-info-background)] transition-colors cursor-pointer"
-                      title="View Student Attendance Summary"
-                    >
-                      <i class="pi pi-chart-pie text-xs"></i>
-                    </button>
-                    <button
-                      type="button"
-                      (click)="openStudentDetailsModal(rec)"
-                      class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
-                      title="View Student Details"
-                    >
-                      <i class="pi pi-eye text-xs"></i>
-                    </button>
-                    <button
-                      type="button"
-                      (click)="openEditStudentModal(rec)"
-                      class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
-                      title="Edit Student Name / Group"
-                    >
-                      <i class="pi pi-pencil text-xs"></i>
-                    </button>
-                    <button
-                      type="button"
-                      (click)="openDeleteStudentModal(rec)"
-                      class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                      title="Delete Student"
-                    >
-                      <i class="pi pi-trash text-xs"></i>
-                    </button>
-                  </div>
-                </td>
-              }
-            </tr>
-          } @empty {
-            <tr>
-              <td
-                [attr.colspan]="isAdmin() ? 5 : 4"
-                class="text-center py-12 text-[var(--color-text-muted)] font-medium"
-              >
-                No students found matching your search or status filter.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="list-footer">
+      <span class="list-footer__text">
+        Showing {{ filteredSessions().length }} of {{ sessions().length }} sessions
+      </span>
     </div>
   }
-
-  <!-- Sticky Floating Save Bar -->
-  @if (isDirty() && selectedSession() && !isLocked()) {
-    <div
-      class="floating-save-bar flex items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--color-success)] bg-[var(--color-surface)] shadow-2xl z-50"
-    >
-      <div class="flex items-center gap-3">
-        <span class="w-3 h-3 rounded-full bg-[var(--color-warning)] animate-ping"></span>
-        <div>
-          <p class="text-sm font-extrabold text-[var(--color-text-primary)]">
-            Unsaved Attendance Edits
-          </p>
-          <p class="text-xs text-[var(--color-text-muted)]">
-            Changes made to current session sheet
-          </p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <button
-          type="button"
-          (click)="resetChanges()"
-          class="px-4 py-2 rounded-xl text-xs font-bold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] border border-[var(--color-border)] transition-colors cursor-pointer"
-        >
-          Discard
-        </button>
-        <button
-          type="button"
-          (click)="saveAttendance()"
-          [disabled]="saving()"
-          class="btn-save-sheet px-5 py-2 rounded-xl text-xs font-bold text-white bg-[var(--color-success)] hover:bg-[var(--color-success-hover)] shadow-md transition-all cursor-pointer flex items-center gap-2"
-        >
-          @if (saving()) {
-            <i class="pi pi-spinner pi-spin"></i> Saving…
-          } @else {
-            <i class="pi pi-check"></i> Save Sheet
-          }
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- View Student Details Modal -->
-  <p-dialog
-    [(visible)]="showStudentDetailsModal"
-    header="Student Profile Details"
-    [modal]="true"
-    [style]="{ width: '100%', maxWidth: '440px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <div class="py-3 space-y-4">
-      <div class="flex items-center gap-3.5 pb-4 border-b border-[var(--color-border)]">
-        <div
-          class="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-extrabold text-base flex items-center justify-center shrink-0"
-        >
-          {{ initials(selectedStudentRec()?.studentName || '') }}
-        </div>
-        <div>
-          <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
-            {{ selectedStudentRec()?.studentName }}
-          </h3>
-          <p class="text-xs text-[var(--color-text-muted)]">
-            {{ selectedStudentRec()?.studentEmail }}
-          </p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 text-xs">
-        <div
-          class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]"
-        >
-          <p
-            class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1"
-          >
-            Role
-          </p>
-          <p class="font-bold text-[var(--color-text-primary)]">Student</p>
-        </div>
-        <div
-          class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]"
-        >
-          <p
-            class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1"
-          >
-            Assigned Group
-          </p>
-          <p class="font-bold text-[var(--color-secondary)]">
-            {{ selectedStudentUser()?.groupName || selectedSession()?.groupName || 'Unassigned' }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <ng-template pTemplate="footer">
-      <div class="flex justify-end pt-2 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="showStudentDetailsModal.set(false)"
-          class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-        >
-          Close
-        </button>
-      </div>
-    </ng-template>
-  </p-dialog>
-
-  <!-- Edit Student Modal -->
-  <p-dialog
-    [(visible)]="showEditStudentModal"
-    header="Edit Student Details"
-    [modal]="true"
-    [style]="{ width: '100%', maxWidth: '480px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <div class="space-y-4 py-2 text-xs">
-      <div>
-        <label class="block font-bold text-[var(--color-text-primary)] mb-1">Student Name</label>
-        <input
-          type="text"
-          [ngModel]="formStudentName()"
-          (ngModelChange)="formStudentName.set($event)"
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-        />
-      </div>
-
-      <div>
-        <label class="block font-bold text-[var(--color-text-primary)] mb-1">Email Address</label>
-        <input
-          type="email"
-          [ngModel]="formStudentEmail()"
-          (ngModelChange)="formStudentEmail.set($event)"
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-        />
-      </div>
-
-      <div>
-        <label class="block font-bold text-[var(--color-text-primary)] mb-1">Assign Group</label>
-        <p-select
-          [options]="groups()"
-          [ngModel]="formStudentGroupId()"
-          (ngModelChange)="formStudentGroupId.set($event)"
-          optionLabel="name"
-          optionValue="id"
-          placeholder="Unassigned"
-          [showClear]="true"
-          class="w-full"
-        ></p-select>
-      </div>
-    </div>
-
-    <ng-template pTemplate="footer">
-      <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="showEditStudentModal.set(false)"
-          class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          (click)="saveStudentChanges()"
-          [disabled]="savingStudent()"
-          class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-primary)] text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 shadow"
-        >
-          @if (savingStudent()) {
-            <i class="pi pi-spinner pi-spin"></i>
-          }
-          Save Changes
-        </button>
-      </div>
-    </ng-template>
-  </p-dialog>
-
-  <!-- Delete Student Modal -->
-  <p-dialog
-    [(visible)]="showDeleteStudentModal"
-    header="Confirm Delete Student"
-    [modal]="true"
-    [style]="{ width: '100%', maxWidth: '440px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <div class="py-2 text-xs">
-      <p class="text-[var(--color-text-primary)]">
-        Are you sure you want to delete
-        <strong class="text-red-600 font-bold">{{ selectedStudentRec()?.studentName }}</strong
-        >? This action cannot be undone.
-      </p>
-    </div>
-
-    <ng-template pTemplate="footer">
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="showDeleteStudentModal.set(false)"
-          class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          (click)="confirmDeleteStudent()"
-          [disabled]="deletingStudent()"
-          class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 shadow"
-        >
-          @if (deletingStudent()) {
-            <i class="pi pi-spinner pi-spin"></i>
-          }
-          Delete Student
-        </button>
-      </div>
-    </ng-template>
-  </p-dialog>
-
-  <!-- Student Attendance Summary Dialog -->
-  <p-dialog
-    [(visible)]="showStudentHistoryModal"
-    header="Student Attendance Summary"
-    [modal]="true"
-    [style]="{ width: '100%', maxWidth: '480px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    @if (historyStudent(); as std) {
-      <div class="space-y-4 py-2 text-xs">
-        <div
-          class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
-        >
-          <div class="avatar-circle w-10 h-10 text-sm">
-            {{ initials(std.studentName) }}
-          </div>
-          <div>
-            <h4 class="font-extrabold text-sm text-[var(--color-text-primary)]">
-              {{ std.studentName }}
-            </h4>
-            <p class="text-xs text-[var(--color-text-muted)]">{{ std.studentEmail }}</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div
-            class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]"
-          >
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase"
-              >Current Session Status</span
-            >
-            <p
-              class="text-sm font-extrabold mt-1"
-              [ngClass]="{
-                'text-[var(--color-success-foreground)]': std.status === 'Present',
-                'text-[var(--color-warning-foreground)]':
-                  std.status === 'Late' || std.status === 'Pending',
-                'text-[var(--color-info-foreground)]': std.status === 'Excused',
-                'text-[var(--color-error-foreground)]': std.status === 'Absent',
-              }"
-            >
-              {{ std.status }}
-            </p>
-          </div>
-
-          <div
-            class="p-3 rounded-xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]"
-          >
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase"
-              >Engagement Level</span
-            >
-            <p class="text-sm font-extrabold text-[var(--color-secondary)] mt-1">High</p>
-          </div>
-        </div>
-      </div>
-    }
-
-    <ng-template pTemplate="footer">
-      <div class="flex justify-end pt-3 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="closeStudentHistoryModal()"
-          class="px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl cursor-pointer"
-        >
-          Close
-        </button>
-      </div>
-    </ng-template>
-  </p-dialog>
 </div>
