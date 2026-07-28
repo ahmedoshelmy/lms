@@ -126,8 +126,15 @@
         @if (isAdmin()) {
           <div class="flex items-center gap-3 shrink-0">
             <button
+              (click)="openPromoteDialog()"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-secondary)] text-white font-semibold text-xs hover:bg-[var(--color-secondary-hover)] transition-all duration-200 shadow-md cursor-pointer"
+            >
+              <i class="pi pi-arrow-up-right text-xs"></i>
+              Promote to Next Level
+            </button>
+            <button
               (click)="openEditModal()"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md cursor-pointer"
             >
               <i class="pi pi-pencil text-xs"></i>
               Edit Group
