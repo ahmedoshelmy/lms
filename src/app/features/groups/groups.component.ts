@@ -72,7 +72,7 @@ export class GroupsComponent implements OnInit {
   selectedGroupId = signal<number | null>(null);
   saving = signal(false);
 
-  // Form signals
+  // Form signals & auto-onboarding wizard
   formName = '';
   formStartDate = '';
   formEndDate = '';
@@ -80,6 +80,8 @@ export class GroupsComponent implements OnInit {
   formStatus = 0;
   formLocation = '';
   formSelectedCourseIds: number[] = [];
+  formPrimaryCourseId = signal<number | null>(null);
+  formAutoGenerateSessions = signal<boolean>(true);
 
   // Delete modal signals
   showDeleteConfirmModal = signal(false);
@@ -247,12 +249,19 @@ export class GroupsComponent implements OnInit {
     this.editingGroup.set(null);
     this.originalInstructorId.set(0);
     this.formName = '';
-    this.formStartDate = '';
-    this.formEndDate = '';
-    this.formInstructorId = 0;
+
+    const today = new Date();
+    const end = new Date();
+    end.setMonth(end.getMonth() + 3);
+    this.formStartDate = today.toISOString().split('T')[0];
+    this.formEndDate = end.toISOString().split('T')[0];
+
+    this.formInstructorId = this.instructors().length > 0 ? this.instructors()[0].id : 0;
     this.formStatus = 0;
     this.formLocation = '';
     this.formSelectedCourseIds = [];
+    this.formPrimaryCourseId.set(this.availableCourses().length > 0 ? this.availableCourses()[0].id : null);
+    this.formAutoGenerateSessions.set(true);
     this.showModal.set(true);
   }
 
@@ -339,6 +348,9 @@ export class GroupsComponent implements OnInit {
     this.saving.set(true);
 
     if (this.modalMode() === 'create') {
+      const primaryId = this.formPrimaryCourseId();
+      const courseIds = primaryId ? [primaryId] : this.formSelectedCourseIds;
+
       const payload: CreateGroupPayload = {
         name: this.formName,
         startDate: this.formStartDate,
@@ -346,18 +358,77 @@ export class GroupsComponent implements OnInit {
         defaultInstructorId: this.formInstructorId,
         status: this.formStatus,
         location: this.formLocation || undefined,
-        courseIds: this.formSelectedCourseIds,
+        courseIds,
       };
 
       this.lmsService.createGroup(payload).subscribe({
-        next: () => {
-          this.notify.showSuccess('Group created successfully.');
-          this.saving.set(false);
-          this.showModal.set(false);
-          this.loadGroups();
-          this.loadSchedule();
+        next: (createdGroup) => {
+          const groupCourse = createdGroup.courses?.[0];
+          const shouldGenerate = this.formAutoGenerateSessions() && primaryId;
+
+          if (shouldGenerate && groupCourse?.id) {
+            this.lmsService.generateGroupCourseSessions(groupCourse.id).subscribe({
+              next: () => {
+                this.notify.showSuccess(
+                  `Group "${createdGroup.name}" created, assigned course, and sessions generated successfully!`
+                );
+                this.saving.set(false);
+                this.showModal.set(false);
+                this.router.navigate(['/groups', createdGroup.id]);
+              },
+              error: () => {
+                this.notify.showSuccess(
+                  `Group "${createdGroup.name}" created successfully.`
+                );
+                this.saving.set(false);
+                this.showModal.set(false);
+                this.router.navigate(['/groups', createdGroup.id]);
+              },
+            });
+          } else if (shouldGenerate && primaryId) {
+            this.lmsService.addCourseToGroup(createdGroup.id, primaryId).subscribe({
+              next: (updatedGroup) => {
+                const addedGc = updatedGroup.courses?.find((c) => c.courseId === primaryId);
+                if (addedGc?.id) {
+                  this.lmsService.generateGroupCourseSessions(addedGc.id).subscribe({
+                    next: () => {
+                      this.notify.showSuccess(
+                        `Group "${createdGroup.name}" created, course assigned, and sessions generated!`
+                      );
+                      this.saving.set(false);
+                      this.showModal.set(false);
+                      this.router.navigate(['/groups', createdGroup.id]);
+                    },
+                    error: () => {
+                      this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
+                      this.saving.set(false);
+                      this.showModal.set(false);
+                      this.router.navigate(['/groups', createdGroup.id]);
+                    },
+                  });
+                } else {
+                  this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
+                  this.saving.set(false);
+                  this.showModal.set(false);
+                  this.router.navigate(['/groups', createdGroup.id]);
+                }
+              },
+              error: () => {
+                this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
+                this.saving.set(false);
+                this.showModal.set(false);
+                this.router.navigate(['/groups', createdGroup.id]);
+              },
+            });
+          } else {
+            this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
+            this.saving.set(false);
+            this.showModal.set(false);
+            this.router.navigate(['/groups', createdGroup.id]);
+          }
         },
-        error: () => {
+        error: (err) => {
+          this.notify.showError(`Failed to create group: ${err.error?.message || 'Server error'}`);
           this.saving.set(false);
         },
       });

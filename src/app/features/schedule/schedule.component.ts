@@ -19,6 +19,8 @@ import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 
+import { DialogModule } from 'primeng/dialog';
+
 export type ExtendedViewMode =
   | 'weekly'
   | 'daily'
@@ -37,6 +39,7 @@ export type ExtendedViewMode =
     RouterModule,
     ButtonModule,
     SelectModule,
+    DialogModule,
     ProgressSpinnerModule,
     WeeklyScheduleComponent,
     SessionDetailPanelComponent,
@@ -77,6 +80,13 @@ export class ScheduleComponent implements OnInit {
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
   cancelledWarningDismissed = signal(false);
+
+  // Cancel & Shift Session Modal
+  showCancelShiftModal = signal<boolean>(false);
+  cancellingSessionId = signal<number | null>(null);
+  cancellationReason = signal<string>('');
+  shiftFutureSessions = signal<boolean>(true);
+  cancelling = signal<boolean>(false);
 
   readonly uniqueStatuses = computed(() => ['Scheduled', 'Completed', 'Cancelled']);
 
@@ -209,6 +219,43 @@ export class ScheduleComponent implements OnInit {
   goToToday(): void {
     this.calculateWeekStart();
     this.loadSchedule();
+  }
+
+  openCancelShiftModal(sessionId: number): void {
+    this.cancellingSessionId.set(sessionId);
+    this.cancellationReason.set('');
+    this.shiftFutureSessions.set(true);
+    this.showCancelShiftModal.set(true);
+  }
+
+  confirmCancelAndShiftSession(): void {
+    const id = this.cancellingSessionId();
+    if (!id) return;
+    this.cancelling.set(true);
+
+    this.lmsService
+      .cancelAndShiftSession(id, {
+        reason: this.cancellationReason().trim() || 'Session cancelled by instructor/admin',
+        shiftUpcomingSchedule: this.shiftFutureSessions(),
+      })
+      .subscribe({
+        next: () => {
+          this.notify.showSuccess(
+            this.shiftFutureSessions()
+              ? 'Session cancelled and subsequent sessions shifted forward by 1 week.'
+              : 'Session cancelled.'
+          );
+          this.showCancelShiftModal.set(false);
+          this.cancelling.set(false);
+          this.loadSchedule();
+        },
+        error: (err) => {
+          this.notify.showError(
+            'Failed to cancel session: ' + (err.error?.message || 'Server error')
+          );
+          this.cancelling.set(false);
+        },
+      });
   }
 
   loadInstructors(): void {

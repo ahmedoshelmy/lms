@@ -5,9 +5,10 @@ import {
   HttpErrorResponse,
   HttpClient,
 } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
+import { catchError, switchMap, throwError, BehaviorSubject, filter, take, EMPTY } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoginResponse } from '../interfaces/Login';
 
@@ -19,12 +20,15 @@ const refreshTokenSubject = new BehaviorSubject<string | null>(null);
  * 1. Attaches `Authorization: Bearer <accessToken>` header and `withCredentials: true` to API requests.
  * 2. Intercepts 401 Unauthorized errors and triggers a token refresh (`POST /api/auth/refresh`),
  *    updating the JWT access token and retrying the failed request cleanly.
- * 3. Redirects to `/auth/login` if refresh fails or session is invalid.
+ * 3. Safely handles SSR (Server-Side Rendering) without throwing uncaughtExceptions in Node.js.
+ * 4. Redirects to `/login` if refresh fails or session is invalid.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const http = inject(HttpClient);
   const authService = inject(AuthService);
+  const platformId = inject(PLATFORM_ID);
+  const isBrowser = isPlatformBrowser(platformId);
 
   const token = authService.getAccessToken();
   const cloned = req.clone({
@@ -34,8 +38,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(cloned).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !cloned.url.includes('/auth/')) {
-        return handle401Error(cloned, next, http, router, authService);
+      if (error.status === 401) {
+        // If /auth/refresh itself returned 401, handle logout cleanly
+        if (cloned.url.includes('/auth/refresh')) {
+          if (isBrowser) {
+            authService.logout();
+            router.navigate(['/login']);
+          }
+          return EMPTY;
+        }
+
+        // On server side (SSR), don't attempt refresh or throw uncaught exceptions
+        if (!isBrowser) {
+          return EMPTY;
+        }
+
+        // On client side, attempt refresh for non-auth endpoints
+        if (!cloned.url.includes('/auth/')) {
+          return handle401Error(cloned, next, http, router, authService, isBrowser);
+        }
       }
 
       return throwError(() => error);
@@ -48,8 +69,13 @@ function handle401Error(
   next: HttpHandlerFn,
   http: HttpClient,
   router: Router,
-  authService: AuthService
+  authService: AuthService,
+  isBrowser: boolean
 ) {
+  if (!isBrowser) {
+    return EMPTY;
+  }
+
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
@@ -73,14 +99,16 @@ function handle401Error(
         });
         return next(retryReq);
       }),
-      catchError((refreshError) => {
+      catchError(() => {
         isRefreshing = false;
         refreshTokenSubject.next(null);
 
-        authService.logout();
-        const currentUrl = router.url && router.url !== '/login' ? router.url : '/dashboard';
-        router.navigate(['/login'], { queryParams: { returnUrl: currentUrl } });
-        return throwError(() => refreshError);
+        if (isBrowser) {
+          authService.logout();
+          const currentUrl = router.url && router.url !== '/login' ? router.url : '/dashboard';
+          router.navigate(['/login'], { queryParams: { returnUrl: currentUrl } });
+        }
+        return EMPTY;
       })
     );
   } else {
@@ -95,7 +123,11 @@ function handle401Error(
           });
           return next(retryReq);
         }
-        return throwError(() => new Error('Session expired'));
+        if (isBrowser) {
+          authService.logout();
+          router.navigate(['/login']);
+        }
+        return EMPTY;
       })
     );
   }

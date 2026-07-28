@@ -10,7 +10,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      notification.showError(error.error?.message || 'Something went wrong');
+      if (error.status !== 401 && !req.url.includes('/auth/')) {
+        notification.showError(error.error?.message || 'Something went wrong');
+      }
 
       return throwError(() => error);
     })

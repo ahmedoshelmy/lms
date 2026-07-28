@@ -484,34 +484,50 @@
         </div>
       </div>
 
-      <!-- Course Selection (Create Mode only) -->
+      <!-- Course Selection & Auto-Session Setup (Create Mode only) -->
       @if (modalMode() === 'create') {
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >Assigned Courses</label
-          >
-          <div
-            class="max-h-40 overflow-y-auto border border-[var(--color-border)] rounded-xl p-3 bg-[var(--color-surface)] flex flex-col gap-2"
-          >
-            @for (course of availableCourses(); track course.id) {
-              <label
-                class="flex items-center gap-2 text-xs text-[var(--color-text-primary)] cursor-pointer"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="isCourseSelected(course.id)"
-                  (change)="toggleCourseSelection(course.id)"
-                  class="rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)]"
-                />
-                <span class="font-medium">{{ course.title }}</span>
-                <span class="text-[var(--color-text-muted)]"
-                  >({{ course.topic }} - L{{ course.level }})</span
-                >
-              </label>
-            } @empty {
-              <p class="text-xs text-[var(--color-text-muted)]">No courses available.</p>
-            }
+        <div class="p-3.5 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)] space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+              Primary Course & Level *
+            </label>
+            <select
+              [ngModel]="formPrimaryCourseId()"
+              (ngModelChange)="formPrimaryCourseId.set($any($event))"
+              name="primaryCourseId"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
+            >
+              <option [ngValue]="null">Select Course Catalog Level...</option>
+              @for (course of availableCourses(); track course.id) {
+                <option [ngValue]="course.id">
+                  {{ course.title }} (Level {{ course.level }} • {{ course.sessionCount }} sessions)
+                </option>
+              }
+            </select>
           </div>
+
+          <!-- Auto-Generate Sessions Checkbox -->
+          <div class="flex items-center gap-2.5 pt-1">
+            <input
+              type="checkbox"
+              id="autoGenCheck"
+              [checked]="formAutoGenerateSessions()"
+              (change)="formAutoGenerateSessions.set($any($event.target).checked)"
+              class="w-4 h-4 rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
+            />
+            <label for="autoGenCheck" class="text-xs font-bold text-[var(--color-text-primary)] cursor-pointer">
+              ⚡ Auto-generate recurring session schedule after group creation
+            </label>
+          </div>
+
+          @if (formAutoGenerateSessions() && formPrimaryCourseId()) {
+            <div class="flex items-start gap-2 text-[11px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 p-2.5 rounded-xl">
+              <i class="pi pi-bolt text-xs mt-0.5"></i>
+              <span>
+                1-Click Onboarding: Group creation will automatically schedule recurring sessions starting on <strong>{{ formStartDate }}</strong>.
+              </span>
+            </div>
+          }
         </div>
       }
 

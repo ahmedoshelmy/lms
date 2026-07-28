@@ -31,6 +31,7 @@ export class StudentsComponent implements OnInit {
 
   // Group Filter: 'All' | 'Unassigned' | groupName
   groupFilter = signal<string>('All');
+  riskFilter = signal<'All' | 'At-Risk' | 'Low-Risk'>('All');
 
   // Persistent Selected Student IDs across searches and filters
   selectedStudentIds = signal<Set<number>>(new Set());
@@ -75,9 +76,18 @@ export class StudentsComponent implements OnInit {
       : 'pi-sort-amount-down text-[var(--color-secondary)] font-bold';
   }
 
+  isStudentAtRisk(s: User): boolean {
+    return !s.groupId && !s.groupName;
+  }
+
+  readonly atRiskCount = computed(() => {
+    return this.students().filter((s) => this.isStudentAtRisk(s)).length;
+  });
+
   filteredStudents = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const gFilter = this.groupFilter();
+    const rFilter = this.riskFilter();
 
     const list = this.students().filter((s) => {
       let matchesGroup = true;
@@ -87,13 +97,20 @@ export class StudentsComponent implements OnInit {
         matchesGroup = s.groupName === gFilter || (!!s.groupId && s.groupId.toString() === gFilter);
       }
 
+      let matchesRisk = true;
+      if (rFilter === 'At-Risk') {
+        matchesRisk = this.isStudentAtRisk(s);
+      } else if (rFilter === 'Low-Risk') {
+        matchesRisk = !this.isStudentAtRisk(s);
+      }
+
       const matchesSearch =
         !q ||
         s.name.toLowerCase().includes(q) ||
         (s.email && s.email.toLowerCase().includes(q)) ||
         (s.groupName && s.groupName.toLowerCase().includes(q));
 
-      return matchesGroup && matchesSearch;
+      return matchesGroup && matchesRisk && matchesSearch;
     });
 
     const col = this.sortColumn();

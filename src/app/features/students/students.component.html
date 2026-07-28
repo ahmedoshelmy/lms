@@ -53,6 +53,19 @@
         </select>
       </div>
 
+      <!-- Risk Score Filter Dropdown -->
+      <div class="relative w-full sm:w-44">
+        <select
+          [ngModel]="riskFilter()"
+          (ngModelChange)="riskFilter.set($event)"
+          class="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] cursor-pointer shadow-sm"
+        >
+          <option value="All">All Risk Levels</option>
+          <option value="At-Risk">⚠️ At-Risk ({{ atRiskCount() }})</option>
+          <option value="Low-Risk">✅ Good Standing</option>
+        </select>
+      </div>
+
       <!-- Search Input -->
       <div
         class="flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 w-full sm:w-64 shadow-sm"

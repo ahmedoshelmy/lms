@@ -395,3 +395,68 @@
   (closed)="onPanelClosed()"
   (sessionUpdated)="onSessionUpdated($event)"
 />
+
+<!-- Cancel & Reschedule Session Dialog -->
+<p-dialog
+  [(visible)]="showCancelShiftModal"
+  header="Cancel & Shift Subsequent Sessions"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="space-y-4 py-2 text-xs">
+    <p class="text-[var(--color-text-muted)]">
+      Cancelling a session allows you to optionally shift all remaining future sessions in this course forward by 1 week so student learning progression stays aligned.
+    </p>
+
+    <div>
+      <label class="block font-bold text-[var(--color-text-primary)] mb-1 uppercase tracking-wider text-[10px]">
+        Reason for Cancellation
+      </label>
+      <input
+        type="text"
+        [ngModel]="cancellationReason()"
+        (ngModelChange)="cancellationReason.set($event)"
+        placeholder="e.g., National Holiday, Emergency, Instructor Illness..."
+        class="w-full p-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+      />
+    </div>
+
+    <div class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
+      <input
+        type="checkbox"
+        id="shiftCheckbox"
+        [checked]="shiftFutureSessions()"
+        (change)="shiftFutureSessions.set($any($event.target).checked)"
+        class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
+      />
+      <label for="shiftCheckbox" class="cursor-pointer font-bold text-xs text-[var(--color-text-primary)]">
+        Shift remaining course sessions forward by 1 week
+      </label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showCancelShiftModal.set(false)"
+        class="px-4 py-2 text-xs font-bold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+      >
+        Close
+      </button>
+      <button
+        type="button"
+        (click)="confirmCancelAndShiftSession()"
+        [disabled]="cancelling()"
+        class="px-5 py-2 rounded-xl bg-[var(--color-warning)] text-white text-xs font-bold hover:opacity-90 transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+      >
+        @if (cancelling()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Confirm Cancel & Shift
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
