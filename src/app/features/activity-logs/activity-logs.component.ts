@@ -45,8 +45,26 @@ export class ActivityLogsComponent implements OnInit {
   fetchStats(): void {
     this.statsLoading.set(true);
     this.activityLogService.getActivityStats().subscribe({
-      next: (res) => {
-        this.stats.set(res);
+      next: (res: any) => {
+        if (res) {
+          const mappedStats: ActivityStats = {
+            totalActivities: res.totalActivities ?? res.TotalActivities ?? 0,
+            todayActivities: res.todayActivities ?? res.TodayActivities ?? 0,
+            topActions: (res.topActions ?? res.TopActions ?? []).map((x: any) => ({
+              action: x.action ?? x.Action,
+              count: x.count ?? x.Count
+            })),
+            activitiesByRole: (res.activitiesByRole ?? res.ActivitiesByRole ?? []).map((x: any) => ({
+              role: x.role ?? x.Role,
+              count: x.count ?? x.Count
+            })),
+            recentDailyActivity: (res.recentDailyActivity ?? res.RecentDailyActivity ?? []).map((x: any) => ({
+              date: x.date ?? x.Date,
+              count: x.count ?? x.Count
+            }))
+          };
+          this.stats.set(mappedStats);
+        }
         this.statsLoading.set(false);
       },
       error: () => this.statsLoading.set(false),
@@ -62,9 +80,22 @@ export class ActivityLogsComponent implements OnInit {
         search: this.searchQuery().trim() || undefined,
       })
       .subscribe({
-        next: (res) => {
-          this.logs.set(res.items);
-          this.totalRecords.set(res.totalCount);
+        next: (res: any) => {
+          const rawItems = res?.items ?? res?.Items ?? [];
+          const mappedItems: ActivityLog[] = rawItems.map((x: any) => ({
+            id: x.id ?? x.Id,
+            userId: x.userId ?? x.UserId,
+            userName: x.userName ?? x.UserName,
+            userRole: x.userRole ?? x.UserRole,
+            action: x.action ?? x.Action,
+            method: x.method ?? x.Method,
+            path: x.path ?? x.Path,
+            statusCode: x.statusCode ?? x.StatusCode,
+            details: x.details ?? x.Details,
+            createdAt: x.createdAt ?? x.CreatedAt
+          }));
+          this.logs.set(mappedItems);
+          this.totalRecords.set(res?.totalCount ?? res?.TotalCount ?? mappedItems.length);
           this.loading.set(false);
         },
         error: () => this.loading.set(false),
