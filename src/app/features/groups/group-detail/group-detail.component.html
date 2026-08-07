@@ -1,17 +1,47 @@
-<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
-  <!-- Back Button & Breadcrumbs -->
-  <div class="flex items-center gap-3 mb-6">
-    <button
-      (click)="goBack()"
-      class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-xs font-semibold hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] transition-all duration-200 shadow-sm"
-    >
-      <i class="pi pi-arrow-left text-xs"></i>
-      Back to Groups
-    </button>
-    <span class="text-[var(--color-text-muted)] text-xs">/</span>
-    <span class="text-xs font-bold text-[var(--color-text-primary)]">
-      {{ group() ? group()!.name : 'Group Details' }}
-    </span>
+<div class="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
+  <!-- Top Compact Header & Breadcrumbs -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-2 text-xs font-semibold">
+      <button
+        (click)="goBack()"
+        class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer flex items-center gap-1"
+      >
+        <i class="pi pi-arrow-left text-[10px]"></i> Groups
+      </button>
+      <span class="text-[var(--color-border)]">/</span>
+      <span class="text-[var(--color-text-primary)] font-bold">
+        {{ group() ? group()!.name : 'Group Details' }}
+      </span>
+    </div>
+
+    <!-- Right Header Action Hierarchy -->
+    @if (isAdmin() && group()) {
+      <div class="flex items-center gap-2">
+        <button
+          (click)="openPromoteDialog()"
+          class="px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all cursor-pointer flex items-center gap-1.5"
+        >
+          <i class="pi pi-arrow-up-right text-xs"></i>
+          Promote
+        </button>
+
+        <button
+          (click)="openEditModal()"
+          class="px-3.5 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+        >
+          <i class="pi pi-pencil text-xs"></i>
+          Edit Group
+        </button>
+
+        <button
+          (click)="openCustomGenerateModal(group()!.courses[0] || null)"
+          class="px-4 py-1.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+        >
+          <i class="pi pi-bolt text-xs"></i>
+          Generate Sessions
+        </button>
+      </div>
+    }
   </div>
 
   <!-- Loading State -->
@@ -20,428 +50,418 @@
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
   } @else if (group()) {
-    <!-- Main Group Card Banner -->
-    <div
-      class="p-6 md:p-8 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm mb-8 relative overflow-hidden"
-    >
+    <!-- Compact Title & Subheader Row -->
+    <div class="p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs mb-6 relative overflow-hidden">
       <!-- Ambient Top Accent Gradient Bar -->
-      <div
-        class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"
-      ></div>
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"></div>
 
       <!-- NEXT LEVEL RECOMMENDATION BANNER -->
       <div
         *ngIf="recommendedNextLevel()"
-        class="mb-6 p-4 rounded-2xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4"
+        class="mb-4 p-3.5 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40 flex items-center justify-between gap-3 text-xs"
       >
-        <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold shrink-0"
-          >
-            <i class="pi pi-verified"></i>
-          </div>
+        <div class="flex items-center gap-2.5">
+          <i class="pi pi-verified text-blue-600 text-base"></i>
           <div>
-            <h3 class="font-bold text-sm text-blue-900 dark:text-blue-200">
-              Course Level Completed!
-            </h3>
-            <p class="text-xs text-blue-700 dark:text-blue-300">
-              This group finished {{ recommendedNextLevel()?.completedCourseTitle }}.
-              <span *ngIf="recommendedNextLevel()?.recommendedCourse">
-                Recommended next level:
-                <strong>{{ recommendedNextLevel()?.recommendedCourse?.title }}</strong>
-              </span>
-            </p>
+            <span class="font-bold text-blue-900 dark:text-blue-200">Course Level Completed!</span>
+            <span class="text-blue-700 dark:text-blue-300 ml-1">
+              Finished {{ recommendedNextLevel()?.completedCourseTitle }}.
+              <strong *ngIf="recommendedNextLevel()?.recommendedCourse">
+                Recommended: {{ recommendedNextLevel()?.recommendedCourse?.title }}
+              </strong>
+            </span>
           </div>
         </div>
 
         <button
           *ngIf="isAdmin()"
           (click)="openPromoteDialog()"
-          class="px-4 py-2 text-xs font-bold rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-xs flex items-center gap-2 shrink-0"
+          class="px-3 py-1 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shrink-0 cursor-pointer"
         >
-          <i class="pi pi-arrow-up-right"></i> Promote to Next Level
+          Promote Now
         </button>
       </div>
 
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <!-- Left: Group Avatar & Info -->
-        <div class="flex items-start gap-4">
-          <div
-            class="group-detail-avatar rounded-2xl flex items-center justify-center w-16 h-16 shrink-0 text-2xl font-black text-white shadow-md"
-          >
-            {{ group()!.name.charAt(0).toUpperCase() }}
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 flex-wrap">
+            <h1 class="text-xl md:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
+              {{ group()!.name }}
+            </h1>
+            <span
+              class="px-2.5 py-0.5 rounded-full text-xs font-extrabold"
+              [ngClass]="getStatusCss(group()!.status)"
+            >
+              {{ group()!.status }}
+            </span>
+          </div>
+
+          <!-- Metadata Line -->
+          <div class="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-[var(--color-text-secondary)] font-medium">
+            <div class="flex items-center gap-1.5">
+              <i class="pi pi-user text-[var(--color-secondary)] text-xs"></i>
+              <button
+                (click)="viewInstructor(group()!.defaultInstructorId)"
+                class="font-bold text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
+              >
+                {{ group()!.defaultInstructorName }}
+              </button>
+            </div>
+            <span class="text-[var(--color-border)]">•</span>
+            @if (group()!.location) {
+              <div class="flex items-center gap-1">
+                <i class="pi pi-map-marker text-[var(--color-primary)] text-xs"></i>
+                <span class="font-semibold">{{ group()!.location }}</span>
+              </div>
+              <span class="text-[var(--color-border)]">•</span>
+            }
+            <div class="flex items-center gap-1">
+              <i class="pi pi-calendar text-[var(--color-text-muted)] text-xs"></i>
+              <span>{{ group()!.startDate | date: 'mediumDate' }} – {{ group()!.endDate | date: 'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Progress Badge -->
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="text-right">
+            <span class="text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider block">Overall Progress</span>
+            <span class="text-lg font-black text-[var(--color-secondary)]">{{ overallProgressPercent() }}%</span>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center justify-center font-black text-sm text-[var(--color-primary)]">
+            {{ overallProgressPercent() }}%
+          </div>
+        </div>
+      </div>
+
+      <!-- Compact KPI Chips Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[var(--color-border)]">
+        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold">
+            👥
           </div>
           <div>
-            <div class="flex items-center gap-3 flex-wrap">
-              <h1
-                class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight"
-              >
-                {{ group()!.name }}
-              </h1>
-              <span
-                class="status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
-                [ngClass]="getStatusCss(group()!.status)"
-              >
-                <i [ngClass]="'pi ' + getStatusIcon(group()!.status)"></i>
-                {{ group()!.status }}
-              </span>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Students</span>
+            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{ group()!.studentCount || (group()!.students?.length || 0) }}</span>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-sm font-bold">
+            📚
+          </div>
+          <div>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Courses</span>
+            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{ group()!.courses.length }}</span>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold">
+            📅
+          </div>
+          <div>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Sessions</span>
+            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{ totalGroupSessionsCount() }}</span>
+          </div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold">
+            📈
+          </div>
+          <div>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Progress</span>
+            <span class="text-sm font-extrabold text-[var(--color-success)]">{{ overallProgressPercent() }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN WORKFLOW CONTINUOUS LAYOUT -->
+    <div class="space-y-8">
+      <!-- 2-COLUMN MAIN GRID: LEFT (70%) COURSES & TIMELINE / RIGHT (30%) DETAILS & QUICK ACTIONS -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- LEFT 70% COLUMN: COURSES & CURRICULUM -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-base font-black text-[var(--color-text-primary)]">Curriculum & Course Levels</h3>
+                <p class="text-xs text-[var(--color-text-muted)]">Track level progress and manage assigned courses.</p>
+              </div>
+
+              @if (isAdmin()) {
+                <button
+                  (click)="openAddCourseDialog()"
+                  class="px-3.5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                >
+                  <i class="pi pi-plus text-xs"></i> Add Course
+                </button>
+              }
             </div>
 
-            <!-- Instructor & Location Info -->
-            <div
-              class="flex flex-wrap items-center gap-4 mt-2 text-xs text-[var(--color-text-secondary)]"
-            >
-              <div class="flex items-center gap-1.5">
-                <i class="pi pi-user text-[var(--color-secondary)]"></i>
-                <button
-                  (click)="viewInstructor(group()!.defaultInstructorId)"
-                  class="font-medium text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
-                >
-                  {{ group()!.defaultInstructorName }}
-                </button>
-                @if (group()!.defaultInstructorEmail) {
-                  <span class="text-[var(--color-text-muted)]"
-                    >({{ group()!.defaultInstructorEmail }})</span
-                  >
+            @if (!group()!.courses || group()!.courses.length === 0) {
+              <div class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+                <i class="pi pi-book text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
+                <p class="text-xs font-bold text-[var(--color-text-primary)]">No course levels assigned</p>
+                <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Assign a course level to enable session scheduling.</p>
+              </div>
+            } @else {
+              <div class="space-y-4">
+                @for (c of group()!.courses; track c.courseLevelId || c.courseId; let idx = $index) {
+                  <div class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)]/50 transition-all duration-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <div class="flex items-center gap-2 mb-1">
+                          <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]">
+                            LEVEL {{ c.level }}
+                          </span>
+                          <span class="text-xs font-bold" [ngClass]="c.status === 'Active' ? 'text-[var(--color-success)]' : 'text-[var(--color-text-muted)]'">
+                            • {{ c.status }}
+                          </span>
+                        </div>
+                        <h4 class="text-sm font-bold text-[var(--color-text-primary)]">{{ c.title }}</h4>
+                        <p class="text-xs text-[var(--color-text-muted)]">Topic: {{ c.topic }}</p>
+                      </div>
+
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          (click)="openCourseSessionsModal(c)"
+                          class="px-3 py-1.5 rounded-xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] transition-all cursor-pointer flex items-center gap-1.5"
+                        >
+                          <i class="pi pi-eye text-xs"></i> Sessions
+                        </button>
+
+                        @if (isAdmin()) {
+                          <button
+                            type="button"
+                            (click)="openManageCourseModal(c)"
+                            class="px-3 py-1.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                          >
+                            <i class="pi pi-pencil text-xs"></i> Edit Course
+                          </button>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Progress Bar & Session Math -->
+                    <div class="mt-4 pt-3 border-t border-[var(--color-border)]">
+                      <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-1.5">
+                        <span>
+                          Completed: <strong>S1..S{{ c.currentSessionNumber }}</strong> ({{ c.currentSessionNumber }}/{{ c.totalSessions }})
+                        </span>
+                        <span class="font-bold text-[var(--color-secondary)]">
+                          Next: Session {{ c.currentSessionNumber < c.totalSessions ? c.currentSessionNumber + 1 : 'Done' }}
+                        </span>
+                      </div>
+
+                      <div class="w-full h-2 rounded-full bg-[var(--color-border)] overflow-hidden mb-2">
+                        <div
+                          class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
+                          [style.width.%]="c.totalSessions > 0 ? (c.currentSessionNumber / c.totalSessions) * 100 : 0"
+                        ></div>
+                      </div>
+
+                      <div class="flex items-center justify-between text-[11px]">
+                        <span class="font-bold text-[var(--color-primary)]">{{ c.scheduledSessionCount }} scheduled</span>
+                        <span class="text-[var(--color-text-muted)]">{{ c.remainingSessions }} remaining to schedule</span>
+                      </div>
+                    </div>
+                  </div>
                 }
               </div>
-              @if (group()!.location) {
-                <div class="flex items-center gap-1.5">
-                  <i class="pi pi-map-marker text-[var(--color-primary)]"></i>
-                  <span class="font-semibold">{{ group()!.location }}</span>
-                </div>
-              }
-              <div class="flex items-center gap-1.5">
-                <i class="pi pi-calendar text-[var(--color-text-muted)]"></i>
-                <span
-                  >{{ group()!.startDate | date: 'mediumDate' }} –
-                  {{ group()!.endDate | date: 'mediumDate' }}</span
+            }
+          </div>
+        </div>
+
+        <!-- RIGHT 30% COLUMN: PERSISTENT GROUP DETAILS & QUICK ACTIONS -->
+        <div class="lg:col-span-4 space-y-6">
+          <!-- Persistent Group Details Sidebar Card -->
+          <div class="p-5 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+              <h3 class="text-sm font-black text-[var(--color-text-primary)] uppercase tracking-wider">Group Details</h3>
+              @if (isAdmin()) {
+                <button
+                  (click)="openEditModal()"
+                  class="text-xs font-bold text-[var(--color-secondary)] hover:underline cursor-pointer"
                 >
+                  ✏ Edit
+                </button>
+              }
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50">
+                <span class="text-[var(--color-text-muted)] font-semibold">Teacher</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.defaultInstructorName }}</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50">
+                <span class="text-[var(--color-text-muted)] font-semibold">Location</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.location || 'Not Specified' }}</span>
+              </div>
+
+              <div class="flex justify-between items-start py-1 border-b border-[var(--color-border)]/50">
+                <span class="text-[var(--color-text-muted)] font-semibold">Schedule Slots</span>
+                <div class="text-right font-bold text-[var(--color-text-primary)]">
+                  @for (slot of group()!.schedules; track $index) {
+                    <div>{{ slot.dayOfWeek }} {{ slot.startTime }} - {{ slot.endTime }}</div>
+                  }
+                  @if (!group()!.schedules || group()!.schedules!.length === 0) {
+                    <span class="text-[var(--color-text-muted)] font-normal">None set</span>
+                  }
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50">
+                <span class="text-[var(--color-text-muted)] font-semibold">Start Date</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.startDate | date: 'mediumDate' }}</span>
+              </div>
+
+              <div class="flex justify-between items-center py-1">
+                <span class="text-[var(--color-text-muted)] font-semibold">End Date</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.endDate | date: 'mediumDate' }}</span>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Right: Actions -->
-        @if (isAdmin()) {
-          <div class="flex items-center gap-3 shrink-0">
-            <button
-              (click)="openPromoteDialog()"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-secondary)] text-white font-semibold text-xs hover:bg-[var(--color-secondary-hover)] transition-all duration-200 shadow-md cursor-pointer"
-            >
-              <i class="pi pi-arrow-up-right text-xs"></i>
-              Promote to Next Level
-            </button>
-            <button
-              (click)="openEditModal()"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md cursor-pointer"
-            >
-              <i class="pi pi-pencil text-xs"></i>
-              Edit Group
-            </button>
-          </div>
-        }
-      </div>
+          <!-- Quick Actions Sidebar Card -->
+          @if (isAdmin()) {
+            <div class="p-5 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-3">
+              <h3 class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider mb-2">Quick Actions</h3>
 
-      <!-- Quick Metrics Summary Grid -->
-      <div
-        class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--color-border)]"
-      >
-        <div
-          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
-        >
-          <span
-            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
-          >
-            Enrolled Students
-          </span>
-          <div class="flex items-center gap-2">
-            <i class="pi pi-users text-lg text-[var(--color-secondary)]"></i>
-            <span class="text-xl font-black text-[var(--color-text-primary)]">
-              {{ group()!.studentCount }}
-            </span>
-          </div>
-        </div>
+              <button
+                (click)="openCustomGenerateModal(group()!.courses[0] || null)"
+                class="w-full py-2.5 px-3.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all flex items-center justify-between cursor-pointer"
+              >
+                <span>⚡ Generate Sessions</span>
+                <i class="pi pi-chevron-right text-xs"></i>
+              </button>
 
-        <div
-          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
-        >
-          <span
-            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
-          >
-            Courses Count
-          </span>
-          <div class="flex items-center gap-2">
-            <i class="pi pi-book text-lg text-[var(--color-primary)]"></i>
-            <span class="text-xl font-black text-[var(--color-text-primary)]">
-              {{ group()!.courses.length }}
-            </span>
-          </div>
-        </div>
+              <button
+                (click)="openPromoteDialog()"
+                class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
+              >
+                <span>🚀 Promote Group</span>
+                <i class="pi pi-chevron-right text-xs"></i>
+              </button>
 
-        <div
-          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
-        >
-          <span
-            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
-          >
-            Weekly Schedule
-          </span>
-          <div
-            class="flex items-center gap-1.5 text-xs font-bold text-[var(--color-text-primary)] truncate"
-          >
-            <i class="pi pi-clock text-lg text-[var(--color-success)] shrink-0"></i>
-            <span class="truncate">
-              {{
-                group()!.schedules && group()!.schedules!.length > 0
-                  ? group()!.schedules![0].dayOfWeek + ' ' + group()!.schedules![0].startTime
-                  : 'Not Scheduled'
-              }}
-            </span>
-          </div>
-        </div>
+              <button
+                (click)="openAddStudentModal()"
+                class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
+              >
+                <span>👥 Add Student</span>
+                <i class="pi pi-chevron-right text-xs"></i>
+              </button>
 
-        <div
-          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
-        >
-          <span
-            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
-          >
-            Overall Progress
-          </span>
-          <div
-            class="flex items-center justify-between text-xs font-bold text-[var(--color-text-primary)] mb-1"
-          >
-            <span>{{ getGroupProgress(group()) }}%</span>
-          </div>
-          <div class="w-full h-2 rounded-full bg-[var(--color-border)] overflow-hidden">
-            <div
-              class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
-              [style.width.%]="getGroupProgress(group())"
-            ></div>
-          </div>
+              <button
+                (click)="openEditScheduleModal()"
+                class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
+              >
+                <span>📅 Edit Weekly Schedule</span>
+                <i class="pi pi-chevron-right text-xs"></i>
+              </button>
+            </div>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div
-      class="flex items-center gap-2 mb-6 border-b border-[var(--color-border)] pb-2 overflow-x-auto"
-    >
-      <button
-        (click)="activeTab.set('students')"
-        [class.tab-active]="activeTab() === 'students'"
-        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
-      >
-        <i class="pi pi-users"></i>
-        Enrolled Students ({{ group()!.studentCount }})
-      </button>
-
-      <button
-        (click)="activeTab.set('courses')"
-        [class.tab-active]="activeTab() === 'courses'"
-        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
-      >
-        <i class="pi pi-book"></i>
-        Curriculum & Courses ({{ group()!.courses.length }})
-      </button>
-
-      <button
-        (click)="activeTab.set('schedules')"
-        [class.tab-active]="activeTab() === 'schedules'"
-        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
-      >
-        <i class="pi pi-calendar-times"></i>
-        Weekly Schedule
-      </button>
-
-      <button
-        (click)="activeTab.set('sessions')"
-        [class.tab-active]="activeTab() === 'sessions'"
-        class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap"
-      >
-        <i class="pi pi-list"></i>
-        Generated Sessions ({{ groupSessions().length }})
-      </button>
-    </div>
-
-    <!-- TAB 1: ENROLLED STUDENTS -->
-    @if (activeTab() === 'students') {
-      <div
-        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
-      >
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <!-- SECTION 2: STUDENTS (FULL WIDTH SECTION) -->
+      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Students List</h2>
-            <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Students currently registered in this group
-            </p>
+            <h3 class="text-base font-black text-[var(--color-text-primary)]">
+              Enrolled Students ({{ group()!.studentCount || (group()!.students?.length || 0) }})
+            </h3>
+            <p class="text-xs text-[var(--color-text-muted)]">Manage student enrollments, progress, and actions.</p>
           </div>
 
-          <!-- Search & Add Actions -->
-          <div class="flex items-center gap-3 w-full sm:w-auto">
-            <div class="relative w-full sm:w-64">
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <i class="pi pi-search absolute left-3 top-2.5 text-xs text-[var(--color-text-muted)]"></i>
               <input
                 type="text"
+                placeholder="Search students..."
                 [ngModel]="studentSearchQuery()"
                 (ngModelChange)="studentSearchQuery.set($event)"
-                placeholder="Search student..."
-                class="w-full pl-9 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
+                class="pl-8 pr-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
               />
-              <i
-                class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]"
-              ></i>
             </div>
+
             @if (isAdmin()) {
               <button
-                type="button"
                 (click)="openAddStudentModal()"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow"
+                class="px-3.5 py-1.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
               >
-                <i class="pi pi-user-plus text-xs"></i>
-                Add / Move Student
+                <i class="pi pi-user-plus text-xs"></i> Add Student
               </button>
             }
           </div>
         </div>
 
-        @if (!group()!.students || group()!.students!.length === 0) {
-          <div
-            class="text-center py-16 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
-          >
-            <i class="pi pi-users text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
-            <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
-              No Students Enrolled Yet
-            </h3>
-            <p class="text-xs text-[var(--color-text-muted)] mt-1">
-              There are no students currently assigned to {{ group()!.name }}
-            </p>
+        @if (!filteredStudents() || filteredStudents().length === 0) {
+          <div class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+            <i class="pi pi-users text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
+            <p class="text-xs font-bold text-[var(--color-text-primary)]">No students found</p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">No students match your query.</p>
           </div>
         } @else {
           <div class="overflow-x-auto">
-            <table
-              class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse"
-            >
+            <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
               <thead>
-                <tr
-                  class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
-                >
-                  <th
-                    (click)="toggleStudentSort('studentName')"
-                    class="py-3 px-4 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-                  >
-                    <div class="flex items-center gap-1.5">
-                      <span>Student</span>
-                      <i class="pi text-xs" [ngClass]="getStudentSortIcon('studentName')"></i>
-                    </div>
+                <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('studentName')">
+                    Student <i [ngClass]="getStudentSortIcon('studentName')"></i>
                   </th>
-                  <th
-                    (click)="toggleStudentSort('studentEmail')"
-                    class="py-3 px-4 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-                  >
-                    <div class="flex items-center gap-1.5">
-                      <span>Email</span>
-                      <i class="pi text-xs" [ngClass]="getStudentSortIcon('studentEmail')"></i>
-                    </div>
+                  <th class="py-3 px-3">Email</th>
+                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('attendanceRate')">
+                    Attendance <i [ngClass]="getStudentSortIcon('attendanceRate')"></i>
                   </th>
-                  <th
-                    (click)="toggleStudentSort('joinedAt')"
-                    class="py-3 px-4 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-                  >
-                    <div class="flex items-center gap-1.5">
-                      <span>Joined Date</span>
-                      <i class="pi text-xs" [ngClass]="getStudentSortIcon('joinedAt')"></i>
-                    </div>
+                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('progressRate')">
+                    Progress <i [ngClass]="getStudentSortIcon('progressRate')"></i>
                   </th>
-                  <th class="py-3 px-4">Status</th>
-                  @if (isAdmin()) {
-                    <th class="py-3 px-4 text-right">Actions</th>
-                  }
+                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('joinedAt')">
+                    Enrolled <i [ngClass]="getStudentSortIcon('joinedAt')"></i>
+                  </th>
+                  <th class="py-3 px-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-[var(--color-border)]">
-                @for (s of filteredStudents(); track s.studentId) {
-                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors duration-150">
-                    <td class="py-3.5 px-4 font-bold flex items-center gap-3">
-                      <div
-                        class="student-avatar w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 cursor-pointer"
-                        (click)="openStudentDetailsModal(s)"
-                      >
-                        {{ s.studentName.charAt(0).toUpperCase() }}
+                @for (st of filteredStudents(); track st.studentId) {
+                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors">
+                    <td class="py-3 px-3 font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-bold flex items-center justify-center">
+                        {{ st.studentName.charAt(0).toUpperCase() }}
                       </div>
-                      <div>
-                        <div
-                          class="text-xs font-bold text-[var(--color-text-primary)] cursor-pointer hover:text-[var(--color-secondary)] transition-colors"
-                          (click)="openStudentDetailsModal(s)"
-                        >
-                          {{ s.studentName }}
-                        </div>
-                        <div class="text-[10px] text-[var(--color-text-muted)]">
-                          ID: #{{ s.studentId }}
-                        </div>
-                      </div>
+                      <button (click)="openStudentDetailsModal(st)" class="hover:text-[var(--color-secondary)] transition-colors cursor-pointer">
+                        {{ st.studentName }}
+                      </button>
                     </td>
-                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)] font-medium">
-                      {{ s.studentEmail }}
+                    <td class="py-3 px-3 text-[var(--color-text-secondary)]">{{ st.studentEmail }}</td>
+                    <td class="py-3 px-3 font-bold">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-600 font-extrabold">
+                        Enrolled
+                      </span>
                     </td>
-                    <td class="py-3.5 px-4 text-[var(--color-text-muted)]">
-                      {{ s.joinedAt | date: 'mediumDate' }}
-                    </td>
-                    <td class="py-3.5 px-4">
-                      @if (s.leftAt) {
-                        <span
-                          class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)]"
-                        >
-                          Left ({{ s.leftAt | date: 'shortDate' }})
-                        </span>
-                      } @else {
-                        <span
-                          class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]"
-                        >
-                          Active
-                        </span>
-                      }
-                    </td>
-                    @if (isAdmin()) {
-                      <td class="py-3.5 px-4 text-right">
-                        <div class="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            (click)="openStudentDetailsModal(s)"
-                            class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
-                            title="View Student Details"
-                          >
-                            <i class="pi pi-eye text-xs"></i>
-                          </button>
-                          <button
-                            type="button"
-                            (click)="openEditStudentModal(s)"
-                            class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
-                            title="Edit Student Name / Group"
-                          >
+                    <td class="py-3 px-3 font-bold text-[var(--color-secondary)]">Active</td>
+                    <td class="py-3 px-3 text-[var(--color-text-muted)]">{{ st.joinedAt | date: 'mediumDate' }}</td>
+                    <td class="py-3 px-3 text-right">
+                      <div class="flex items-center justify-end gap-1.5">
+                        <button (click)="openStudentDetailsModal(st)" class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] cursor-pointer" title="View Details">
+                          <i class="pi pi-eye text-xs"></i>
+                        </button>
+                        @if (isAdmin()) {
+                          <button (click)="openEditStudentModal(st)" class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-primary)] cursor-pointer" title="Edit Student">
                             <i class="pi pi-pencil text-xs"></i>
                           </button>
-                          <button
-                            type="button"
-                            (click)="openDeleteStudentModal(s)"
-                            class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                            title="Delete Student"
-                          >
+                          <button (click)="openRemoveStudentModal(st)" class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer" title="Remove from group">
                             <i class="pi pi-trash text-xs"></i>
                           </button>
-                          @if (!s.leftAt) {
-                            <button
-                              type="button"
-                              (click)="openRemoveStudentModal(s)"
-                              class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-warning)] hover:bg-[color-mix(in_srgb,var(--color-warning)_10%,transparent)] transition-colors cursor-pointer"
-                              title="Remove from Group"
-                            >
-                              <i class="pi pi-sign-out text-xs"></i>
-                            </button>
-                          }
-                        </div>
-                      </td>
-                    }
+                        }
+                      </div>
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -449,249 +469,63 @@
           </div>
         }
       </div>
-    }
 
-    <!-- TAB 2: COURSES & CURRICULUM -->
-    @if (activeTab() === 'courses') {
-      <div
-        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
-      >
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
-            Course Curriculum Breakdown
-          </h2>
-          @if (isAdmin()) {
+      <!-- SECTION 3: GENERATED SESSIONS FEED (FULL WIDTH SECTION) -->
+      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-black text-[var(--color-text-primary)]">
+              Generated Sessions Feed ({{ groupSessions().length }})
+            </h3>
+            <p class="text-xs text-[var(--color-text-muted)]">Complete chronological list of scheduled and past sessions.</p>
+          </div>
+
+          @if (isAdmin() && group()?.courses?.length) {
             <button
-              (click)="openAddCourseModal()"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow"
+              (click)="openCustomGenerateModal(group()!.courses[0])"
+              class="px-3.5 py-1.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs"
             >
-              <i class="pi pi-plus text-xs"></i>
-              Add Course
+              <i class="pi pi-bolt text-xs"></i> Generate Sessions
             </button>
           }
         </div>
 
-        @if (group()!.courses.length === 0) {
-          <div
-            class="text-center py-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
-          >
-            <i class="pi pi-book text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
-            <p class="text-xs text-[var(--color-text-muted)]">
-              No courses added to this group yet.
-            </p>
-          </div>
-        } @else {
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            @for (c of group()!.courses; track c.courseId) {
-              <div
-                class="p-5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex flex-col justify-between cursor-pointer hover:border-[var(--color-primary)] transition-colors duration-200"
-                (click)="openCourseSessionsModal(c)"
-              >
-                <div>
-                  <div class="flex items-center justify-between mb-2">
-                    <span
-                      class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)]"
-                    >
-                      Level {{ c.level }}
-                    </span>
-                    <div class="flex items-center gap-2">
-                      @if (c.isCompleted) {
-                        <span
-                          class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]"
-                        >
-                          Completed
-                        </span>
-                      }
-                      <span class="text-xs font-semibold text-[var(--color-text-muted)]">
-                        Order: #{{ c.orderIndex }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <h3 class="text-base font-bold text-[var(--color-text-primary)] leading-snug">
-                    {{ c.title }}
-                  </h3>
-                  <p class="text-xs font-medium text-[var(--color-text-muted)] mt-0.5">
-                    Topic: {{ c.topic }}
-                  </p>
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-[var(--color-border)]">
-                  <div
-                    class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-2"
-                  >
-                    <span>
-                      Session: <strong>S{{ c.currentSessionNumber }}</strong> /
-                      <strong>{{ c.totalSessions }}</strong>
-                    </span>
-                    <span
-                      class="font-semibold"
-                      [class.text-[var(--color-success)]]="c.remainingSessions === 0"
-                      [class.text-[var(--color-warning)]]="c.remainingSessions > 0"
-                    >
-                      {{ c.remainingSessions }} remaining
-                    </span>
-                  </div>
-                  <div
-                    class="w-full h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mb-3"
-                  >
-                    <div
-                      class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
-                      [style.width.%]="
-                        c.totalSessions > 0 ? (c.currentSessionNumber / c.totalSessions) * 100 : 0
-                      "
-                    ></div>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-[var(--color-primary)]">
-                      {{ c.scheduledSessionCount }} scheduled
-                    </span>
-                    <div class="flex items-center gap-2">
-                      <button
-                        type="button"
-                        (click)="openCourseSessionsModal(c); $event.stopPropagation()"
-                        class="px-2.5 py-1.5 rounded-xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-secondary)] transition-all cursor-pointer flex items-center gap-1.5"
-                      >
-                        <i class="pi pi-eye text-xs"></i>
-                        Sessions
-                      </button>
-                      @if (isAdmin()) {
-                        <button
-                          type="button"
-                          (click)="openManageCourseModal(c); $event.stopPropagation()"
-                          class="px-2.5 py-1.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
-                        >
-                          <i class="pi pi-pencil text-xs"></i>
-                          Edit Course
-                        </button>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    }
-
-    <!-- TAB 3: WEEKLY SCHEDULE -->
-    @if (activeTab() === 'schedules') {
-      <div
-        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
-      >
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">Weekly Schedule Slots</h2>
-          @if (isAdmin()) {
-            <button
-              (click)="openEditScheduleModal()"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0 shadow"
-            >
-              <i class="pi pi-pencil text-xs"></i>
-              Edit Schedule
-            </button>
-          }
-        </div>
-
-        @if (!group()!.schedules || group()!.schedules!.length === 0) {
-          <div
-            class="text-center py-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
-          >
+        @if (!groupSessions() || groupSessions().length === 0) {
+          <div class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
             <i class="pi pi-calendar-times text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
-            <p class="text-xs text-[var(--color-text-muted)]">
-              No schedule configured for this group.
-            </p>
-          </div>
-        } @else {
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @for (sch of group()!.schedules; track sch.id) {
-              <div
-                class="p-5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] flex items-start gap-4"
-              >
-                <div
-                  class="p-3 rounded-xl bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-primary)] shrink-0"
-                >
-                  <i class="pi pi-clock text-xl"></i>
-                </div>
-                <div>
-                  <h3 class="text-base font-extrabold text-[var(--color-text-primary)]">
-                    {{ sch.dayOfWeek }}
-                  </h3>
-                  <p class="text-xs font-semibold text-[var(--color-secondary)] mt-1">
-                    {{ sch.startTime }} – {{ sch.endTime }}
-                  </p>
-                  @if (sch.location) {
-                    <p class="text-xs text-[var(--color-text-muted)] mt-1 flex items-center gap-1">
-                      <i class="pi pi-map-marker text-[10px]"></i>
-                      {{ sch.location }}
-                    </p>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    }
-
-    <!-- TAB 4: GENERATED SESSIONS -->
-    @if (activeTab() === 'sessions') {
-      <div
-        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-sm"
-      >
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-[var(--color-text-primary)]">
-            Generated Sessions Schedule
-          </h2>
-          <span class="text-xs font-semibold text-[var(--color-text-muted)]">
-            Total: {{ groupSessions().length }} sessions
-          </span>
-        </div>
-
-        @if (groupSessions().length === 0) {
-          <div
-            class="text-center py-12 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
-          >
-            <i class="pi pi-list text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
-            <p class="text-xs text-[var(--color-text-muted)]">
-              No sessions generated for this group yet.
-            </p>
+            <p class="text-xs font-bold text-[var(--color-text-primary)]">No sessions generated yet</p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Use "Generate Sessions" to populate recurring group sessions.</p>
           </div>
         } @else {
           <div class="overflow-x-auto">
-            <table
-              class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse"
-            >
+            <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
               <thead>
-                <tr
-                  class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
-                >
-                  <th class="py-3 px-4">Topic</th>
-                  <th class="py-3 px-4">Date & Time</th>
-                  <th class="py-3 px-4">Instructor</th>
-                  <th class="py-3 px-4">Status</th>
+                <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+                  <th class="py-3 px-3">#</th>
+                  <th class="py-3 px-3">Topic</th>
+                  <th class="py-3 px-3">Date & Time</th>
+                  <th class="py-3 px-3">Instructor</th>
+                  <th class="py-3 px-3">Status</th>
+                  <th class="py-3 px-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-[var(--color-border)]">
-                @for (sess of groupSessions(); track sess.id) {
-                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors duration-150">
-                    <td class="py-3.5 px-4 font-bold text-[var(--color-text-primary)]">
-                      {{ sess.topic || 'Regular Session' }}
-                    </td>
-                    <td class="py-3.5 px-4 font-medium text-[var(--color-secondary)]">
-                      {{ sess.startsAt | date: 'EEEE, MMM d, y · h:mm a' }}
-                    </td>
-                    <td class="py-3.5 px-4 text-[var(--color-text-secondary)]">
-                      {{ sess.instructorName }}
-                    </td>
-                    <td class="py-3.5 px-4">
-                      <span
-                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
-                        [ngClass]="getStatusCss(sess.status)"
-                      >
+                @for (sess of groupSessions(); track sess.id; let idx = $index) {
+                  <tr class="hover:bg-[var(--color-background-alt)] transition-colors">
+                    <td class="py-3 px-3 font-extrabold text-[var(--color-text-muted)]">S{{ sess.sessionNumber || idx + 1 }}</td>
+                    <td class="py-3 px-3 font-bold text-[var(--color-text-primary)]">{{ sess.topic || 'Regular Session' }}</td>
+                    <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">{{ sess.startsAt | date: 'EEE, MMM d, y · h:mm a' }}</td>
+                    <td class="py-3 px-3 text-[var(--color-text-secondary)]">{{ sess.instructorName }}</td>
+                    <td class="py-3 px-3">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold" [ngClass]="getStatusCss(sess.status)">
                         {{ sess.status }}
                       </span>
                     </td>
+                    <td class="py-3 px-3 text-right">
+                      <button (click)="viewSessionDetails(sess.id)" class="px-2.5 py-1 rounded-lg border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] transition-all cursor-pointer">
+                        View
+                      </button>
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -699,7 +533,7 @@
           </div>
         }
       </div>
-    }
+    </div>
   }
 </div>
 

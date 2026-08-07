@@ -296,6 +296,32 @@ export class GroupDetailComponent implements OnInit {
     return this.sessions().filter((s) => s.groupId === grp.id || s.groupName === grp.name);
   });
 
+  upcomingSessions = computed(() => {
+    return this.groupSessions().filter((s) => s.status === 'Scheduled' || s.status === 'Running');
+  });
+
+  completedSessionsFeed = computed(() => {
+    return this.groupSessions().filter((s) => s.status === 'Completed');
+  });
+
+  overallProgressPercent = computed(() => {
+    const grp = this.group();
+    if (!grp || !grp.courses || grp.courses.length === 0) return 0;
+    let totalCompleted = 0;
+    let totalAll = 0;
+    for (const c of grp.courses) {
+      totalCompleted += c.currentSessionNumber;
+      totalAll += c.totalSessions;
+    }
+    return totalAll > 0 ? Math.round((totalCompleted / totalAll) * 100) : 0;
+  });
+
+  totalGroupSessionsCount = computed(() => {
+    const grp = this.group();
+    if (!grp || !grp.courses) return 0;
+    return grp.courses.reduce((acc, c) => acc + (c.totalSessions || 0), 0);
+  });
+
   // View Course Sessions Modal
   showCourseSessionsModal = signal<boolean>(false);
   selectedCourseForSessions = signal<GroupCourse | null>(null);
@@ -393,6 +419,14 @@ export class GroupDetailComponent implements OnInit {
           this.promoting.set(false);
         },
       });
+  }
+
+  openAddCourseDialog(): void {
+    this.openAddCourseModal();
+  }
+
+  viewSessionDetails(sessionId: number): void {
+    this.router.navigate(['/sessions', sessionId]);
   }
 
   openAddCourseModal(): void {
