@@ -113,20 +113,30 @@ export class GroupDetailComponent implements OnInit {
 
   // Computed recommendation for next level
   recommendedNextLevel = computed(() => {
-    const gh = this.groupHistory();
-    if (!gh || !gh.courseHistory || gh.courseHistory.length === 0) return null;
-    const lastCourse = gh.courseHistory[gh.courseHistory.length - 1];
-    if (lastCourse && lastCourse.isCompleted) {
-      const nextLevelInt = parseInt(lastCourse.level, 10) + 1;
-      const match = this.courseLevels().find(
-        (c) => (c.topicName || '').toLowerCase() === (lastCourse.topic || '').toLowerCase() && c.level === nextLevelInt
-      );
-      return {
-        completedCourseTitle: lastCourse.courseTitle,
-        recommendedCourse: match,
-      };
+    const grp = this.group();
+    const allLevels = this.courseLevels();
+    if (!grp || !allLevels || allLevels.length === 0) return null;
+
+    const assigned = grp.courses || [];
+    if (assigned.length === 0) {
+      const first = allLevels[0];
+      return first ? { completedCourseTitle: 'Initial Setup', recommendedCourse: first } : null;
     }
-    return null;
+
+    const highestAssigned = [...assigned].sort((a, b) => b.level - a.level)[0];
+    if (!highestAssigned) return null;
+
+    const nextLevelNum = highestAssigned.level + 1;
+    const match = allLevels.find(
+      (c) =>
+        (c.topicName || '').toLowerCase() === (highestAssigned.topic || '').toLowerCase() &&
+        c.level === nextLevelNum
+    );
+
+    return {
+      completedCourseTitle: `${highestAssigned.title} (Level ${highestAssigned.level})`,
+      recommendedCourse: match || null,
+    };
   });
 
   // Unified Edit / Manage Modal Signals
@@ -380,7 +390,11 @@ export class GroupDetailComponent implements OnInit {
 
   loadCourses(): void {
     this.lmsService.getCourseLevels().subscribe({
-      next: (data) => this.courseLevels.set(data || []),
+      next: (data) => {
+        const levels = data || [];
+        this.courseLevels.set(levels);
+        this.courses.set(levels as any);
+      },
       error: () => {},
     });
   }
@@ -705,6 +719,7 @@ export class GroupDetailComponent implements OnInit {
         this.savingCourseManagement.set(false);
         this.showManageCourseModal.set(false);
         this.loadGroupDetail(grp.id);
+        this.loadScheduleSessions();
       },
       error: (err) => {
         this.notify.showError(`Failed to update course: ${err.error?.message || 'Server error'}`);
@@ -732,6 +747,7 @@ export class GroupDetailComponent implements OnInit {
         this.generatingCustom.set(false);
         this.showManageCourseModal.set(false);
         this.loadGroupDetail(this.groupId());
+        this.loadScheduleSessions();
       },
       error: (err) => {
         this.notify.showError(err.error?.message || 'Failed to generate custom sessions.');
@@ -752,6 +768,7 @@ export class GroupDetailComponent implements OnInit {
         this.regeneratingCourseId.set(null);
         this.showManageCourseModal.set(false);
         this.loadGroupDetail(this.groupId());
+        this.loadScheduleSessions();
       },
       error: (err) => {
         this.notify.showError(err.error?.message || 'Failed to regenerate sessions.');
