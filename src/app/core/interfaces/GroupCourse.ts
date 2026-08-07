@@ -19,17 +19,22 @@ export interface GroupCourse {
 
 export interface GroupCourseAssignDto {
   courseLevelId: number;
+  courseId?: number;
   initialCurrentSessionNumber?: number;
+  currentSessionNumber?: number;
   status?: GroupCourseStatus;
+  isActive?: boolean;
 }
 
 export interface GroupCourseUpdateItemDto {
   id?: number;
-  courseLevelId: number;
-  orderIndex: number;
-  status: GroupCourseStatus;
+  groupCourseId?: number;
+  courseLevelId?: number;
+  orderIndex?: number;
+  status?: GroupCourseStatus;
   currentSessionNumber?: number;
   totalSessions?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateCurrentSessionNumberDto {

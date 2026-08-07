@@ -740,107 +740,348 @@
   }
 </div>
 
-<!-- Edit Group Dialog -->
+<!-- Unified Edit & Manage Group Details Dialog -->
 <p-dialog
   [(visible)]="showEditModal"
-  header="Edit Group Details"
+  header="Manage Group Details & Setup"
   [modal]="true"
-  [style]="{ width: '90%', maxWidth: '500px' }"
-  styleClass="rounded-2xl overflow-hidden"
+  [style]="{ width: '92%', maxWidth: '780px' }"
+  styleClass="rounded-3xl overflow-hidden"
 >
-  <div class="flex flex-col gap-4 py-2">
-    <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-        >Group Name</label
+  <div class="flex flex-col gap-6 py-2">
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)]">
+      <button
+        (click)="manageTab.set('overview')"
+        [class.bg-[var(--color-surface)]]="manageTab() === 'overview'"
+        [class.shadow-xs]="manageTab() === 'overview'"
+        [class.text-[var(--color-primary)]]="manageTab() === 'overview'"
+        class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2"
       >
-      <input
-        type="text"
-        [(ngModel)]="formName"
-        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-      />
+        <i class="pi pi-info-circle"></i>
+        Group Info
+      </button>
+      <button
+        (click)="manageTab.set('curriculum')"
+        [class.bg-[var(--color-surface)]]="manageTab() === 'curriculum'"
+        [class.shadow-xs]="manageTab() === 'curriculum'"
+        [class.text-[var(--color-primary)]]="manageTab() === 'curriculum'"
+        class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2"
+      >
+        <i class="pi pi-book"></i>
+        Curriculum Courses ({{ editCourseItems().length }})
+      </button>
+      <button
+        (click)="manageTab.set('schedule')"
+        [class.bg-[var(--color-surface)]]="manageTab() === 'schedule'"
+        [class.shadow-xs]="manageTab() === 'schedule'"
+        [class.text-[var(--color-primary)]]="manageTab() === 'schedule'"
+        class="flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2"
+      >
+        <i class="pi pi-calendar"></i>
+        Weekly Schedule ({{ editScheduleSlots().length }})
+      </button>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
+    <!-- TAB 1: OVERVIEW -->
+    <div *ngIf="manageTab() === 'overview'" class="flex flex-col gap-4">
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-          >Start Date</label
-        >
+        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+          Group Name *
+        </label>
         <input
-          type="date"
-          [(ngModel)]="formStartDate"
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          type="text"
+          [(ngModel)]="formName"
+          class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
         />
       </div>
-      <div>
-        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-          >End Date</label
-        >
-        <input
-          type="date"
-          [(ngModel)]="formEndDate"
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-        />
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+            Start Date *
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="formStartDate"
+            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+            End Date *
+          </label>
+          <input
+            type="date"
+            [(ngModel)]="formEndDate"
+            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          />
+        </div>
       </div>
-    </div>
 
-    <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-        >Instructor</label
-      >
-      <select
-        [(ngModel)]="formInstructorId"
-        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-      >
-        <option [value]="0">Select Instructor</option>
-        @for (inst of instructors(); track inst.id) {
-          <option [value]="inst.id">{{ inst.name }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-          >Status</label
-        >
+        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+          Primary Instructor *
+        </label>
         <select
-          [(ngModel)]="formStatus"
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          [(ngModel)]="formInstructorId"
+          class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
         >
-          @for (opt of statusOptions; track opt.value) {
-            <option [value]="opt.value">{{ opt.label }}</option>
+          <option [value]="0">Select Instructor</option>
+          @for (inst of instructors(); track inst.id) {
+            <option [value]="inst.id">{{ inst.name }} ({{ inst.email }})</option>
           }
         </select>
       </div>
 
-      <div>
-        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-          >Location</label
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+            Group Status
+          </label>
+          <select
+            [(ngModel)]="formStatus"
+            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          >
+            @for (opt of statusOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+            Default Branch / Location
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="formLocation"
+            placeholder="e.g. MOA, Online"
+            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CURRICULUM COURSES -->
+    <div *ngIf="manageTab() === 'curriculum'" class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase">
+          Assigned Course Levels & Session Offsets
+        </span>
+      </div>
+
+      <!-- Course Level Items List -->
+      <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
+        @for (item of editCourseItems(); track $index) {
+          <div
+            class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div class="flex items-start gap-3">
+              <div
+                class="w-8 h-8 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] font-bold text-xs flex items-center justify-center shrink-0"
+              >
+                {{ $index + 1 }}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-xs text-[var(--color-text-primary)]">
+                    {{ item.title }}
+                  </h4>
+                  <span
+                    class="px-2 py-0.5 rounded-md text-[10px] font-bold"
+                    [class.bg-emerald-100]="item.isActive"
+                    [class.text-emerald-700]="item.isActive"
+                    [class.bg-gray-100]="!item.isActive"
+                    [class.text-gray-600]="!item.isActive"
+                  >
+                    {{ item.isActive ? 'Active' : 'Pending' }}
+                  </span>
+                </div>
+                <p class="text-[11px] text-[var(--color-text-muted)]">
+                  {{ item.topic }} • Level {{ item.level }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <!-- Current Session Offset -->
+              <div class="flex flex-col gap-1">
+                <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
+                  Session Offset
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  [max]="item.totalSessions"
+                  [(ngModel)]="item.currentSessionNumber"
+                  class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
+                />
+              </div>
+
+              <!-- Total Sessions -->
+              <div class="flex flex-col gap-1">
+                <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
+                  Total Sessions
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="item.totalSessions"
+                  class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
+                />
+              </div>
+
+              <!-- Set Active -->
+              <button
+                *ngIf="!item.isActive"
+                (click)="setUnifiedActiveCourse($index)"
+                class="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] text-[10px] font-bold text-[var(--color-secondary)] hover:bg-[var(--color-surface)] transition-all shrink-0 mt-3"
+              >
+                Make Active
+              </button>
+
+              <!-- Remove -->
+              <button
+                (click)="removeCourseFromUnifiedEdit($index)"
+                class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center text-xs shrink-0 mt-3 transition-colors"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="py-8 text-center border border-dashed border-[var(--color-border)] rounded-2xl">
+            <p class="text-xs text-[var(--color-text-muted)]">No course levels assigned to this group yet.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Add New Course Selector Inline -->
+      <div class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <select
+          [(ngModel)]="newCourseLevelToAdd"
+          class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] font-medium"
         >
+          <option [ngValue]="null">-- Add Course Level to Group --</option>
+          @for (c of availableCourses(); track c.id) {
+            <option [ngValue]="c.id">
+              {{ c.topicName }} - {{ c.title }} (Level {{ c.level }}, {{ c.sessionCount }} sessions)
+            </option>
+          }
+        </select>
+        <button
+          (click)="addCourseToUnifiedEdit()"
+          [disabled]="!newCourseLevelToAdd()"
+          class="px-4 py-2 bg-[var(--color-secondary)] text-white text-xs font-bold rounded-xl hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 transition-all shadow-xs"
+        >
+          <i class="pi pi-plus mr-1"></i> Add Course
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 3: WEEKLY SCHEDULE -->
+    <div *ngIf="manageTab() === 'schedule'" class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase">
+          Recurring Schedule Slots
+        </span>
+        <button
+          (click)="addScheduleSlotToUnifiedEdit()"
+          class="text-xs font-bold text-[var(--color-secondary)] hover:underline flex items-center gap-1"
+        >
+          <i class="pi pi-plus"></i> Add Day Slot
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
+        @for (slot of editScheduleSlots(); track $index) {
+          <div class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+            <div>
+              <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Day</label>
+              <select
+                [(ngModel)]="slot.dayOfWeek"
+                class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+              >
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Start Time</label>
+              <input
+                type="time"
+                [(ngModel)]="slot.startTime"
+                class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">End Time</label>
+              <input
+                type="time"
+                [(ngModel)]="slot.endTime"
+                class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+              />
+            </div>
+
+            <div class="flex items-center gap-2 pt-3 sm:pt-0">
+              <div class="flex-1">
+                <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Branch</label>
+                <input
+                  type="text"
+                  [(ngModel)]="slot.location"
+                  placeholder="MOA"
+                  class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+                />
+              </div>
+              <button
+                (click)="removeScheduleSlotFromUnifiedEdit($index)"
+                class="w-7 h-7 text-red-500 hover:bg-red-50 rounded-lg flex items-center justify-center text-xs shrink-0 mt-3"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 flex items-center gap-3">
         <input
-          type="text"
-          [(ngModel)]="formLocation"
-          placeholder="e.g. MOA, Online"
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          type="checkbox"
+          id="updateUpcoming"
+          [(ngModel)]="editScheduleUpdateUpcoming"
+          class="w-4 h-4 text-[var(--color-primary)] rounded border-amber-300"
         />
+        <label for="updateUpcoming" class="text-xs font-semibold text-amber-900 dark:text-amber-200 cursor-pointer">
+          Apply new schedule slots to upcoming scheduled sessions
+        </label>
       </div>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <div class="flex items-center justify-end gap-2 pt-2">
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
       <button
         (click)="showEditModal.set(false)"
-        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)]"
+        class="px-4 py-2.5 rounded-xl border border-[var(--color-border)] text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] transition-all"
       >
         Cancel
       </button>
       <button
         (click)="saveGroup()"
         [disabled]="saving()"
-        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50"
+        class="px-5 py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all shadow-md flex items-center gap-2"
       >
-        Save Changes
+        <i *ngIf="saving()" class="pi pi-spin pi-spinner text-xs"></i>
+        <i *ngIf="!saving()" class="pi pi-check text-xs"></i>
+        Save All Group Details
       </button>
     </div>
   </ng-template>

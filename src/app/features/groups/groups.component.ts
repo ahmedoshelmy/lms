@@ -376,8 +376,11 @@ export class GroupsComponent implements OnInit {
         ? [
             {
               courseLevelId: levelId,
+              courseId: levelId,
+              currentSessionNumber: Number(this.formInitialSessionNumber()) || 0,
               initialCurrentSessionNumber: Number(this.formInitialSessionNumber()) || 0,
               status: 'Active',
+              isActive: true,
             },
           ]
         : [];
@@ -389,7 +392,8 @@ export class GroupsComponent implements OnInit {
         defaultInstructorId: this.formInstructorId,
         status: this.formStatus,
         location: this.formLocation || undefined,
-        courseLevels,
+        courses: courseLevels,
+        courseLevels: courseLevels,
         schedules: this.scheduleSlots(),
         generateSessions: this.formAutoGenerateSessions(),
         sessionsStartFrom: this.formStartDate,

@@ -52,6 +52,7 @@ export interface CreateGroupPayload {
   defaultInstructorId: number;
   status?: number;
   location?: string;
+  courses?: GroupCourseAssignDto[];
   courseLevels?: GroupCourseAssignDto[];
   schedules?: GroupScheduleSlot[];
   generateSessions?: boolean;
@@ -67,6 +68,7 @@ export interface UpdateGroupPayload {
   location?: string;
   schedules?: GroupScheduleSlot[];
   courses?: GroupCourseUpdateItemDto[];
+  updateUpcomingSessions?: boolean;
 }
 
 export interface UpdateGroupSchedulePayload {

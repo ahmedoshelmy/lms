@@ -129,7 +129,8 @@ export class GroupDetailComponent implements OnInit {
     return null;
   });
 
-  // Edit Modal Signals
+  // Unified Edit / Manage Modal Signals
+  manageTab = signal<'overview' | 'curriculum' | 'schedule'>('overview');
   showEditModal = signal<boolean>(false);
   saving = signal<boolean>(false);
   formName = '';
@@ -138,6 +139,24 @@ export class GroupDetailComponent implements OnInit {
   formInstructorId = 0;
   formStatus = 0;
   formLocation = '';
+  editCourseItems = signal<
+    {
+      groupCourseId: number;
+      courseLevelId: number;
+      title: string;
+      topic: string;
+      level: number;
+      totalSessions: number;
+      currentSessionNumber: number;
+      isActive: boolean;
+      status: string;
+    }[]
+  >([]);
+  editScheduleSlots = signal<
+    { dayOfWeek: string; startTime: string; endTime: string; location: string }[]
+  >([]);
+  editScheduleUpdateUpcoming = signal<boolean>(true);
+  newCourseLevelToAdd = signal<number | null>(null);
 
   statusOptions = STATUS_OPTIONS;
 
@@ -187,10 +206,6 @@ export class GroupDetailComponent implements OnInit {
 
   // Edit Schedule Modal
   showEditScheduleModal = signal<boolean>(false);
-  editScheduleSlots = signal<
-    { dayOfWeek: string; startTime: string; endTime: string; location: string }[]
-  >([]);
-  editScheduleUpdateUpcoming = signal<boolean>(false);
   savingSchedule = signal<boolean>(false);
 
   filteredCandidateStudents = computed(() => {
@@ -465,8 +480,92 @@ export class GroupDetailComponent implements OnInit {
     this.formEndDate = grp.endDate ? grp.endDate.split('T')[0] : '';
     this.formInstructorId = grp.defaultInstructorId || 0;
     this.formStatus = STATUS_MAP[grp.status] ?? 0;
-    this.formLocation = grp.location || '';
+    this.formLocation = grp.location || 'MOA';
+
+    // Populate editable courses
+    const coursesToEdit = (grp.courses || []).map((c, idx) => ({
+      groupCourseId: c.id,
+      courseLevelId: c.courseLevelId || c.courseId,
+      title: c.title || `Level ${c.level}`,
+      topic: c.topic || '',
+      level: c.level,
+      totalSessions: c.totalSessions || c.sessionCount || 12,
+      currentSessionNumber: c.currentSessionNumber || 0,
+      isActive: c.status === 'Active',
+      status: c.status || (idx === 0 ? 'Active' : 'Pending'),
+    }));
+    this.editCourseItems.set(coursesToEdit);
+
+    // Populate editable schedule slots
+    const schedulesToEdit = (grp.schedules || []).map((s) => ({
+      dayOfWeek: s.dayOfWeek || 'Saturday',
+      startTime: s.startTime || '13:30',
+      endTime: s.endTime || '15:00',
+      location: s.location || grp.location || 'MOA',
+    }));
+    if (schedulesToEdit.length === 0) {
+      schedulesToEdit.push({
+        dayOfWeek: 'Saturday',
+        startTime: '13:30',
+        endTime: '15:00',
+        location: grp.location || 'MOA',
+      });
+    }
+    this.editScheduleSlots.set(schedulesToEdit);
+    this.editScheduleUpdateUpcoming.set(true);
+    this.newCourseLevelToAdd.set(null);
+    this.manageTab.set('overview');
     this.showEditModal.set(true);
+  }
+
+  addCourseToUnifiedEdit(): void {
+    const levelId = this.newCourseLevelToAdd();
+    if (!levelId) return;
+    const match = this.courseLevels().find((c) => c.id === levelId);
+    if (!match) return;
+
+    const existing = this.editCourseItems();
+    const isFirst = existing.length === 0;
+    this.editCourseItems.update((items) => [
+      ...items,
+      {
+        groupCourseId: 0,
+        courseLevelId: match.id,
+        title: match.title || `Level ${match.level}`,
+        topic: match.topicName || '',
+        level: match.level,
+        totalSessions: match.sessionCount || 12,
+        currentSessionNumber: 0,
+        isActive: isFirst,
+        status: isFirst ? 'Active' : 'Pending',
+      },
+    ]);
+    this.newCourseLevelToAdd.set(null);
+  }
+
+  removeCourseFromUnifiedEdit(index: number): void {
+    this.editCourseItems.update((items) => items.filter((_, i) => i !== index));
+  }
+
+  setUnifiedActiveCourse(index: number): void {
+    this.editCourseItems.update((items) =>
+      items.map((item, i) => ({
+        ...item,
+        isActive: i === index,
+        status: i === index ? 'Active' : item.status === 'Active' ? 'Pending' : item.status,
+      }))
+    );
+  }
+
+  addScheduleSlotToUnifiedEdit(): void {
+    this.editScheduleSlots.update((slots) => [
+      ...slots,
+      { dayOfWeek: 'Sunday', startTime: '15:00', endTime: '16:30', location: this.formLocation || 'MOA' },
+    ]);
+  }
+
+  removeScheduleSlotFromUnifiedEdit(index: number): void {
+    this.editScheduleSlots.update((slots) => slots.filter((_, i) => i !== index));
   }
 
   saveGroup(): void {
@@ -482,19 +581,36 @@ export class GroupDetailComponent implements OnInit {
       name: this.formName,
       startDate: this.formStartDate,
       endDate: this.formEndDate,
-      defaultInstructorId: this.formInstructorId,
-      status: this.formStatus,
+      defaultInstructorId: Number(this.formInstructorId),
+      status: Number(this.formStatus),
       location: this.formLocation || undefined,
+      schedules: this.editScheduleSlots().map((s) => ({
+        dayOfWeek: s.dayOfWeek,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        location: s.location || this.formLocation || undefined,
+      })),
+      courses: this.editCourseItems().map((c, idx) => ({
+        groupCourseId: c.groupCourseId,
+        courseLevelId: c.courseLevelId,
+        orderIndex: idx,
+        totalSessions: Number(c.totalSessions) || 12,
+        currentSessionNumber: Number(c.currentSessionNumber) || 0,
+        isActive: c.isActive,
+        status: c.isActive ? ('Active' as any) : c.status,
+      })),
+      updateUpcomingSessions: this.editScheduleUpdateUpcoming(),
     };
 
     this.lmsService.updateGroup(id, payload).subscribe({
       next: () => {
-        this.notify.showSuccess('Group details updated.');
+        this.notify.showSuccess('All group details, curriculum, and schedules saved!');
         this.saving.set(false);
         this.showEditModal.set(false);
         this.loadGroupDetail(id);
       },
-      error: () => {
+      error: (err) => {
+        this.notify.showError(`Failed to update group: ${err.error?.message || 'Server error'}`);
         this.saving.set(false);
       },
     });
