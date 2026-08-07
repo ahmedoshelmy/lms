@@ -1,4 +1,4 @@
-import { GroupCourse } from './GroupCourse';
+import { GroupCourse, GroupCourseAssignDto, GroupCourseUpdateItemDto } from './GroupCourse';
 
 export interface GroupStudent {
   studentId: number;
@@ -38,6 +38,13 @@ export interface Group {
   nextCourseTotalSessions?: number;
 }
 
+export interface GroupScheduleSlot {
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+}
+
 export interface CreateGroupPayload {
   name: string;
   startDate: string;
@@ -45,7 +52,10 @@ export interface CreateGroupPayload {
   defaultInstructorId: number;
   status?: number;
   location?: string;
-  courseIds?: number[];
+  courseLevels?: GroupCourseAssignDto[];
+  schedules?: GroupScheduleSlot[];
+  generateSessions?: boolean;
+  sessionsStartFrom?: string;
 }
 
 export interface UpdateGroupPayload {
@@ -55,13 +65,8 @@ export interface UpdateGroupPayload {
   defaultInstructorId: number;
   status: number;
   location?: string;
-}
-
-export interface GroupScheduleSlot {
-  dayOfWeek: string;
-  startTime: string;
-  endTime: string;
-  location?: string;
+  schedules?: GroupScheduleSlot[];
+  courses?: GroupCourseUpdateItemDto[];
 }
 
 export interface UpdateGroupSchedulePayload {

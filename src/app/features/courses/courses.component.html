@@ -3,10 +3,10 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
     <div>
       <h1 class="text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
-        Course Catalog
+        Topics & Curriculum Levels
       </h1>
       <p class="text-sm text-[var(--color-text-muted)] mt-1">
-        Explore and manage the curriculum levels and session counts
+        Manage subjects, sequential level progression, and session counts
       </p>
     </div>
 
@@ -14,30 +14,13 @@
       @if (isAdmin()) {
         <button
           type="button"
-          (click)="openCreateModal()"
+          (click)="openCreateTopicModal()"
           class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-semibold rounded-xl transition-colors shadow-sm cursor-pointer"
         >
           <i class="pi pi-plus"></i>
-          Add Course
+          Add Topic
         </button>
       }
-
-      <!-- Group by Topic Toggle -->
-      <button
-        (click)="toggleGroupByTopic()"
-        class="group-toggle-btn flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all duration-200"
-        [class.active]="groupByTopic()"
-        [class.border-[var(--color-secondary)]]="groupByTopic()"
-        [class.bg-[var(--color-secondary)]]="groupByTopic()"
-        [class.text-white]="groupByTopic()"
-        [class.border-[var(--color-border)]]="!groupByTopic()"
-        [class.bg-[var(--color-surface)]]="!groupByTopic()"
-        [class.text-[var(--color-text-primary)]]="!groupByTopic()"
-        [class.hover:border-[var(--color-secondary)]]="!groupByTopic()"
-      >
-        <i class="pi pi-list"></i>
-        Group by Topic
-      </button>
 
       <!-- Search input -->
       <div class="relative w-full md:w-80">
@@ -45,7 +28,7 @@
           type="text"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
-          placeholder="Search courses..."
+          placeholder="Search topics or levels..."
           class="w-full pl-10 pr-4 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] transition-all duration-200"
         />
         <i
@@ -61,289 +44,223 @@
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
   } @else {
-    @if (groupByTopic()) {
-      <!-- Grouped View -->
-      <div class="flex items-center gap-2 mb-5">
-        <button
-          (click)="expandAllTopics()"
-          class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--color-info-background)]"
-        >
-          <i class="pi pi-chevron-down mr-1"></i> Expand All
-        </button>
-        <span class="text-[var(--color-border)]">|</span>
-        <button
-          (click)="collapseAllTopics()"
-          class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--color-info-background)]"
-        >
-          <i class="pi pi-chevron-up mr-1"></i> Collapse All
-        </button>
-      </div>
+    <!-- Expand / Collapse controls -->
+    <div class="flex items-center gap-2 mb-5">
+      <button
+        (click)="expandAll()"
+        class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--color-info-background)] cursor-pointer"
+      >
+        <i class="pi pi-chevron-down mr-1"></i> Expand All
+      </button>
+      <span class="text-[var(--color-border)]">|</span>
+      <button
+        (click)="collapseAll()"
+        class="text-xs font-semibold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--color-info-background)] cursor-pointer"
+      >
+        <i class="pi pi-chevron-up mr-1"></i> Collapse All
+      </button>
+    </div>
 
-      <div class="flex flex-col gap-4">
-        @for (group of topicGroups(); track group.topic) {
+    <!-- Topics Accordion & Levels Grid -->
+    <div class="flex flex-col gap-6">
+      @for (topic of filteredTopics(); track topic.id) {
+        <div
+          class="topic-group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden shadow-sm"
+        >
+          <!-- Topic Header -->
           <div
-            class="topic-group rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden"
+            class="topic-header w-full flex items-center justify-between gap-4 px-6 py-4 transition-all duration-200 hover:bg-[var(--color-surface-hover)] border-b border-transparent"
+            [class.border-[var(--color-border)]]="!isCollapsed(topic.id)"
           >
-            <!-- Topic Header (clickable) -->
-            <button
-              (click)="toggleTopicCollapse(group.topic)"
-              class="topic-header w-full flex items-center gap-4 px-6 py-4 text-left transition-all duration-200 hover:bg-[var(--color-surface-hover)]"
-            >
+            <div class="flex items-center gap-4 cursor-pointer flex-1" (click)="toggleTopicCollapse(topic.id)">
               <span
-                class="inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                [ngClass]="getTopicBadgeClass(group.topic)"
+                class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                [ngClass]="getTopicBadgeClass(topic.code)"
               >
-                {{ group.topic }}
+                {{ topic.code }}
               </span>
-              <span class="text-xs text-[var(--color-text-muted)] font-semibold">
-                {{ group.courses.length }} course{{ group.courses.length !== 1 ? 's' : '' }}
-              </span>
-              <i
-                class="pi ml-auto text-[var(--color-text-muted)] transition-transform duration-300"
-                [class.pi-chevron-down]="!group.expanded"
-                [class.pi-chevron-up]="group.expanded"
-              ></i>
-            </button>
+              <div>
+                <h2 class="text-base font-extrabold text-[var(--color-text-primary)]">
+                  {{ topic.name }}
+                </h2>
+                @if (topic.description) {
+                  <p class="text-xs text-[var(--color-text-muted)] line-clamp-1">
+                    {{ topic.description }}
+                  </p>
+                }
+              </div>
+            </div>
 
-            <!-- Collapsible Course Grid -->
-            @if (group.expanded) {
-              <div
-                class="topic-courses px-6 pb-6 pt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 border-t border-[var(--color-border)]"
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[var(--color-background)] text-[var(--color-text-secondary)]">
+                {{ topic.levels?.length || 0 }} Level{{ (topic.levels?.length || 0) !== 1 ? 's' : '' }}
+              </span>
+
+              @if (isAdmin()) {
+                <button
+                  type="button"
+                  (click)="openCreateLevelModal(topic); $event.stopPropagation()"
+                  class="inline-flex items-center gap-1 px-3 py-1.5 bg-[var(--color-secondary)]/10 hover:bg-[var(--color-secondary)]/20 text-[var(--color-secondary)] text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                  title="Add Level"
+                >
+                  <i class="pi pi-plus text-xs"></i>
+                  Add Level
+                </button>
+                <button
+                  type="button"
+                  (click)="openEditTopicModal(topic); $event.stopPropagation()"
+                  class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                  title="Edit Topic"
+                >
+                  <i class="pi pi-pencil text-xs"></i>
+                </button>
+                <button
+                  type="button"
+                  (click)="openDeleteModal({ type: 'topic', id: topic.id, name: topic.name }); $event.stopPropagation()"
+                  class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  title="Delete Topic"
+                >
+                  <i class="pi pi-trash text-xs"></i>
+                </button>
+              }
+
+              <button
+                (click)="toggleTopicCollapse(topic.id)"
+                class="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
               >
-                @for (course of group.courses; track course.id) {
-                  <div
-                    class="course-card p-5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-[0_8px_24px_rgba(62,109,181,0.08)] transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div class="flex items-center justify-between gap-4 mb-3">
-                        <span
-                          class="text-xs text-[var(--color-text-muted)] font-bold uppercase tracking-wider"
-                        >
-                          Level {{ course.level }}
-                        </span>
-                        <span class="text-xs text-[var(--color-text-muted)] font-bold">
-                          {{ course.sessionCount }} Sessions
-                        </span>
-                      </div>
-                      <h3 class="text-sm font-bold text-[var(--color-text-primary)] mb-2">
-                        {{ course.title }}
-                      </h3>
-                      <p class="text-xs text-[var(--color-text-secondary)] line-clamp-2 mb-4">
-                        {{ course.description }}
-                      </p>
+                <i
+                  class="pi transition-transform duration-300"
+                  [class.pi-chevron-down]="isCollapsed(topic.id)"
+                  [class.pi-chevron-up]="!isCollapsed(topic.id)"
+                ></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Collapsible Levels Grid -->
+          @if (!isCollapsed(topic.id)) {
+            <div class="px-6 py-5 bg-[var(--color-background-alt)]/30 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              @for (level of topic.levels; track level.id) {
+                <div
+                  class="course-card p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                >
+                  <div>
+                    <div class="flex items-center justify-between gap-4 mb-3">
+                      <span class="inline-flex px-2.5 py-0.5 rounded-md text-xs font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                        Level {{ level.level }}
+                      </span>
+                      <span class="text-xs text-[var(--color-text-muted)] font-bold">
+                        <i class="pi pi-clock mr-1 text-[var(--color-secondary)]"></i>
+                        {{ level.sessionCount }} Sessions
+                      </span>
                     </div>
-                    <div
-                      class="flex items-center justify-between border-t border-[var(--color-border)] pt-3 mt-auto gap-2"
-                    >
-                      <div class="flex items-center gap-3">
-                        <span
-                          class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]"
-                        >
-                          <i class="pi pi-users text-[var(--color-secondary)]"></i>
-                          {{ course.groupCount }} group{{ course.groupCount !== 1 ? 's' : '' }}
-                        </span>
-                        <span
-                          class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]"
-                        >
-                          <i class="pi pi-user text-[var(--color-secondary)]"></i>
-                          {{ course.studentCount }} student{{
-                            course.studentCount !== 1 ? 's' : ''
-                          }}
-                        </span>
-                      </div>
-                      @if (isAdmin()) {
-                        <div class="flex items-center gap-1">
-                          <button
-                            type="button"
-                            (click)="openEditModal(course); $event.stopPropagation()"
-                            class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
-                            title="Edit Course"
-                          >
-                            <i class="pi pi-pencil text-xs"></i>
-                          </button>
-                          <button
-                            type="button"
-                            (click)="openDeleteModal(course); $event.stopPropagation()"
-                            class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                            title="Delete Course"
-                          >
-                            <i class="pi pi-trash text-xs"></i>
-                          </button>
-                        </div>
-                      }
-                    </div>
+
+                    <h3 class="text-sm font-bold text-[var(--color-text-primary)] mb-2">
+                      {{ level.title }}
+                    </h3>
+                    <p class="text-xs text-[var(--color-text-secondary)] line-clamp-3 mb-4">
+                      {{ level.description }}
+                    </p>
                   </div>
-                }
-              </div>
-            }
-          </div>
-        } @empty {
-          <div
-            class="col-span-full text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"
-          >
-            <i class="pi pi-book text-4xl text-[var(--color-text-muted)] mb-3"></i>
-            <p class="text-[var(--color-text-secondary)] font-medium">
-              No courses found matching your criteria
-            </p>
-          </div>
-        }
-      </div>
-    } @else {
-      <!-- Flat Grid View -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @for (course of filteredCourses(); track course.id) {
-          <div
-            class="course-card p-6 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-[0_8px_24px_rgba(62,109,181,0.08)] transition-all duration-300 flex flex-col justify-between"
-          >
-            <div>
-              <div class="flex items-center justify-between gap-4 mb-4">
-                <span
-                  class="inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                  [ngClass]="getTopicBadgeClass(course.topic)"
-                >
-                  {{ course.topic }}
-                </span>
-                <span class="text-xs text-[var(--color-text-muted)] font-bold">
-                  {{ course.sessionCount }} Sessions
-                </span>
-              </div>
-              <h3 class="text-lg font-bold text-[var(--color-text-primary)] mb-2">
-                {{ course.title }}
-              </h3>
-              <p class="text-sm text-[var(--color-text-secondary)] line-clamp-3 mb-6">
-                {{ course.description }}
-              </p>
-            </div>
 
-            <div
-              class="flex items-center justify-between border-t border-[var(--color-border)] pt-4 mt-auto gap-2 flex-wrap"
-            >
-              <span class="text-xs text-[var(--color-text-muted)] font-semibold">
-                Level {{ course.level }}
-              </span>
-              <div class="flex items-center gap-3">
-                <span
-                  class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]"
-                >
-                  <i class="pi pi-users text-[var(--color-secondary)]"></i>
-                  {{ course.groupCount }} group{{ course.groupCount !== 1 ? 's' : '' }}
-                </span>
-                <span
-                  class="inline-flex items-center gap-1 text-xs text-[var(--color-text-secondary)]"
-                >
-                  <i class="pi pi-user text-[var(--color-secondary)]"></i>
-                  {{ course.studentCount }} student{{ course.studentCount !== 1 ? 's' : '' }}
-                </span>
-                @if (isAdmin()) {
-                  <button
-                    type="button"
-                    (click)="openEditModal(course); $event.stopPropagation()"
-                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
-                    title="Edit Course"
-                  >
-                    <i class="pi pi-pencil text-xs"></i>
-                  </button>
-                  <button
-                    type="button"
-                    (click)="openDeleteModal(course); $event.stopPropagation()"
-                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                    title="Delete Course"
-                  >
-                    <i class="pi pi-trash text-xs"></i>
-                  </button>
-                }
-              </div>
+                  <div class="flex items-center justify-between border-t border-[var(--color-border)] pt-3 mt-auto">
+                    <span class="text-[11px] text-[var(--color-text-muted)] font-semibold">
+                      Topic Code: {{ topic.code }}
+                    </span>
+
+                    @if (isAdmin()) {
+                      <div class="flex items-center gap-1">
+                        <button
+                          type="button"
+                          (click)="openEditLevelModal(topic, level)"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                          title="Edit Level"
+                        >
+                          <i class="pi pi-pencil text-xs"></i>
+                        </button>
+                        <button
+                          type="button"
+                          (click)="openDeleteModal({ type: 'level', id: level.id, topicId: topic.id, name: level.title })"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          title="Delete Level"
+                        >
+                          <i class="pi pi-trash text-xs"></i>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                <div class="col-span-full text-center py-8 bg-[var(--color-surface)] rounded-xl border border-dashed border-[var(--color-border)]">
+                  <p class="text-xs text-[var(--color-text-muted)] font-medium">
+                    No course levels created for this topic yet.
+                  </p>
+                </div>
+              }
             </div>
-          </div>
-        } @empty {
-          <div
-            class="col-span-full text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"
-          >
-            <i class="pi pi-book text-4xl text-[var(--color-text-muted)] mb-3"></i>
-            <p class="text-[var(--color-text-secondary)] font-medium">
-              No courses found matching your criteria
-            </p>
-          </div>
-        }
-      </div>
-    }
+          }
+        </div>
+      } @empty {
+        <div
+          class="text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"
+        >
+          <i class="pi pi-book text-4xl text-[var(--color-text-muted)] mb-3"></i>
+          <p class="text-[var(--color-text-secondary)] font-medium">
+            No topics or levels found matching your search.
+          </p>
+        </div>
+      }
+    </div>
   }
 
-  <!-- Create/Edit Modal -->
+  <!-- Topic Modal (Create / Edit) -->
   <p-dialog
-    [(visible)]="showCourseModal"
-    [header]="editingCourse() ? 'Edit Course' : 'Add New Course'"
+    [(visible)]="showTopicModal"
+    [header]="editingTopic() ? 'Edit Topic' : 'Add New Topic'"
     [modal]="true"
-    [style]="{ width: '100%', maxWidth: '520px' }"
+    [style]="{ width: '100%', maxWidth: '480px' }"
     [draggable]="false"
     [resizable]="false"
   >
     <div class="flex flex-col gap-4 py-2">
-      <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >Title *</label
-        >
-        <input
-          type="text"
-          [ngModel]="formTitle()"
-          (ngModelChange)="formTitle.set($event)"
-          placeholder="e.g. Python Fundamentals"
-          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-        />
+      <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-1">
+          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+            Code *
+          </label>
+          <input
+            type="text"
+            [ngModel]="topicCode()"
+            (ngModelChange)="topicCode.set($event)"
+            placeholder="e.g. PY"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] uppercase"
+          />
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+            Topic Name *
+          </label>
+          <input
+            type="text"
+            [ngModel]="topicName()"
+            (ngModelChange)="topicName.set($event)"
+            placeholder="e.g. Python Programming"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >Description *</label
-        >
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          Description
+        </label>
         <textarea
-          [ngModel]="formDescription()"
-          (ngModelChange)="formDescription.set($event)"
-          placeholder="Course description..."
+          [ngModel]="topicDescription()"
+          (ngModelChange)="topicDescription.set($event)"
+          placeholder="General topic overview..."
           rows="3"
           class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] resize-none"
         ></textarea>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >Topic *</label
-          >
-          <input
-            type="text"
-            [ngModel]="formTopic()"
-            (ngModelChange)="formTopic.set($event)"
-            placeholder="e.g. Python"
-            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >Level *</label
-          >
-          <input
-            type="text"
-            [ngModel]="formLevel()"
-            (ngModelChange)="formLevel.set($event)"
-            placeholder="e.g. Beginner"
-            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >Session Count *</label
-        >
-        <input
-          type="text"
-          [ngModel]="formSessionCount()"
-          (ngModelChange)="formSessionCount.set($event)"
-          placeholder="e.g. 12"
-          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-        />
       </div>
     </div>
 
@@ -351,27 +268,116 @@
       <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
         <button
           type="button"
-          (click)="showCourseModal.set(false)"
+          (click)="showTopicModal.set(false)"
           class="px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="button"
-          (click)="saveCourse()"
+          (click)="saveTopic()"
           [disabled]="saving()"
           class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-primary)] text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
         >
           @if (saving()) {
             <i class="pi pi-spinner pi-spin"></i>
           }
-          {{ editingCourse() ? 'Save Changes' : 'Create Course' }}
+          {{ editingTopic() ? 'Save Changes' : 'Create Topic' }}
         </button>
       </div>
     </ng-template>
   </p-dialog>
 
-  <!-- Delete Modal -->
+  <!-- Level Modal (Create / Edit) -->
+  <p-dialog
+    [(visible)]="showLevelModal"
+    [header]="editingLevel() ? 'Edit Level' : ('Add Level for ' + (selectedTopic()?.name || ''))"
+    [modal]="true"
+    [style]="{ width: '100%', maxWidth: '520px' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <div class="flex flex-col gap-4 py-2">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+            Level Number (Integer) *
+          </label>
+          <input
+            type="number"
+            min="1"
+            [ngModel]="levelNumber()"
+            (ngModelChange)="levelNumber.set($event)"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+            Session Count *
+          </label>
+          <input
+            type="number"
+            min="1"
+            [ngModel]="levelSessionCount()"
+            (ngModelChange)="levelSessionCount.set($event)"
+            class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          Level Title *
+        </label>
+        <input
+          type="text"
+          [ngModel]="levelTitle()"
+          (ngModelChange)="levelTitle.set($event)"
+          placeholder="e.g. Python Level 1"
+          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          Description *
+        </label>
+        <textarea
+          [ngModel]="levelDescription()"
+          (ngModelChange)="levelDescription.set($event)"
+          placeholder="Syllabus and level objectives..."
+          rows="3"
+          class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] resize-none"
+        ></textarea>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+        <button
+          type="button"
+          (click)="showLevelModal.set(false)"
+          class="px-4 py-2 text-sm font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="saveLevel()"
+          [disabled]="saving()"
+          class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-primary)] text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+        >
+          @if (saving()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          }
+          {{ editingLevel() ? 'Save Changes' : 'Create Level' }}
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Delete Confirmation Modal -->
   <p-dialog
     [(visible)]="showDeleteModal"
     header="Confirm Delete"
@@ -382,8 +388,8 @@
   >
     <div class="py-2">
       <p class="text-sm text-[var(--color-text-primary)]">
-        Are you sure you want to delete
-        <strong class="text-[var(--color-primary)]">{{ deletingCourse()?.title }}</strong
+        Are you sure you want to delete this {{ deletingTarget()?.type }}:
+        <strong class="text-[var(--color-primary)]">{{ deletingTarget()?.name }}</strong
         >? This action cannot be undone.
       </p>
     </div>
@@ -406,7 +412,7 @@
           @if (saving()) {
             <i class="pi pi-spinner pi-spin"></i>
           }
-          Delete Course
+          Delete {{ deletingTarget()?.type | titlecase }}
         </button>
       </div>
     </ng-template>

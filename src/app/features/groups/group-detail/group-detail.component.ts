@@ -883,4 +883,62 @@ export class GroupDetailComponent implements OnInit {
       },
     });
   }
+
+  // ─── Current Session Number Override (R3, R4, R5) ──────────────────────────
+
+  showEditSessionNumberModal = signal<boolean>(false);
+  editingSessionNumberGc = signal<GroupCourse | null>(null);
+  newCurrentSessionNumberInput = signal<number>(0);
+  sessionNumberConflictMessage = signal<string | null>(null);
+  savingSessionNumber = signal<boolean>(false);
+
+  openEditSessionNumberModal(gc: GroupCourse): void {
+    this.editingSessionNumberGc.set(gc);
+    this.newCurrentSessionNumberInput.set(gc.currentSessionNumber);
+    this.sessionNumberConflictMessage.set(null);
+    this.showEditSessionNumberModal.set(true);
+  }
+
+  saveCurrentSessionNumber(confirmDeleteUpcoming = false): void {
+    const grp = this.group();
+    const gc = this.editingSessionNumberGc();
+    if (!grp || !gc) return;
+
+    const newNumber = Number(this.newCurrentSessionNumberInput());
+    if (isNaN(newNumber) || newNumber < 0) {
+      this.notify.showError('Invalid session number.');
+      return;
+    }
+
+    this.savingSessionNumber.set(true);
+    this.lmsService
+      .updateGroupCurrentSessionNumber(grp.id, gc.id, {
+        newCurrentSessionNumber: newNumber,
+        confirmDeleteUpcomingSessions: confirmDeleteUpcoming,
+      })
+      .subscribe({
+        next: () => {
+          this.notify.showSuccess('Current session number updated successfully.');
+          this.savingSessionNumber.set(false);
+          this.showEditSessionNumberModal.set(false);
+          this.sessionNumberConflictMessage.set(null);
+          this.loadGroupDetail(grp.id);
+          this.loadScheduleSessions();
+        },
+        error: (err) => {
+          this.savingSessionNumber.set(false);
+          if (err.status === 409) {
+            this.sessionNumberConflictMessage.set(
+              err.error?.message ||
+                'Changing current session number requires deleting and regenerating upcoming scheduled sessions.'
+            );
+          } else {
+            this.notify.showError(
+              'Failed to update session number: ' + (err.error?.message || 'Error')
+            );
+          }
+        },
+      });
+  }
 }
+

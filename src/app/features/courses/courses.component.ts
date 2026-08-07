@@ -7,14 +7,9 @@ import { ButtonModule } from 'primeng/button';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Course } from '../../core/interfaces/Course';
+import { Topic } from '../../core/interfaces/Topic';
+import { CourseLevel } from '../../core/interfaces/CourseLevel';
 import { Role } from '../../core/interfaces/Role';
-
-interface TopicGroup {
-  topic: string;
-  courses: Course[];
-  expanded: boolean;
-}
 
 @Component({
   selector: 'app-courses',
@@ -29,203 +24,251 @@ export class CoursesComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private auth = inject(AuthService);
 
-  courses = signal<Course[]>([]);
+  topics = signal<Topic[]>([]);
   loading = signal<boolean>(false);
   saving = signal<boolean>(false);
   searchQuery = signal<string>('');
-  groupByTopic = signal(false);
-  collapsedTopics = signal<Set<string>>(new Set());
+  collapsedTopics = signal<Set<number>>(new Set());
 
-  showCourseModal = signal(false);
+  // Modals
+  showTopicModal = signal(false);
+  showLevelModal = signal(false);
   showDeleteModal = signal(false);
-  editingCourse = signal<Course | null>(null);
-  deletingCourse = signal<Course | null>(null);
 
-  formTitle = signal('');
-  formDescription = signal('');
-  formTopic = signal('');
-  formLevel = signal('');
-  formSessionCount = signal('');
+  editingTopic = signal<Topic | null>(null);
+  selectedTopic = signal<Topic | null>(null);
+  editingLevel = signal<CourseLevel | null>(null);
+  deletingTarget = signal<{ type: 'topic' | 'level'; id: number; topicId?: number; name: string } | null>(null);
+
+  // Topic Form
+  topicCode = signal('');
+  topicName = signal('');
+  topicDescription = signal('');
+
+  // Level Form
+  levelNumber = signal<number>(1);
+  levelTitle = signal('');
+  levelDescription = signal('');
+  levelSessionCount = signal<number>(12);
 
   readonly isAdmin = computed(() => this.auth.currentRole() === Role.Admin);
 
-  readonly filteredCourses = computed(() => {
+  readonly filteredTopics = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
-    if (!q) return this.courses();
-    return this.courses().filter(
-      (c) =>
-        (c.title || '').toLowerCase().includes(q) ||
-        (c.description || '').toLowerCase().includes(q) ||
-        (c.topic || '').toLowerCase().includes(q) ||
-        (c.level || '').toLowerCase().includes(q)
+    const list = this.topics();
+    if (!q) return list;
+
+    return list.filter(
+      (t) =>
+        t.name.toLowerCase().includes(q) ||
+        t.code.toLowerCase().includes(q) ||
+        (t.description || '').toLowerCase().includes(q) ||
+        t.levels?.some(
+          (l) =>
+            l.title.toLowerCase().includes(q) ||
+            l.description.toLowerCase().includes(q) ||
+            `level ${l.level}`.includes(q)
+        )
     );
-  });
-
-  readonly topicGroups = computed<TopicGroup[]>(() => {
-    const courses = this.filteredCourses();
-    const collapsed = this.collapsedTopics();
-    const map = new Map<string, Course[]>();
-
-    for (const course of courses) {
-      const topic = course.topic || 'Other';
-      if (!map.has(topic)) map.set(topic, []);
-      map.get(topic)!.push(course);
-    }
-
-    return Array.from(map.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([topic, topicCourses]) => ({
-        topic,
-        courses: topicCourses,
-        expanded: !collapsed.has(topic),
-      }));
   });
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadCourses();
+      this.loadTopics();
     }
   }
 
-  loadCourses(): void {
+  loadTopics(): void {
     this.loading.set(true);
-    this.lmsService.getCourses().subscribe({
+    this.lmsService.getTopics().subscribe({
       next: (data) => {
-        this.courses.set(data || []);
+        this.topics.set(data || []);
         this.loading.set(false);
       },
       error: (err) => {
-        this.notify.showError(`Failed to load courses: ${err.message || 'Server error'}`);
+        this.notify.showError(`Failed to load topics: ${err.message || 'Server error'}`);
         this.loading.set(false);
       },
     });
   }
 
-  openCreateModal(): void {
-    this.editingCourse.set(null);
-    this.formTitle.set('');
-    this.formDescription.set('');
-    this.formTopic.set('');
-    this.formLevel.set('');
-    this.formSessionCount.set('');
-    this.showCourseModal.set(true);
+  openCreateTopicModal(): void {
+    this.editingTopic.set(null);
+    this.topicCode.set('');
+    this.topicName.set('');
+    this.topicDescription.set('');
+    this.showTopicModal.set(true);
   }
 
-  openEditModal(course: Course): void {
-    this.editingCourse.set(course);
-    this.formTitle.set(course.title);
-    this.formDescription.set(course.description);
-    this.formTopic.set(course.topic);
-    this.formLevel.set(course.level);
-    this.formSessionCount.set(course.sessionCount);
-    this.showCourseModal.set(true);
+  openEditTopicModal(topic: Topic): void {
+    this.editingTopic.set(topic);
+    this.topicCode.set(topic.code);
+    this.topicName.set(topic.name);
+    this.topicDescription.set(topic.description || '');
+    this.showTopicModal.set(true);
   }
 
-  openDeleteModal(course: Course): void {
-    this.deletingCourse.set(course);
+  openCreateLevelModal(topic: Topic): void {
+    this.selectedTopic.set(topic);
+    this.editingLevel.set(null);
+    const nextLvl = topic.levels && topic.levels.length > 0 ? Math.max(...topic.levels.map(l => l.level)) + 1 : 1;
+    this.levelNumber.set(nextLvl);
+    this.levelTitle.set(`${topic.name} Level ${nextLvl}`);
+    this.levelDescription.set(`${topic.name} course level ${nextLvl}`);
+    this.levelSessionCount.set(12);
+    this.showLevelModal.set(true);
+  }
+
+  openEditLevelModal(topic: Topic, level: CourseLevel): void {
+    this.selectedTopic.set(topic);
+    this.editingLevel.set(level);
+    this.levelNumber.set(level.level);
+    this.levelTitle.set(level.title);
+    this.levelDescription.set(level.description);
+    this.levelSessionCount.set(level.sessionCount);
+    this.showLevelModal.set(true);
+  }
+
+  openDeleteModal(target: { type: 'topic' | 'level'; id: number; topicId?: number; name: string }): void {
+    this.deletingTarget.set(target);
     this.showDeleteModal.set(true);
   }
 
-  saveCourse(): void {
-    const title = this.formTitle().trim();
-    const description = this.formDescription().trim();
-    const topic = this.formTopic().trim();
-    const level = this.formLevel().trim();
-    const sessionCount = this.formSessionCount().trim();
+  saveTopic(): void {
+    const code = this.topicCode().trim();
+    const name = this.topicName().trim();
+    const description = this.topicDescription().trim();
 
-    if (!title || !description || !topic || !level || !sessionCount) {
-      this.notify.showWarn('Please fill in all required fields.');
+    if (!code || !name) {
+      this.notify.showWarn('Topic code and name are required.');
       return;
     }
 
     this.saving.set(true);
-    const payload = { title, description, topic, level, sessionCount };
+    const payload = { code, name, description };
 
-    if (this.editingCourse()) {
-      this.lmsService.updateCourse(this.editingCourse()!.id, payload).subscribe({
+    if (this.editingTopic()) {
+      this.lmsService.updateTopic(this.editingTopic()!.id, payload).subscribe({
         next: () => {
-          this.notify.showSuccess('Course updated successfully.');
+          this.notify.showSuccess('Topic updated successfully.');
           this.saving.set(false);
-          this.showCourseModal.set(false);
-          this.loadCourses();
+          this.showTopicModal.set(false);
+          this.loadTopics();
         },
-        error: () => {
-          this.saving.set(false);
-        },
+        error: () => this.saving.set(false),
       });
     } else {
-      this.lmsService.createCourse(payload).subscribe({
+      this.lmsService.createTopic(payload).subscribe({
         next: () => {
-          this.notify.showSuccess('Course created successfully.');
+          this.notify.showSuccess('Topic created successfully.');
           this.saving.set(false);
-          this.showCourseModal.set(false);
-          this.loadCourses();
+          this.showTopicModal.set(false);
+          this.loadTopics();
         },
-        error: () => {
+        error: () => this.saving.set(false),
+      });
+    }
+  }
+
+  saveLevel(): void {
+    const topic = this.selectedTopic();
+    if (!topic) return;
+
+    const level = Number(this.levelNumber());
+    const sessionCount = Number(this.levelSessionCount());
+    const title = this.levelTitle().trim();
+    const description = this.levelDescription().trim();
+
+    if (!title || !level || !sessionCount) {
+      this.notify.showWarn('Please fill in all required level fields.');
+      return;
+    }
+
+    this.saving.set(true);
+    const payload = { level, sessionCount, title, description };
+
+    if (this.editingLevel()) {
+      this.lmsService.updateCourseLevel(topic.id, this.editingLevel()!.id, payload).subscribe({
+        next: () => {
+          this.notify.showSuccess('Level updated successfully.');
           this.saving.set(false);
+          this.showLevelModal.set(false);
+          this.loadTopics();
         },
+        error: () => this.saving.set(false),
+      });
+    } else {
+      this.lmsService.createCourseLevel(topic.id, payload).subscribe({
+        next: () => {
+          this.notify.showSuccess('Course level created successfully.');
+          this.saving.set(false);
+          this.showLevelModal.set(false);
+          this.loadTopics();
+        },
+        error: () => this.saving.set(false),
       });
     }
   }
 
   confirmDelete(): void {
-    const course = this.deletingCourse();
-    if (!course) return;
+    const target = this.deletingTarget();
+    if (!target) return;
 
     this.saving.set(true);
-    this.lmsService.deleteCourse(course.id).subscribe({
-      next: () => {
-        this.notify.showSuccess(`Course "${course.title}" deleted.`);
-        this.saving.set(false);
-        this.showDeleteModal.set(false);
-        this.deletingCourse.set(null);
-        this.loadCourses();
-      },
-      error: () => {
-        this.saving.set(false);
-      },
-    });
+
+    if (target.type === 'topic') {
+      this.lmsService.deleteTopic(target.id).subscribe({
+        next: () => {
+          this.notify.showSuccess(`Topic "${target.name}" deleted.`);
+          this.saving.set(false);
+          this.showDeleteModal.set(false);
+          this.deletingTarget.set(null);
+          this.loadTopics();
+        },
+        error: () => this.saving.set(false),
+      });
+    } else if (target.type === 'level' && target.topicId) {
+      this.lmsService.deleteCourseLevel(target.topicId, target.id).subscribe({
+        next: () => {
+          this.notify.showSuccess(`Course level deleted.`);
+          this.saving.set(false);
+          this.showDeleteModal.set(false);
+          this.deletingTarget.set(null);
+          this.loadTopics();
+        },
+        error: () => this.saving.set(false),
+      });
+    }
   }
 
-  toggleGroupByTopic(): void {
-    this.groupByTopic.update((v) => !v);
-  }
-
-  toggleTopicCollapse(topic: string): void {
+  toggleTopicCollapse(topicId: number): void {
     this.collapsedTopics.update((set) => {
       const next = new Set(set);
-      if (next.has(topic)) {
-        next.delete(topic);
-      } else {
-        next.add(topic);
-      }
+      if (next.has(topicId)) next.delete(topicId);
+      else next.add(topicId);
       return next;
     });
   }
 
-  collapseAllTopics(): void {
-    const topics = this.topicGroups().map((g) => g.topic);
-    this.collapsedTopics.set(new Set(topics));
-  }
-
-  expandAllTopics(): void {
+  expandAll(): void {
     this.collapsedTopics.set(new Set());
   }
 
-  getTopicBadgeClass(topic: string): string {
-    const t = (topic || '').toLowerCase();
-    if (t.includes('python') || t === 'py') return 'topic-py-badge';
-    if (t.includes('math') || t.includes('statistics') || t.includes('algebra'))
-      return 'topic-ma-badge';
-    if (t.includes('web') || t.includes('html') || t.includes('css') || t.includes('frontend'))
-      return 'topic-wd-badge';
-    if (
-      t.includes('ai') ||
-      t.includes('machine learning') ||
-      t.includes('deep learning') ||
-      t.includes('neural')
-    )
-      return 'topic-ai-badge';
+  collapseAll(): void {
+    const allIds = this.topics().map((t) => t.id);
+    this.collapsedTopics.set(new Set(allIds));
+  }
+
+  isCollapsed(topicId: number): boolean {
+    return this.collapsedTopics().has(topicId);
+  }
+
+  getTopicBadgeClass(code: string): string {
+    const c = (code || '').toUpperCase();
+    if (c === 'PY') return 'topic-py-badge';
+    if (c === 'AR') return 'topic-ma-badge';
+    if (c === 'WEB') return 'topic-wd-badge';
+    if (c === 'AI') return 'topic-ai-badge';
     return 'topic-default-badge';
   }
 }

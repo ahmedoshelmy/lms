@@ -484,26 +484,99 @@
         </div>
       </div>
 
-      <!-- Course Selection & Auto-Session Setup (Create Mode only) -->
+      <!-- Course Level Selection & Single-Step Schedule Setup (Create Mode) -->
       @if (modalMode() === 'create') {
-        <div class="p-3.5 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)] space-y-3">
+        <div class="p-4 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)] space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+                Course Level *
+              </label>
+              <select
+                [ngModel]="formSelectedCourseLevelId()"
+                (ngModelChange)="formSelectedCourseLevelId.set($any($event))"
+                name="primaryCourseLevelId"
+                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
+              >
+                <option [ngValue]="null">Select Course Level...</option>
+                @for (item of allCourseLevels(); track item.level.id) {
+                  <option [ngValue]="item.level.id">
+                    [{{ item.topicCode }}] {{ item.level.title }} (L{{ item.level.level }} • {{ item.level.sessionCount }} Sessions)
+                  </option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1" title="Set > 0 for groups that started before software onboarding">
+                Current Session #
+              </label>
+              <input
+                type="number"
+                min="0"
+                [ngModel]="formInitialSessionNumber()"
+                (ngModelChange)="formInitialSessionNumber.set($any($event))"
+                name="initialSessionNumber"
+                placeholder="0"
+                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
+              />
+            </div>
+          </div>
+
+          <!-- Weekly Schedule Slots -->
           <div>
-            <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
-              Primary Course & Level *
-            </label>
-            <select
-              [ngModel]="formPrimaryCourseId()"
-              (ngModelChange)="formPrimaryCourseId.set($any($event))"
-              name="primaryCourseId"
-              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
-            >
-              <option [ngValue]="null">Select Course Catalog Level...</option>
-              @for (course of availableCourses(); track course.id) {
-                <option [ngValue]="course.id">
-                  {{ course.title }} (Level {{ course.level }} • {{ course.sessionCount }} sessions)
-                </option>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-bold text-[var(--color-text-primary)]">
+                Weekly Schedule Slots
+              </label>
+              <button
+                type="button"
+                (click)="addScheduleSlot()"
+                class="text-xs font-bold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] cursor-pointer"
+              >
+                <i class="pi pi-plus mr-1"></i> Add Slot
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              @for (slot of scheduleSlots(); track $index) {
+                <div class="flex items-center gap-2 bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)]">
+                  <select
+                    [(ngModel)]="slot.dayOfWeek"
+                    [name]="'slotDay_' + $index"
+                    class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold bg-[var(--color-surface)]"
+                  >
+                    @for (day of daysOfWeek; track day) {
+                      <option [value]="day">{{ day }}</option>
+                    }
+                  </select>
+
+                  <input
+                    type="time"
+                    [(ngModel)]="slot.startTime"
+                    [name]="'slotStart_' + $index"
+                    class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
+                  />
+                  <span class="text-xs text-[var(--color-text-muted)]">-</span>
+                  <input
+                    type="time"
+                    [(ngModel)]="slot.endTime"
+                    [name]="'slotEnd_' + $index"
+                    class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
+                  />
+
+                  @if (scheduleSlots().length > 1) {
+                    <button
+                      type="button"
+                      (click)="removeScheduleSlot($index)"
+                      class="p-1 text-red-500 hover:text-red-700 cursor-pointer ml-auto"
+                    >
+                      <i class="pi pi-times text-xs"></i>
+                    </button>
+                  }
+                </div>
               }
-            </select>
+            </div>
           </div>
 
           <!-- Auto-Generate Sessions Checkbox -->
@@ -516,18 +589,9 @@
               class="w-4 h-4 rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
             />
             <label for="autoGenCheck" class="text-xs font-bold text-[var(--color-text-primary)] cursor-pointer">
-              ⚡ Auto-generate recurring session schedule after group creation
+              ⚡ Auto-generate recurring session schedule starting from current session offset
             </label>
           </div>
-
-          @if (formAutoGenerateSessions() && formPrimaryCourseId()) {
-            <div class="flex items-start gap-2 text-[11px] font-semibold text-[var(--color-secondary)] bg-[var(--color-secondary)]/10 p-2.5 rounded-xl">
-              <i class="pi pi-bolt text-xs mt-0.5"></i>
-              <span>
-                1-Click Onboarding: Group creation will automatically schedule recurring sessions starting on <strong>{{ formStartDate }}</strong>.
-              </span>
-            </div>
-          }
         </div>
       }
 

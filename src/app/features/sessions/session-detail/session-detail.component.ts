@@ -460,6 +460,9 @@ export class SessionDetailComponent implements OnInit {
     this.cancelSessionWithShift();
   }
 
+  applyForwardToRemaining = signal<boolean>(false);
+  updateWeeklySchedule = signal<boolean>(false);
+
   private executeSessionSave(): void {
     const s = this.session();
     if (!s) return;
@@ -492,50 +495,79 @@ export class SessionDetailComponent implements OnInit {
 
     const numericStatus = sessionStatusToApiEnum(this.editStatus());
 
-    const payload: UpdateSessionPayload = {
-      topic: s.topic || '',
-      instructorId: this.editInstructorId() || s.instructorId || 0,
-      startsAt: computedStartsAt,
-      endsAt: computedEndsAt,
-      location: s.location || '',
-      status: numericStatus,
-    };
+    if (this.applyForwardToRemaining()) {
+      this.lms
+        .applySessionForward(s.id, {
+          topic: s.topic || '',
+          instructorId: this.editInstructorId() || s.instructorId || 0,
+          startsAt: computedStartsAt,
+          endsAt: computedEndsAt,
+          location: s.location || '',
+          status: numericStatus,
+          updateWeeklySchedule: this.updateWeeklySchedule(),
+        })
+        .subscribe({
+          next: (updated) => {
+            this.saving.set(false);
+            this.notify.showSuccess(
+              'Session updated and changes applied forward to all remaining sessions!'
+            );
+            this.session.set({ ...s, ...updated });
+            this.isEditing.set(false);
+          },
+          error: (err) => {
+            this.saving.set(false);
+            this.notify.showError(
+              'Failed to apply forward: ' + (err.error?.message || 'Error')
+            );
+          },
+        });
+    } else {
+      const payload: UpdateSessionPayload = {
+        topic: s.topic || '',
+        instructorId: this.editInstructorId() || s.instructorId || 0,
+        startsAt: computedStartsAt,
+        endsAt: computedEndsAt,
+        location: s.location || '',
+        status: numericStatus,
+      };
 
-    this.lms.updateSession(s.id, payload).subscribe({
-      next: (updated) => {
-        this.saving.set(false);
-        this.notify.showSuccess('Session updated successfully!');
-        const newInstructor = this.instructors().find((i) => i.id === this.editInstructorId());
-        const merged: ScheduleSession = {
-          ...s,
-          ...updated,
-          instructorId: this.editInstructorId(),
-          instructorName: newInstructor?.name ?? s.instructorName,
-          status: this.editStatus(),
-          startsAt: computedStartsAt,
-          endsAt: computedEndsAt,
-          durationMinutes: computedDurationMinutes,
-        };
-        this.session.set(merged);
-        this.isEditing.set(false);
-      },
-      error: () => {
-        this.saving.set(false);
-        const newInstructor = this.instructors().find((i) => i.id === this.editInstructorId());
-        const optimistic: ScheduleSession = {
-          ...s,
-          instructorId: this.editInstructorId(),
-          instructorName: newInstructor?.name ?? s.instructorName,
-          status: this.editStatus(),
-          startsAt: computedStartsAt,
-          endsAt: computedEndsAt,
-          durationMinutes: computedDurationMinutes,
-        };
-        this.notify.showSuccess('Session updated locally (server sync pending).');
-        this.session.set(optimistic);
-        this.isEditing.set(false);
-      },
-    });
+      this.lms.updateSession(s.id, payload).subscribe({
+        next: (updated) => {
+          this.saving.set(false);
+          this.notify.showSuccess('Session updated successfully!');
+          const newInstructor = this.instructors().find((i) => i.id === this.editInstructorId());
+          const merged: ScheduleSession = {
+            ...s,
+            ...updated,
+            instructorId: this.editInstructorId(),
+            instructorName: newInstructor?.name ?? s.instructorName,
+            status: this.editStatus(),
+            startsAt: computedStartsAt,
+            endsAt: computedEndsAt,
+            durationMinutes: computedDurationMinutes,
+          };
+          this.session.set(merged);
+          this.isEditing.set(false);
+        },
+        error: () => {
+          this.saving.set(false);
+          const newInstructor = this.instructors().find((i) => i.id === this.editInstructorId());
+          const optimistic: ScheduleSession = {
+            ...s,
+            instructorId: this.editInstructorId(),
+            instructorName: newInstructor?.name ?? s.instructorName,
+            status: this.editStatus(),
+            startsAt: computedStartsAt,
+            endsAt: computedEndsAt,
+            durationMinutes: computedDurationMinutes,
+          };
+          this.notify.showSuccess('Session updated locally (server sync pending).');
+          this.session.set(optimistic);
+          this.isEditing.set(false);
+        },
+      });
+    }
   }
 
   cancelSessionWithShift(): void {

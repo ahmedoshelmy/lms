@@ -9,9 +9,11 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
-import { CreateGroupPayload, Group, UpdateGroupPayload } from '../../core/interfaces/Group';
+import { CreateGroupPayload, Group, GroupScheduleSlot, UpdateGroupPayload } from '../../core/interfaces/Group';
 import { User } from '../../core/interfaces/User';
-import { Course } from '../../core/interfaces/Course';
+import { Topic } from '../../core/interfaces/Topic';
+import { CourseLevel } from '../../core/interfaces/CourseLevel';
+import { GroupCourseAssignDto } from '../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
@@ -34,6 +36,8 @@ const STATUS_MAP: Record<string, number> = {
   Completed: 2,
   Archived: 3,
 };
+
+const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 @Component({
   selector: 'app-groups',
@@ -64,7 +68,7 @@ export class GroupsComponent implements OnInit {
   locationFilter = signal('');
 
   instructors = signal<User[]>([]);
-  availableCourses = signal<Course[]>([]);
+  topics = signal<Topic[]>([]);
 
   // Modal signals
   showModal = signal(false);
@@ -72,16 +76,21 @@ export class GroupsComponent implements OnInit {
   selectedGroupId = signal<number | null>(null);
   saving = signal(false);
 
-  // Form signals & auto-onboarding wizard
+  // Form signals & atomic single-step creation
   formName = '';
   formStartDate = '';
   formEndDate = '';
   formInstructorId = 0;
   formStatus = 0;
   formLocation = '';
-  formSelectedCourseIds: number[] = [];
-  formPrimaryCourseId = signal<number | null>(null);
+  formSelectedCourseLevelId = signal<number | null>(null);
+  formInitialSessionNumber = signal<number>(0);
   formAutoGenerateSessions = signal<boolean>(true);
+
+  // Schedule slot form array
+  scheduleSlots = signal<GroupScheduleSlot[]>([
+    { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: 'MOA' },
+  ]);
 
   // Delete modal signals
   showDeleteConfirmModal = signal(false);
@@ -97,6 +106,19 @@ export class GroupsComponent implements OnInit {
 
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
   statusOptions = STATUS_OPTIONS;
+  daysOfWeek = DAYS_OF_WEEK;
+
+  readonly allCourseLevels = computed(() => {
+    const result: { level: CourseLevel; topicName: string; topicCode: string }[] = [];
+    for (const t of this.topics()) {
+      if (t.levels) {
+        for (const l of t.levels) {
+          result.push({ level: l, topicName: t.name, topicCode: t.code });
+        }
+      }
+    }
+    return result;
+  });
 
   readonly hasActiveFilters = computed(() => {
     return !!(
@@ -205,7 +227,7 @@ export class GroupsComponent implements OnInit {
     this.loadSchedule();
     if (this.isAdmin()) {
       this.loadInstructors();
-      this.loadCourses();
+      this.loadTopics();
     }
   }
 
@@ -236,9 +258,9 @@ export class GroupsComponent implements OnInit {
     });
   }
 
-  loadCourses(): void {
-    this.lmsService.getCourses().subscribe({
-      next: (data) => this.availableCourses.set(data || []),
+  loadTopics(): void {
+    this.lmsService.getTopics().subscribe({
+      next: (data) => this.topics.set(data || []),
       error: () => {},
     });
   }
@@ -258,10 +280,17 @@ export class GroupsComponent implements OnInit {
 
     this.formInstructorId = this.instructors().length > 0 ? this.instructors()[0].id : 0;
     this.formStatus = 0;
-    this.formLocation = '';
-    this.formSelectedCourseIds = [];
-    this.formPrimaryCourseId.set(this.availableCourses().length > 0 ? this.availableCourses()[0].id : null);
+    this.formLocation = 'MOA';
+    this.formInitialSessionNumber.set(0);
     this.formAutoGenerateSessions.set(true);
+
+    const levels = this.allCourseLevels();
+    this.formSelectedCourseLevelId.set(levels.length > 0 ? levels[0].level.id : null);
+
+    this.scheduleSlots.set([
+      { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: 'MOA' },
+    ]);
+
     this.showModal.set(true);
   }
 
@@ -276,14 +305,22 @@ export class GroupsComponent implements OnInit {
     this.formInstructorId = group.defaultInstructorId || 0;
     this.formStatus = STATUS_MAP[group.status] ?? 0;
     this.formLocation = group.location || '';
-    this.formSelectedCourseIds = [];
     this.showModal.set(true);
+  }
+
+  addScheduleSlot(): void {
+    this.scheduleSlots.update((slots) => [
+      ...slots,
+      { dayOfWeek: 'Sunday', startTime: '15:00', endTime: '16:30', location: this.formLocation || 'MOA' },
+    ]);
+  }
+
+  removeScheduleSlot(index: number): void {
+    this.scheduleSlots.update((slots) => slots.filter((_, i) => i !== index));
   }
 
   getRemainingSessions(group: Group | null): number {
     if (!group) return 0;
-
-    // 1. Check schedule sessions if available for accurate upcoming count
     const groupSchedule = this.scheduleSessions().filter(
       (s) => s.groupId === group.id || s.groupName === group.name
     );
@@ -295,26 +332,12 @@ export class GroupsComponent implements OnInit {
         return upcoming.length;
       }
     }
-
-    // 2. Otherwise calculate based on GroupCourses (Total Sessions - Current Session Number)
     if (!group.courses || group.courses.length === 0) return 0;
     return group.courses.reduce((sum, c) => {
-      const total = parseInt(c.sessionCount || '12', 10) || 12;
+      const total = c.sessionCount || 12;
       const current = c.currentSessionNumber || 0;
       return sum + Math.max(0, total - current);
     }, 0);
-  }
-
-  isCourseSelected(courseId: number): boolean {
-    return this.formSelectedCourseIds.includes(courseId);
-  }
-
-  toggleCourseSelection(courseId: number): void {
-    if (this.isCourseSelected(courseId)) {
-      this.formSelectedCourseIds = this.formSelectedCourseIds.filter((id) => id !== courseId);
-    } else {
-      this.formSelectedCourseIds = [...this.formSelectedCourseIds, courseId];
-    }
   }
 
   saveGroup(): void {
@@ -323,7 +346,6 @@ export class GroupsComponent implements OnInit {
       return;
     }
 
-    // Check if default instructor has changed during edit
     if (this.modalMode() === 'edit' && this.formInstructorId !== this.originalInstructorId()) {
       const group = this.editingGroup();
       const remaining = this.getRemainingSessions(group);
@@ -348,8 +370,17 @@ export class GroupsComponent implements OnInit {
     this.saving.set(true);
 
     if (this.modalMode() === 'create') {
-      const primaryId = this.formPrimaryCourseId();
-      const courseIds = primaryId ? [primaryId] : this.formSelectedCourseIds;
+      const levelId = this.formSelectedCourseLevelId();
+
+      const courseLevels: GroupCourseAssignDto[] = levelId
+        ? [
+            {
+              courseLevelId: levelId,
+              initialCurrentSessionNumber: Number(this.formInitialSessionNumber()) || 0,
+              status: 'Active',
+            },
+          ]
+        : [];
 
       const payload: CreateGroupPayload = {
         name: this.formName,
@@ -358,74 +389,20 @@ export class GroupsComponent implements OnInit {
         defaultInstructorId: this.formInstructorId,
         status: this.formStatus,
         location: this.formLocation || undefined,
-        courseIds,
+        courseLevels,
+        schedules: this.scheduleSlots(),
+        generateSessions: this.formAutoGenerateSessions(),
+        sessionsStartFrom: this.formStartDate,
       };
 
       this.lmsService.createGroup(payload).subscribe({
         next: (createdGroup) => {
-          const groupCourse = createdGroup.courses?.[0];
-          const shouldGenerate = this.formAutoGenerateSessions() && primaryId;
-
-          if (shouldGenerate && groupCourse?.id) {
-            this.lmsService.generateGroupCourseSessions(groupCourse.id).subscribe({
-              next: () => {
-                this.notify.showSuccess(
-                  `Group "${createdGroup.name}" created, assigned course, and sessions generated successfully!`
-                );
-                this.saving.set(false);
-                this.showModal.set(false);
-                this.router.navigate(['/groups', createdGroup.id]);
-              },
-              error: () => {
-                this.notify.showSuccess(
-                  `Group "${createdGroup.name}" created successfully.`
-                );
-                this.saving.set(false);
-                this.showModal.set(false);
-                this.router.navigate(['/groups', createdGroup.id]);
-              },
-            });
-          } else if (shouldGenerate && primaryId) {
-            this.lmsService.addCourseToGroup(createdGroup.id, primaryId).subscribe({
-              next: (updatedGroup) => {
-                const addedGc = updatedGroup.courses?.find((c) => c.courseId === primaryId);
-                if (addedGc?.id) {
-                  this.lmsService.generateGroupCourseSessions(addedGc.id).subscribe({
-                    next: () => {
-                      this.notify.showSuccess(
-                        `Group "${createdGroup.name}" created, course assigned, and sessions generated!`
-                      );
-                      this.saving.set(false);
-                      this.showModal.set(false);
-                      this.router.navigate(['/groups', createdGroup.id]);
-                    },
-                    error: () => {
-                      this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
-                      this.saving.set(false);
-                      this.showModal.set(false);
-                      this.router.navigate(['/groups', createdGroup.id]);
-                    },
-                  });
-                } else {
-                  this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
-                  this.saving.set(false);
-                  this.showModal.set(false);
-                  this.router.navigate(['/groups', createdGroup.id]);
-                }
-              },
-              error: () => {
-                this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
-                this.saving.set(false);
-                this.showModal.set(false);
-                this.router.navigate(['/groups', createdGroup.id]);
-              },
-            });
-          } else {
-            this.notify.showSuccess(`Group "${createdGroup.name}" created successfully.`);
-            this.saving.set(false);
-            this.showModal.set(false);
-            this.router.navigate(['/groups', createdGroup.id]);
-          }
+          this.notify.showSuccess(
+            `Group "${createdGroup.name}" created with schedule and sessions generated in one step!`
+          );
+          this.saving.set(false);
+          this.showModal.set(false);
+          this.router.navigate(['/groups', createdGroup.id]);
         },
         error: (err) => {
           this.notify.showError(`Failed to create group: ${err.error?.message || 'Server error'}`);
@@ -492,9 +469,9 @@ export class GroupsComponent implements OnInit {
     return STATUS_CONFIG[status]?.icon ?? 'pi-circle';
   }
 
-  getLevelBadgeClass(level: string): string {
-    if (level === '1') return 'level-1';
-    if (level === '2') return 'level-2';
+  getLevelBadgeClass(level: string | number): string {
+    if (level === 1 || level === '1') return 'level-1';
+    if (level === 2 || level === '2') return 'level-2';
     return 'level-default';
   }
 
@@ -503,7 +480,7 @@ export class GroupsComponent implements OnInit {
     let totalSessions = 0;
     let completedSessions = 0;
     for (const c of group.courses) {
-      const total = parseInt(c.sessionCount || '0', 10) || 0;
+      const total = c.sessionCount || 0;
       totalSessions += total;
       completedSessions += c.currentSessionNumber || 0;
     }

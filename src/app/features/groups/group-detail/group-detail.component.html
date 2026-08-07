@@ -558,6 +558,14 @@
                       @if (isAdmin()) {
                         <button
                           type="button"
+                          (click)="openEditSessionNumberModal(c); $event.stopPropagation()"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
+                          title="Override Current Session #"
+                        >
+                          <i class="pi pi-hashtag text-xs"></i>
+                        </button>
+                        <button
+                          type="button"
                           (click)="openEditSessionsModal(c); $event.stopPropagation()"
                           class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                           title="Edit Total Sessions"
@@ -1761,6 +1769,82 @@
         class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
       >
         Close
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Edit Current Session Number Modal (R3, R4, R5) -->
+<p-dialog
+  [(visible)]="showEditSessionNumberModal"
+  header="Override Current Session Number"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="py-2 flex flex-col gap-4">
+    <p class="text-xs text-[var(--color-text-secondary)]">
+      Override the current completed session number for <strong>{{ editingSessionNumberGc()?.title }}</strong>.
+      Use this for groups that started before software onboarding.
+    </p>
+
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+        Current Session Number
+      </label>
+      <input
+        type="number"
+        min="0"
+        [max]="editingSessionNumberGc()?.totalSessions || 100"
+        [ngModel]="newCurrentSessionNumberInput()"
+        (ngModelChange)="newCurrentSessionNumberInput.set($any($event))"
+        class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] font-bold"
+      />
+    </div>
+
+    @if (sessionNumberConflictMessage()) {
+      <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col gap-3">
+        <div class="flex items-start gap-2.5">
+          <i class="pi pi-exclamation-triangle text-amber-500 text-base mt-0.5"></i>
+          <p class="text-xs text-amber-600 font-semibold leading-relaxed">
+            {{ sessionNumberConflictMessage() }}
+          </p>
+        </div>
+        <p class="text-[11px] text-[var(--color-text-muted)] font-bold">
+          Would you like to delete upcoming scheduled sessions and auto-regenerate from Session {{ (newCurrentSessionNumberInput() || 0) + 1 }} onwards?
+        </p>
+        <button
+          type="button"
+          (click)="saveCurrentSessionNumber(true)"
+          [disabled]="savingSessionNumber()"
+          class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+        >
+          Confirm & Regenerate Upcoming Sessions
+        </button>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showEditSessionNumberModal.set(false)"
+        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="saveCurrentSessionNumber(false)"
+        [disabled]="savingSessionNumber()"
+        class="px-5 py-2 bg-[var(--color-primary)] text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
+      >
+        @if (savingSessionNumber()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Save Session #
       </button>
     </div>
   </ng-template>

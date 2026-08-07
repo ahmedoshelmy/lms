@@ -15,6 +15,8 @@ import {
 } from '../interfaces/Attendance';
 
 import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
+import { Topic, CreateTopicPayload, UpdateTopicPayload } from '../interfaces/Topic';
+import { CourseLevel, CreateCourseLevelPayload, UpdateCourseLevelPayload } from '../interfaces/CourseLevel';
 import {
   Group,
   CreateGroupPayload,
@@ -22,8 +24,8 @@ import {
   UpdateGroupSchedulePayload,
   GenerateCustomSessionsPayload,
 } from '../interfaces/Group';
-import { GroupCourse } from '../interfaces/GroupCourse';
-import { ScheduleSession, UpdateSessionPayload } from '../interfaces/ScheduleSession';
+import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
+import { ScheduleSession, UpdateSessionPayload, ApplySessionForwardPayload } from '../interfaces/ScheduleSession';
 import {
   GroupHistory,
   PromoteGroupNextLevelPayload,
@@ -92,10 +94,6 @@ export class LmsService {
 
   // ─── Users ───────────────────────────────────────────────────────────────
 
-  // getUsers(): Observable<User[]> {
-  //   return this.http.get<User[]>(`${this.getApiUrl()}/users`);
-  // }
-
   getStudents(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/students`);
   }
@@ -128,23 +126,57 @@ export class LmsService {
     return this.http.get<InstructorStats>(`${this.getApiUrl()}/instructors/${id}/stats`);
   }
 
-  // ─── Courses ─────────────────────────────────────────────────────────────
+  // ─── Topics & Course Levels ────────────────────────────────────────────────
 
+  getTopics(): Observable<Topic[]> {
+    return this.http.get<Topic[]>(`${this.getApiUrl()}/topics`);
+  }
+
+  getTopic(id: number): Observable<Topic> {
+    return this.http.get<Topic>(`${this.getApiUrl()}/topics/${id}`);
+  }
+
+  createTopic(payload: CreateTopicPayload): Observable<Topic> {
+    return this.http.post<Topic>(`${this.getApiUrl()}/topics`, payload);
+  }
+
+  updateTopic(id: number, payload: UpdateTopicPayload): Observable<Topic> {
+    return this.http.put<Topic>(`${this.getApiUrl()}/topics/${id}`, payload);
+  }
+
+  deleteTopic(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/topics/${id}`);
+  }
+
+  getCourseLevels(topicId: number): Observable<CourseLevel[]> {
+    return this.http.get<CourseLevel[]>(`${this.getApiUrl()}/topics/${topicId}/levels`);
+  }
+
+  createCourseLevel(topicId: number, payload: CreateCourseLevelPayload): Observable<CourseLevel> {
+    return this.http.post<CourseLevel>(`${this.getApiUrl()}/topics/${topicId}/levels`, payload);
+  }
+
+  updateCourseLevel(
+    topicId: number,
+    levelId: number,
+    payload: UpdateCourseLevelPayload
+  ): Observable<CourseLevel> {
+    return this.http.put<CourseLevel>(
+      `${this.getApiUrl()}/topics/${topicId}/levels/${levelId}`,
+      payload
+    );
+  }
+
+  deleteCourseLevel(topicId: number, levelId: number): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/topics/${topicId}/levels/${levelId}`);
+  }
+
+  // Backwards compatibility helper for existing course components
   getCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(`${this.getApiUrl()}/courses`);
+    return this.http.get<Course[]>(`${this.getApiUrl()}/topics`);
   }
 
-  createCourse(payload: CreateCoursePayload): Observable<Course> {
-    return this.http.post<Course>(`${this.getApiUrl()}/courses`, payload);
-  }
-
-  updateCourse(id: number, payload: UpdateCoursePayload): Observable<Course> {
-    return this.http.put<Course>(`${this.getApiUrl()}/courses/${id}`, payload);
-  }
-
-  deleteCourse(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.getApiUrl()}/courses/${id}`);
-  }
+  // ─── Groups ──────────────────────────────────────────────────────────────
 
   getGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.getApiUrl()}/groups`);
@@ -170,8 +202,8 @@ export class LmsService {
     return this.http.delete<Group>(`${this.getApiUrl()}/groups/${groupId}/students/${studentId}`);
   }
 
-  addCourseToGroup(groupId: number, courseId: number): Observable<Group> {
-    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseId });
+  addCourseToGroup(groupId: number, courseLevelId: number): Observable<Group> {
+    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseLevelId });
   }
 
   generateGroupCourseSessions(groupCourseId: number): Observable<any> {
@@ -180,10 +212,10 @@ export class LmsService {
 
   removeCourseFromGroup(
     groupId: number,
-    courseId: number,
+    groupCourseId: number,
     confirmDeleteSessions = false
   ): Observable<Group> {
-    let url = `${this.getApiUrl()}/groups/${groupId}/courses/${courseId}`;
+    let url = `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}`;
     if (confirmDeleteSessions) {
       url += `?confirmDeleteSessions=true`;
     }
@@ -201,6 +233,17 @@ export class LmsService {
     );
   }
 
+  updateGroupCurrentSessionNumber(
+    groupId: number,
+    groupCourseId: number,
+    payload: UpdateCurrentSessionNumberDto
+  ): Observable<Group> {
+    return this.http.put<Group>(
+      `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}/session-number`,
+      payload
+    );
+  }
+
   updateGroupSchedule(groupId: number, payload: UpdateGroupSchedulePayload): Observable<Group> {
     return this.http.put<Group>(`${this.getApiUrl()}/groups/${groupId}/schedule`, payload);
   }
@@ -209,7 +252,7 @@ export class LmsService {
     return this.http.post(`${this.getApiUrl()}/schedule/generate-custom`, payload);
   }
 
-  // ─── Schedule ────────────────────────────────────────────────────────────
+  // ─── Schedule & Sessions ──────────────────────────────────────────────────
 
   getSchedule(from?: Date, to?: Date): Observable<ScheduleSession[]> {
     let url = `${this.getApiUrl()}/schedule`;
@@ -228,6 +271,13 @@ export class LmsService {
 
   updateSession(id: number, payload: UpdateSessionPayload): Observable<ScheduleSession> {
     return this.http.put<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${id}`, payload);
+  }
+
+  applySessionForward(id: number, payload: ApplySessionForwardPayload): Observable<ScheduleSession> {
+    return this.http.put<ScheduleSession>(
+      `${this.getApiUrl()}/Schedule/sessions/${id}/apply-forward`,
+      payload
+    );
   }
 
   getSessionDetails(id: number): Observable<ScheduleSession> {

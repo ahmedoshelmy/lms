@@ -188,6 +188,31 @@
               </div>
             }
           </div>
+
+          <!-- Apply Forward Options -->
+          <div class="edit-field border-t border-[var(--color-border)] pt-3 mt-3">
+            <label class="flex items-center gap-2 text-xs font-bold text-[var(--color-primary)] cursor-pointer">
+              <input
+                type="checkbox"
+                [checked]="applyForwardToRemaining()"
+                (change)="applyForwardToRemaining.set($any($event.target).checked)"
+                class="w-4 h-4 rounded text-[var(--color-secondary)] cursor-pointer"
+              />
+              <span>🔄 Apply time/instructor/location changes to ALL remaining sessions</span>
+            </label>
+
+            @if (applyForwardToRemaining()) {
+              <label class="flex items-center gap-2 text-[11px] font-semibold text-[var(--color-text-secondary)] ml-6 mt-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="updateWeeklySchedule()"
+                  (change)="updateWeeklySchedule.set($any($event.target).checked)"
+                  class="w-3.5 h-3.5 rounded text-[var(--color-secondary)] cursor-pointer"
+                />
+                <span>Also update group's default weekly schedule slot</span>
+              </label>
+            }
+          </div>
         </div>
 
         <div class="edit-section__footer">
