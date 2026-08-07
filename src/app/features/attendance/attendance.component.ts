@@ -11,6 +11,7 @@ import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 import { Group } from '../../core/interfaces/Group';
+import { getSessionCode } from '../../core/utils/session-code.utils';
 
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
@@ -225,6 +226,10 @@ export class AttendanceComponent implements OnInit {
 
   openSession(session: ScheduleSession): void {
     this.router.navigate(['/sessions', session.id]);
+  }
+
+  getSessionCode(s: any): string {
+    return getSessionCode(s);
   }
 
   setSessionStatusFilter(filter: SessionStatusFilter): void {

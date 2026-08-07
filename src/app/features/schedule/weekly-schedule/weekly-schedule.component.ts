@@ -1,6 +1,7 @@
 import { Component, input, computed, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
+import { getSessionCode } from '../../../core/utils/session-code.utils';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
 export type ViewMode = 'weekly' | 'daily';
@@ -396,6 +397,10 @@ export class WeeklyScheduleComponent {
     const att = this.getAttendanceBadge(s);
     if (att.label === 'Attendance Pending') return 'var(--color-warning)';
     return 'var(--color-success)';
+  }
+
+  getSessionCode(s: any): string {
+    return getSessionCode(s);
   }
 
   formatTime(iso: string): string {

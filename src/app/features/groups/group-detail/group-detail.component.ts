@@ -23,6 +23,7 @@ import { User } from '../../../core/interfaces/User';
 import { Course } from '../../../core/interfaces/Course';
 import { CourseLevel } from '../../../core/interfaces/CourseLevel';
 import { GroupHistory } from '../../../core/interfaces/History';
+import { getSessionCode } from '../../../core/utils/session-code.utils';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -786,6 +787,10 @@ export class GroupDetailComponent implements OnInit {
 
   getStatusCss(status: string): string {
     return STATUS_CONFIG[status]?.css ?? 'status-archived';
+  }
+
+  getSessionCode(s: any): string {
+    return getSessionCode(s);
   }
 
   getStatusIcon(status: string): string {

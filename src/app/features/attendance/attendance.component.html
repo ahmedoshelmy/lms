@@ -225,7 +225,7 @@
                     </div>
 
                     <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
-                      Session {{ session.currentSessionNumber || 1 }} of {{ session.totalSessions || 12 }}
+                      {{ getSessionCode(session) }} ({{ session.currentSessionNumber || 1 }}/{{ session.totalSessions || 12 }})
                     </span>
                   </div>
 

@@ -485,7 +485,7 @@
               <tbody class="divide-y divide-[var(--color-border)]">
                 @for (sess of groupSessions(); track sess.id; let idx = $index) {
                   <tr class="hover:bg-[var(--color-background-alt)] transition-colors">
-                    <td class="py-3 px-3 font-extrabold text-[var(--color-text-muted)]">S{{ sess.sessionNumber || idx + 1 }}</td>
+                    <td class="py-3 px-3 font-black text-[var(--color-text-primary)]">{{ getSessionCode(sess) }}</td>
                     <td class="py-3 px-3 font-bold text-[var(--color-text-primary)]">{{ sess.topic || 'Regular Session' }}</td>
                     <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">{{ sess.startsAt | date: 'EEE, MMM d, y · h:mm a' }}</td>
                     <td class="py-3 px-3 text-[var(--color-text-secondary)]">{{ sess.instructorName }}</td>

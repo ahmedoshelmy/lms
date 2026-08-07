@@ -13,7 +13,7 @@
       <div class="breadcrumb-pills">
         <a routerLink="/schedule" class="breadcrumb-pill">Schedule</a>
         <span class="breadcrumb-sep"><i class="pi pi-chevron-right"></i></span>
-        <span class="breadcrumb-pill breadcrumb-pill--active">Session #{{ s.id }}</span>
+        <span class="breadcrumb-pill breadcrumb-pill--active">{{ getSessionCode(s) }}</span>
       </div>
     </div>
 
@@ -28,7 +28,7 @@
               <span class="type-badge">{{ s.type }}</span>
             }
             <span class="session-number">
-              Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}
+              {{ getSessionCode(s) }} ({{ s.currentSessionNumber }}/{{ s.totalSessions }})
             </span>
           </div>
           <h1 class="session-hero__title">{{ s.topic }}</h1>
