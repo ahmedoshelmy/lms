@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
+import { LmsService } from '../../core/services/lms.service';
 
 @Component({
   selector: 'app-unauthorized',
@@ -26,7 +28,7 @@ import { RouterLink } from '@angular/router';
       padding: 40px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       text-align: center;
     }
 
@@ -64,11 +66,19 @@ import { RouterLink } from '@angular/router';
       margin: 0 0 32px;
     }
 
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 12px 32px;
+      gap: 8px;
+      padding: 12px 24px;
       border-radius: 10px;
       font-weight: 600;
       font-size: 14px;
@@ -88,6 +98,34 @@ import { RouterLink } from '@angular/router';
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(26, 43, 76, 0.4);
     }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--color-border, #e2e8f0);
+      color: var(--color-text-primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--color-surface-hover, #f8fafc);
+      transform: translateY(-2px);
+    }
   `,
 })
-export class UnauthorizedComponent {}
+export class UnauthorizedComponent {
+  private readonly authService = inject(AuthService);
+  private readonly lmsService = inject(LmsService);
+  private readonly router = inject(Router);
+
+  logout(): void {
+    this.lmsService.logout().subscribe({
+      next: () => this.finishLogout(),
+      error: () => this.finishLogout(),
+    });
+  }
+
+  private finishLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+}
+
