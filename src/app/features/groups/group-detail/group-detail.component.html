@@ -18,6 +18,14 @@
     @if (isAdmin() && group()) {
       <div class="flex items-center gap-2">
         <button
+          (click)="openHoldModal()"
+          class="px-3 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+        >
+          <i class="pi pi-pause-circle text-xs"></i>
+          Pause / Hold Group
+        </button>
+
+        <button
           (click)="openPromoteDialog()"
           class="px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all cursor-pointer flex items-center gap-1.5"
         >
@@ -1999,6 +2007,173 @@
         class="px-4 py-2 text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] rounded-xl"
       >
         Close
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Pause / Hold Group Modal -->
+<p-dialog
+  [(visible)]="showHoldModal"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '580px' }"
+  [draggable]="false"
+  [resizable]="false"
+  header="Pause / Hold Group Schedule"
+  styleClass="custom-dialog"
+>
+  <div class="space-y-5 py-2">
+    <!-- Explanatory Banner -->
+    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0"></i>
+        <div class="text-xs leading-relaxed">
+          <p class="font-bold text-sm mb-1">Robust Schedule Hold</p>
+          <p>
+            Putting a group on hold cancels the target group sessions and <strong>automatically reschedules substitute sessions</strong> after the hold period.
+            All subsequent future sessions shift forward so <strong>no curriculum lessons are lost</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hold Mode Tabs / Toggle -->
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">
+        Hold Duration Mode
+      </label>
+      <div class="grid grid-cols-2 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]">
+        <button
+          type="button"
+          (click)="holdMode.set('count')"
+          [class.bg-[var(--color-surface)]]="holdMode() === 'count'"
+          [class.shadow-xs]="holdMode() === 'count'"
+          [class.text-[var(--color-primary)]]="holdMode() === 'count'"
+          class="py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <i class="pi pi-list-check"></i>
+          Pause by Session Count
+        </button>
+        <button
+          type="button"
+          (click)="holdMode.set('untilDate')"
+          [class.bg-[var(--color-surface)]]="holdMode() === 'untilDate'"
+          [class.shadow-xs]="holdMode() === 'untilDate'"
+          [class.text-[var(--color-primary)]]="holdMode() === 'untilDate'"
+          class="py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <i class="pi pi-calendar"></i>
+          Pause until Resume Date
+        </button>
+      </div>
+    </div>
+
+    <!-- Inputs based on mode -->
+    @if (holdMode() === 'count') {
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-[var(--color-text-primary)]">
+          Number of Sessions to Pause
+        </label>
+        <div class="flex items-center gap-3">
+          <input
+            type="number"
+            min="1"
+            max="12"
+            [ngModel]="holdCount()"
+            (ngModelChange)="holdCount.set($event)"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-semibold text-sm focus:outline-none focus:border-[var(--color-primary)] shadow-xs"
+            placeholder="e.g. 1, 2, 3"
+          />
+        </div>
+        <p class="text-[11px] text-[var(--color-text-muted)]">
+          The next {{ holdCount() || 1 }} scheduled group session(s) will be paused and shifted forward by {{ (holdCount() || 1) }} week(s).
+        </p>
+      </div>
+    } @else {
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-[var(--color-text-primary)]">
+          Resume Date (Hold Until)
+        </label>
+        <input
+          type="date"
+          [ngModel]="holdUntilDate()"
+          (ngModelChange)="holdUntilDate.set($event)"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-semibold text-sm focus:outline-none focus:border-[var(--color-primary)] shadow-xs"
+        />
+        <p class="text-[11px] text-[var(--color-text-muted)]">
+          All scheduled sessions on or before this date will be paused, with substitute sessions added after this date.
+        </p>
+      </div>
+    }
+
+    <!-- Reason Input -->
+    <div class="space-y-2">
+      <label class="block text-xs font-bold text-[var(--color-text-primary)]">
+        Reason for Hold / Cancellation
+      </label>
+      <input
+        type="text"
+        [ngModel]="holdReason()"
+        (ngModelChange)="holdReason.set($event)"
+        class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-medium focus:outline-none focus:border-[var(--color-primary)] shadow-xs"
+        placeholder="e.g. National Holiday, Eid Break, Instructor Unavailable"
+      />
+    </div>
+
+    <!-- Live Impact Summary Box -->
+    <div class="p-4 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] space-y-2.5">
+      <span class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wide flex items-center gap-2">
+        <i class="pi pi-sliders-h text-[var(--color-primary)]"></i>
+        System Impact Breakdown
+      </span>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+        <div class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col">
+          <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase">1. Cancel Status</span>
+          <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
+            {{ holdMode() === 'count' ? (holdCount() || 1) : 'Target' }} session(s) marked Cancelled
+          </span>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col">
+          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase">2. Substitutes</span>
+          <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
+            {{ holdMode() === 'count' ? (holdCount() || 1) : 'Target' }} substitute(s) scheduled after break
+          </span>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col">
+          <span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase">3. Schedule Shift</span>
+          <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
+            Remaining sessions shifted forward
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 pt-3 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="closeHoldModal()"
+        class="px-4 py-2 text-xs font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] rounded-xl transition-all cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="submitHoldGroup()"
+        [disabled]="submittingHold()"
+        class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+      >
+        @if (submittingHold()) {
+          <i class="pi pi-spin pi-spinner text-xs"></i>
+          Applying Hold...
+        } @else {
+          <i class="pi pi-pause-circle text-xs"></i>
+          Apply Hold & Shift Schedule
+        }
       </button>
     </div>
   </ng-template>

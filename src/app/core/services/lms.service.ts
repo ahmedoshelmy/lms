@@ -23,6 +23,8 @@ import {
   UpdateGroupPayload,
   UpdateGroupSchedulePayload,
   GenerateCustomSessionsPayload,
+  CancelUpcomingSessionsPayload,
+  CancelUpcomingSessionsResult,
 } from '../interfaces/Group';
 import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
 import { ScheduleSession, UpdateSessionPayload, ApplySessionForwardPayload } from '../interfaces/ScheduleSession';
@@ -256,6 +258,16 @@ export class LmsService {
 
   generateCustomSessions(payload: GenerateCustomSessionsPayload): Observable<any> {
     return this.http.post(`${this.getApiUrl()}/schedule/generate-custom`, payload);
+  }
+
+  cancelUpcomingGroupSessions(
+    groupId: number,
+    payload: CancelUpcomingSessionsPayload
+  ): Observable<CancelUpcomingSessionsResult> {
+    return this.http.post<CancelUpcomingSessionsResult>(
+      `${this.getApiUrl()}/groups/${groupId}/cancel-sessions`,
+      payload
+    );
   }
 
   // ─── Schedule & Sessions ──────────────────────────────────────────────────

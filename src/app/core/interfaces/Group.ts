@@ -82,3 +82,19 @@ export interface GenerateCustomSessionsPayload {
   startFromDate?: string;
   includeTodayIfMatching: boolean;
 }
+
+export interface CancelUpcomingSessionsPayload {
+  groupCourseId?: number;
+  count?: number;
+  holdUntilDate?: string;
+  reason?: string;
+}
+
+export interface CancelUpcomingSessionsResult {
+  cancelledCount: number;
+  substitutesCreated: number;
+  shiftedCount: number;
+  cancelledSessionIds: number[];
+  substituteSessionIds: number[];
+}
+

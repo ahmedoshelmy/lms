@@ -16,6 +16,8 @@ import {
   UpdateGroupPayload,
   UpdateGroupSchedulePayload,
   GenerateCustomSessionsPayload,
+  CancelUpcomingSessionsPayload,
+  CancelUpcomingSessionsResult,
 } from '../../../core/interfaces/Group';
 import { GroupCourse } from '../../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
@@ -227,6 +229,14 @@ export class GroupDetailComponent implements OnInit {
   customGenerateStartDate = signal<string>('');
   customGenerateIncludeToday = signal<boolean>(true);
   generatingCustom = signal<boolean>(false);
+
+  // Pause / Hold Group Modal Signals
+  showHoldModal = signal<boolean>(false);
+  holdMode = signal<'count' | 'untilDate'>('count');
+  holdCount = signal<number>(1);
+  holdUntilDate = signal<string>('');
+  holdReason = signal<string>('Holiday / Vacation Break');
+  submittingHold = signal<boolean>(false);
 
   // Edit Schedule Modal
   showEditScheduleModal = signal<boolean>(false);
@@ -1236,5 +1246,65 @@ export class GroupDetailComponent implements OnInit {
         },
       });
   }
-}
 
+  // Hold / Pause Group Methods
+  openHoldModal(): void {
+    const twoWeeksLater = new Date();
+    twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
+    this.holdUntilDate.set(twoWeeksLater.toISOString().split('T')[0]);
+    this.holdMode.set('count');
+    this.holdCount.set(1);
+    this.holdReason.set('Holiday / Vacation Break');
+    this.showHoldModal.set(true);
+  }
+
+  closeHoldModal(): void {
+    this.showHoldModal.set(false);
+  }
+
+  submitHoldGroup(): void {
+    const groupData = this.group();
+    if (!groupData) return;
+
+    if (this.holdMode() === 'count' && (!this.holdCount() || this.holdCount() < 1)) {
+      this.notify.showError('Please enter a valid session count (at least 1).');
+      return;
+    }
+
+    if (this.holdMode() === 'untilDate' && !this.holdUntilDate()) {
+      this.notify.showError('Please select a resume date.');
+      return;
+    }
+
+    this.submittingHold.set(true);
+
+    const payload: CancelUpcomingSessionsPayload = {
+      reason: this.holdReason().trim() || 'Group Hold / Vacation',
+    };
+
+    if (this.holdMode() === 'count') {
+      payload.count = Number(this.holdCount());
+    } else {
+      payload.holdUntilDate = this.holdUntilDate();
+    }
+
+    this.lmsService.cancelUpcomingGroupSessions(groupData.id, payload).subscribe({
+      next: (res) => {
+        this.submittingHold.set(false);
+        this.showHoldModal.set(false);
+
+        this.notify.showSuccess(
+          `Group held successfully: ${res.cancelledCount} session(s) paused, ${res.substitutesCreated} substitute(s) scheduled, and ${res.shiftedCount} future session(s) shifted forward.`
+        );
+
+        this.loadGroupDetail(groupData.id);
+        this.loadGroupHistory(groupData.id);
+        this.loadScheduleSessions();
+      },
+      error: (err) => {
+        this.submittingHold.set(false);
+        this.notify.showError('Failed to hold group: ' + (err.error?.message || 'Error'));
+      },
+    });
+  }
+}

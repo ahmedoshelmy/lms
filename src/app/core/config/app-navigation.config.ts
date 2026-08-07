@@ -1,4 +1,4 @@
-import { Role } from '../interfaces/Role';
+import { Role, parseRole } from '../interfaces/Role';
 import { MenuItem } from '../interfaces/MenuItem';
 
 export const ALL_ROLES: Role[] = [Role.Admin, Role.Instructor, Role.Student];
@@ -83,8 +83,6 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
 ];
-
-import { Role, parseRole } from '../interfaces/Role';
 
 export function getRolesForPath(path: string): Role[] {
   return ROUTE_PERMISSIONS.find((route) => route.path === path)?.roles ?? [];
