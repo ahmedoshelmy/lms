@@ -371,6 +371,33 @@ export class WeeklyScheduleComponent {
     return 'badge-scheduled';
   }
 
+  getAttendanceBadge(s: ScheduleSession): { label: string; css: string; icon: string } {
+    const status = (s.status || '').toLowerCase();
+    if (status.includes('cancel')) {
+      return { label: 'Cancelled', css: 'bg-rose-500/10 text-rose-600 border-rose-500/20', icon: 'pi-times-circle' };
+    }
+    if (status.includes('completed')) {
+      return { label: 'Attendance Marked', css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', icon: 'pi-check-circle' };
+    }
+
+    const now = new Date();
+    const sessionTime = new Date(s.startsAt || Date.now());
+    if (sessionTime <= now) {
+      return { label: 'Attendance Pending', css: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: 'pi-exclamation-triangle' };
+    }
+
+    return { label: 'Upcoming', css: 'bg-blue-500/10 text-blue-600 border-blue-500/20', icon: 'pi-clock' };
+  }
+
+  getLeftAccentColor(s: ScheduleSession): string {
+    const status = (s.status || '').toLowerCase();
+    if (status.includes('cancel')) return 'var(--color-error)';
+    if (status.includes('completed')) return 'var(--color-secondary)';
+    const att = this.getAttendanceBadge(s);
+    if (att.label === 'Attendance Pending') return 'var(--color-warning)';
+    return 'var(--color-success)';
+  }
+
   formatTime(iso: string): string {
     if (!iso) return '';
     return new Date(iso).toLocaleTimeString('en-GB', {

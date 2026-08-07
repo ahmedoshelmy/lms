@@ -107,95 +107,65 @@
             [class.gap-3]="densityMode() === 'comfortable'"
           >
             @for (session of col.sessions; track session.id) {
-              @let cat = getCategory(session);
               <div
-                class="session-card rounded-xl border transition-all duration-200 cursor-pointer relative"
-                [class.session-card--compact]="densityMode() === 'compact'"
-                [class.session-card--comfortable]="densityMode() === 'comfortable'"
-                [class.session-card--conflict]="isConflict(session)"
-                [style.border-left-color]="cat.color"
-                [style.border-left-width]="'3px'"
                 (click)="onSessionClick(session)"
+                class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
+                [style.border-left-color]="getLeftAccentColor(session)"
+                [style.border-left-width]="'4px'"
               >
-                <!-- Conflict indicator -->
+                <!-- Conflict indicator flag -->
                 @if (isConflict(session)) {
-                  <div class="conflict-flag" title="Scheduling conflict detected">
+                  <div class="absolute right-2 top-2 text-rose-500 font-bold text-xs" title="Scheduling conflict detected">
                     <i class="pi pi-exclamation-circle"></i>
                   </div>
                 }
 
                 <div>
-                  <!-- Top row: status + session number -->
+                  <!-- Top Row: Time Hero + Session Progress -->
                   <div class="flex items-center justify-between gap-1 mb-1.5">
-                    <span class="status-badge" [ngClass]="getStatusBadgeClass(session.status)">{{
-                      session.status
-                    }}</span>
-                    <span
-                      class="text-[9px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background-alt)] px-1.5 py-0.5 rounded-md"
-                      >S{{ session.currentSessionNumber }}/{{ session.totalSessions }}</span
-                    >
+                    <div class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]">
+                      <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
+                      <span>{{ formatTime(session.startsAt) }}</span>
+                    </div>
+
+                    <span class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
+                      S{{ session.currentSessionNumber }} of {{ session.totalSessions || 12 }}
+                    </span>
                   </div>
 
-                  <!-- Topic -->
-                  <h4
-                    class="card-topic text-[var(--color-text-primary)] leading-tight"
-                    [class.line-clamp-1]="densityMode() === 'compact'"
-                    [class.line-clamp-2]="densityMode() === 'comfortable'"
-                    [title]="session.topic"
-                  >
-                    {{ session.topic }}
+                  <!-- Topic / Course Title -->
+                  <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
+                    {{ session.topic || session.courseTitle }}
                   </h4>
 
-                  <!-- Course & Group -->
-                  <p
-                    class="card-meta text-[var(--color-text-secondary)] font-medium truncate"
-                    [title]="session.courseTitle"
-                  >
-                    {{ session.courseTitle }}
-                  </p>
-                  <p class="text-[10px] text-[var(--color-secondary)] font-bold mt-0.5">
-                    {{ session.groupName }}
-                  </p>
-
-                  <!-- Admin Only: Instructor Name -->
-                  @if (isAdmin() && session.instructorName) {
-                    <div
-                      class="flex items-center gap-1.5 mt-1.5 text-[10.5px] text-[var(--color-text-secondary)] font-semibold truncate"
-                    >
-                      <i
-                        class="pi pi-user text-[10px] text-[var(--color-secondary)] flex-shrink-0"
-                      ></i>
-                      <span class="truncate" [title]="session.instructorName">{{
-                        session.instructorName
-                      }}</span>
-                    </div>
-                  }
-
-                  <!-- Time & Location Footer -->
-                  <div
-                    class="card-footer flex items-center gap-1.5 border-t border-[var(--color-border)] text-[10px] text-[var(--color-text-muted)]"
-                  >
-                    <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
-                    <span class="font-bold text-[var(--color-text-primary)]"
-                      >{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span
-                    >
+                  <!-- Group Code & Location -->
+                  <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">
+                    <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
+                    @if (session.location) {
+                      <span>•</span>
+                      <span>{{ session.location }}</span>
+                    }
                   </div>
-                  @if (session.location) {
-                    <div
-                      class="flex items-center gap-1.5 mt-1 text-[10px] text-[var(--color-text-muted)]"
-                    >
-                      <i class="pi pi-map-marker text-[10px]"></i>
-                      <span class="truncate">{{ session.location }}</span>
+
+                  <!-- Instructor (Admin View) -->
+                  @if (isAdmin() && session.instructorName) {
+                    <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]">
+                      <i class="pi pi-user text-[9px] text-[var(--color-secondary)]"></i>
+                      <span class="truncate">{{ session.instructorName }}</span>
                     </div>
                   }
                 </div>
 
-                <!-- Admin Avatar Badge in Corner -->
-                @if (isAdmin() && session.instructorName) {
-                  <div class="instructor-avatar" [title]="session.instructorName">
-                    {{ getInitials(session.instructorName) }}
-                  </div>
-                }
+                <!-- Footer Row: Visual Attendance Status Indicator -->
+                <div class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1">
+                  @let att = getAttendanceBadge(session);
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
+                    <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
+                    {{ att.label }}
+                  </span>
+
+                  <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"></i>
+                </div>
               </div>
             } @empty {
               <div
@@ -318,79 +288,58 @@
 
         <div class="flex flex-col gap-3">
           @for (session of col.sessions; track session.id) {
-            @let cat = getCategory(session);
             <div
-              class="session-card rounded-xl border transition-all duration-200 cursor-pointer relative"
-              [class.session-card--compact]="densityMode() === 'compact'"
-              [class.session-card--comfortable]="densityMode() === 'comfortable'"
-              [class.session-card--conflict]="isConflict(session)"
-              [style.border-left-color]="cat.color"
-              [style.border-left-width]="'3px'"
               (click)="onSessionClick(session)"
+              class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-md transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
+              [style.border-left-color]="getLeftAccentColor(session)"
+              [style.border-left-width]="'4px'"
             >
               @if (isConflict(session)) {
-                <div class="conflict-flag" title="Scheduling conflict detected">
+                <div class="absolute right-2 top-2 text-rose-500 font-bold text-xs" title="Scheduling conflict detected">
                   <i class="pi pi-exclamation-circle"></i>
                 </div>
               }
 
               <div>
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="status-badge" [ngClass]="getStatusBadgeClass(session.status)">{{
-                      session.status
-                    }}</span>
-                    <span class="text-[9px] font-bold text-[var(--color-text-muted)]"
-                      >S{{ session.currentSessionNumber }}/{{ session.totalSessions }}</span
-                    >
+                <div class="flex items-center justify-between gap-1 mb-1.5">
+                  <div class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]">
+                    <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
+                    <span>{{ formatTime(session.startsAt) }}</span>
                   </div>
-                  @if (isAdmin() && session.instructorName) {
-                    <div
-                      class="instructor-avatar instructor-avatar--sm"
-                      [title]="session.instructorName"
-                    >
-                      {{ getInitials(session.instructorName) }}
-                    </div>
+
+                  <span class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
+                    S{{ session.currentSessionNumber }} of {{ session.totalSessions || 12 }}
+                  </span>
+                </div>
+
+                <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
+                  {{ session.topic || session.courseTitle }}
+                </h4>
+
+                <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">
+                  <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
+                  @if (session.location) {
+                    <span>•</span>
+                    <span>{{ session.location }}</span>
                   }
                 </div>
 
-                <h4 class="card-topic text-[var(--color-text-primary)] leading-tight">
-                  {{ session.topic }}
-                </h4>
-                <p class="card-meta text-[var(--color-text-secondary)] font-medium truncate">
-                  {{ session.courseTitle }}
-                </p>
-                <p class="text-[10px] text-[var(--color-secondary)] font-semibold mt-0.5">
-                  {{ session.groupName }}
-                </p>
-
                 @if (isAdmin() && session.instructorName) {
-                  <div
-                    class="flex items-center gap-1.5 mt-1.5 text-[10.5px] text-[var(--color-text-secondary)] font-semibold truncate"
-                  >
-                    <i
-                      class="pi pi-user text-[10px] text-[var(--color-secondary)] flex-shrink-0"
-                    ></i>
+                  <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]">
+                    <i class="pi pi-user text-[9px] text-[var(--color-secondary)]"></i>
                     <span class="truncate">{{ session.instructorName }}</span>
                   </div>
                 }
+              </div>
 
-                <div
-                  class="card-footer grid grid-cols-2 gap-1 border-t border-[var(--color-border)] text-[10px] text-[var(--color-text-muted)]"
-                >
-                  <div class="flex items-center gap-1">
-                    <i class="pi pi-clock text-[var(--color-secondary)]"></i>
-                    <span class="font-bold text-[var(--color-text-primary)]"
-                      >{{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}</span
-                    >
-                  </div>
-                  @if (session.location) {
-                    <div class="flex items-center gap-1">
-                      <i class="pi pi-map-marker"></i>
-                      <span class="truncate">{{ session.location }}</span>
-                    </div>
-                  }
-                </div>
+              <div class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1">
+                @let att = getAttendanceBadge(session);
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
+                  <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
+                  {{ att.label }}
+                </span>
+
+                <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"></i>
               </div>
             </div>
           } @empty {
