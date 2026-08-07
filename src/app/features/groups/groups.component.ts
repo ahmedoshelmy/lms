@@ -107,6 +107,7 @@ export class GroupsComponent implements OnInit {
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
   statusOptions = STATUS_OPTIONS;
   daysOfWeek = DAYS_OF_WEEK;
+  protected readonly Math = Math;
 
   readonly allCourseLevels = computed(() => {
     const result: { level: CourseLevel; topicName: string; topicCode: string }[] = [];
@@ -484,11 +485,21 @@ export class GroupsComponent implements OnInit {
     let totalSessions = 0;
     let completedSessions = 0;
     for (const c of group.courses) {
-      const total = c.sessionCount || 0;
+      const total = c.totalSessions || c.sessionCount || 0;
       totalSessions += total;
       completedSessions += c.currentSessionNumber || 0;
     }
     if (totalSessions === 0) return 0;
-    return Math.round((completedSessions / totalSessions) * 100);
+    return Math.min(100, Math.round((completedSessions / totalSessions) * 100));
+  }
+
+  getGroupTotalSessions(group: Group): number {
+    if (!group.courses) return 0;
+    return group.courses.reduce((sum, c) => sum + (c.totalSessions || c.sessionCount || 0), 0);
+  }
+
+  getGroupCompletedSessions(group: Group): number {
+    if (!group.courses) return 0;
+    return group.courses.reduce((sum, c) => sum + (c.currentSessionNumber || 0), 0);
   }
 }
