@@ -206,7 +206,10 @@ export class LmsService {
   }
 
   addCourseToGroup(groupId: number, courseLevelId: number): Observable<Group> {
-    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/courses`, { courseLevelId });
+    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/courses`, {
+      courseLevelId,
+      courseId: courseLevelId,
+    });
   }
 
   generateGroupCourseSessions(groupCourseId: number): Observable<any> {
