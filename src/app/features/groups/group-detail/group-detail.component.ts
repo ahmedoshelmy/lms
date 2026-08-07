@@ -195,6 +195,8 @@ export class GroupDetailComponent implements OnInit {
   removingCourseSessionCount = signal<number>(0);
   removingCourse = signal<boolean>(false);
 
+  protected readonly Math = Math;
+
   // Single Unified Group Course Management Modal
   showManageCourseModal = signal<boolean>(false);
   selectedCourseForManagement = signal<GroupCourse | null>(null);
