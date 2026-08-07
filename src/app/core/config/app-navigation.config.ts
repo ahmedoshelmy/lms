@@ -75,6 +75,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     roles: [Role.Admin, Role.Instructor],
     showInMenu: true,
   },
+  {
+    path: 'activity-logs',
+    label: 'Activity Analytics',
+    icon: 'pi pi-chart-line',
+    roles: [Role.Admin],
+    showInMenu: true,
+  },
 ];
 
 export function getRolesForPath(path: string): Role[] {

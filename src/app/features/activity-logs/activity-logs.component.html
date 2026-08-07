@@ -1,0 +1,159 @@
+<div class="activity-logs-container">
+  <!-- Page Header -->
+  <div class="page-header flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-chart-line text-primary"></i>
+        Activity Audit & Analytics
+      </h1>
+      <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
+        Monitor real-time system actions, user activities, and API usage patterns.
+      </p>
+    </div>
+    <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm" (click)="fetchStats(); fetchLogs()"></button>
+  </div>
+
+  <!-- Analytics Stats Section -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8" *ngIf="stats() as s">
+    <!-- Stat Card 1: Total Activities -->
+    <div class="stat-card bg-surface rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+      <div>
+        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Total System Activities</span>
+        <div class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ s.totalActivities | number }}</div>
+        <div class="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
+          <i class="pi pi-arrow-up text-xs"></i>
+          <span>{{ s.todayActivities }} logged today</span>
+        </div>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-xl">
+        <i class="pi pi-bolt"></i>
+      </div>
+    </div>
+
+    <!-- Stat Card 2: Top Actions Used -->
+    <div class="stat-card bg-surface rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Top App Actions</span>
+        <i class="pi pi-star text-amber-500"></i>
+      </div>
+      <div class="space-y-2">
+        <div *ngFor="let item of s.topActions.slice(0, 3)" class="flex justify-between items-center text-sm">
+          <span class="font-medium text-slate-700 dark:text-slate-200 truncate max-w-[180px]">{{ item.action }}</span>
+          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-primary">
+            {{ item.count }} ops
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stat Card 3: Activity Breakdown by Role -->
+    <div class="stat-card bg-surface rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Activity by User Role</span>
+        <i class="pi pi-users text-blue-500"></i>
+      </div>
+      <div class="space-y-2">
+        <div *ngFor="let roleItem of s.activitiesByRole" class="flex justify-between items-center text-sm">
+          <div class="flex items-center gap-2">
+            <p-tag [value]="roleItem.role" [severity]="getRoleSeverity(roleItem.role)"></p-tag>
+          </div>
+          <span class="font-semibold text-slate-700 dark:text-slate-200">{{ roleItem.count }} actions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Feed Table Container -->
+  <div class="bg-surface rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <!-- Search Bar & Filters -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+      <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <i class="pi pi-list text-primary"></i>
+        Detailed Audit Feed
+      </h2>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <div class="relative flex-1 sm:flex-initial">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            placeholder="Search action, user, path..."
+            class="w-full sm:w-80 p-inputtext-sm pl-9 rounded-xl"
+          />
+          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        </div>
+        <button pButton icon="pi pi-search" label="Search" class="p-button-sm rounded-xl" (click)="onSearch()"></button>
+      </div>
+    </div>
+
+    <!-- Activity Log PrimeNG Table -->
+    <p-table
+      [value]="logs()"
+      [lazy]="true"
+      (onPage)="onPageChange($event)"
+      [paginator]="true"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [loading]="loading()"
+      [rowsPerPageOptions]="[10, 15, 25, 50]"
+      styleClass="p-datatable-sm p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Timestamp</th>
+          <th>User</th>
+          <th>Role</th>
+          <th>Action</th>
+          <th>Method</th>
+          <th>Path</th>
+          <th>Status</th>
+          <th>Details</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-log>
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+          <td class="whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+            {{ log.createdAt | date: 'medium' }}
+          </td>
+          <td class="font-medium text-slate-800 dark:text-slate-200">
+            {{ log.userName || 'System / Guest' }}
+          </td>
+          <td>
+            <p-tag [value]="log.userRole || 'Guest'" [severity]="getRoleSeverity(log.userRole)"></p-tag>
+          </td>
+          <td class="font-semibold text-slate-900 dark:text-white">
+            {{ log.action }}
+          </td>
+          <td>
+            <p-tag [value]="log.method" [severity]="getMethodSeverity(log.method)"></p-tag>
+          </td>
+          <td class="font-mono text-xs text-slate-600 dark:text-slate-300">
+            {{ log.path }}
+          </td>
+          <td>
+            <p-tag [value]="log.statusCode.toString()" [severity]="getStatusSeverity(log.statusCode)"></p-tag>
+          </td>
+          <td class="text-xs text-slate-500 dark:text-slate-400 max-w-xs truncate" [title]="log.details">
+            {{ log.details || '-' }}
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty State -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-12">
+            <div class="flex flex-col items-center justify-center text-slate-400">
+              <i class="pi pi-inbox text-4xl mb-3 text-slate-300"></i>
+              <p class="font-semibold text-slate-600 dark:text-slate-300">No activity logs found</p>
+              <p class="text-xs text-slate-400 mt-1">Try clearing or updating your search filter.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

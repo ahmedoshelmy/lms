@@ -121,6 +121,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/history/history.component').then((c) => c.HistoryComponent),
       },
+      {
+        path: 'activity-logs',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('activity-logs') },
+        loadComponent: () =>
+          import('./features/activity-logs/activity-logs.component').then(
+            (c) => c.ActivityLogsComponent
+          ),
+      },
       { path: 'users', redirectTo: 'students', pathMatch: 'full' },
 
       {
