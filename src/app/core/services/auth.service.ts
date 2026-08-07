@@ -1,7 +1,7 @@
 import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs';
-import { Role } from '../interfaces/Role';
+import { Role, parseRole } from '../interfaces/Role';
 import { LmsService } from '../services/lms.service';
 import { LoginRequest } from '../interfaces/Login';
 import { User } from '../interfaces/User';
@@ -18,7 +18,10 @@ export class AuthService {
   readonly currentUser$ = this.currentUserSignal.asReadonly();
   readonly currentUser = this.currentUserSignal;
   readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
-  readonly currentRole = computed<Role | null>(() => this.currentUserSignal()?.role ?? null);
+  readonly currentRole = computed<Role | null>(() => {
+    const user = this.currentUserSignal();
+    return user ? parseRole(user.role) : null;
+  });
 
   getUserId(): number | null {
     return this.currentUserSignal()?.id ?? null;
@@ -37,12 +40,15 @@ export class AuthService {
   }
 
   hasRole(role: Role): boolean {
-    return this.currentUserSignal()?.role === role;
+    const userRole = this.currentRole();
+    return userRole !== null && parseRole(userRole) === parseRole(role);
   }
 
   hasAnyRole(roles: Role[]): boolean {
-    const user = this.currentUserSignal();
-    return !!user && roles.includes(user.role);
+    const userRole = this.currentRole();
+    if (userRole === null) return false;
+    const normalizedUserRole = parseRole(userRole);
+    return roles.some((r) => parseRole(r) === normalizedUserRole);
   }
 
   login(payload: LoginRequest): ReturnType<LmsService['login']> {
@@ -62,6 +68,13 @@ export class AuthService {
     }
   }
 
+  private normalizeUser(user: User): User {
+    if (user && user.role !== undefined) {
+      return { ...user, role: parseRole(user.role) };
+    }
+    return user;
+  }
+
   private getStoredUser(): User | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null;
@@ -69,13 +82,16 @@ export class AuthService {
 
     try {
       const userString = localStorage.getItem(this.USER_KEY);
-      return userString ? (JSON.parse(userString) as User) : null;
+      if (!userString) return null;
+      const parsed = JSON.parse(userString) as User;
+      return this.normalizeUser(parsed);
     } catch {
       return null;
     }
   }
 
-  private setStoredUser(user: User): void {
+  private setStoredUser(rawUser: User): void {
+    const user = this.normalizeUser(rawUser);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
@@ -88,3 +104,4 @@ export class AuthService {
     }
   }
 }
+
