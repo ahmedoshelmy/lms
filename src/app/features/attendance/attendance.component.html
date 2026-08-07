@@ -1,41 +1,59 @@
-<div class="sessions-page p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
-  <!-- Page Hero Header -->
+<div class="sessions-page p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
+  <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
-      <h1 class="text-2xl md:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight">
+      <h1 class="text-2xl md:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">
         Sessions & Attendance
       </h1>
-      <p class="text-sm text-[var(--color-text-muted)] mt-1">
-        Browse and manage all class sessions. Click a session to view details and mark attendance.
+      <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+        Manage class sessions, track real-time attendance, and view student progress.
       </p>
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div class="flex items-center gap-3">
+      <div class="px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-center">
+        <span class="text-[10px] font-bold text-[var(--color-text-muted)] block uppercase">Total</span>
+        <span class="text-xs font-black text-[var(--color-text-primary)]">{{ sessionStats().total }}</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-center">
+        <span class="text-[10px] font-bold text-emerald-600 block uppercase">Completed</span>
+        <span class="text-xs font-black text-emerald-600">{{ sessionStats().completed }}</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-center">
+        <span class="text-[10px] font-bold text-amber-600 block uppercase">Scheduled</span>
+        <span class="text-xs font-black text-amber-600">{{ sessionStats().scheduled }}</span>
+      </div>
     </div>
   </div>
 
-  <!-- Filters Bar -->
-  <div class="filters-bar">
-    <!-- Row 1: Search + Group + Instructor -->
-    <div class="filters-row">
-      <div class="search-input-wrap">
-        <i class="pi pi-search"></i>
+  <!-- Filters & Sorting Toolbar -->
+  <div class="mb-6 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs space-y-3">
+    <!-- Row 1: Search + Group + Instructor + Sort -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Search Input -->
+      <div class="relative">
+        <i class="pi pi-search absolute left-3 top-2.5 text-xs text-[var(--color-text-muted)]"></i>
         <input
           type="text"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
-          placeholder="Search sessions by topic, course, group..."
+          placeholder="Search topic, course, group..."
+          class="w-full pl-8 pr-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] font-semibold"
         />
         @if (searchQuery()) {
-          <button type="button" class="search-clear" (click)="searchQuery.set('')">
+          <button type="button" class="absolute right-2.5 top-2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]" (click)="searchQuery.set('')">
             <i class="pi pi-times"></i>
           </button>
         }
       </div>
 
-      <div class="filter-select-wrap">
-        <label class="filter-label">Group</label>
+      <!-- Group Filter -->
+      <div>
         <select
           [ngModel]="selectedGroupFilter()"
           (ngModelChange)="setGroupFilter($event)"
-          class="filter-select"
+          class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
         >
           <option value="all">All Groups</option>
           @for (grp of uniqueGroups(); track grp) {
@@ -44,161 +62,214 @@
         </select>
       </div>
 
+      <!-- Instructor Filter (Admin) -->
       @if (isAdmin()) {
-        <div class="filter-select-wrap">
-          <label class="filter-label">Instructor</label>
-          <p-select
-            [options]="instructors()"
+        <div>
+          <select
             [ngModel]="selectedInstructorFilter()"
-            (ngModelChange)="setInstructorFilter($event)"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="All Instructors"
-            class="w-full"
-            [filter]="true"
-            filterBy="name"
+            (ngModelChange)="setInstructorFilter($any($event))"
+            class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
           >
-            <ng-template pTemplate="selectedItem" let-selected>
-              @if (selected) {
-                <div class="truncate text-sm font-bold text-[var(--color-text-primary)]">
-                  {{ selected.name }}
-                </div>
-              }
-            </ng-template>
-            <ng-template pTemplate="item" let-inst>
-              <div class="py-1 text-sm font-semibold">{{ inst.name }}</div>
-            </ng-template>
-          </p-select>
+            @for (inst of instructors(); track inst.id) {
+              <option [value]="inst.id">{{ inst.name }}</option>
+            }
+          </select>
         </div>
       }
+
+      <!-- Sort By Dropdown -->
+      <div>
+        <select
+          [ngModel]="sortBy()"
+          (ngModelChange)="sortBy.set($event)"
+          class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
+        >
+          <option value="time">Sort by Time</option>
+          <option value="topic">Sort by Topic</option>
+          <option value="group">Sort by Group</option>
+          <option value="status">Sort by Status</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Row 2: Status + Date chips -->
-    <div class="filters-row filters-row--chips">
-      <div class="chip-group">
-        <span class="chip-group__label">Status:</span>
-        <button type="button" class="filter-chip" [class.filter-chip--active]="sessionStatusFilter() === 'all'" (click)="setSessionStatusFilter('all')">
+    <!-- Row 2: Status Pills & Date Range Filter -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-[var(--color-border)]">
+      <!-- Status Pills -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-wider mr-1">Status:</span>
+        <button
+          type="button"
+          (click)="setSessionStatusFilter('all')"
+          [class.bg-[var(--color-secondary)]]="sessionStatusFilter() === 'all'"
+          [class.text-white]="sessionStatusFilter() === 'all'"
+          [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'all'"
+          class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
+        >
           All ({{ sessionStats().total }})
         </button>
-        <button type="button" class="filter-chip filter-chip--scheduled" [class.filter-chip--active]="sessionStatusFilter() === 'scheduled'" (click)="setSessionStatusFilter('scheduled')">
-          <span class="filter-chip__dot"></span> Scheduled ({{ sessionStats().scheduled }})
+        <button
+          type="button"
+          (click)="setSessionStatusFilter('scheduled')"
+          [class.bg-amber-600]="sessionStatusFilter() === 'scheduled'"
+          [class.text-white]="sessionStatusFilter() === 'scheduled'"
+          [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'scheduled'"
+          class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
+        >
+          Scheduled ({{ sessionStats().scheduled }})
         </button>
-        <button type="button" class="filter-chip filter-chip--completed" [class.filter-chip--active]="sessionStatusFilter() === 'completed'" (click)="setSessionStatusFilter('completed')">
-          <span class="filter-chip__dot"></span> Completed ({{ sessionStats().completed }})
+        <button
+          type="button"
+          (click)="setSessionStatusFilter('completed')"
+          [class.bg-emerald-600]="sessionStatusFilter() === 'completed'"
+          [class.text-white]="sessionStatusFilter() === 'completed'"
+          [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'completed'"
+          class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
+        >
+          Completed ({{ sessionStats().completed }})
         </button>
-        <button type="button" class="filter-chip filter-chip--cancelled" [class.filter-chip--active]="sessionStatusFilter() === 'cancelled'" (click)="setSessionStatusFilter('cancelled')">
-          <span class="filter-chip__dot"></span> Cancelled ({{ sessionStats().cancelled }})
+        <button
+          type="button"
+          (click)="setSessionStatusFilter('cancelled')"
+          [class.bg-rose-600]="sessionStatusFilter() === 'cancelled'"
+          [class.text-white]="sessionStatusFilter() === 'cancelled'"
+          [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'cancelled'"
+          class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
+        >
+          Cancelled ({{ sessionStats().cancelled }})
         </button>
       </div>
 
-      <div class="chip-group">
-        <span class="chip-group__label">Date:</span>
-        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'all'" (click)="setDateRangeFilter('all')">All Time</button>
-        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'today'" (click)="setDateRangeFilter('today')">Today</button>
-        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'week'" (click)="setDateRangeFilter('week')">This Week</button>
-        <button type="button" class="filter-chip" [class.filter-chip--active]="dateRangeFilter() === 'month'" (click)="setDateRangeFilter('month')">This Month</button>
-      </div>
+      <!-- Date Range Filter -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-wider mr-1">Date:</span>
+        @for (range of ['all', 'today', 'week', 'month']; track range) {
+          <button
+            type="button"
+            (click)="setDateRangeFilter($any(range))"
+            [class.bg-[var(--color-primary)]]="dateRangeFilter() === range"
+            [class.text-white]="dateRangeFilter() === range"
+            [class.text-[var(--color-text-secondary)]]="dateRangeFilter() !== range"
+            class="px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer border border-transparent"
+          >
+            {{ range === 'all' ? 'All Time' : range }}
+          </button>
+        }
 
-      @if (hasActiveFilters()) {
-        <button type="button" class="reset-btn" (click)="resetFilters()">
-          <i class="pi pi-refresh"></i> Reset All
-        </button>
-      }
+        @if (hasActiveFilters()) {
+          <button
+            type="button"
+            (click)="resetFilters()"
+            class="ml-2 text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+          >
+            Reset Filters
+          </button>
+        }
+      </div>
     </div>
   </div>
 
-  <!-- Session List -->
+  <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-wrap">
-      <div class="loading-spinner"></div>
-      <p>Loading sessions...</p>
+    <div class="flex justify-center items-center py-24">
+      <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
-  } @else if (filteredSessions().length === 0) {
-    <div class="empty-state">
-      <div class="empty-state__icon">
-        <i class="pi pi-calendar-times"></i>
-      </div>
-      <h3 class="empty-state__title">No sessions found</h3>
-      <p class="empty-state__desc">
-        @if (hasActiveFilters()) {
-          No sessions match your current filters. Try adjusting your criteria.
-        } @else {
-          No sessions have been scheduled yet.
-        }
-      </p>
-      @if (hasActiveFilters()) {
-        <button type="button" class="empty-state__btn" (click)="resetFilters()">
-          <i class="pi pi-refresh"></i> Reset Filters
-        </button>
-      }
+  } @else if (groupedSessionsByDate().length === 0) {
+    <div class="text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
+      <i class="pi pi-calendar-times text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
+      <p class="text-xs font-bold text-[var(--color-text-primary)]">No sessions found</p>
+      <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Try adjusting your filters or search query.</p>
     </div>
   } @else {
-    <div class="session-list">
-      @for (session of filteredSessions(); track session.id) {
-        <button type="button" class="session-row" (click)="openSession(session)">
-          <div class="session-row__accent" [ngClass]="getStatusBadgeClass(session.status)"></div>
-          <div class="session-row__body">
-            <div class="session-row__top">
-              <div class="session-row__info">
-                <div class="session-row__icon" [ngClass]="getStatusBadgeClass(session.status)">
-                  <i class="pi pi-calendar-clock"></i>
-                </div>
-                <div class="min-w-0">
-                  <h3 class="session-row__topic">{{ session.topic }}</h3>
-                  <p class="session-row__course">{{ session.courseTitle }}</p>
-                </div>
-              </div>
-              <div class="session-row__badges">
-                <span class="session-status-badge" [ngClass]="getStatusBadgeClass(session.status)">
-                  {{ session.status }}
-                </span>
-                @if (isToday(session.startsAt)) {
-                  <span class="today-badge">Today</span>
-                }
-                @if (session.currentSessionNumber && session.totalSessions) {
-                  <span class="sequence-badge">
-                    {{ session.currentSessionNumber }}/{{ session.totalSessions }}
-                  </span>
-                }
-              </div>
-            </div>
-            <div class="session-row__bottom">
-              <div class="session-row__meta">
-                <span class="session-row__meta-item">
-                  <i class="pi pi-users"></i> {{ session.groupName }}
-                </span>
-                @if (session.instructorName) {
-                  <span class="session-row__meta-item">
-                    <i class="pi pi-user"></i> {{ session.instructorName }}
-                  </span>
-                }
-                @if (session.location) {
-                  <span class="session-row__meta-item">
-                    <i class="pi pi-map-marker"></i> {{ session.location }}
-                  </span>
-                }
-              </div>
-              <div class="session-row__time">
-                <span class="session-row__date">
-                  <i class="pi pi-calendar"></i> {{ formatDate(session.startsAt) }}
-                </span>
-                <span class="session-row__clock">
-                  {{ formatTime(session.startsAt) }} - {{ formatTime(session.endsAt) }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="session-row__arrow">
-            <i class="pi pi-chevron-right"></i>
-          </div>
-        </button>
-      }
-    </div>
+    <!-- Date Grouped Sessions Feed -->
+    <div class="space-y-8">
+      @for (group of groupedSessionsByDate(); track group.key) {
+        <div>
+          <!-- Group Date Sticky Header -->
+          <div class="flex items-center gap-3 mb-3 pb-2 border-b border-[var(--color-border)]">
+            @if (group.isToday) {
+              <span class="px-2.5 py-1 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-black tracking-wider uppercase shadow-xs">
+                TODAY
+              </span>
+              <span class="text-xs font-extrabold text-[var(--color-text-muted)]">{{ group.subLabel }}</span>
+            } @else if (group.isTomorrow) {
+              <span class="px-2.5 py-1 rounded-xl bg-amber-500 text-white text-xs font-black tracking-wider uppercase shadow-xs">
+                TOMORROW
+              </span>
+              <span class="text-xs font-extrabold text-[var(--color-text-muted)]">{{ group.subLabel }}</span>
+            } @else {
+              <h2 class="text-sm font-black text-[var(--color-text-primary)] uppercase tracking-wider">
+                {{ group.dateLabel }}
+              </h2>
+            }
 
-    <div class="list-footer">
-      <span class="list-footer__text">
-        Showing {{ filteredSessions().length }} of {{ sessions().length }} sessions
-      </span>
+            <span class="ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-muted)]">
+              {{ group.sessions.length }} session{{ group.sessions.length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            @for (session of group.sessions; track session.id) {
+              <div
+                (click)="openSession(session)"
+                class="p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
+                [style.border-left-color]="getLeftAccentColor(session)"
+                [style.border-left-width]="'4px'"
+              >
+                <div>
+                  <!-- Card Header: Time Hero & Session Progress -->
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <div class="flex items-center gap-1.5 text-xs font-black text-[var(--color-text-primary)]">
+                      <i class="pi pi-clock text-xs text-[var(--color-secondary)]"></i>
+                      <span>{{ formatTime(session.startsAt) }}</span>
+                    </div>
+
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
+                      Session {{ session.currentSessionNumber || 1 }} of {{ session.totalSessions || 12 }}
+                    </span>
+                  </div>
+
+                  <!-- Topic / Course Title -->
+                  <h3 class="text-sm font-black text-[var(--color-text-primary)] group-hover/session:text-[var(--color-secondary)] transition-colors leading-tight truncate">
+                    {{ session.topic || session.courseTitle }}
+                  </h3>
+
+                  <!-- Metadata Row: Group Code & Location -->
+                  <div class="flex items-center gap-2 mt-1.5 text-[11px] font-bold text-[var(--color-text-muted)]">
+                    <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
+                    @if (session.location) {
+                      <span>•</span>
+                      <span>{{ session.location }}</span>
+                    }
+                  </div>
+
+                  <!-- Instructor (Admin view) -->
+                  @if (isAdmin() && session.instructorName) {
+                    <div class="flex items-center gap-1.5 mt-1.5 text-[11px] font-bold text-[var(--color-text-secondary)]">
+                      <i class="pi pi-user text-[10px] text-[var(--color-secondary)]"></i>
+                      <span class="truncate">{{ session.instructorName }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Footer Row: Visual Attendance Status Indicator -->
+                <div class="mt-3 pt-2.5 border-t border-[var(--color-border)] flex items-center justify-between">
+                  @let att = getAttendanceBadge(session);
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
+                    <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
+                    {{ att.label }}
+                  </span>
+
+                  <div class="flex items-center gap-1 text-xs text-[var(--color-secondary)] font-bold opacity-0 group-hover/session:opacity-100 transition-opacity">
+                    <span>Open</span>
+                    <i class="pi pi-arrow-right text-xs"></i>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </div>
   }
 </div>

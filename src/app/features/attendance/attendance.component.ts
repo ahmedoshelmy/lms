@@ -15,6 +15,15 @@ import { Group } from '../../core/interfaces/Group';
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
 
+export interface DateSessionGroup {
+  key: string;
+  dateLabel: string;
+  subLabel: string;
+  isToday: boolean;
+  isTomorrow: boolean;
+  sessions: ScheduleSession[];
+}
+
 @Component({
   selector: 'app-attendance',
   standalone: true,
@@ -40,6 +49,7 @@ export class AttendanceComponent implements OnInit {
   dateRangeFilter = signal<DateRangeFilter>('all');
   instructors = signal<User[]>([]);
   selectedInstructorFilter = signal<number>(0);
+  sortBy = signal<'time' | 'topic' | 'group' | 'status'>('time');
 
   readonly uniqueGroups = computed(() => {
     const set = new Set<string>();
@@ -115,6 +125,65 @@ export class AttendanceComponent implements OnInit {
     });
   });
 
+  readonly groupedSessionsByDate = computed<DateSessionGroup[]>(() => {
+    const list = [...this.filteredSessions()];
+    const sortMode = this.sortBy();
+
+    if (sortMode === 'topic') {
+      list.sort((a, b) => (a.topic || '').localeCompare(b.topic || ''));
+    } else if (sortMode === 'group') {
+      list.sort((a, b) => (a.groupName || '').localeCompare(b.groupName || ''));
+    } else if (sortMode === 'status') {
+      list.sort((a, b) => (a.status || '').localeCompare(b.status || ''));
+    } else {
+      list.sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayMs = today.getTime();
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowMs = tomorrow.getTime();
+
+    const groupMap = new Map<string, DateSessionGroup>();
+
+    for (const s of list) {
+      const sDate = new Date(s.startsAt || Date.now());
+      const sDateDay = new Date(sDate.getFullYear(), sDate.getMonth(), sDate.getDate());
+      const key = `${sDateDay.getFullYear()}-${(sDateDay.getMonth() + 1).toString().padStart(2, '0')}-${sDateDay.getDate().toString().padStart(2, '0')}`;
+      const dayMs = sDateDay.getTime();
+
+      const isToday = dayMs === todayMs;
+      const isTomorrow = dayMs === tomorrowMs;
+
+      let dateLabel = sDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      let subLabel = '';
+      if (isToday) {
+        dateLabel = 'TODAY';
+        subLabel = sDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      } else if (isTomorrow) {
+        dateLabel = 'TOMORROW';
+        subLabel = sDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      }
+
+      if (!groupMap.has(key)) {
+        groupMap.set(key, {
+          key,
+          dateLabel,
+          subLabel,
+          isToday,
+          isTomorrow,
+          sessions: [],
+        });
+      }
+      groupMap.get(key)!.sessions.push(s);
+    }
+
+    return Array.from(groupMap.values());
+  });
+
   readonly sessionStats = computed(() => {
     const all = this.sessions();
     return {
@@ -145,7 +214,7 @@ export class AttendanceComponent implements OnInit {
     this.lms.getSchedule().subscribe({
       next: (sessions) => {
         const sorted = (sessions || []).sort(
-          (a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime()
+          (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
         );
         this.sessions.set(sorted);
         this.loading.set(false);
@@ -180,6 +249,7 @@ export class AttendanceComponent implements OnInit {
     this.dateRangeFilter.set('all');
     this.selectedInstructorFilter.set(0);
     this.searchQuery.set('');
+    this.sortBy.set('time');
   }
 
   formatTime(iso?: string): string {
@@ -215,6 +285,33 @@ export class AttendanceComponent implements OnInit {
     if (norm.includes('completed')) return 'status-completed';
     if (norm.includes('cancel')) return 'status-cancelled';
     return 'status-scheduled';
+  }
+
+  getAttendanceBadge(s: ScheduleSession): { label: string; css: string; icon: string } {
+    const status = (s.status || '').toLowerCase();
+    if (status.includes('cancel')) {
+      return { label: 'Cancelled', css: 'bg-rose-500/10 text-rose-600 border-rose-500/20', icon: 'pi-times-circle' };
+    }
+    if (status.includes('completed')) {
+      return { label: 'Attendance Marked', css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', icon: 'pi-check-circle' };
+    }
+
+    const now = new Date();
+    const sessionTime = new Date(s.startsAt || Date.now());
+    if (sessionTime <= now) {
+      return { label: 'Attendance Pending', css: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: 'pi-exclamation-triangle' };
+    }
+
+    return { label: 'Upcoming', css: 'bg-blue-500/10 text-blue-600 border-blue-500/20', icon: 'pi-clock' };
+  }
+
+  getLeftAccentColor(s: ScheduleSession): string {
+    const status = (s.status || '').toLowerCase();
+    if (status.includes('cancel')) return 'var(--color-error)';
+    if (status.includes('completed')) return 'var(--color-secondary)';
+    const att = this.getAttendanceBadge(s);
+    if (att.label === 'Attendance Pending') return 'var(--color-warning)';
+    return 'var(--color-success)';
   }
 
   isToday(iso: string): boolean {
