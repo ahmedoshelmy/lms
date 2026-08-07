@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { ScheduleSession, SessionAttendanceItem, UpdateSessionPayload } from '../../../core/interfaces/ScheduleSession';
-import { getSessionCode } from '../../../core/utils/session-code.utils';
+import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
 import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
@@ -102,6 +102,10 @@ export class SessionDetailComponent implements OnInit {
 
   getSessionCode(s: any): string {
     return getSessionCode(s);
+  }
+
+  getSessionDisplayTopic(s: any): string {
+    return getSessionDisplayTopic(s);
   }
   isDirty = signal(false);
   searchQuery = signal('');

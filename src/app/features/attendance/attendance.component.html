@@ -231,7 +231,7 @@
 
                   <!-- Topic / Course Title -->
                   <h3 class="text-sm font-black text-[var(--color-text-primary)] group-hover/session:text-[var(--color-secondary)] transition-colors leading-tight truncate">
-                    {{ session.topic || session.courseTitle }}
+                    {{ getSessionDisplayTopic(session) }}
                   </h3>
 
                   <!-- Metadata Row: Group Code & Location -->

@@ -293,7 +293,7 @@
                         <i class="pi pi-calendar-clock"></i>
                       </div>
                       <div class="min-w-0">
-                        <h3 class="session-card__topic">{{ s.topic }}</h3>
+                        <h3 class="session-card__topic">{{ getSessionDisplayTopic(s) }}</h3>
                         <p class="session-card__course">{{ s.courseTitle }}</p>
                       </div>
                     </div>
@@ -449,7 +449,7 @@
                     <span class="modal-session__course">{{ s.courseTitle }}</span>
                     <span class="modal-session__group">{{ s.groupName }}</span>
                   </div>
-                  <h3 class="modal-session__topic">{{ s.topic }}</h3>
+                  <h3 class="modal-session__topic">{{ getSessionDisplayTopic(s) }}</h3>
                   <div class="modal-session__meta">
                     <span class="flex items-center gap-1 text-[var(--color-primary)] font-semibold">
                       <i class="pi pi-user text-xs"></i> Instructor: {{ s.instructorName }}

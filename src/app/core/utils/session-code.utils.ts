@@ -38,3 +38,13 @@ export function getSessionCode(s: any): string {
 
   return `${topicCode}-${levelStr}-${sessionStr}`;
 }
+
+export function getSessionDisplayTopic(s: any): string {
+  if (!s) return 'Class Session';
+  const topic = (s.topic || '').trim();
+  const isGeneric = !topic || /^Session\s*\d*$/i.test(topic) || /regular session/i.test(topic);
+  if (isGeneric) {
+    return s.courseTitle || s.groupName || 'Class Session';
+  }
+  return topic;
+}

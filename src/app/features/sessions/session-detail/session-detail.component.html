@@ -31,7 +31,7 @@
               {{ getSessionCode(s) }} ({{ s.currentSessionNumber }}/{{ s.totalSessions }})
             </span>
           </div>
-          <h1 class="session-hero__title">{{ s.topic }}</h1>
+          <h1 class="session-hero__title">{{ getSessionDisplayTopic(s) }}</h1>
           <p class="session-hero__subtitle">{{ s.courseTitle }} &middot; {{ s.groupName }}</p>
         </div>
 

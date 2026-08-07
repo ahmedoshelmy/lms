@@ -6,6 +6,7 @@ import { LmsService } from '../../core/services/lms.service';
 import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
+import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 
 interface StatCard {
   label: string;
@@ -517,6 +518,14 @@ export class DashboardComponent implements OnInit {
         this.loadingUpcoming.set(false);
       },
     });
+  }
+
+  getSessionCode(s: any): string {
+    return getSessionCode(s);
+  }
+
+  getSessionDisplayTopic(s: any): string {
+    return getSessionDisplayTopic(s);
   }
 
   private loadCounts(): void {

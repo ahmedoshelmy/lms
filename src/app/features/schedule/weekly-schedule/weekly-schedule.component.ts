@@ -1,7 +1,7 @@
 import { Component, input, computed, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
-import { getSessionCode } from '../../../core/utils/session-code.utils';
+import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
 export type ViewMode = 'weekly' | 'daily';
@@ -401,6 +401,10 @@ export class WeeklyScheduleComponent {
 
   getSessionCode(s: any): string {
     return getSessionCode(s);
+  }
+
+  getSessionDisplayTopic(s: any): string {
+    return getSessionDisplayTopic(s);
   }
 
   formatTime(iso: string): string {

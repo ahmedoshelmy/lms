@@ -135,7 +135,7 @@
 
                   <!-- Topic / Course Title -->
                   <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
-                    {{ session.topic || session.courseTitle }}
+                    {{ getSessionDisplayTopic(session) }}
                   </h4>
 
                   <!-- Group Code & Location -->
@@ -313,7 +313,7 @@
                 </div>
 
                 <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
-                  {{ session.topic || session.courseTitle }}
+                  {{ getSessionDisplayTopic(session) }}
                 </h4>
 
                 <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">

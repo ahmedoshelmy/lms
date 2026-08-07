@@ -23,7 +23,7 @@ import { User } from '../../../core/interfaces/User';
 import { Course } from '../../../core/interfaces/Course';
 import { CourseLevel } from '../../../core/interfaces/CourseLevel';
 import { GroupHistory } from '../../../core/interfaces/History';
-import { getSessionCode } from '../../../core/utils/session-code.utils';
+import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -791,6 +791,10 @@ export class GroupDetailComponent implements OnInit {
 
   getSessionCode(s: any): string {
     return getSessionCode(s);
+  }
+
+  getSessionDisplayTopic(s: any): string {
+    return getSessionDisplayTopic(s);
   }
 
   getStatusIcon(status: string): string {
