@@ -3,6 +3,9 @@
 
   ::ng-deep {
     .p-datatable {
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+
       .p-datatable-header {
         background: transparent;
         border: none;
@@ -10,28 +13,40 @@
       }
 
       .p-datatable-thead > tr > th {
-        background-color: var(--color-background-alt, #f8fafc);
-        color: var(--color-text-secondary, #64748b);
+        background-color: var(--color-background-alt);
+        color: var(--color-text-secondary);
         font-weight: 600;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--color-border, #e2e8f0);
+        border-bottom: 1px solid var(--color-border);
       }
 
       .p-datatable-tbody > tr {
-        border-bottom: 1px solid var(--color-border, #f1f5f9);
+        background-color: var(--color-surface);
+        color: var(--color-text-primary);
+        border-bottom: 1px solid var(--color-border);
 
         > td {
           padding: 0.75rem 1rem;
+          color: var(--color-text-primary);
         }
       }
 
       .p-paginator {
         background: transparent;
+        color: var(--color-text-primary);
         border: none;
         padding-top: 1rem;
+
+        .p-paginator-page,
+        .p-paginator-first,
+        .p-paginator-prev,
+        .p-paginator-next,
+        .p-paginator-last {
+          color: var(--color-text-primary);
+        }
       }
     }
   }

@@ -1,55 +1,58 @@
-<div class="activity-logs-container">
+<div class="p-6 max-w-7xl mx-auto space-y-6">
   <!-- Page Header -->
-  <div class="page-header flex justify-between items-center mb-6">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-        <i class="pi pi-chart-line text-primary"></i>
+      <h1 class="text-2xl font-bold text-[var(--color-primary)] flex items-center gap-2">
+        <i class="pi pi-chart-line text-[var(--color-secondary)]"></i>
         Activity Audit & Analytics
       </h1>
-      <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">
+      <p class="text-sm text-[var(--color-text-secondary)] mt-1">
         Monitor real-time system actions, user activities, and API usage patterns.
       </p>
     </div>
-    <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm" (click)="fetchStats(); fetchLogs()"></button>
+    <div>
+      <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm rounded-xl" (click)="fetchStats(); fetchLogs()"></button>
+    </div>
   </div>
 
   <!-- Analytics Stats Section -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8" *ngIf="stats() as s">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5" *ngIf="stats() as s">
     <!-- Stat Card 1: Total Activities -->
-    <div class="stat-card bg-surface rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+    <div class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs flex items-center justify-between">
       <div>
-        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Total System Activities</span>
-        <div class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">{{ s.totalActivities | number }}</div>
-        <div class="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
+        <span class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider">Total System Activities</span>
+        <div class="text-3xl font-extrabold text-[var(--color-text-primary)] mt-1">{{ s.totalActivities | number }}</div>
+        <div class="text-xs text-[var(--color-success-foreground)] font-medium mt-2 flex items-center gap-1">
           <i class="pi pi-arrow-up text-xs"></i>
           <span>{{ s.todayActivities }} logged today</span>
         </div>
       </div>
-      <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-xl">
+      <div class="w-12 h-12 rounded-xl bg-[var(--color-info-background)] flex items-center justify-center text-[var(--color-secondary)] text-xl">
         <i class="pi pi-bolt"></i>
       </div>
     </div>
 
     <!-- Stat Card 2: Top Actions Used -->
-    <div class="stat-card bg-surface rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Top App Actions</span>
+        <span class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider">Top App Actions</span>
         <i class="pi pi-star text-amber-500"></i>
       </div>
       <div class="space-y-2">
         <div *ngFor="let item of s.topActions.slice(0, 3)" class="flex justify-between items-center text-sm">
-          <span class="font-medium text-slate-700 dark:text-slate-200 truncate max-w-[180px]">{{ item.action }}</span>
-          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-primary">
+          <span class="font-medium text-[var(--color-text-primary)] truncate max-w-[180px]">{{ item.action }}</span>
+          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-background-alt)] text-[var(--color-primary)]">
             {{ item.count }} ops
           </span>
         </div>
+        <div *ngIf="!s.topActions.length" class="text-xs text-[var(--color-text-muted)] italic">No actions recorded yet.</div>
       </div>
     </div>
 
     <!-- Stat Card 3: Activity Breakdown by Role -->
-    <div class="stat-card bg-surface rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Activity by User Role</span>
+        <span class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider">Activity by User Role</span>
         <i class="pi pi-users text-blue-500"></i>
       </div>
       <div class="space-y-2">
@@ -57,18 +60,19 @@
           <div class="flex items-center gap-2">
             <p-tag [value]="roleItem.role" [severity]="getRoleSeverity(roleItem.role)"></p-tag>
           </div>
-          <span class="font-semibold text-slate-700 dark:text-slate-200">{{ roleItem.count }} actions</span>
+          <span class="font-semibold text-[var(--color-text-primary)]">{{ roleItem.count }} actions</span>
         </div>
+        <div *ngIf="!s.activitiesByRole.length" class="text-xs text-[var(--color-text-muted)] italic">No role activity data.</div>
       </div>
     </div>
   </div>
 
   <!-- Audit Feed Table Container -->
-  <div class="bg-surface rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+  <div class="bg-[var(--color-surface)] rounded-2xl p-6 border border-[var(--color-border)] shadow-xs space-y-4">
     <!-- Search Bar & Filters -->
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-      <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-        <i class="pi pi-list text-primary"></i>
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+      <h2 class="text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2">
+        <i class="pi pi-list text-[var(--color-secondary)]"></i>
         Detailed Audit Feed
       </h2>
 
@@ -80,9 +84,9 @@
             [(ngModel)]="searchQuery"
             (keyup.enter)="onSearch()"
             placeholder="Search action, user, path..."
-            class="w-full sm:w-80 p-inputtext-sm pl-9 rounded-xl"
+            class="w-full sm:w-80 p-inputtext-sm pl-9 rounded-xl border-[var(--color-border)] text-[var(--color-text-primary)] bg-[var(--color-surface)]"
           />
-          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-sm"></i>
         </div>
         <button pButton icon="pi pi-search" label="Search" class="p-button-sm rounded-xl" (click)="onSearch()"></button>
       </div>
@@ -114,29 +118,29 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-log>
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-          <td class="whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+        <tr class="hover:bg-[var(--color-surface-hover)] transition-colors">
+          <td class="whitespace-nowrap text-xs text-[var(--color-text-secondary)]">
             {{ log.createdAt | date: 'medium' }}
           </td>
-          <td class="font-medium text-slate-800 dark:text-slate-200">
+          <td class="font-medium text-[var(--color-text-primary)]">
             {{ log.userName || 'System / Guest' }}
           </td>
           <td>
             <p-tag [value]="log.userRole || 'Guest'" [severity]="getRoleSeverity(log.userRole)"></p-tag>
           </td>
-          <td class="font-semibold text-slate-900 dark:text-white">
+          <td class="font-semibold text-[var(--color-text-primary)]">
             {{ log.action }}
           </td>
           <td>
             <p-tag [value]="log.method" [severity]="getMethodSeverity(log.method)"></p-tag>
           </td>
-          <td class="font-mono text-xs text-slate-600 dark:text-slate-300">
+          <td class="font-mono text-xs text-[var(--color-text-secondary)]">
             {{ log.path }}
           </td>
           <td>
             <p-tag [value]="log.statusCode.toString()" [severity]="getStatusSeverity(log.statusCode)"></p-tag>
           </td>
-          <td class="text-xs text-slate-500 dark:text-slate-400 max-w-xs truncate" [title]="log.details">
+          <td class="text-xs text-[var(--color-text-secondary)] max-w-xs truncate" [title]="log.details">
             {{ log.details || '-' }}
           </td>
         </tr>
@@ -146,10 +150,10 @@
       <ng-template pTemplate="emptymessage">
         <tr>
           <td colspan="8" class="text-center py-12">
-            <div class="flex flex-col items-center justify-center text-slate-400">
-              <i class="pi pi-inbox text-4xl mb-3 text-slate-300"></i>
-              <p class="font-semibold text-slate-600 dark:text-slate-300">No activity logs found</p>
-              <p class="text-xs text-slate-400 mt-1">Try clearing or updating your search filter.</p>
+            <div class="flex flex-col items-center justify-center text-[var(--color-text-muted)]">
+              <i class="pi pi-inbox text-4xl mb-3 text-[var(--color-text-muted)]"></i>
+              <p class="font-semibold text-[var(--color-text-primary)]">No activity logs found</p>
+              <p class="text-xs text-[var(--color-text-secondary)] mt-1">Try clearing or updating your search filter.</p>
             </div>
           </td>
         </tr>
