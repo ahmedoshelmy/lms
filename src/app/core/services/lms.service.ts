@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, map } from 'rxjs';
 import { Role } from '../interfaces/Role';
 import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
@@ -148,8 +148,11 @@ export class LmsService {
     return this.http.delete<void>(`${this.getApiUrl()}/topics/${id}`);
   }
 
-  getCourseLevels(topicId: number): Observable<CourseLevel[]> {
-    return this.http.get<CourseLevel[]>(`${this.getApiUrl()}/topics/${topicId}/levels`);
+  getCourseLevels(topicId?: number): Observable<CourseLevel[]> {
+    if (topicId) {
+      return this.http.get<CourseLevel[]>(`${this.getApiUrl()}/topics/${topicId}/levels`);
+    }
+    return this.getTopics().pipe(map((topics) => (topics || []).flatMap((t) => t.levels || [])));
   }
 
   createCourseLevel(topicId: number, payload: CreateCourseLevelPayload): Observable<CourseLevel> {

@@ -21,6 +21,7 @@ import { GroupCourse } from '../../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import { User } from '../../../core/interfaces/User';
 import { Course } from '../../../core/interfaces/Course';
+import { CourseLevel } from '../../../core/interfaces/CourseLevel';
 import { GroupHistory } from '../../../core/interfaces/History';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
@@ -50,6 +51,7 @@ const STATUS_MAP: Record<string, number> = {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     ProgressSpinnerModule,
     ButtonModule,
     DialogModule,
@@ -78,6 +80,7 @@ export class GroupDetailComponent implements OnInit {
   instructors = signal<User[]>([]);
   groupHistory = signal<GroupHistory | null>(null);
   courses = signal<Course[]>([]);
+  courseLevels = signal<CourseLevel[]>([]);
 
   // Promote Modal
   showPromoteModal = signal<boolean>(false);
@@ -104,8 +107,8 @@ export class GroupDetailComponent implements OnInit {
   availableCourses = computed(() => {
     const grp = this.group();
     if (!grp) return [];
-    const existingIds = new Set(grp.courses.map((c) => c.courseId));
-    return this.courses().filter((c) => !existingIds.has(c.id));
+    const existingIds = new Set(grp.courses.map((c) => c.courseLevelId || c.courseId));
+    return this.courseLevels().filter((c) => !existingIds.has(c.id));
   });
 
   // Computed recommendation for next level
@@ -114,9 +117,9 @@ export class GroupDetailComponent implements OnInit {
     if (!gh || !gh.courseHistory || gh.courseHistory.length === 0) return null;
     const lastCourse = gh.courseHistory[gh.courseHistory.length - 1];
     if (lastCourse && lastCourse.isCompleted) {
-      const nextLevelStr = (parseInt(lastCourse.level, 10) + 1).toString();
-      const match = this.courses().find(
-        (c) => c.topic.toLowerCase() === lastCourse.topic.toLowerCase() && c.level === nextLevelStr
+      const nextLevelInt = parseInt(lastCourse.level, 10) + 1;
+      const match = this.courseLevels().find(
+        (c) => (c.topicName || '').toLowerCase() === (lastCourse.topic || '').toLowerCase() && c.level === nextLevelInt
       );
       return {
         completedCourseTitle: lastCourse.courseTitle,
@@ -322,8 +325,8 @@ export class GroupDetailComponent implements OnInit {
   }
 
   loadCourses(): void {
-    this.lmsService.getCourses().subscribe({
-      next: (data) => this.courses.set(data || []),
+    this.lmsService.getCourseLevels().subscribe({
+      next: (data) => this.courseLevels.set(data || []),
       error: () => {},
     });
   }
