@@ -195,6 +195,17 @@ export class GroupDetailComponent implements OnInit {
   removingCourseSessionCount = signal<number>(0);
   removingCourse = signal<boolean>(false);
 
+  // Single Unified Group Course Management Modal
+  showManageCourseModal = signal<boolean>(false);
+  selectedCourseForManagement = signal<GroupCourse | null>(null);
+  manageCourseCurrentSession = signal<number>(0);
+  manageCourseTotalSessions = signal<number>(12);
+  manageCourseStatus = signal<string>('Active');
+  manageCourseCustomStartDate = signal<string>('');
+  manageCourseCustomCount = signal<number | null>(null);
+  manageCourseIncludeToday = signal<boolean>(true);
+  savingCourseManagement = signal<boolean>(false);
+
   // Custom Session Generation Modal
   showCustomGenerateModal = signal<boolean>(false);
   customGenerateGroupCourseId = signal<number>(0);
@@ -614,6 +625,110 @@ export class GroupDetailComponent implements OnInit {
         this.saving.set(false);
       },
     });
+  }
+
+  openManageCourseModal(course: GroupCourse): void {
+    this.selectedCourseForManagement.set(course);
+    this.manageCourseCurrentSession.set(course.currentSessionNumber || 0);
+    this.manageCourseTotalSessions.set(course.totalSessions || course.sessionCount || 12);
+    this.manageCourseStatus.set(course.status || 'Active');
+    this.manageCourseCustomStartDate.set(new Date().toISOString().split('T')[0]);
+    this.manageCourseCustomCount.set(null);
+    this.manageCourseIncludeToday.set(true);
+    this.showManageCourseModal.set(true);
+  }
+
+  saveManagedCourseDetails(): void {
+    const course = this.selectedCourseForManagement();
+    const grp = this.group();
+    if (!course || !grp) return;
+
+    this.savingCourseManagement.set(true);
+
+    const payload: UpdateGroupPayload = {
+      name: grp.name,
+      startDate: grp.startDate ? grp.startDate.split('T')[0] : '',
+      endDate: grp.endDate ? grp.endDate.split('T')[0] : '',
+      defaultInstructorId: grp.defaultInstructorId,
+      status: STATUS_MAP[grp.status] ?? 0,
+      courses: [
+        {
+          groupCourseId: course.id,
+          courseLevelId: course.courseLevelId || course.courseId,
+          totalSessions: Number(this.manageCourseTotalSessions()) || 12,
+          currentSessionNumber: Number(this.manageCourseCurrentSession()) || 0,
+          isActive: this.manageCourseStatus() === 'Active',
+          status: this.manageCourseStatus() as any,
+        },
+      ],
+    };
+
+    this.lmsService.updateGroup(grp.id, payload).subscribe({
+      next: () => {
+        this.notify.showSuccess(`Course settings for "${course.title}" updated.`);
+        this.savingCourseManagement.set(false);
+        this.showManageCourseModal.set(false);
+        this.loadGroupDetail(grp.id);
+      },
+      error: (err) => {
+        this.notify.showError(`Failed to update course: ${err.error?.message || 'Server error'}`);
+        this.savingCourseManagement.set(false);
+      },
+    });
+  }
+
+  generateCustomSessionsFromManagedModal(): void {
+    const course = this.selectedCourseForManagement();
+    if (!course) return;
+
+    this.generatingCustom.set(true);
+
+    const payload = {
+      groupCourseId: course.id,
+      count: this.manageCourseCustomCount() || undefined,
+      startFromDate: this.manageCourseCustomStartDate() || undefined,
+      includeTodayIfMatching: this.manageCourseIncludeToday(),
+    };
+
+    this.lmsService.generateCustomSessions(payload).subscribe({
+      next: (res) => {
+        this.notify.showSuccess(res.message || 'Custom sessions generated successfully.');
+        this.generatingCustom.set(false);
+        this.showManageCourseModal.set(false);
+        this.loadGroupDetail(this.groupId());
+      },
+      error: (err) => {
+        this.notify.showError(err.error?.message || 'Failed to generate custom sessions.');
+        this.generatingCustom.set(false);
+      },
+    });
+  }
+
+  regenerateSessionsFromManagedModal(): void {
+    const course = this.selectedCourseForManagement();
+    if (!course) return;
+
+    this.regeneratingCourseId.set(course.courseId);
+
+    this.lmsService.generateGroupCourseSessions(course.id).subscribe({
+      next: (res) => {
+        this.notify.showSuccess(res.message || 'Sessions regenerated successfully.');
+        this.regeneratingCourseId.set(null);
+        this.showManageCourseModal.set(false);
+        this.loadGroupDetail(this.groupId());
+      },
+      error: (err) => {
+        this.notify.showError(err.error?.message || 'Failed to regenerate sessions.');
+        this.regeneratingCourseId.set(null);
+      },
+    });
+  }
+
+  removeCourseFromManagedModal(): void {
+    const course = this.selectedCourseForManagement();
+    if (!course) return;
+    this.showManageCourseModal.set(false);
+    this.openRemoveCourseModal(course.courseId);
   }
 
   getStatusCss(status: string): string {
