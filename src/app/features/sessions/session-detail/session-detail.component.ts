@@ -9,7 +9,7 @@ import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Role } from '../../../core/interfaces/Role';
+import { Role, parseRole } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { ScheduleSession, SessionAttendanceItem, UpdateSessionPayload } from '../../../core/interfaces/ScheduleSession';
 import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
@@ -430,7 +430,11 @@ export class SessionDetailComponent implements OnInit {
   private loadInstructors(): void {
     this.lms.getInstructors().subscribe({
       next: (users) => {
-        this.instructors.set((users || []).filter((u) => u.role === Role.Instructor));
+        this.instructors.set(
+          (users || []).filter(
+            (u) => parseRole(u.role) === Role.Instructor || (u.role as any) === 'Instructor'
+          )
+        );
       },
       error: () => {},
     });

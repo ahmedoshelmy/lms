@@ -77,7 +77,7 @@
           (ngModelChange)="instructorId.set($event)"
         >
           <option [ngValue]="null" disabled>Select Instructor</option>
-          @for (inst of instructors(); track inst.id) {
+          @for (inst of realInstructors(); track inst.id) {
             <option [value]="inst.id">{{ inst.name }}</option>
           }
         </select>

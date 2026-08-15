@@ -7,7 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Role } from '../../core/interfaces/Role';
+import { Role, parseRole } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 import { Group } from '../../core/interfaces/Group';
@@ -200,7 +200,9 @@ export class AttendanceComponent implements OnInit {
     if (this.isAdmin()) {
       this.lms.getInstructors().subscribe({
         next: (users) => {
-          const filtered = (users || []).filter((u) => u.role === Role.Instructor);
+          const filtered = (users || []).filter(
+            (u) => parseRole(u.role) === Role.Instructor || (u.role as any) === 'Instructor'
+          );
           this.instructors.set([
             { id: 0, name: 'All Instructors', email: '', role: Role.Instructor },
             ...filtered,

@@ -15,7 +15,7 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { Role } from '../../core/interfaces/Role';
+import { Role, parseRole } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 
@@ -198,9 +198,9 @@ export class ScheduleComponent implements OnInit {
       return;
     }
 
-    if (this.isAdmin) {
-      this.loadInstructors();
-    } else {
+    this.loadInstructors();
+
+    if (!this.isAdmin) {
       const userId = this.auth.getUserId();
       if (userId) {
         this.selectedInstructorId.set(userId);
@@ -269,19 +269,23 @@ export class ScheduleComponent implements OnInit {
 
   loadInstructors(): void {
     this.loading.set(true);
-    this.lmsService.getInstructors().subscribe({
+    this.lmsService.getScheduleInstructors().subscribe({
       next: (users) => {
-        const filtered = (users || []).filter((u) => u.role === Role.Instructor);
+        const filtered = (users || []).filter(
+          (u) => parseRole(u.role) === Role.Instructor || (u.role as any) === 'Instructor'
+        );
         const options: User[] = [
           { id: 0, name: 'All Instructors', email: '', role: Role.Instructor },
           ...filtered,
         ];
         this.instructors.set(options);
-        if (options.length > 0) {
-          this.selectedInstructorId.set(options[0].id);
-          this.loadSchedule();
-        } else {
-          this.loading.set(false);
+        if (this.isAdmin) {
+          if (options.length > 0) {
+            this.selectedInstructorId.set(options[0].id);
+            this.loadSchedule();
+          } else {
+            this.loading.set(false);
+          }
         }
       },
       error: (err) => {

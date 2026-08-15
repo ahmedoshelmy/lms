@@ -1,4 +1,4 @@
-import { Component, input, output, signal, inject, OnInit } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { LmsService } from '../../../../core/services/lms.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { User } from '../../../../core/interfaces/User';
+import { Role, parseRole } from '../../../../core/interfaces/Role';
 import { SessionType } from '../../../../core/enums/SessionType';
 import { CreateStandaloneSessionPayload } from '../../../../core/interfaces/ScheduleSession';
 
@@ -24,6 +25,13 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
   instructors = input<User[]>([]);
   close = output<void>();
   sessionCreated = output<void>();
+
+  fetchedInstructors = signal<User[]>([]);
+  readonly realInstructors = computed(() => {
+    const fromProps = (this.instructors() || []).filter((i) => i.id > 0);
+    if (fromProps.length > 0) return fromProps;
+    return this.fetchedInstructors();
+  });
 
   students = signal<User[]>([]);
   loadingStudents = signal<boolean>(false);
@@ -45,6 +53,19 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchStudents();
+    this.fetchInstructors();
+  }
+
+  fetchInstructors(): void {
+    this.lmsService.getScheduleInstructors().subscribe({
+      next: (data) => {
+        const list = (data || []).filter(
+          (u) => parseRole(u.role) === Role.Instructor || (u.role as any) === 'Instructor'
+        );
+        this.fetchedInstructors.set(list);
+      },
+      error: () => {},
+    });
   }
 
   fetchStudents(): void {

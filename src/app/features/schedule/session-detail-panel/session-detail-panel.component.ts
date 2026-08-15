@@ -9,7 +9,7 @@ import { ScheduleSession, UpdateSessionPayload } from '../../../core/interfaces/
 import { LmsService } from '../../../core/services/lms.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { Role } from '../../../core/interfaces/Role';
+import { Role, parseRole } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
 
@@ -123,7 +123,11 @@ export class SessionDetailPanelComponent {
   private loadInstructors(): void {
     this.lms.getInstructors().subscribe({
       next: (users) => {
-        this.instructors.set((users || []).filter((u) => u.role === Role.Instructor));
+        this.instructors.set(
+          (users || []).filter(
+            (u) => parseRole(u.role) === Role.Instructor || (u.role as any) === 'Instructor'
+          )
+        );
       },
       error: () => {
         // Silently ignore — edit still works without instructor list

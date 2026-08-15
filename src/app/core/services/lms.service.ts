@@ -112,6 +112,10 @@ export class LmsService {
     return this.http.get<User[]>(`${this.getApiUrl()}/instructors`);
   }
 
+  getScheduleInstructors(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.getApiUrl()}/schedule/instructors`);
+  }
+
   createUser(payload: CreateUserPayload): Observable<User> {
     return this.http.post<User>(`${this.getApiUrl()}/users`, payload);
   }
