@@ -9,7 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { LmsService } from '../../../core/services/lms.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Role } from '../../../core/interfaces/Role';
+import { Role, parseRole } from '../../../core/interfaces/Role';
 import {
   Group,
   GroupStudent,
@@ -828,7 +828,9 @@ export class GroupDetailComponent implements OnInit {
     this.selectedStudentToMove.set(null);
     this.lmsService.getStudents().subscribe({
       next: (users) => {
-        const studentsOnly = (users || []).filter((u) => u.role === Role.Student);
+        const studentsOnly = (users || []).filter(
+          (u) => parseRole(u.role) === Role.Student || (u.role as any) === 'Student'
+        );
         this.allSystemStudents.set(studentsOnly);
         this.showAddStudentModal.set(true);
       },

@@ -51,7 +51,7 @@ export class CoursesComponent implements OnInit {
   levelDescription = signal('');
   levelSessionCount = signal<number>(12);
 
-  readonly isAdmin = computed(() => this.auth.currentRole() === Role.Admin);
+  readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
   readonly filteredTopics = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
