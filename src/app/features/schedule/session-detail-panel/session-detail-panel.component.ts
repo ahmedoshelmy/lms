@@ -48,6 +48,7 @@ export class SessionDetailPanelComponent {
   session = input<ScheduleSession | null>(null);
   closed = output<void>();
   sessionUpdated = output<ScheduleSession>();
+  sessionDeleted = output<number>();
 
   instructors = signal<User[]>([]);
   editInstructorId = signal<number>(0);
@@ -57,8 +58,10 @@ export class SessionDetailPanelComponent {
   editDate = signal<string>('');
   shiftUpcomingSchedule = signal<boolean>(true);
   saving = signal(false);
+  deleting = signal(false);
 
   showFutureWeekConfirmModal = signal<boolean>(false);
+  showDeleteConfirmModal = signal<boolean>(false);
 
   /** True when the pending status is Cancelled */
   readonly isCancelled = computed(() => (this.editStatus() ?? '').toLowerCase().includes('cancel'));
@@ -271,6 +274,25 @@ export class SessionDetailPanelComponent {
           this.notify.showError('Failed to cancel session: ' + (err.error?.message || 'Error'));
         },
       });
+  }
+
+  confirmDelete(): void {
+    const s = this.session();
+    if (!s) return;
+    this.deleting.set(true);
+    this.lms.deleteSession(s.id).subscribe({
+      next: (res: any) => {
+        this.deleting.set(false);
+        this.showDeleteConfirmModal.set(false);
+        this.notify.showSuccess(res?.message || 'Session deleted successfully.');
+        this.sessionDeleted.emit(s.id);
+        this.closed.emit();
+      },
+      error: (err) => {
+        this.deleting.set(false);
+        this.notify.showError(err.error?.message || 'Failed to delete session.');
+      },
+    });
   }
 
   formatTime(isoString: string): string {

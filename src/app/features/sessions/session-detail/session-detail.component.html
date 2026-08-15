@@ -63,9 +63,16 @@
         </div>
 
         @if (canEdit() && !isEditing()) {
-          <div class="session-hero__edit">
+          <div class="session-hero__edit flex items-center gap-2">
             <button type="button" class="edit-trigger-btn" (click)="startEditing()">
               <i class="pi pi-pencil"></i> Edit Session
+            </button>
+            <button
+              type="button"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800/40 transition-colors cursor-pointer flex items-center gap-1.5"
+              (click)="showDeleteModal.set(true)"
+            >
+              <i class="pi pi-trash"></i> Delete Session
             </button>
           </div>
         }
@@ -499,6 +506,56 @@
           <i class="pi pi-spinner pi-spin"></i>
         }
         Proceed with Cancel &amp; Shift
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- PROMPT DIALOG FOR DELETING SESSION -->
+<p-dialog
+  [(visible)]="showDeleteModal"
+  header="Delete Session"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="py-2 space-y-3">
+    <div
+      class="p-3 rounded-lg bg-red-50 border border-red-200 dark:bg-red-950/30 dark:border-red-800/30 text-red-900 dark:text-red-200 text-xs space-y-2"
+    >
+      <div class="flex items-center gap-2 font-bold text-sm text-red-800 dark:text-red-300">
+        <i class="pi pi-trash"></i>
+        Permanently Delete Session
+      </div>
+      <p>
+        Are you sure you want to delete session <strong>"{{ session()?.topic }}"</strong>?
+      </p>
+      <p class="text-[11px] text-red-700 dark:text-red-300">
+        Note: If this session already has recorded attendance, it will be safely marked as Cancelled instead of permanently deleted to preserve student attendance history.
+      </p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showDeleteModal.set(false)"
+        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmDeleteSession()"
+        [disabled]="deleting()"
+        class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer shadow"
+      >
+        @if (deleting()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Delete Session
       </button>
     </div>
   </ng-template>

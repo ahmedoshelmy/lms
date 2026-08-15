@@ -321,6 +321,12 @@ export class LmsService {
     return this.http.get<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${id}`);
   }
 
+  deleteSession(id: number): Observable<{ message?: string } | void> {
+    return this.http.delete<{ message?: string } | void>(
+      `${this.getApiUrl()}/schedule/sessions/${id}`
+    );
+  }
+
   // ─── Attendance ───────────────────────────────────────────────────────────
 
   getSessionAttendance(sessionId: number): Observable<AttendanceResponseDto[]> {

@@ -120,7 +120,9 @@ export class SessionDetailComponent implements OnInit {
   editEndTime = signal<string>('');
   editDate = signal<string>('');
   shiftUpcomingSchedule = signal<boolean>(true);
-  showFutureWeekConfirmModal = signal(false);
+  deleting = signal(false);
+  showFutureWeekConfirmModal = signal<boolean>(false);
+  showDeleteModal = signal<boolean>(false);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Instructor) || this.auth.hasRole(Role.Admin));
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
@@ -605,6 +607,24 @@ export class SessionDetailComponent implements OnInit {
           this.notify.showError('Failed to cancel session: ' + (err.error?.message || 'Error'));
         },
       });
+  }
+
+  confirmDeleteSession(): void {
+    const s = this.session();
+    if (!s) return;
+    this.deleting.set(true);
+    this.lms.deleteSession(s.id).subscribe({
+      next: (res: any) => {
+        this.deleting.set(false);
+        this.showDeleteModal.set(false);
+        this.notify.showSuccess(res?.message || 'Session deleted successfully.');
+        this.router.navigate(['/schedule']);
+      },
+      error: (err) => {
+        this.deleting.set(false);
+        this.notify.showError(err.error?.message || 'Failed to delete session.');
+      },
+    });
   }
 
   goBack(): void {

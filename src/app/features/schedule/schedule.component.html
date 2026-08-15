@@ -406,6 +406,7 @@
   [session]="selectedSession()"
   (closed)="onPanelClosed()"
   (sessionUpdated)="onSessionUpdated($event)"
+  (sessionDeleted)="loadSchedule()"
 />
 
 <!-- Cancel & Reschedule Session Dialog -->
