@@ -8,12 +8,12 @@ export interface SessionAttendanceItem {
 
 export interface ScheduleSession {
   id: number;
-  groupCourseId: number;
+  groupCourseId?: number;
   courseLevelId?: number;
   courseId?: number;
   courseTitle: string;
   groupName: string;
-  groupId: number;
+  groupId?: number;
   topic: string;
   sessionNumber: number;
   startsAt: string;
@@ -30,6 +30,17 @@ export interface ScheduleSession {
   type: string;
   cancellationReason?: string;
   attendances?: SessionAttendanceItem[];
+}
+
+export interface CreateStandaloneSessionPayload {
+  instructorId: number;
+  type: number | string; // 2 = MakeupSession, 3 = TrialSession, 4 = RecapSession
+  startsAt: string;
+  endsAt: string;
+  topic: string;
+  location?: string;
+  studentIds?: number[];
+  groupCourseId?: number;
 }
 
 export interface UpdateSessionPayload {

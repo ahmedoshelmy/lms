@@ -21,6 +21,8 @@ import { User } from '../../core/interfaces/User';
 
 import { DialogModule } from 'primeng/dialog';
 
+import { CreateStandaloneSessionDialogComponent } from './components/create-standalone-session-dialog/create-standalone-session-dialog.component';
+
 export type ExtendedViewMode =
   | 'weekly'
   | 'daily'
@@ -47,6 +49,7 @@ export type ExtendedViewMode =
     DailyAvailabilityMatrixComponent,
     InstructorAvailabilityMatrixComponent,
     ScheduleAnalyticsComponent,
+    CreateStandaloneSessionDialogComponent,
   ],
   templateUrl: './schedule.component.html',
   styleUrl: './schedule.component.scss',
@@ -59,6 +62,8 @@ export class ScheduleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+
+  showStandaloneSessionModal = signal<boolean>(false);
 
   sessions = signal<ScheduleSession[]>([]);
   instructors = signal<User[]>([]);
@@ -169,6 +174,10 @@ export class ScheduleComponent implements OnInit {
 
   get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
+  }
+
+  get isInstructor(): boolean {
+    return this.auth.hasRole(Role.Instructor);
   }
 
   get totalSessionsThisWeek(): number {

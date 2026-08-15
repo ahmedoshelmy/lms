@@ -55,6 +55,18 @@
         (click)="goToToday()"
         aria-label="Jump to today"
       ></button>
+
+      @if (isAdmin || isInstructor) {
+        <button
+          pButton
+          type="button"
+          label="Add Session"
+          icon="pi pi-plus"
+          class="p-button-primary p-button-sm cursor-pointer shrink-0 rounded-2xl"
+          (click)="showStandaloneSessionModal.set(true)"
+          aria-label="Add standalone session"
+        ></button>
+      }
     </div>
   </div>
 
@@ -460,3 +472,12 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<!-- Create Standalone Session Dialog -->
+<app-create-standalone-session-dialog
+  [visible]="showStandaloneSessionModal()"
+  [instructors]="instructors()"
+  (close)="showStandaloneSessionModal.set(false)"
+  (sessionCreated)="loadSchedule()"
+/>
+

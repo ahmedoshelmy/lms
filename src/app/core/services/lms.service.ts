@@ -26,8 +26,16 @@ import {
   CancelUpcomingSessionsPayload,
   CancelUpcomingSessionsResult,
 } from '../interfaces/Group';
-import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
-import { ScheduleSession, UpdateSessionPayload, ApplySessionForwardPayload } from '../interfaces/ScheduleSession';
+import {
+  GroupCourse,
+  UpdateCurrentSessionNumberDto,
+} from '../interfaces/GroupCourse';
+import {
+  ScheduleSession,
+  UpdateSessionPayload,
+  ApplySessionForwardPayload,
+  CreateStandaloneSessionPayload,
+} from '../interfaces/ScheduleSession';
 import {
   GroupHistory,
   PromoteGroupNextLevelPayload,
@@ -294,6 +302,13 @@ export class LmsService {
   applySessionForward(id: number, payload: ApplySessionForwardPayload): Observable<ScheduleSession> {
     return this.http.put<ScheduleSession>(
       `${this.getApiUrl()}/Schedule/sessions/${id}/apply-forward`,
+      payload
+    );
+  }
+
+  createStandaloneSession(payload: CreateStandaloneSessionPayload): Observable<ScheduleSession> {
+    return this.http.post<ScheduleSession>(
+      `${this.getApiUrl()}/schedule/sessions/standalone`,
       payload
     );
   }
