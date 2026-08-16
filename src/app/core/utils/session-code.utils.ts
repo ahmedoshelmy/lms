@@ -1,42 +1,45 @@
-export function getSessionCode(s: any): string {
-  if (!s) return 'S1';
-
-  // 1. Topic Code
-  let topicCode = '';
+function resolveTopicCode(s: any): string {
   const topicText = (s.topic || s.courseTitle || s.groupName || '').trim();
 
-  if (/mobile|app dev/i.test(topicText)) topicCode = 'MA';
-  else if (/python/i.test(topicText)) topicCode = 'PY';
-  else if (/arduino/i.test(topicText)) topicCode = 'AR';
-  else if (/wedo|robotics/i.test(topicText)) topicCode = 'WE';
-  else if (/\bai\b|machine learning|artificial/i.test(topicText)) topicCode = 'AI';
-  else if (/programming|basics/i.test(topicText)) topicCode = 'PB';
-  else {
-    const words = topicText.split(/[\s-_]+/).filter((w: string) => w.length > 0);
-    if (words.length >= 2) {
-      topicCode = (words[0][0] + words[1][0]).toUpperCase();
-    } else if (words.length === 1) {
-      topicCode = words[0].slice(0, 2).toUpperCase();
-    } else {
-      topicCode = 'CS';
-    }
-  }
+  if (/mobile|app dev/i.test(topicText)) return 'MA';
+  if (/python/i.test(topicText)) return 'PY';
+  if (/arduino/i.test(topicText)) return 'AR';
+  if (/wedo|robotics/i.test(topicText)) return 'WE';
+  if (/\bai\b|machine learning|artificial/i.test(topicText)) return 'AI';
+  if (/programming|basics/i.test(topicText)) return 'PB';
 
-  // 2. Level
+  const words = topicText.split(/[\s-_]+/).filter((w: string) => w.length > 0);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return 'CS';
+}
+
+function resolveLevelStr(s: any): string {
   let levelNum = s.level;
   if (!levelNum) {
     const match = (s.courseTitle || s.groupName || s.topic || '').match(/L(\d+)|Level\s*(\d+)/i);
-    if (match) {
-      levelNum = parseInt(match[1] || match[2], 10);
-    }
+    if (match) levelNum = parseInt(match[1] || match[2], 10);
   }
-  const levelStr = `L${levelNum || 1}`;
+  return `L${levelNum || 1}`;
+}
 
-  // 3. Session Number
+/** Returns the full session code (e.g. "PY-L2-S3"). */
+export function getSessionCode(s: any): string {
+  if (!s) return 'S1';
+  const topicCode = resolveTopicCode(s);
+  const levelStr = resolveLevelStr(s);
   const sessionNum = s.currentSessionNumber || s.sessionNumber || s.orderIndex || 1;
-  const sessionStr = `S${sessionNum}`;
+  return `${topicCode}-${levelStr}-S${sessionNum}`;
+}
 
-  return `${topicCode}-${levelStr}-${sessionStr}`;
+/**
+ * Returns just the topic-level code (e.g. "PY-L2") without the redundant
+ * session-number suffix. Use this alongside a separate "N/total" counter
+ * to avoid displaying the session number twice.
+ */
+export function getSessionBaseCode(s: any): string {
+  if (!s) return 'CS';
+  return `${resolveTopicCode(s)}-${resolveLevelStr(s)}`;
 }
 
 export function getSessionDisplayTopic(s: any): string {

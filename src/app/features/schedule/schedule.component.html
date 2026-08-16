@@ -224,8 +224,8 @@
         </p-select>
       }
 
-      <!-- Instructor filter -->
-      @if (uniqueInstructors().length > 0) {
+      <!-- Instructor filter (Admin only — instructors already see only their own sessions) -->
+      @if (isAdmin && uniqueInstructors().length > 0) {
         <p-select
           [options]="uniqueInstructors()"
           [ngModel]="instructorFilter()"

@@ -129,7 +129,7 @@
                     </div>
 
                     <span class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
-                      {{ getSessionCode(session) }} ({{ session.currentSessionNumber }}/{{ session.totalSessions || 12 }})
+                      {{ getSessionBaseCode(session) }} &middot; {{ session.currentSessionNumber }}/{{ session.totalSessions || '?' }}
                     </span>
                   </div>
 
@@ -308,7 +308,7 @@
                   </div>
 
                   <span class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
-                    {{ getSessionCode(session) }} ({{ session.currentSessionNumber }}/{{ session.totalSessions || 12 }})
+                    {{ getSessionBaseCode(session) }} &middot; {{ session.currentSessionNumber }}/{{ session.totalSessions || '?' }}
                   </span>
                 </div>
 
