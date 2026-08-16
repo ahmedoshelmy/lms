@@ -144,28 +144,40 @@ export class ScheduleComponent implements OnInit {
 
     for (let i = 0; i < list.length; i++) {
       const s1 = list[i];
-      if (!s1.startsAt || !s1.endsAt) continue;
+      // Skip cancelled sessions — they are not real conflicts
+      if ((s1.status ?? '').toLowerCase().includes('cancel')) continue;
+      if (!s1.startsAt) continue;
       const start1 = new Date(s1.startsAt).getTime();
-      const end1 = new Date(s1.endsAt).getTime();
+      const end1 = s1.endsAt
+        ? new Date(s1.endsAt).getTime()
+        : start1 + (s1.durationMinutes || 60) * 60000;
+
+      const name1 = (s1.instructorName || '').trim().toLowerCase();
+      if (!name1 || name1 === 'unassigned') continue;
 
       for (let j = i + 1; j < list.length; j++) {
         const s2 = list[j];
-        if (!s2.startsAt || !s2.endsAt) continue;
+        // Skip cancelled sessions
+        if ((s2.status ?? '').toLowerCase().includes('cancel')) continue;
+        if (!s2.startsAt) continue;
         const start2 = new Date(s2.startsAt).getTime();
-        const end2 = new Date(s2.endsAt).getTime();
+        const end2 = s2.endsAt
+          ? new Date(s2.endsAt).getTime()
+          : start2 + (s2.durationMinutes || 60) * 60000;
+
+        const name2 = (s2.instructorName || '').trim().toLowerCase();
+        if (!name2 || name2 === 'unassigned') continue;
+
+        const sameInstructor =
+          (s1.instructorId && s2.instructorId && s1.instructorId === s2.instructorId) ||
+          name1 === name2;
+
+        if (!sameInstructor) continue;
 
         const isTimeOverlap = start1 < end2 && start2 < end1;
         if (isTimeOverlap) {
-          const sameInstructor =
-            s1.instructorName &&
-            s2.instructorName &&
-            s1.instructorName.toLowerCase() !== 'unassigned' &&
-            s1.instructorName === s2.instructorName;
-
-          if (sameInstructor) {
-            conflicts.add(s1.id);
-            conflicts.add(s2.id);
-          }
+          conflicts.add(s1.id);
+          conflicts.add(s2.id);
         }
       }
     }

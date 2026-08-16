@@ -5,6 +5,7 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { LmsService } from '../../../../core/services/lms.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { User } from '../../../../core/interfaces/User';
 import { Role, parseRole } from '../../../../core/interfaces/Role';
 import { SessionType } from '../../../../core/enums/SessionType';
@@ -20,6 +21,11 @@ import { CreateStandaloneSessionPayload } from '../../../../core/interfaces/Sche
 export class CreateStandaloneSessionDialogComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
+  private auth = inject(AuthService);
+
+  private get isAdmin(): boolean {
+    return this.auth.hasRole(Role.Admin);
+  }
 
   visible = input<boolean>(false);
   instructors = input<User[]>([]);
@@ -52,7 +58,9 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
   SessionTypeEnum = SessionType;
 
   ngOnInit(): void {
-    this.fetchStudents();
+    if (this.isAdmin) {
+      this.fetchStudents();
+    }
     this.fetchInstructors();
   }
 
