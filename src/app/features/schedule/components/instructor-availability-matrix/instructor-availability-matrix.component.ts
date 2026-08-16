@@ -32,25 +32,31 @@ export interface TimeSlot {
             Instructor weekly schedule & availability
           </h3>
           <p class="text-xs text-[var(--color-text-muted)]">
-            View weekly workload and availability for an individual instructor
+            @if (isAdmin()) {
+              View weekly workload and availability for an individual instructor
+            } @else {
+              Your weekly workload and availability for this week
+            }
           </p>
         </div>
 
-        <!-- Instructor Filter Dropdown -->
-        <div class="flex items-center gap-2">
-          <label class="text-xs font-semibold text-[var(--color-text-secondary)]">
-            Select Instructor:
-          </label>
-          <p-select
-            [options]="instructorOptions()"
-            [ngModel]="selectedInstructorId()"
-            (ngModelChange)="onInstructorChange($event)"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select Instructor"
-            styleClass="p-inputtext-sm w-56"
-          />
-        </div>
+        <!-- Instructor Filter Dropdown — Admin only -->
+        @if (isAdmin()) {
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-semibold text-[var(--color-text-secondary)]">
+              Select Instructor:
+            </label>
+            <p-select
+              [options]="instructorOptions()"
+              [ngModel]="selectedInstructorId()"
+              (ngModelChange)="onInstructorChange($event)"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Instructor"
+              styleClass="p-inputtext-sm w-56"
+            />
+          </div>
+        }
       </div>
 
       <!-- Instructor Summary Header Card -->
@@ -175,6 +181,7 @@ export class InstructorAvailabilityMatrixComponent {
   sessions = input<ScheduleSession[]>([]);
   instructors = input<User[]>([]);
   currentWeekStart = input<Date>(new Date());
+  isAdmin = input<boolean>(false);
 
   sessionSelected = output<ScheduleSession>();
 

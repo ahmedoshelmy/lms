@@ -389,6 +389,7 @@
         [sessions]="sessions()"
         [instructors]="instructors()"
         [currentWeekStart]="currentWeekStart()"
+        [isAdmin]="isAdmin"
         (sessionSelected)="onSessionSelected($event)"
       />
     } @else if (viewMode() === 'analytics') {
