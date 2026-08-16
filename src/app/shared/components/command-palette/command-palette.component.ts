@@ -12,6 +12,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { Role } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { Group } from '../../../core/interfaces/Group';
 import { Course } from '../../../core/interfaces/Course';
@@ -145,6 +147,11 @@ export interface CommandItem {
 export class CommandPaletteComponent implements OnInit {
   private router = inject(Router);
   private lms = inject(LmsService);
+  private auth = inject(AuthService);
+
+  private get isAdmin(): boolean {
+    return this.auth.hasRole(Role.Admin);
+  }
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
@@ -160,11 +167,11 @@ export class CommandPaletteComponent implements OnInit {
     { id: 'attendance', label: 'Attendance Management', category: 'Navigation', icon: 'pi-check-square', route: ['/attendance'] },
     { id: 'courses', label: 'Course Catalog', category: 'Navigation', icon: 'pi-book', route: ['/courses'] },
     { id: 'groups', label: 'Cohort Groups', category: 'Navigation', icon: 'pi-users', route: ['/groups'] },
-    { id: 'students', label: 'Student Directory', category: 'Navigation', icon: 'pi-user', route: ['/students'] },
-    { id: 'instructors', label: 'Instructor Roster', category: 'Navigation', icon: 'pi-user-edit', route: ['/instructors'] },
+    { id: 'students', label: 'Student Directory', category: 'Navigation', icon: 'pi-user', route: ['/students'], adminOnly: true },
+    { id: 'instructors', label: 'Instructor Roster', category: 'Navigation', icon: 'pi-user-edit', route: ['/instructors'], adminOnly: true },
     { id: 'profile', label: 'My Profile Settings', category: 'Navigation', icon: 'pi-id-card', route: ['/profile'] },
-    { id: 'settings', label: 'System Settings & Diagnostics', category: 'Navigation', icon: 'pi-cog', route: ['/settings'] },
-  ];
+    { id: 'settings', label: 'System Settings & Diagnostics', category: 'Navigation', icon: 'pi-cog', route: ['/settings'], adminOnly: true },
+  ] as (CommandItem & { adminOnly?: boolean })[];
 
   readonly filteredItems = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
@@ -244,24 +251,32 @@ export class CommandPaletteComponent implements OnInit {
   }
 
   private loadCatalogData(): void {
-    const catalog: CommandItem[] = [...this.staticNavItems];
+    // Only include admin-only nav items when the user is an admin
+    const navItems = (this.staticNavItems as (CommandItem & { adminOnly?: boolean })[]).filter(
+      (item) => !item.adminOnly || this.isAdmin
+    );
+    const catalog: CommandItem[] = [...navItems];
 
-    // Load Students
-    this.lms.getStudents().subscribe({
-      next: (students) => {
-        (students || []).forEach((s) => {
-          catalog.push({
-            id: `student-${s.id}`,
-            label: s.name,
-            detail: s.email,
-            category: 'Student',
-            icon: 'pi-user',
-            route: ['/students'],
+    // Load Students — admin only (instructors get 403)
+    if (this.isAdmin) {
+      this.lms.getStudents().subscribe({
+        next: (students) => {
+          (students || []).forEach((s) => {
+            catalog.push({
+              id: `student-${s.id}`,
+              label: s.name,
+              detail: s.email,
+              category: 'Student',
+              icon: 'pi-user',
+              route: ['/students'],
+            });
           });
-        });
-        this.allItems.set([...catalog]);
-      },
-    });
+          this.allItems.set([...catalog]);
+        },
+      });
+    } else {
+      this.allItems.set([...catalog]);
+    }
 
     // Load Groups
     this.lms.getGroups().subscribe({
