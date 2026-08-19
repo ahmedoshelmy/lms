@@ -76,15 +76,22 @@
         @if (isAdmin()) {
           <div class="flex items-center gap-3 shrink-0">
             <button
+              (click)="openCertificateDialog()"
+              class="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+            >
+              <i class="pi pi-verified text-xs"></i>
+              Certificates
+            </button>
+            <button
               (click)="openEditModal()"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md"
+              class="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-md"
             >
               <i class="pi pi-pencil text-xs"></i>
               Edit Student
             </button>
             <button
               (click)="openDeleteModal()"
-              class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-300 text-red-600 font-semibold text-xs hover:bg-red-50 transition-all duration-200"
+              class="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-300 text-red-600 font-semibold text-xs hover:bg-red-50 transition-all duration-200"
             >
               <i class="pi pi-trash text-xs"></i>
               Delete
@@ -717,3 +724,12 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<!-- Certificate Issuing Dialog -->
+<app-certificate-dialog
+  [(visible)]="showCertificateDialog"
+  [candidates]="certificateCandidates()"
+  [students]="certificateStudents()"
+  [loading]="loadingCertificates()"
+  [contextLabel]="student()?.name || ''"
+/>

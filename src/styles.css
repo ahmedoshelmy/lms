@@ -102,6 +102,15 @@
   --color-skeleton-bg: #e2e8f0;
   --color-skeleton-highlight: #f8fafc;
 
+  /* Certificate — deliberately NOT overridden in dark mode.
+     A certificate is always rendered for print on white paper, so these
+     tokens stay fixed while the rest of the UI themes around them.
+     Values sampled from the original Mindvalley certificate artwork. */
+  --color-certificate-paper: #ffffff;
+  --color-certificate-ink: #231f20;
+  --color-certificate-body: #000000;
+  --color-certificate-accent: #6b3172;
+
   /* Fonts */
   --font-sans: 'Inter', 'Segoe UI', sans-serif;
 }
@@ -195,6 +204,31 @@
   /* Skeleton loader */
   --color-skeleton-bg: #272a30;
   --color-skeleton-highlight: #333842;
+}
+
+/* Signature script face used on the certificate. Pacifico, SIL Open Font
+   License 1.1, self-hosted so printing never depends on a network fetch. */
+@font-face {
+  font-family: 'Pacifico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/certificate/pacifico-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Pacifico';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/certificate/pacifico-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
 }
 
 @layer base {

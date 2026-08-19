@@ -26,6 +26,7 @@
     "@primeng/themes": "^21.0.4",
     "@tailwindcss/postcss": "^4.3.0",
     "express": "^5.1.0",
+    "jspdf": "^4.2.1",
     "ngx-toastr": "^20.0.5",
     "postcss": "^8.5.15",
     "primeicons": "^7.0.0",

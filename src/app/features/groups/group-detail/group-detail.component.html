@@ -172,14 +172,23 @@
                 <p class="text-xs text-[var(--color-text-muted)]">Track level progress and manage assigned courses.</p>
               </div>
 
-              @if (isAdmin()) {
+              <div class="flex items-center gap-2">
                 <button
-                  (click)="openAddCourseDialog()"
-                  class="px-3.5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                  (click)="openCertificateDialog()"
+                  class="px-3.5 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <i class="pi pi-plus text-xs"></i> Add Course
+                  <i class="pi pi-verified text-xs"></i> Certificates
                 </button>
-              }
+
+                @if (isAdmin()) {
+                  <button
+                    (click)="openAddCourseDialog()"
+                    class="px-3.5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                  >
+                    <i class="pi pi-plus text-xs"></i> Add Course
+                  </button>
+                }
+              </div>
             </div>
 
             @if (!group()!.courses || group()!.courses.length === 0) {
@@ -2178,3 +2187,12 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<!-- Certificate Issuing Dialog -->
+<app-certificate-dialog
+  [(visible)]="showCertificateDialog"
+  [candidates]="certificateCandidates()"
+  [students]="certificateStudents()"
+  [loading]="loadingCertificates()"
+  [contextLabel]="group()?.name || ''"
+/>

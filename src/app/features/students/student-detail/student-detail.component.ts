@@ -16,6 +16,9 @@ import {
   StudentAttendanceRecord,
   StudentUpcomingSession,
 } from '../../../core/interfaces/StudentDetails';
+import { CertificateCandidate, CertificateStudentRef } from '../../../core/interfaces/Certificate';
+import { CertificateService } from '../../../core/services/certificate.service';
+import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
 
 @Component({
   selector: 'app-student-detail',
@@ -27,6 +30,7 @@ import {
     ProgressSpinnerModule,
     ButtonModule,
     DialogModule,
+    CertificateDialogComponent,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
@@ -37,6 +41,7 @@ export class StudentDetailComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
+  private certificates = inject(CertificateService);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
@@ -59,6 +64,17 @@ export class StudentDetailComponent implements OnInit {
   // Delete modal
   showDeleteModal = signal<boolean>(false);
   deleting = signal<boolean>(false);
+
+  // Certificates
+  showCertificateDialog = signal<boolean>(false);
+  loadingCertificates = signal<boolean>(false);
+  certificateCandidates = signal<CertificateCandidate[]>([]);
+
+  /** Who a manually added certificate course can be issued to — just this student. */
+  readonly certificateStudents = computed<CertificateStudentRef[]>(() => {
+    const student = this.student();
+    return student ? [{ id: student.id, name: student.name, email: student.email }] : [];
+  });
 
   // Attendance stats
   attendanceStats = computed(() => {
@@ -162,6 +178,31 @@ export class StudentDetailComponent implements OnInit {
 
   openDeleteModal(): void {
     this.showDeleteModal.set(true);
+  }
+
+  /**
+   * Opens the certificate dialog and resolves which completed course levels
+   * this student qualifies for. Candidates are recomputed on every open so a
+   * freshly marked attendance record is reflected without a page reload.
+   */
+  openCertificateDialog(): void {
+    const student = this.student();
+    if (!student) return;
+
+    this.certificateCandidates.set([]);
+    this.loadingCertificates.set(true);
+    this.showCertificateDialog.set(true);
+
+    this.certificates.getCandidatesForStudent(student).subscribe({
+      next: (candidates) => {
+        this.certificateCandidates.set(candidates);
+        this.loadingCertificates.set(false);
+      },
+      error: () => {
+        // errorInterceptor already surfaces the failure to the user.
+        this.loadingCertificates.set(false);
+      },
+    });
   }
 
   confirmDelete(): void {

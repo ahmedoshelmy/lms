@@ -26,6 +26,9 @@ import { Course } from '../../../core/interfaces/Course';
 import { CourseLevel } from '../../../core/interfaces/CourseLevel';
 import { GroupHistory } from '../../../core/interfaces/History';
 import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
+import { CertificateCandidate, CertificateStudentRef } from '../../../core/interfaces/Certificate';
+import { CertificateService } from '../../../core/services/certificate.service';
+import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -59,6 +62,7 @@ const STATUS_MAP: Record<string, number> = {
     ButtonModule,
     DialogModule,
     SelectModule,
+    CertificateDialogComponent,
   ],
   templateUrl: './group-detail.component.html',
   styleUrl: './group-detail.component.scss',
@@ -69,6 +73,7 @@ export class GroupDetailComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
+  private certificates = inject(CertificateService);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
@@ -84,6 +89,20 @@ export class GroupDetailComponent implements OnInit {
   groupHistory = signal<GroupHistory | null>(null);
   courses = signal<Course[]>([]);
   courseLevels = signal<CourseLevel[]>([]);
+
+  // Certificates
+  showCertificateDialog = signal<boolean>(false);
+  loadingCertificates = signal<boolean>(false);
+  certificateCandidates = signal<CertificateCandidate[]>([]);
+
+  /** Who a manually added certificate course can be issued to — the group roster. */
+  readonly certificateStudents = computed<CertificateStudentRef[]>(() =>
+    (this.group()?.students || []).map((student) => ({
+      id: student.studentId,
+      name: student.studentName,
+      email: student.studentEmail,
+    }))
+  );
 
   // Promote Modal
   showPromoteModal = signal<boolean>(false);
@@ -444,6 +463,33 @@ export class GroupDetailComponent implements OnInit {
           this.promoting.set(false);
         },
       });
+  }
+
+  /**
+   * Opens the certificate dialog for every student in the group.
+   *
+   * Resolves one candidate per student per completed course level, so a group
+   * that finished two levels yields two pages per student. Selection and the
+   * attendance override are handled inside the dialog.
+   */
+  openCertificateDialog(): void {
+    const group = this.group();
+    if (!group) return;
+
+    this.certificateCandidates.set([]);
+    this.loadingCertificates.set(true);
+    this.showCertificateDialog.set(true);
+
+    this.certificates.getCandidatesForGroup(group, this.groupHistory()).subscribe({
+      next: (candidates) => {
+        this.certificateCandidates.set(candidates);
+        this.loadingCertificates.set(false);
+      },
+      error: () => {
+        // errorInterceptor already surfaces the failure to the user.
+        this.loadingCertificates.set(false);
+      },
+    });
   }
 
   openAddCourseDialog(): void {
