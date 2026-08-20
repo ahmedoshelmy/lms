@@ -17,5 +17,6 @@ export class AppComponent {
     afterNextRender(() => {
       this.themeService.applyTheme();
     });
+
   }
 }
