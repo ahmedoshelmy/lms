@@ -274,3 +274,25 @@
     opacity: 0.85;
   }
 }
+
+/*
+ * Medium screens: seven columns cannot share 768px and stay legible — each
+ * would land around 80px, narrower than the card padding plus a time label.
+ * The grid therefore holds a floor of ~120px per column and scrolls sideways
+ * inside .schedule-grid-scroll until the viewport can fit all seven, which
+ * happens around 1024px.
+ */
+.schedule-grid-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.schedule-grid.grid-cols-7 {
+  min-width: 912px;
+}
+
+@media (min-width: 1024px) {
+  .schedule-grid.grid-cols-7 {
+    min-width: 0;
+  }
+}

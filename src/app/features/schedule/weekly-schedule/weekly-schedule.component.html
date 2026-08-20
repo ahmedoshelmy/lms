@@ -70,114 +70,128 @@
 
   <!-- ─── DESKTOP GRID VIEW ─── -->
   @if (densityMode() !== 'timeline') {
-    <div
-      class="hidden md:grid gap-3 schedule-grid border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
-      [class.grid-cols-7]="viewMode() === 'weekly'"
-      [class.grid-cols-1]="viewMode() === 'daily'"
-      [class.comfortable]="densityMode() === 'comfortable'"
-    >
-      @for (col of dayColumns(); track col.dayName) {
-        <div
-          class="day-column flex flex-col border-r last:border-r-0 border-[var(--color-border)] pr-2 last:pr-0"
-        >
-          <!-- Day Header -->
-          <div class="day-header border-b border-[var(--color-border)] pb-3 mb-3 text-center">
-            <h3
-              class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider"
-            >
-              {{ col.dayName }}
-            </h3>
-            <p
-              class="text-lg font-extrabold mt-0.5"
-              [class.text-[var(--color-secondary)]]="col.isToday"
-              [class.text-[var(--color-text-primary)]]="!col.isToday"
-            >
-              {{ col.formattedDate }}
-            </p>
-            @if (col.sessions.length > 0) {
-              <span class="text-[10px] font-bold text-[var(--color-text-muted)]"
-                >{{ col.sessions.length }} session{{ col.sessions.length !== 1 ? 's' : '' }}</span
-              >
-            }
-          </div>
-
-          <!-- Day Sessions -->
+    <!--
+      The seven day columns need roughly 120px each to stay readable. Below
+      ~1024px that does not fit, so the grid keeps its width and scrolls inside
+      this wrapper rather than crushing every column (see .schedule-grid in the
+      stylesheet). The week stays a week on a tablet.
+    -->
+    <div class="hidden md:block schedule-grid-scroll">
+      <div
+        class="grid gap-3 schedule-grid border border-[var(--color-border)] rounded-2xl bg-[var(--color-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)]"
+        [class.grid-cols-7]="viewMode() === 'weekly'"
+        [class.grid-cols-1]="viewMode() === 'daily'"
+        [class.comfortable]="densityMode() === 'comfortable'"
+      >
+        @for (col of dayColumns(); track col.dayName) {
           <div
-            class="sessions-container flex-grow flex flex-col gap-2 min-h-[280px]"
-            [class.gap-3]="densityMode() === 'comfortable'"
+            class="day-column flex flex-col border-r last:border-r-0 border-[var(--color-border)] pr-2 last:pr-0"
           >
-            @for (session of col.sessions; track session.id) {
-              <div
-                (click)="onSessionClick(session)"
-                class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
-                [style.border-left-color]="getLeftAccentColor(session)"
-                [style.border-left-width]="'4px'"
+            <!-- Day Header -->
+            <div class="day-header border-b border-[var(--color-border)] pb-3 mb-3 text-center">
+              <h3
+                class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider"
               >
-                <!-- Conflict indicator flag -->
-                @if (isConflict(session)) {
-                  <div class="absolute right-2 top-2 text-rose-500 font-bold text-xs" title="Scheduling conflict detected">
-                    <i class="pi pi-exclamation-circle"></i>
-                  </div>
-                }
+                {{ col.dayName }}
+              </h3>
+              <p
+                class="text-lg font-extrabold mt-0.5"
+                [class.text-[var(--color-secondary)]]="col.isToday"
+                [class.text-[var(--color-text-primary)]]="!col.isToday"
+              >
+                {{ col.formattedDate }}
+              </p>
+              @if (col.sessions.length > 0) {
+                <span class="text-[10px] font-bold text-[var(--color-text-muted)]"
+                  >{{ col.sessions.length }} session{{ col.sessions.length !== 1 ? 's' : '' }}</span
+                >
+              }
+            </div>
 
-                <div>
-                  <!-- Top Row: Time Hero + Session Progress -->
-                  <div class="flex items-center justify-between gap-1 mb-1.5">
-                    <div class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]">
-                      <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
-                      <span>{{ formatTime(session.startsAt) }}</span>
+            <!-- Day Sessions -->
+            <div
+              class="sessions-container flex-grow flex flex-col gap-2 min-h-[280px]"
+              [class.gap-3]="densityMode() === 'comfortable'"
+            >
+              @for (session of col.sessions; track session.id) {
+                <div
+                  (click)="onSessionClick(session)"
+                  class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
+                  [style.border-left-color]="getLeftAccentColor(session)"
+                  [style.border-left-width]="'4px'"
+                >
+                  <!-- Conflict indicator flag -->
+                  @if (isConflict(session)) {
+                    <div class="absolute right-2 top-2 text-rose-500 font-bold text-xs" title="Scheduling conflict detected">
+                      <i class="pi pi-exclamation-circle"></i>
+                    </div>
+                  }
+
+                  <div>
+                    <!-- Top Row: Time Hero + Session Progress -->
+                    <div class="flex items-center justify-between gap-1 mb-1.5">
+                      <div class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]">
+                        <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
+                        <span>{{ formatTime(session.startsAt) }}</span>
+                      </div>
+
+                      @let seq = getSessionSequence(session);
+                      @if (seq) {
+                        <span
+                          class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)] whitespace-nowrap"
+                          [title]="getSessionSequenceLabel(session)"
+                        >
+                          {{ seq }}
+                        </span>
+                      }
                     </div>
 
-                    <span class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
-                      #{{ $index + 1 }}
-                    </span>
-                  </div>
+                    <!-- Topic / Course Title -->
+                    <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
+                      {{ getSessionDisplayTopic(session) }}
+                    </h4>
 
-                  <!-- Topic / Course Title -->
-                  <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
-                    {{ getSessionDisplayTopic(session) }}
-                  </h4>
+                    <!-- Group Code & Location -->
+                    <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">
+                      <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
+                      @if (session.location) {
+                        <span>•</span>
+                        <span>{{ session.location }}</span>
+                      }
+                    </div>
 
-                  <!-- Group Code & Location -->
-                  <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">
-                    <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
-                    @if (session.location) {
-                      <span>•</span>
-                      <span>{{ session.location }}</span>
+                    <!-- Instructor (Admin View) -->
+                    @if (isAdmin() && session.instructorName) {
+                      <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]">
+                        <i class="pi pi-user text-[9px] text-[var(--color-secondary)]"></i>
+                        <span class="truncate">{{ session.instructorName }}</span>
+                      </div>
                     }
                   </div>
 
-                  <!-- Instructor (Admin View) -->
-                  @if (isAdmin() && session.instructorName) {
-                    <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]">
-                      <i class="pi pi-user text-[9px] text-[var(--color-secondary)]"></i>
-                      <span class="truncate">{{ session.instructorName }}</span>
-                    </div>
-                  }
-                </div>
+                  <!-- Footer Row: Visual Attendance Status Indicator -->
+                  <div class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1">
+                    @let att = getAttendanceBadge(session);
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
+                      <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
+                      {{ att.label }}
+                    </span>
 
-                <!-- Footer Row: Visual Attendance Status Indicator -->
-                <div class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1">
-                  @let att = getAttendanceBadge(session);
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
-                    <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
-                    {{ att.label }}
-                  </span>
-
-                  <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"></i>
+                    <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"></i>
+                  </div>
                 </div>
-              </div>
-            } @empty {
-              <div
-                class="flex flex-col items-center justify-center flex-grow py-8 text-center text-[var(--color-text-muted)]"
-              >
-                <i class="pi pi-calendar text-2xl mb-1.5 opacity-60"></i>
-                <span class="text-xs font-medium">Free day</span>
-              </div>
-            }
+              } @empty {
+                <div
+                  class="flex flex-col items-center justify-center flex-grow py-8 text-center text-[var(--color-text-muted)]"
+                >
+                  <i class="pi pi-calendar text-2xl mb-1.5 opacity-60"></i>
+                  <span class="text-xs font-medium">Free day</span>
+                </div>
+              }
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   }
 
@@ -307,9 +321,15 @@
                     <span>{{ formatTime(session.startsAt) }}</span>
                   </div>
 
-                  <span class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)]">
-                    #{{ $index + 1 }}
-                  </span>
+                  @let mseq = getSessionSequence(session);
+                  @if (mseq) {
+                    <span
+                      class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)] whitespace-nowrap"
+                      [title]="getSessionSequenceLabel(session)"
+                    >
+                      {{ mseq }}
+                    </span>
+                  }
                 </div>
 
                 <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">

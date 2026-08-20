@@ -99,8 +99,10 @@ export interface TimeSlot {
         </div>
       }
 
-      <div class="overflow-x-auto min-w-[900px]">
-        <table class="w-full border-collapse text-left text-xs">
+      <!-- min-width belongs on the table, not the scroll container: on the
+           container it widens the panel instead of scrolling inside it. -->
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[900px] border-collapse text-left text-xs">
           <thead>
             <tr class="bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)]">
               <th

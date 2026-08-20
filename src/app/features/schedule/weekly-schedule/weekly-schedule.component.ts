@@ -1,7 +1,13 @@
 import { Component, input, computed, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
-import { getSessionCode, getSessionBaseCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
+import {
+  getSessionCode,
+  getSessionBaseCode,
+  getSessionDisplayTopic,
+  getSessionSequence,
+  getSessionSequenceLabel,
+} from '../../../core/utils/session-code.utils';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
 export type ViewMode = 'weekly' | 'daily';
@@ -375,19 +381,35 @@ export class WeeklyScheduleComponent {
   getAttendanceBadge(s: ScheduleSession): { label: string; css: string; icon: string } {
     const status = (s.status || '').toLowerCase();
     if (status.includes('cancel')) {
-      return { label: 'Cancelled', css: 'bg-rose-500/10 text-rose-600 border-rose-500/20', icon: 'pi-times-circle' };
+      return {
+        label: 'Cancelled',
+        css: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
+        icon: 'pi-times-circle',
+      };
     }
     if (status.includes('completed')) {
-      return { label: 'Attendance Marked', css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', icon: 'pi-check-circle' };
+      return {
+        label: 'Attendance Marked',
+        css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        icon: 'pi-check-circle',
+      };
     }
 
     const now = new Date();
     const sessionTime = new Date(s.startsAt || Date.now());
     if (sessionTime <= now) {
-      return { label: 'Attendance Pending', css: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: 'pi-exclamation-triangle' };
+      return {
+        label: 'Attendance Pending',
+        css: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+        icon: 'pi-exclamation-triangle',
+      };
     }
 
-    return { label: 'Upcoming', css: 'bg-blue-500/10 text-blue-600 border-blue-500/20', icon: 'pi-clock' };
+    return {
+      label: 'Upcoming',
+      css: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+      icon: 'pi-clock',
+    };
   }
 
   getLeftAccentColor(s: ScheduleSession): string {
@@ -397,6 +419,14 @@ export class WeeklyScheduleComponent {
     const att = this.getAttendanceBadge(s);
     if (att.label === 'Attendance Pending') return 'var(--color-warning)';
     return 'var(--color-success)';
+  }
+
+  getSessionSequence(s: ScheduleSession): string {
+    return getSessionSequence(s);
+  }
+
+  getSessionSequenceLabel(s: ScheduleSession): string {
+    return getSessionSequenceLabel(s);
   }
 
   getSessionCode(s: any): string {
