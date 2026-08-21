@@ -143,6 +143,7 @@
               @for (level of topic.levels; track level.id) {
                 <div
                   class="course-card p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                  [class.course-card--open]="isLevelExpanded(level.id)"
                 >
                   <div>
                     <div class="flex items-center justify-between gap-4 mb-3">
@@ -162,6 +163,72 @@
                       {{ level.description }}
                     </p>
                   </div>
+
+                  <button
+                    type="button"
+                    (click)="toggleLevel(topic, level)"
+                    class="w-full mb-3 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-secondary)] text-xs font-bold hover:bg-[var(--color-info-background)] hover:border-[var(--color-secondary)] transition-all cursor-pointer flex items-center justify-center gap-2"
+                    [attr.aria-expanded]="isLevelExpanded(level.id)"
+                  >
+                    <i
+                      class="pi text-xs"
+                      [class.pi-list]="!isLevelExpanded(level.id)"
+                      [class.pi-chevron-up]="isLevelExpanded(level.id)"
+                    ></i>
+                    {{ isLevelExpanded(level.id) ? 'Hide session content' : 'View session content' }}
+                  </button>
+
+                  <!-- Accordion body: the level's sessions, in place. -->
+                  @if (isLevelExpanded(level.id)) {
+                    <div class="course-accordion">
+                      @if (loadingSyllabus()) {
+                        <p class="course-accordion__status">
+                          <i class="pi pi-spinner pi-spin text-[11px]"></i> Loading session content…
+                        </p>
+                      } @else if (!syllabus().length) {
+                        <p class="course-accordion__status">
+                          No session content has been added for this level yet.
+                        </p>
+                      } @else {
+                        <p class="course-accordion__count">
+                          {{ syllabus().length }} sessions &middot;
+                          {{ syllabusWithParentCopy() }} with a parent summary
+                        </p>
+
+                        <div class="space-y-2">
+                          @for (session of syllabus(); track session.sessionNumber) {
+                            <div class="syl-row">
+                              <button
+                                type="button"
+                                class="syl-row__head"
+                                (click)="toggleSession(session.sessionNumber)"
+                                [attr.aria-expanded]="isSessionExpanded(session.sessionNumber)"
+                              >
+                                <span class="syl-row__num">{{ session.sessionNumber }}</span>
+                                <span class="syl-row__title">{{ session.title }}</span>
+                                @if (session.parentSummary) {
+                                  <span class="syl-row__flag" title="Has a parent summary">
+                                    <i class="pi pi-users text-[9px]"></i>
+                                  </span>
+                                }
+                                <i
+                                  class="pi text-xs text-[var(--color-text-muted)]"
+                                  [class.pi-chevron-down]="!isSessionExpanded(session.sessionNumber)"
+                                  [class.pi-chevron-up]="isSessionExpanded(session.sessionNumber)"
+                                ></i>
+                              </button>
+
+                              @if (isSessionExpanded(session.sessionNumber)) {
+                                <div class="syl-row__body">
+                                  <app-session-syllabus [syllabus]="session" [compact]="true" />
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
 
                   <div class="flex items-center justify-between border-t border-[var(--color-border)] pt-3 mt-auto">
                     <span class="text-[11px] text-[var(--color-text-muted)] font-semibold">

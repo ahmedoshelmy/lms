@@ -447,6 +447,9 @@
       }
     </div>
 
+    <!-- What this session covers, and what parents are told about it -->
+    <app-session-syllabus [sessionId]="s.id" />
+
     <!-- Session Sequence Progress -->
     @if (s.totalSessions > 0) {
       <div class="sequence-card">

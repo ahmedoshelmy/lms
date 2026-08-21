@@ -1,0 +1,1142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img,svg{max-width:100%}</style>
+<title>Curriculum Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --ground: #f4f7f7;
+    --surface: #ffffff;
+    --surface-2: #eef3f3;
+    --line: #d5e0e0;
+    --line-soft: #e6eded;
+
+    --text: #0e2a36;
+    --text-2: #3d5860;
+    --muted: #64797f;
+
+    --teal: #00887f;
+    --teal-soft: #e0f2f0;
+    --lime: #6f9e28;
+    --lime-soft: #eaf3dc;
+    --plum: #6b3172;
+    --plum-soft: #f2eaf4;
+    --plum-line: #d9c4de;
+
+    --crit: #a8321f;
+    --crit-soft: #fbe9e5;
+    --warn: #8a5a09;
+    --warn-soft: #fbf0da;
+    --ok: #2f6b4f;
+    --ok-soft: #e2f0e8;
+
+    --display: 'Archivo', 'Segoe UI', sans-serif;
+    --body: 'Source Sans 3', 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    --measure: 72ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --ground: #0a1519;
+      --surface: #10242b;
+      --surface-2: #16303a;
+      --line: #24454f;
+      --line-soft: #1b3841;
+
+      --text: #e2edee;
+      --text-2: #a9c2c6;
+      --muted: #83a0a6;
+
+      --teal: #45c9bb;
+      --teal-soft: #103334;
+      --lime: #a3d155;
+      --lime-soft: #1d2f16;
+      --plum: #d9a8e2;
+      --plum-soft: #2a1830;
+      --plum-line: #4c2f55;
+
+      --crit: #f0907c;
+      --crit-soft: #341813;
+      --warn: #e8b866;
+      --warn-soft: #33260e;
+      --ok: #7fc9a2;
+      --ok-soft: #142c21;
+    }
+  }
+
+  :root[data-theme='dark'] {
+    --ground: #0a1519;
+    --surface: #10242b;
+    --surface-2: #16303a;
+    --line: #24454f;
+    --line-soft: #1b3841;
+
+    --text: #e2edee;
+    --text-2: #a9c2c6;
+    --muted: #83a0a6;
+
+    --teal: #45c9bb;
+    --teal-soft: #103334;
+    --lime: #a3d155;
+    --lime-soft: #1d2f16;
+    --plum: #d9a8e2;
+    --plum-soft: #2a1830;
+    --plum-line: #4c2f55;
+
+    --crit: #f0907c;
+    --crit-soft: #341813;
+    --warn: #e8b866;
+    --warn-soft: #33260e;
+    --ok: #7fc9a2;
+    --ok-soft: #142c21;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  .col { max-width: var(--measure); }
+
+  /* ── Masthead ─────────────────────────────────────────── */
+
+  header.masthead {
+    border-bottom: 2px solid var(--text);
+    padding: 56px 0 24px;
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0 0 14px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(34px, 5.5vw, 54px);
+    line-height: 1.04;
+    letter-spacing: -0.022em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    font-size: 19px;
+    color: var(--text-2);
+    max-width: var(--measure);
+    margin: 0 0 28px;
+  }
+
+  .tallies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .tally {
+    flex: 1 1 128px;
+    padding: 14px 18px;
+    border-right: 1px solid var(--line);
+  }
+  .tally:last-child { border-right: 0; }
+
+  .tally b {
+    display: block;
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tally span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Sections ─────────────────────────────────────────── */
+
+  section { margin-bottom: 68px; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 27px;
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+
+  .section-note {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0 0 26px;
+    max-width: var(--measure);
+  }
+
+  h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -0.008em;
+    margin: 34px 0 10px;
+  }
+
+  p { margin: 0 0 14px; }
+  .col p, .col ul { max-width: var(--measure); }
+
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 7px; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+
+  a { color: var(--teal); text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  /* ── Findings ─────────────────────────────────────────── */
+
+  .findings { display: flex; flex-direction: column; gap: 12px; }
+
+  .finding {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--sev, var(--line));
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+
+  .finding--crit { --sev: var(--crit); }
+  .finding--warn { --sev: var(--warn); }
+  .finding--tidy { --sev: var(--teal); }
+
+  .sev {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sev);
+    padding-top: 4px;
+  }
+
+  .finding h4 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 16.5px;
+    margin: 0 0 5px;
+  }
+
+  .finding p { margin: 0; font-size: 15.5px; color: var(--text-2); }
+
+  @media (max-width: 620px) {
+    .finding { grid-template-columns: 1fr; gap: 6px; }
+    .sev { padding-top: 0; }
+  }
+
+  /* ── Inventory table ──────────────────────────────────── */
+
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+
+  table { border-collapse: collapse; width: 100%; min-width: 780px; }
+
+  th {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--muted);
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 15px;
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: 0; }
+
+  td.num {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .topic-start td { border-top: 2px solid var(--line); }
+  tbody tr:first-child td { border-top: 0; }
+
+  .lvl { font-family: var(--mono); font-size: 13.5px; }
+
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .chip--ok { background: var(--ok-soft); color: var(--ok); }
+  .chip--warn { background: var(--warn-soft); color: var(--warn); }
+  .chip--crit { background: var(--crit-soft); color: var(--crit); }
+  .chip--use { background: var(--teal-soft); color: var(--teal); }
+  .chip--drop { background: var(--surface-2); color: var(--muted); }
+
+  /* ── Session cards ────────────────────────────────────── */
+
+  .sessions { display: flex; flex-direction: column; gap: 14px; }
+
+  .ses {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ses-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line-soft);
+    background: var(--surface-2);
+  }
+
+  .ses-n {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--teal);
+    letter-spacing: 0.06em;
+    flex: none;
+  }
+
+  .ses-title {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0;
+  }
+
+  .ses-body { display: grid; grid-template-columns: 1fr 1fr; }
+
+  .zone { padding: 18px 20px 20px; }
+  .zone--internal { border-right: 1px solid var(--line-soft); }
+  .zone--parent { background: var(--plum-soft); }
+
+  .zone-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .zone--internal .zone-label { color: var(--muted); }
+  .zone--parent .zone-label { color: var(--plum); }
+
+  .kv { margin: 0 0 10px; font-size: 15px; }
+  .kv:last-child { margin-bottom: 0; }
+
+  .kv dt {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .kv dd { margin: 0; color: var(--text-2); }
+
+  .zone--parent p { font-size: 15.5px; margin: 0 0 10px; }
+  .zone--parent p:last-child { margin-bottom: 0; }
+  .zone--parent .home {
+    border-top: 1px solid var(--plum-line);
+    padding-top: 10px;
+    margin-top: 12px;
+    font-style: italic;
+    color: var(--text-2);
+  }
+
+  @media (max-width: 780px) {
+    .ses-body { grid-template-columns: 1fr; }
+    .zone--internal { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+  }
+
+  /* ── Callout ──────────────────────────────────────────── */
+
+  .callout {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--lime);
+    background: var(--surface);
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin: 0 0 20px;
+  }
+  .callout h4 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 16.5px;
+    margin: 0 0 6px;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+    color: var(--muted);
+    font-size: 14.5px;
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Course Material Audit · Mind Valley</p>
+    <h1>What's in the Drive, and what's missing</h1>
+    <p class="standfirst">
+      A read of the whole shared course folder — every topic, level and session file — with the
+      gaps that block putting course detail into the LMS, and a worked example of the per-session
+      records and parent summaries this material can produce.
+    </p>
+    <div class="tallies">
+      <div class="tally"><b>10</b><span>Topics</span></div>
+      <div class="tally"><b>24</b><span>Levels</span></div>
+      <div class="tally"><b>710</b><span>Files</span></div>
+      <div class="tally"><b>21</b><span>Level outlines</span></div>
+      <div class="tally"><b>8</b><span>Duplicate pairs</span></div>
+      <div class="tally"><b>1</b><span>Blocked levels</span></div>
+    </div>
+  </header>
+
+  <section class="col">
+    <div class="callout">
+      <h4>Update: five of the six blocked levels were recovered</h4>
+      <p>
+        This audit judged EV3 Levels 1 and 2, Flutter Levels 1 and 2 and Python Levels 3 and 4
+        blocked because none of them has a per-session outline document. They do have complete
+        slide decks, and reading those decks directly turned out to be enough: all 58 sessions
+        are now written up and loaded, with content, projects, tasks, STEM topics, deck links and
+        parent copy. Cybersecurity remains genuinely blocked — a single outline document and no
+        material behind it.
+      </p>
+    </div>
+  </section>
+
+  <section class="col">
+    <h2>The short version</h2>
+    <p>
+      The material is in better shape than the file count suggests. Twenty-one <em>level outline</em>
+      documents carry the real curriculum — per-session key concepts, tasks, STEAM video links and
+      Kahoot quizzes. Those are the source for everything below; the 700-odd slide decks are the
+      delivery of that curriculum, not the definition of it.
+    </p>
+    <p>
+      Four levels can't be described session-by-session yet, because their outlines are topic lists
+      rather than session plans. Everything else is ready to turn into structured course data.
+      The one thing that genuinely blocks the feature is on your side, not in the Drive: there is
+      nowhere in the API to store a session's syllabus.
+    </p>
+  </section>
+
+  <section>
+    <h2>Findings</h2>
+    <p class="section-note">
+      Ordered by what stops work. "Blocking" means a level cannot be described to a parent at all
+      until someone writes the missing material.
+    </p>
+
+    <div class="findings">
+
+      <div class="finding finding--crit">
+        <div class="sev">Blocking</div>
+        <div>
+          <h4>Cybersecurity has no course material</h4>
+          <p>
+            The topic folder holds a single <code>Cybersecurity Course Outline.docx</code> and nothing
+            else — no levels, no sessions, no slides. It cannot be listed as a course until somebody
+            builds it.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--crit">
+        <div class="sev">Blocking</div>
+        <div>
+          <h4>EV3 Levels 1 and 2 have no session plans</h4>
+          <p>
+            Both "outlines" are bare topic lists of about 155 characters — "What are Robotics", "What's
+            motor", "Sensors". The <code>Sessions(PDF)</code> folders contain one file each where the
+            course report describes eight sessions. There is no per-session content to summarise.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--crit">
+        <div class="sev">Blocking</div>
+        <div>
+          <h4>Python Levels 3 and 4 are concept lists, not session plans</h4>
+          <p>
+            Level 3 lists GUI topics and reference links; Level 4 lists algorithm concepts and says
+            only "between two and five problems" per session. The course report calls Level 3
+            "Overview-Based", so this looks deliberate — but it means neither level can produce the
+            per-session breakdown the other levels can.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--warn">
+        <div class="sev">Fix</div>
+        <div>
+          <h4>Five "new" levels would lose their outline if the old folder is deleted</h4>
+          <p>
+            You asked me to prefer the folder marked "new" on a conflict. For Arduino Level 1,
+            Arduino Level 2, Programming Basics Level 1, Programming Basics Level 2 and Python
+            Level 3, the outline document lives only in the <em>old</em> folder — the new one has the
+            session files but no curriculum document. Copy the outlines across before archiving
+            anything.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--warn">
+        <div class="sev">Fix</div>
+        <div>
+          <h4>Web Development Level 1 is missing a session file</h4>
+          <p>
+            The outline describes 12 sessions; <code>Session(PDF)</code> contains 11. Worth finding
+            which one before the level is published.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--warn">
+        <div class="sev">Fix</div>
+        <div>
+          <h4>An internal work note is sitting in a course folder</h4>
+          <p>
+            <code>Arduino/Level 2 new/Arduino level 2.docx</code> is not curriculum — it is a task
+            assignment listing three staff members by name against session ranges, with a deadline of
+            22/8. It reads as course material to anyone browsing the folder, and it names staff.
+            Move it out.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--warn">
+        <div class="sev">Fix</div>
+        <div>
+          <h4>WeDo and EV3 session folders hold one file where eight are expected</h4>
+          <p>
+            All four <code>Sessions(PDF)</code> folders under WeDo and EV3 contain a single item,
+            though eight session decks sit loose in the level folder above. Either the PDFs were never
+            exported or they live somewhere else. WeDo at least has proper per-session outlines, so
+            its content is recoverable; EV3's is not.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--warn">
+        <div class="sev">Fix</div>
+        <div>
+          <h4>Flutter Level 2's outline will not download</h4>
+          <p>
+            <code>Flutter Course Outline Level 2.docx</code> returns zero bytes while Level 1's
+            returns 991&nbsp;KB — likely a per-file sharing setting. Flutter also has no per-level
+            outlines and no session subfolders, and its <code>Development</code> folder holds
+            sessions 5 to 11 in a way that looks like work in progress.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--tidy">
+        <div class="sev">Tidy</div>
+        <div>
+          <h4>Session files are named after their download history</h4>
+          <p>
+            Files are called <code>5 (1) (1).pptx</code>, <code>8 (3).pptx</code>, <code>2 .pptx</code>
+            — a number plus browser duplicate-suffixes, sometimes with a trailing space. Nothing
+            carries a title. If the LMS is going to link to these, rename them to something stable
+            like <code>PY-L1-S05.pdf</code> first, or the links will break the next time someone
+            re-uploads a file.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--tidy">
+        <div class="sev">Tidy</div>
+        <div>
+          <h4>Four different names for the same folder</h4>
+          <p>
+            <code>Sessions(PDF)</code>, <code>Session(PDF)</code>, <code>Sessions slides</code> and
+            <code>Session slides</code> all mean the same thing; levels are numbered
+            <code>Level 1</code> in nine topics but <code>Level One</code> and <code>Level two</code>
+            in AI; and the duplicates are marked <code>(NEW)</code>, <code>new</code>,
+            <code>NEW</code> and <code>(New)</code>. Any script that imports this has to special-case
+            all of it.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--tidy">
+        <div class="sev">Tidy</div>
+        <div>
+          <h4>Two course reports describe things that aren't there</h4>
+          <p>
+            The Programming Basics report describes four levels; the Drive has three. The Python
+            report says "32+ sessions" where the levels actually total 38. Parents and instructors
+            read these reports, so they're worth correcting.
+          </p>
+        </div>
+      </div>
+
+      <div class="finding finding--tidy">
+        <div class="sev">Tidy</div>
+        <div>
+          <h4>App Inventor Level 1 is missing three project files</h4>
+          <p>
+            The <code>Projects</code> folder covers sessions 1–5 and 7–10. Sessions 6, 11 and 12 have
+            slides but no project document.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Level inventory</h2>
+    <p class="section-note">
+      Every level in the folder, what documents it has, and the session count I'd seed
+      <code>CourseLevel.sessionCount</code> with. Where a level is duplicated, the row marked
+      <span class="chip chip--use">use</span> is the one to keep, following your "prefer new" rule.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th>Level folder</th>
+            <th>Outline</th>
+            <th class="num">Sessions</th>
+            <th>Status</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="topic-start">
+            <td>App Inventor</td><td class="lvl">Level 1</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--ok">Ready</span></td><td>—</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--ok">Ready</span></td><td>—</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3</td><td>None</td>
+            <td class="num">8</td><td><span class="chip chip--drop">Superseded</span></td><td>Loose files only</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3 NEW</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--use">Use</span></td><td>Outline is here — good</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Arduino</td><td class="lvl">Level 1</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--drop">Superseded</span></td><td>Holds the only outline</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 1 new</td><td>None</td>
+            <td class="num">12</td><td><span class="chip chip--use">Use</span></td><td>Copy outline across</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Per-session</td>
+            <td class="num">10</td><td><span class="chip chip--drop">Superseded</span></td><td>Holds the only outline</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2 new</td><td>Work note</td>
+            <td class="num">10</td><td><span class="chip chip--use">Use</span></td><td>Remove the staff task doc</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3</td><td>None</td>
+            <td class="num">8</td><td><span class="chip chip--drop">Superseded</span></td><td>—</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3 new</td><td>Per-session</td>
+            <td class="num">8</td><td><span class="chip chip--use">Use</span></td><td>Outline is here — good</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Artificial Intelligence</td><td class="lvl">Level One</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--ok">Ready</span></td><td>Rename to "Level 1"</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level two</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--ok">Ready</span></td><td>Rename to "Level 2"</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Cybersecurity</td><td class="lvl">—</td><td>Topic only</td>
+            <td class="num">0</td><td><span class="chip chip--crit">Blocked</span></td><td>No material exists</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>EV3</td><td class="lvl">Level 1</td><td>Topic list</td>
+            <td class="num">8</td><td><span class="chip chip--crit">Blocked</span></td><td>No session detail</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Topic list</td>
+            <td class="num">8</td><td><span class="chip chip--crit">Blocked</span></td><td>No session detail</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Flutter</td><td class="lvl">Level 1</td><td>Topic only</td>
+            <td class="num">12</td><td><span class="chip chip--warn">Partial</span></td><td>No per-level outline</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Won't download</td>
+            <td class="num">12</td><td><span class="chip chip--warn">Partial</span></td><td>Check sharing on the docx</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Development</td><td>None</td>
+            <td class="num">—</td><td><span class="chip chip--drop">Not a level</span></td><td>Looks like work in progress</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Programming Basics</td><td class="lvl">Level 1</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--drop">Superseded</span></td><td>Holds the only outline</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 1(NEW)</td><td>None</td>
+            <td class="num">12</td><td><span class="chip chip--use">Use</span></td><td>Copy outline across</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--drop">Superseded</span></td><td>Holds the only outline</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2 (NEW)</td><td>None</td>
+            <td class="num">12</td><td><span class="chip chip--use">Use</span></td><td>Copy outline across</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--drop">Superseded</span></td><td>—</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3 (NEW)</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--use">Use</span></td><td>Outline is here — good</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Python</td><td class="lvl">Level 1</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--ok">Ready</span></td><td>Worked example below</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Per-session</td>
+            <td class="num">8</td><td><span class="chip chip--ok">Ready</span></td><td>—</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3</td><td>Concept list</td>
+            <td class="num">8</td><td><span class="chip chip--drop">Superseded</span></td><td>Holds the only outline</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 3 (New)</td><td>None</td>
+            <td class="num">8</td><td><span class="chip chip--crit">Blocked</span></td><td>No session detail either way</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 4</td><td>Concept list</td>
+            <td class="num">10</td><td><span class="chip chip--crit">Blocked</span></td><td>No session detail</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>Web Development</td><td class="lvl">Level 1</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--warn">Partial</span></td><td>11 of 12 session files</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Per-session</td>
+            <td class="num">12</td><td><span class="chip chip--ok">Ready</span></td><td>—</td>
+          </tr>
+
+          <tr class="topic-start">
+            <td>WeDo</td><td class="lvl">Level 1</td><td>Per-session</td>
+            <td class="num">8</td><td><span class="chip chip--ok">Ready</span></td><td>Session PDFs missing</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">Level 2</td><td>Per-session</td>
+            <td class="num">8</td><td><span class="chip chip--ok">Ready</span></td><td>Session PDFs missing</td>
+          </tr>
+          <tr>
+            <td></td><td class="lvl">New Projects</td><td>None</td>
+            <td class="num">—</td><td><span class="chip chip--drop">Not a level</span></td><td>19 loose project files</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Worked example — Python Level 1</h2>
+    <p class="section-note">
+      Twelve sessions, built from <code>Python_L1_outline.docx</code>. The left column is the
+      internal record that would go into the system; the right is what a parent receives. The parent
+      text never names a task the child still has to do in class, and never links to material.
+    </p>
+
+    <div class="callout col">
+      <h4>Read the right-hand column first</h4>
+      <p>
+        That's the part you can't easily get from the material as it stands, and the part that
+        decides whether this is useful. If the register is wrong — too technical, too soft, wrong
+        length — tell me and I'll reset it before generating the other twenty levels.
+      </p>
+    </div>
+
+    <div class="sessions">
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">01</span><h3 class="ses-title">Variables and input</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>What a programming language is; what Python is used for; variables; data types; taking input</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Store three animal names in separate variables and print them on three lines</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>How computers work (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>We began with how a program remembers things. Your child learned to create a variable — a labelled box that holds one piece of information — and to ask a question and store the answer.</p>
+            <p>They can now write a short program that takes something you type and prints it back.</p>
+            <p class="home">At home: ask them to explain a variable using something in the kitchen. A labelled jar is the analogy we used.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">02</span><h3 class="ses-title">The maths library</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Math library; inputs and outputs; data types; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Import <code>math</code>, ask for a square's side length, calculate area with <code>math.pow()</code></dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Critical thinking (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>We introduced Python's built-in maths tools, and the difference between whole numbers, decimals and text — a distinction computers care about far more than people do.</p>
+            <p>Your child wrote a program that asks for the side of a square and works out its area.</p>
+            <p class="home">At home: ask what happens if you type a number as text by mistake. They've seen this break and can explain why.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">03</span><h3 class="ses-title">Operators and averages</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Arithmetic operators; comparison operators; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Take grades for five subjects, total them, calculate and print the average</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Computational thinking (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>Arithmetic in code, and how a program compares two values to decide which is bigger.</p>
+            <p>Your child built a small grade calculator: it takes marks for five subjects and returns the average.</p>
+            <p class="home">At home: have them run their own report-card marks through it.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">04</span><h3 class="ses-title">Making decisions</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>If conditions; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Ask for a number and check whether it is even or odd</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Space debris (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>The first big idea of the term: a program that chooses. Your child learned how code takes one path or another depending on what it finds.</p>
+            <p>Their program decides whether a number is even or odd and says so.</p>
+            <p class="home">At home: ask them to describe a morning routine as a set of "if… otherwise…" rules. That's exactly the structure they wrote.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">05</span><h3 class="ses-title">Shortcuts and flow</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Assignment operators; if conditions; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Research the meaning of "flow" in programming</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>What is power? (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>More practice with decisions, plus the shorthand programmers use to update a stored value rather than rewriting it.</p>
+            <p>This session's homework was reading rather than coding: a short piece of research on what "flow" means in a program.</p>
+            <p class="home">At home: ask what they found out. Being able to explain it in their own words is the point.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">06</span><h3 class="ses-title">Repeating with for loops</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>For loop; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Ask for the user's name and print it five times using a for loop</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Flowcharts (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>Instead of writing the same instruction five times, your child learned to tell the computer to repeat it. This is the idea that makes programs short and powerful.</p>
+            <p>They also met flowcharts — drawing a program as a diagram before writing any code.</p>
+            <p class="home">At home: ask them to draw a flowchart for making a sandwich. Every step, in order, with a decision or two.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">07</span><h3 class="ses-title">While loops and true/false</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Loops; booleans; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Print the first ten integers and their squares using a while loop</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>What is an operating system? (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>A second kind of repetition — one that keeps going until a condition stops being true — and the idea of a value that is only ever true or false.</p>
+            <p>Their program printed the numbers 1 to 10 alongside each number squared.</p>
+            <p class="home">At home: ask the difference between repeating something a set number of times and repeating it until something changes. They can now tell you.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">08</span><h3 class="ses-title">Stopping and skipping</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Revision of loops and flowcharts; break and continue; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Count to fifteen in a for loop, stopping at thirteen using <code>break</code></dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Algorithms and sequences (two videos) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>A consolidation session. We revisited both kinds of loop and flowcharts, then added how to stop a loop early or skip a single step.</p>
+            <p>A good week to check confidence — everything after this builds on loops.</p>
+            <p class="home">At home: ask what "break" does. Stopping a search the moment you've found what you were looking for is the everyday version.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">09</span><h3 class="ses-title">Lists</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Lists; pseudocode; list functions; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Make a list of five student names, add a sixth, print the result</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Patterns (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>Until now each variable held one thing. This session introduced lists — one name holding many items, like a shopping list.</p>
+            <p>Your child also met pseudocode: writing out a plan in plain language before turning it into code.</p>
+            <p class="home">At home: ask them to plan getting ready for school as numbered steps. That's pseudocode.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">10</span><h3 class="ses-title">Loops inside loops</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Advanced lists; nested loops; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Use nested loops to print a multi-row number pyramid</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Mixed numbers (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>One of the harder ideas in the level: putting a loop inside another loop, which is how programs produce grids and patterns.</p>
+            <p>Your child printed a number pyramid — each row longer than the last.</p>
+            <p class="home">At home: ask them to show you the pyramid and explain why each row grows. If they can, they've understood nesting.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">11</span><h3 class="ses-title">Text and grids</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Strings; 2-D lists; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Produce a short piece of research on 2-D list concepts</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Equivalent fractions (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>Working with text, and with data arranged in rows and columns — the structure behind a timetable, a spreadsheet or a chessboard.</p>
+            <p>Homework was research rather than code this week.</p>
+            <p class="home">At home: ask where they'd find a grid of information in daily life. A bus timetable is a good one.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="ses">
+        <div class="ses-head"><span class="ses-n">12</span><h3 class="ses-title">Functions — and the end of the level</h3></div>
+        <div class="ses-body">
+          <div class="zone zone--internal">
+            <p class="zone-label">Session record</p>
+            <dl class="kv"><dt>Key concepts</dt><dd>Functions; practice problems</dd></dl>
+            <dl class="kv"><dt>Task</dt><dd>Write a function that takes two numbers and prints their sum</dd></dl>
+            <dl class="kv"><dt>STEAM</dt><dd>Order of operations (video) · Kahoot quiz</dd></dl>
+          </div>
+          <div class="zone zone--parent">
+            <p class="zone-label">For parents</p>
+            <p>The last building block of Level 1: functions. Your child learned to give a piece of code a name so it can be reused anywhere, instead of written out again each time.</p>
+            <p>That completes the foundations — variables, decisions, loops, lists and functions. Level 2 puts them together into full projects and games.</p>
+            <p class="home">At home: ask them to show you their favourite program from the term and talk you through it.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="col">
+    <h2>Getting this into the system</h2>
+
+    <h3>There's nowhere to put it yet</h3>
+    <p>
+      The API models <code>Topic → CourseLevel</code>, and a level carries only
+      <code>title</code>, <code>description</code> and <code>sessionCount</code>. Scheduled sessions
+      carry a free-text <code>topic</code> string. Nothing holds a syllabus.
+    </p>
+    <p>
+      A per-session table is needed — course level, session number, title, key concepts, task,
+      parent summary, material link. I can deliver every level as JSON keyed to your existing topic
+      and level IDs so it seeds in one pass, and build the screens against it, but the endpoint has
+      to exist first.
+    </p>
+
+    <h3>Parents have no way to log in</h3>
+    <p>
+      <code>Role</code> is Student, Instructor and Admin. If parents are going to receive these
+      summaries, the realistic options are a printable per-session sheet, a per-term PDF, or
+      surfacing it on the student's own account. The certificate generator already produces PDFs
+      from templates, and the same approach would cover a session sheet without new dependencies.
+    </p>
+
+    <h3>Four topics have no topic code</h3>
+    <p>
+      <code>resolveTopicCode()</code> explicitly maps Python, Arduino, WeDo, AI, Programming Basics
+      and Mobile App Development. Cybersecurity, EV3, Flutter and Web Development fall through to
+      the initials fallback, which happens to produce sensible codes (CY, EV, FL, WD) but only by
+      luck. Worth adding them explicitly before these codes end up printed on certificates.
+    </p>
+  </section>
+
+  <section class="col">
+    <h2>What I'd do next</h2>
+    <p>
+      Say the word on the parent register and I'll generate the remaining levels. Sixteen are ready
+      now; four need material written before anything can be said about them, and Flutter needs a
+      sharing fix.
+    </p>
+    <ul>
+      <li><strong>You:</strong> confirm the tone of the parent column, and whether it should be English, Arabic, or both.</li>
+      <li><strong>You:</strong> copy the five stranded outlines into their "new" folders, and fix sharing on the Flutter Level 2 outline.</li>
+      <li><strong>Me:</strong> generate session records and parent summaries for the sixteen ready levels, as JSON plus a readable document.</li>
+      <li><strong>Then:</strong> the backend session table, and the screens to show it.</li>
+    </ul>
+    <p>
+      One judgement call worth naming: EV3 and Python Levels 3–4 could be written up from their
+      slide decks instead of their outlines. That's real work — reading a few hundred slides — and
+      the result would be my reading of the decks rather than the curriculum as designed. I'd rather
+      an instructor wrote those four outlines than have me infer them.
+    </p>
+  </section>
+
+  <footer class="col">
+    Compiled from the shared course folder — 10 topics, 24 level folders, 710 files, 21 level
+    outlines and 10 topic reports read in full. Session counts are taken from the outlines where
+    one exists, and from session file counts otherwise.
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,654 @@
+/* Three nesting levels — course › level › session — so the page leans on
+   indentation and colour weight rather than borders around everything. */
+
+.summary-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+
+  @media (min-width: 640px) {
+    padding: 24px 24px 72px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 40px 40px 80px;
+  }
+}
+
+.summary-head {
+  margin-bottom: 18px;
+}
+
+.summary-head__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+
+  @media (min-width: 640px) {
+    font-size: 30px;
+  }
+}
+
+.summary-head__sub {
+  margin: 5px 0 0;
+  max-width: 60ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+/* ── Coverage strip ─────────────────────────────────────────────────────── */
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+
+  @media (min-width: 720px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.8fr);
+  }
+}
+
+.stat {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+
+  b {
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    display: block;
+    margin-top: 2px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+}
+
+.stat--wide {
+  grid-column: 1 / -1;
+
+  b {
+    color: var(--color-secondary);
+  }
+
+  span {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+    font-size: 11.5px;
+  }
+
+  @media (min-width: 720px) {
+    grid-column: auto;
+  }
+}
+
+.stat__bar {
+  display: block;
+  height: 5px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  overflow: hidden;
+}
+
+.stat__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-secondary);
+  transition: width 0.4s ease;
+}
+
+/* ── Toolbar ────────────────────────────────────────────────────────────── */
+
+.summary-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  margin-bottom: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+}
+
+.summary-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+
+  > i {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--color-text-muted);
+  }
+
+  input {
+    width: 100%;
+    padding: 8px 32px 8px 30px;
+    border: 1px solid var(--color-border);
+    border-radius: 11px;
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    font-size: 12.5px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--color-secondary);
+    }
+  }
+}
+
+.summary-search__clear {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  i {
+    font-size: 9px;
+  }
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.summary-select {
+  padding: 8px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 11px;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
+
+  &:focus {
+    border-color: var(--color-secondary);
+  }
+}
+
+.summary-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+
+  input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--color-secondary);
+    cursor: pointer;
+  }
+}
+
+.summary-tally {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-expand {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-secondary);
+  }
+}
+
+/* ── States ─────────────────────────────────────────────────────────────── */
+
+.summary-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 20px;
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+}
+
+.summary-empty {
+  padding: 48px 20px;
+  text-align: center;
+  border: 2px dashed var(--color-border);
+  border-radius: 20px;
+  color: var(--color-text-muted);
+
+  > i {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 28px;
+    opacity: 0.4;
+  }
+}
+
+.summary-empty__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.summary-empty__note {
+  margin: 4px 0 0;
+  font-size: 11.5px;
+}
+
+.summary-clear {
+  margin-top: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-secondary);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-secondary);
+  }
+}
+
+/* ── Course (topic) ─────────────────────────────────────────────────────── */
+
+.topic {
+  margin-bottom: 30px;
+}
+
+.topic__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.topic__name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.topic__meta {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.topic__coverage {
+  margin-left: auto;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.topic__coverage--full {
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+}
+
+.topic__levels {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Level accordion ────────────────────────────────────────────────────── */
+
+.level {
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.level--open {
+  border-color: var(--color-secondary);
+}
+
+.level__head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 12px 15px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.level__chevron {
+  flex: none;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.level__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--color-info-background);
+  color: var(--color-secondary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.level__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.level__count {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* How much of this level has parent copy — the thing staff are chasing. */
+.level__bar {
+  display: none;
+  width: 64px;
+  height: 5px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  overflow: hidden;
+
+  @media (min-width: 640px) {
+    display: block;
+  }
+}
+
+.level__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-secondary);
+}
+
+.level__body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 4px 10px 12px;
+  background: var(--color-background-alt);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── Session row ────────────────────────────────────────────────────────── */
+
+.ses {
+  border: 1px solid var(--color-border);
+  border-radius: 13px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.ses--open {
+  border-color: var(--color-secondary);
+}
+
+.ses__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 13px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.ses__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ses__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ses__title {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* One line of the description, so a shut row still says what it is about. */
+.ses__preview {
+  display: block;
+  margin-top: 1px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ses--open .ses__preview {
+  display: none;
+}
+
+.ses__flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 6px;
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+
+  i {
+    font-size: 9px;
+  }
+}
+
+.ses__chevron {
+  flex: none;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.ses__body {
+  padding: 4px 15px 15px 51px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── Parts of a session ─────────────────────────────────────────────────── */
+
+.part {
+  margin-top: 13px;
+}
+
+.part__label {
+  margin: 0 0 4px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.part__text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.part__list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.chip--link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-secondary);
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--color-info-background);
+  }
+}
+
+/* Parent copy is boxed off because it is the text that leaves the building. */
+.parent {
+  margin-top: 15px;
+  padding: 12px 14px;
+  border: 1px dashed var(--color-secondary);
+  border-radius: 14px;
+  background: var(--color-info-background);
+}
+
+.part__label--parent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-secondary);
+}
+
+.draft {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.parent__text {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.parent__home {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-secondary);
+  border-radius: 0 12px 12px 0;
+  background: var(--color-surface);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}

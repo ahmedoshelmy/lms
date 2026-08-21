@@ -1,0 +1,288 @@
+.syllabus-card {
+  padding: 20px 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.syllabus-card--loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.syllabus-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.syllabus-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+
+  i {
+    color: var(--color-secondary);
+    font-size: 13px;
+  }
+}
+
+.syllabus-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-secondary);
+    background: var(--color-info-background);
+  }
+}
+
+/* Two columns where there is room; concepts and activities read side by side. */
+.syllabus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.syllabus-label {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.syllabus-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+
+  li {
+    margin-bottom: 3px;
+  }
+}
+
+.syllabus-task {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-warning);
+  border-radius: 0 12px 12px 0;
+  background: var(--color-warning-background);
+
+  p:last-child {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-text-primary);
+  }
+}
+
+.syllabus-steam {
+  margin-top: 16px;
+}
+
+.syllabus-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.syllabus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.syllabus-chip--link {
+  color: var(--color-secondary);
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--color-info-background);
+  }
+}
+
+/* Parent copy is visually separated because it leaves the building — staff
+   copy it out to families, so it must never be mistaken for internal notes. */
+.syllabus-parent {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px dashed var(--color-secondary);
+  border-radius: 14px;
+  background: var(--color-info-background);
+}
+
+.syllabus-parent__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.syllabus-label--parent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-secondary);
+}
+
+.syllabus-draft {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.syllabus-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+  }
+}
+
+.syllabus-parent__summary {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.syllabus-parent__home {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--color-secondary) 30%, transparent);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* ── Tabs, sections and the five-part layout ─────────────────────────────── */
+
+.syllabus-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--color-background);
+}
+
+.syllabus-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.syllabus-tab--active {
+  background: var(--color-surface);
+  color: var(--color-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Marks the parent tab when nothing has been written for it yet. */
+.syllabus-tab__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-warning);
+}
+
+.syllabus-section {
+  margin-top: 16px;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+.syllabus-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.syllabus-chips--tags {
+  margin-top: 8px;
+}
+
+.syllabus-empty {
+  margin: 0;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.syllabus-parent__block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--color-secondary) 22%, transparent);
+}
+
+/* Embedded in a list that already provides its own card and heading. */
+.syllabus-header--compact {
+  justify-content: flex-end;
+  padding-bottom: 0;
+  margin-bottom: 12px;
+  border-bottom: 0;
+}

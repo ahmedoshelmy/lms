@@ -16,6 +16,7 @@ import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/sess
 import { CancelSessionPayload } from '../../../core/interfaces/History';
 import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
+import { SessionSyllabusComponent } from '../../../shared/components/session-syllabus/session-syllabus.component';
 
 export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
 
@@ -83,7 +84,9 @@ function normalizeAttendanceStatus(raw: any): StudentStatus {
 @Component({
   selector: 'app-session-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SelectModule, ButtonModule, DialogModule],
+  imports: [CommonModule, RouterModule, FormsModule, SelectModule, ButtonModule, DialogModule,
+    SessionSyllabusComponent,
+  ],
   templateUrl: './session-detail.component.html',
   styleUrl: './session-detail.component.scss',
 })

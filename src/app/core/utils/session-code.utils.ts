@@ -56,21 +56,26 @@ export function getSessionDisplayTopic(s: any): string {
  * A session's place in its group's course, e.g. "4/12" for the fourth of
  * twelve.
  *
- * Reads `currentSessionNumber`, which is the progress counter the rest of the
- * app displays (session detail and attendance both render it as "N of total"),
- * falling back to the session's own ordinal. Returns an empty string when
- * neither is known, so a standalone session that belongs to no course sequence
- * renders nothing rather than "0".
+ * Reads `sessionNumber` — the number of *this* session in the curriculum.
+ *
+ * `currentSessionNumber` is deliberately only a fallback: the API projects it
+ * from GroupCourse.CurrentSessionNumber, which is the group's overall progress
+ * pointer and is therefore the same value on every session of that group
+ * course. Preferring it would stamp one identical badge across a whole week of
+ * that group's cards.
+ *
+ * Returns an empty string when neither is known, so a standalone trial or
+ * makeup session that belongs to no curriculum renders nothing rather than "0".
  */
 export function getSessionSequence(s: any): string {
-  const current = s?.currentSessionNumber || s?.sessionNumber || 0;
+  const current = s?.sessionNumber || s?.currentSessionNumber || 0;
   if (!current) return '';
   return s.totalSessions ? `${current}/${s.totalSessions}` : `${current}`;
 }
 
 /** Long form of the sequence, for tooltips and screen readers. */
 export function getSessionSequenceLabel(s: any): string {
-  const current = s?.currentSessionNumber || s?.sessionNumber || 0;
+  const current = s?.sessionNumber || s?.currentSessionNumber || 0;
   if (!current) return '';
   return s.totalSessions ? `Session ${current} of ${s.totalSessions}` : `Session ${current}`;
 }

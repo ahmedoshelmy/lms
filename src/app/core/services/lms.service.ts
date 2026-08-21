@@ -42,6 +42,12 @@ import {
   CancelSessionPayload,
   SessionHistoryFilter,
 } from '../interfaces/History';
+import {
+  SessionCatalogueEntry,
+  SessionSyllabus,
+  StudentSessionSummary,
+  UpsertSessionSyllabusPayload,
+} from '../interfaces/SessionSyllabus';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -324,6 +330,54 @@ export class LmsService {
   deleteSession(id: number): Observable<{ message?: string } | void> {
     return this.http.delete<{ message?: string } | void>(
       `${this.getApiUrl()}/schedule/sessions/${id}`
+    );
+  }
+
+  // ─── Session syllabus ─────────────────────────────────────────────────────
+
+  /**
+   * The curriculum entry for a scheduled session, resolved by the API through
+   * the session's group course. Standalone trial and makeup sessions belong to
+   * no curriculum and return 404.
+   */
+  getSessionSyllabus(sessionId: number): Observable<SessionSyllabus> {
+    return this.http.get<SessionSyllabus>(
+      `${this.getApiUrl()}/Schedule/sessions/${sessionId}/syllabus`
+    );
+  }
+
+  /** Every session of every course level, for browsing the whole curriculum. */
+  getSessionCatalogue(): Observable<SessionCatalogueEntry[]> {
+    return this.http.get<SessionCatalogueEntry[]>(`${this.getApiUrl()}/topics/sessions`);
+  }
+
+  /**
+   * A student's own session history with the published summaries. Students may
+   * only request their own; staff may request anyone's.
+   */
+  getStudentSessionSummaries(studentId: number): Observable<StudentSessionSummary[]> {
+    return this.http.get<StudentSessionSummary[]>(
+      `${this.getApiUrl()}/students/${studentId}/session-summaries`
+    );
+  }
+
+  /** The full session-by-session syllabus for a course level. */
+  getCourseLevelSyllabus(topicId: number, levelId: number): Observable<SessionSyllabus[]> {
+    return this.http.get<SessionSyllabus[]>(
+      `${this.getApiUrl()}/Topics/${topicId}/levels/${levelId}/sessions`
+    );
+  }
+
+  /** Creates or replaces one session of a course level's syllabus. */
+  upsertCourseLevelSession(
+    topicId: number,
+    levelId: number,
+    sessionNumber: number,
+    payload: UpsertSessionSyllabusPayload
+  ): Observable<SessionSyllabus> {
+    return this.http.put<SessionSyllabus>(
+      `${this.getApiUrl()}/Topics/${topicId}/levels/${levelId}/sessions/${sessionNumber}`,
+      payload
     );
   }
 

@@ -1,0 +1,158 @@
+@if (loading()) {
+  <div class="syllabus-card syllabus-card--loading">
+    <i class="pi pi-spinner pi-spin text-sm"></i>
+    <span>Loading session content…</span>
+  </div>
+} @else if (data(); as s) {
+  <div class="syllabus-card">
+    <div class="syllabus-header" [class.syllabus-header--compact]="compact()">
+      @if (!compact()) {
+        <h3 class="syllabus-title">
+          <i class="pi pi-book"></i>
+          Session {{ s.sessionNumber }} &middot; {{ s.title }}
+        </h3>
+      }
+
+      @if (isStaff()) {
+        <div class="syllabus-tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            class="syllabus-tab"
+            [class.syllabus-tab--active]="tab() === 'content'"
+            [attr.aria-selected]="tab() === 'content'"
+            (click)="tab.set('content')"
+          >
+            Session content
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="syllabus-tab"
+            [class.syllabus-tab--active]="tab() === 'parents'"
+            [attr.aria-selected]="tab() === 'parents'"
+            (click)="tab.set('parents')"
+          >
+            For parents
+            @if (!hasParentCopy()) {
+              <span class="syllabus-tab__dot" title="No parent summary written yet"></span>
+            }
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- ── Session content: STEM / Links / Content / Projects / Task ── -->
+    @if (tab() === 'content') {
+      @if (s.steamTopic) {
+        <section class="syllabus-section">
+          <p class="syllabus-label">STEM</p>
+          <p class="syllabus-text">{{ s.steamTopic }}</p>
+        </section>
+      }
+
+      @if (s.content || s.keyConcepts.length) {
+        <section class="syllabus-section">
+          <p class="syllabus-label">Content</p>
+          @if (s.content) {
+            <p class="syllabus-text">{{ s.content }}</p>
+          }
+          @if (s.keyConcepts.length) {
+            <div class="syllabus-chips syllabus-chips--tags">
+              @for (concept of s.keyConcepts; track concept) {
+                <span class="syllabus-chip">{{ concept }}</span>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      @if (s.activities.length) {
+        <section class="syllabus-section">
+          <p class="syllabus-label">Projects</p>
+          <ul class="syllabus-list">
+            @for (project of s.activities; track project) {
+              <li>{{ project }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (s.task) {
+        <section class="syllabus-task">
+          <p class="syllabus-label">Task</p>
+          <p class="syllabus-text">{{ s.task }}</p>
+        </section>
+      }
+
+      @if (allLinks().length) {
+        <section class="syllabus-section">
+          <p class="syllabus-label">All links</p>
+          <div class="syllabus-chips">
+            @for (link of allLinks(); track link.url) {
+              <a
+                [href]="link.url"
+                target="_blank"
+                rel="noopener"
+                class="syllabus-chip syllabus-chip--link"
+              >
+                <i class="pi" [ngClass]="link.icon"></i> {{ link.label }}
+              </a>
+            }
+          </div>
+        </section>
+      }
+    }
+
+    <!-- ── For parents ── -->
+    @if (tab() === 'parents' || !isStaff()) {
+      @if (hasParentCopy()) {
+        <section class="syllabus-parent">
+          <div class="syllabus-parent__head">
+            <p class="syllabus-label syllabus-label--parent">
+              What to tell parents
+              @if (isStaff() && !s.isPublished) {
+                <span class="syllabus-draft">Draft</span>
+              }
+            </p>
+
+            @if (isStaff()) {
+              <button type="button" class="syllabus-copy" (click)="copyParentSummary()">
+                <i class="pi" [class.pi-copy]="!copied()" [class.pi-check]="copied()"></i>
+                {{ copied() ? 'Copied' : 'Copy' }}
+              </button>
+            }
+          </div>
+
+          <p class="syllabus-parent__summary">{{ s.parentSummary }}</p>
+
+          @if (s.activities.length) {
+            <div class="syllabus-parent__block">
+              <p class="syllabus-label">What they made</p>
+              <ul class="syllabus-list">
+                @for (project of s.activities; track project) {
+                  <li>{{ project }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (s.task) {
+            <div class="syllabus-parent__block">
+              <p class="syllabus-label">Task set</p>
+              <p class="syllabus-text">{{ s.task }}</p>
+            </div>
+          }
+
+          @if (s.parentHomeActivity) {
+            <p class="syllabus-parent__home">
+              <strong>At home:</strong> {{ s.parentHomeActivity }}
+            </p>
+          }
+        </section>
+      } @else {
+        <p class="syllabus-empty">No parent summary has been written for this session yet.</p>
+      }
+    }
+  </div>
+}

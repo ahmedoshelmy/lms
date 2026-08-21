@@ -1,0 +1,282 @@
+<div class="summary-page">
+  <header class="summary-head">
+    <h1 class="summary-head__title">Session Summaries</h1>
+    <p class="summary-head__sub">
+      Every session of every course — what it covers, what students build, and what a parent is
+      told.
+    </p>
+  </header>
+
+  @if (loadedOnce() && entries().length) {
+    <!-- How much of the curriculum is actually written up, at a glance. -->
+    <div class="stat-strip">
+      <div class="stat">
+        <b>{{ stats().topics }}</b>
+        <span>Courses</span>
+      </div>
+      <div class="stat">
+        <b>{{ stats().levels }}</b>
+        <span>Levels</span>
+      </div>
+      <div class="stat">
+        <b>{{ stats().sessions }}</b>
+        <span>Sessions</span>
+      </div>
+      <div class="stat stat--wide">
+        <b>{{ stats().coverage }}%</b>
+        <span>{{ stats().covered }} sessions have parent copy</span>
+        <span class="stat__bar">
+          <span class="stat__fill" [style.width.%]="stats().coverage"></span>
+        </span>
+      </div>
+    </div>
+
+    <div class="summary-toolbar">
+      <div class="summary-search">
+        <i class="pi pi-search"></i>
+        <input
+          type="text"
+          placeholder="Search sessions, concepts or summaries…"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+        @if (search()) {
+          <button
+            type="button"
+            class="summary-search__clear"
+            aria-label="Clear search"
+            (click)="search.set('')"
+          >
+            <i class="pi pi-times"></i>
+          </button>
+        }
+      </div>
+
+      <select
+        class="summary-select"
+        [ngModel]="topicFilter()"
+        (ngModelChange)="topicFilter.set($event)"
+      >
+        <option value="">All courses</option>
+        @for (topic of topics(); track topic) {
+          <option [value]="topic">{{ topic }}</option>
+        }
+      </select>
+
+      <label class="summary-toggle">
+        <input
+          type="checkbox"
+          [ngModel]="onlyWithSummary()"
+          (ngModelChange)="onlyWithSummary.set($event)"
+        />
+        <span>With parent copy</span>
+      </label>
+
+      <span class="summary-tally">{{ filtered().length }} shown</span>
+
+      <button
+        type="button"
+        class="summary-expand"
+        (click)="allCollapsed() ? openAll() : collapseAll()"
+      >
+        {{ allCollapsed() ? 'Expand all' : 'Collapse all' }}
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="summary-loading">
+      <p-progressSpinner styleClass="w-10 h-10" strokeWidth="4"></p-progressSpinner>
+      <p>Loading the curriculum…</p>
+    </div>
+  } @else if (loadedOnce() && !entries().length) {
+    <div class="summary-empty">
+      <i class="pi pi-book"></i>
+      <p class="summary-empty__title">No session content yet</p>
+      <p class="summary-empty__note">
+        Session content appears here once it has been added to a course level.
+      </p>
+    </div>
+  } @else if (!filtered().length) {
+    <div class="summary-empty">
+      <i class="pi pi-filter-slash"></i>
+      <p class="summary-empty__title">Nothing matches those filters</p>
+      <button type="button" class="summary-clear" (click)="clearFilters()">Clear filters</button>
+    </div>
+  } @else {
+    @for (topic of grouped(); track topic.topicName) {
+      <section class="topic">
+        <div class="topic__head">
+          <h2 class="topic__name">{{ topic.topicName }}</h2>
+          <span class="topic__meta">
+            {{ topic.levels.length }} {{ topic.levels.length === 1 ? 'level' : 'levels' }} &middot;
+            {{ topic.sessionCount }} sessions
+          </span>
+          <span class="topic__coverage" [class.topic__coverage--full]="topic.coverage === 100">
+            {{ topic.coverage }}% written
+          </span>
+        </div>
+
+        <div class="topic__levels">
+          @for (level of topic.levels; track level.key) {
+            <div class="level" [class.level--open]="isLevelOpen(level.key)">
+              <button
+                type="button"
+                class="level__head"
+                (click)="toggleLevel(level.key)"
+                [attr.aria-expanded]="isLevelOpen(level.key)"
+              >
+                <i
+                  class="pi level__chevron"
+                  [class.pi-chevron-right]="!isLevelOpen(level.key)"
+                  [class.pi-chevron-down]="isLevelOpen(level.key)"
+                ></i>
+
+                <span class="level__badge">L{{ level.level }}</span>
+                <span class="level__title">{{ level.courseTitle }}</span>
+                <span class="level__count">{{ level.sessions.length }} sessions</span>
+
+                <span class="level__bar" [title]="level.coverage + '% with parent copy'">
+                  <span class="level__fill" [style.width.%]="level.coverage"></span>
+                </span>
+              </button>
+
+              @if (isLevelOpen(level.key)) {
+                <div class="level__body">
+                  @for (s of level.sessions; track s.id) {
+                    <article class="ses" [class.ses--open]="isExpanded(s.id)">
+                      <button type="button" class="ses__head" (click)="toggle(s.id)">
+                        <span class="ses__num">{{ s.sessionNumber }}</span>
+
+                        <span class="ses__main">
+                          <span class="ses__title">{{ s.title }}</span>
+                          @if (s.content) {
+                            <span class="ses__preview">{{ s.content }}</span>
+                          } @else if (s.steamTopic) {
+                            <span class="ses__preview">STEM: {{ s.steamTopic }}</span>
+                          }
+                        </span>
+
+                        @if (s.parentSummary) {
+                          <span class="ses__flag" title="Has parent copy">
+                            <i class="pi pi-users"></i>
+                          </span>
+                        }
+
+                        <i
+                          class="pi ses__chevron"
+                          [class.pi-chevron-down]="!isExpanded(s.id)"
+                          [class.pi-chevron-up]="isExpanded(s.id)"
+                        ></i>
+                      </button>
+
+                      @if (isExpanded(s.id)) {
+                        <div class="ses__body">
+                          @if (s.content || s.keyConcepts.length) {
+                            <div class="part">
+                              <p class="part__label">Content</p>
+                              @if (s.content) {
+                                <p class="part__text">{{ s.content }}</p>
+                              }
+                              @if (s.keyConcepts.length) {
+                                <div class="chips">
+                                  @for (concept of s.keyConcepts; track concept) {
+                                    <span class="chip">{{ concept }}</span>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          }
+
+                          @if (s.activities.length) {
+                            <div class="part">
+                              <p class="part__label">Projects</p>
+                              <ul class="part__list">
+                                @for (project of s.activities; track project) {
+                                  <li>{{ project }}</li>
+                                }
+                              </ul>
+                            </div>
+                          }
+
+                          @if (s.task) {
+                            <div class="part">
+                              <p class="part__label">Task</p>
+                              <p class="part__text">{{ s.task }}</p>
+                            </div>
+                          }
+
+                          @if (s.steamTopic) {
+                            <div class="part">
+                              <p class="part__label">STEM</p>
+                              <p class="part__text">{{ s.steamTopic }}</p>
+                            </div>
+                          }
+
+                          @if (s.materialUrl || s.kahootUrl || s.steamVideoUrls.length) {
+                            <div class="part">
+                              <p class="part__label">All links</p>
+                              <div class="chips">
+                                @if (s.materialUrl) {
+                                  <a
+                                    [href]="s.materialUrl"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="chip chip--link"
+                                  >
+                                    <i class="pi pi-file-pdf"></i> Material
+                                  </a>
+                                }
+                                @for (url of s.steamVideoUrls; track url) {
+                                  <a
+                                    [href]="url"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="chip chip--link"
+                                  >
+                                    <i class="pi pi-youtube"></i> Video
+                                  </a>
+                                }
+                                @if (s.kahootUrl) {
+                                  <a
+                                    [href]="s.kahootUrl"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="chip chip--link"
+                                  >
+                                    <i class="pi pi-question-circle"></i> Kahoot
+                                  </a>
+                                }
+                              </div>
+                            </div>
+                          }
+
+                          @if (s.parentSummary) {
+                            <div class="parent">
+                              <p class="part__label part__label--parent">
+                                For parents
+                                @if (isStaff() && !s.isPublished) {
+                                  <span class="draft">Draft</span>
+                                }
+                              </p>
+                              <p class="parent__text">{{ s.parentSummary }}</p>
+                              @if (s.parentHomeActivity) {
+                                <p class="parent__home">
+                                  <strong>At home:</strong> {{ s.parentHomeActivity }}
+                                </p>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </article>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

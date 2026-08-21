@@ -10,11 +10,20 @@ import { AuthService } from '../../core/services/auth.service';
 import { Topic } from '../../core/interfaces/Topic';
 import { CourseLevel } from '../../core/interfaces/CourseLevel';
 import { Role } from '../../core/interfaces/Role';
+import { SessionSyllabus } from '../../core/interfaces/SessionSyllabus';
+import { SessionSyllabusComponent } from '../../shared/components/session-syllabus/session-syllabus.component';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, ButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ProgressSpinnerModule,
+    DialogModule,
+    ButtonModule,
+    SessionSyllabusComponent,
+  ],
   templateUrl: './courses.component.html',
   styleUrl: './courses.component.scss',
 })
@@ -52,6 +61,17 @@ export class CoursesComponent implements OnInit {
   levelSessionCount = signal<number>(12);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
+
+  // ─── Course content (per-level syllabus) ──────────────────────────────────
+  /** The level whose sessions are open. One at a time, so the page stays short. */
+  expandedLevelId = signal<number | null>(null);
+  syllabus = signal<SessionSyllabus[]>([]);
+  loadingSyllabus = signal<boolean>(false);
+  /** Cached per level, so collapsing and reopening does not refetch. */
+  private syllabusCache = new Map<number, SessionSyllabus[]>();
+  /** Session numbers currently expanded in the list. */
+  private expandedSessions = signal<ReadonlySet<number>>(new Set<number>());
+
 
   readonly filteredTopics = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
@@ -248,6 +268,65 @@ export class CoursesComponent implements OnInit {
       else next.add(topicId);
       return next;
     });
+  }
+
+  isLevelExpanded(levelId: number): boolean {
+    return this.expandedLevelId() === levelId;
+  }
+
+  /**
+   * Opens a course level's sessions inline, closing whichever was open.
+   * The syllabus is fetched once per level and kept, so reopening is instant.
+   */
+  toggleLevel(topic: Topic, level: CourseLevel): void {
+    if (this.expandedLevelId() === level.id) {
+      this.expandedLevelId.set(null);
+      return;
+    }
+
+    this.expandedLevelId.set(level.id);
+    this.expandedSessions.set(new Set<number>());
+
+    const cached = this.syllabusCache.get(level.id);
+    if (cached) {
+      this.syllabus.set(cached);
+      return;
+    }
+
+    this.syllabus.set([]);
+    this.loadingSyllabus.set(true);
+    this.lmsService.getCourseLevelSyllabus(topic.id, level.id).subscribe({
+      next: (sessions) => {
+        this.syllabusCache.set(level.id, sessions || []);
+        // Guard against a slow response arriving after the user moved on.
+        if (this.expandedLevelId() === level.id) {
+          this.syllabus.set(sessions || []);
+        }
+        this.loadingSyllabus.set(false);
+      },
+      error: () => {
+        // errorInterceptor reports it; the empty state says the rest.
+        this.loadingSyllabus.set(false);
+      },
+    });
+  }
+
+  readonly syllabusWithParentCopy = computed(
+    () => this.syllabus().filter((s) => !!s.parentSummary).length
+  );
+
+  isSessionExpanded(sessionNumber: number): boolean {
+    return this.expandedSessions().has(sessionNumber);
+  }
+
+  toggleSession(sessionNumber: number): void {
+    const next = new Set(this.expandedSessions());
+    if (next.has(sessionNumber)) {
+      next.delete(sessionNumber);
+    } else {
+      next.add(sessionNumber);
+    }
+    this.expandedSessions.set(next);
   }
 
   expandAll(): void {
