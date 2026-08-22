@@ -15,6 +15,11 @@ export const GROUP_STATUS: Record<string, number> = {
   Archived: 4,
 };
 
+/** For a status dropdown. Derived from the map so the two cannot disagree. */
+export const GROUP_STATUS_OPTIONS: { label: string; value: number }[] = Object.entries(
+  GROUP_STATUS
+).map(([label, value]) => ({ label, value }));
+
 export const GROUP_STATUS_LABELS: Record<number, string> = {
   1: 'Running',
   2: 'Stopped',

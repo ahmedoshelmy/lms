@@ -14,6 +14,7 @@ import {
   CancelUpcomingSessionsPayload,
   CancelUpcomingSessionsResult,
   GROUP_STATUS,
+  GROUP_STATUS_OPTIONS,
   GenerateCustomSessionsPayload,
   Group,
   GroupStudent,
@@ -37,13 +38,6 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   Completed: { label: 'Completed', css: 'status-completed', icon: 'pi-check-circle' },
   Archived: { label: 'Archived', css: 'status-archived', icon: 'pi-archive' },
 };
-
-const STATUS_OPTIONS = [
-  { label: 'Running', value: 0 },
-  { label: 'Stopped', value: 1 },
-  { label: 'Completed', value: 2 },
-  { label: 'Archived', value: 3 },
-];
 
 @Component({
   selector: 'app-group-detail',
@@ -184,7 +178,7 @@ export class GroupDetailComponent implements OnInit {
   editScheduleUpdateUpcoming = signal<boolean>(true);
   newCourseLevelToAdd = signal<number | null>(null);
 
-  statusOptions = STATUS_OPTIONS;
+  statusOptions = GROUP_STATUS_OPTIONS;
 
   // Add / Move Student Modal Signals
   showAddStudentModal = signal<boolean>(false);

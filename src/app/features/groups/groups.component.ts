@@ -12,6 +12,7 @@ import { Role } from '../../core/interfaces/Role';
 import {
   CreateGroupPayload,
   GROUP_STATUS,
+  GROUP_STATUS_OPTIONS,
   Group,
   GroupScheduleSlot,
   UpdateGroupPayload,
@@ -28,13 +29,6 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   Completed: { label: 'Completed', css: 'status-completed', icon: 'pi-check-circle' },
   Archived: { label: 'Archived', css: 'status-archived', icon: 'pi-archive' },
 };
-
-const STATUS_OPTIONS = [
-  { label: 'Running', value: 0 },
-  { label: 'Stopped', value: 1 },
-  { label: 'Completed', value: 2 },
-  { label: 'Archived', value: 3 },
-];
 
 const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -104,7 +98,7 @@ export class GroupsComponent implements OnInit {
   scheduleSessions = signal<ScheduleSession[]>([]);
 
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
-  statusOptions = STATUS_OPTIONS;
+  statusOptions = GROUP_STATUS_OPTIONS;
   daysOfWeek = DAYS_OF_WEEK;
   protected readonly Math = Math;
 
