@@ -11,11 +11,16 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role, parseRole } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
-import { ScheduleSession, SessionAttendanceItem, UpdateSessionPayload } from '../../../core/interfaces/ScheduleSession';
+import {
+  ScheduleSession,
+  SessionAttendanceItem,
+  UpdateSessionPayload,
+} from '../../../core/interfaces/ScheduleSession';
 import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
 import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
+import { Candidate } from '../../../core/interfaces/Sales';
 import { SessionSyllabusComponent } from '../../../shared/components/session-syllabus/session-syllabus.component';
 
 export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
@@ -84,7 +89,13 @@ function normalizeAttendanceStatus(raw: any): StudentStatus {
 @Component({
   selector: 'app-session-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SelectModule, ButtonModule, DialogModule,
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    SelectModule,
+    ButtonModule,
+    DialogModule,
     SessionSyllabusComponent,
   ],
   templateUrl: './session-detail.component.html',
@@ -127,11 +138,15 @@ export class SessionDetailComponent implements OnInit {
   showFutureWeekConfirmModal = signal<boolean>(false);
   showDeleteModal = signal<boolean>(false);
 
-  readonly isAdmin = computed(() => this.auth.hasRole(Role.Instructor) || this.auth.hasRole(Role.Admin));
+  readonly isAdmin = computed(
+    () => this.auth.hasRole(Role.Instructor) || this.auth.hasRole(Role.Admin)
+  );
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
   readonly canEdit = computed(() => this.auth.hasRole(Role.Admin));
 
-  readonly isEditCancelled = computed(() => (this.editStatus() ?? '').toLowerCase().includes('cancel'));
+  readonly isEditCancelled = computed(() =>
+    (this.editStatus() ?? '').toLowerCase().includes('cancel')
+  );
 
   readonly isCancelled = computed(() => {
     const s = this.session();
@@ -175,11 +190,46 @@ export class SessionDetailComponent implements OnInit {
     const q = this.searchQuery().toLowerCase().trim();
     const filter = this.rosterStatusFilter();
     return this.records().filter((r) => {
-      const matchesSearch = !q || r.studentName.toLowerCase().includes(q) || r.studentEmail.toLowerCase().includes(q);
+      const matchesSearch =
+        !q || r.studentName.toLowerCase().includes(q) || r.studentEmail.toLowerCase().includes(q);
       const matchesStatus = filter === 'all' || r.status === filter;
       return matchesSearch && matchesStatus;
     });
   });
+
+  /**
+   * Candidates sitting in on this class before deciding whether to join. Empty
+   * for anyone who cannot take this register: the server decides that, and a
+   * refusal here just means there is nothing to show.
+   */
+  readonly trials = signal<Candidate[]>([]);
+
+  private loadTrials(session: ScheduleSession): void {
+    // Only the instructor teaching it and admin may look, and the server says
+    // so too. Asking anyway would put a refusal in the log on every other view.
+    const mine = session.instructorId === this.auth.getUserId();
+    if (!mine && !this.canEdit()) {
+      this.trials.set([]);
+      return;
+    }
+
+    this.lms
+      .getSessionTrials(session.id)
+      .pipe(catchError(() => of([] as Candidate[])))
+      .subscribe((trials) => this.trials.set(trials));
+  }
+
+  /** Whether a candidate came. Sales used to have to ring round and ask. */
+  markTrial(candidate: Candidate, attended: boolean): void {
+    const sessionId = this.session()?.id;
+    if (!sessionId) return;
+
+    this.lms.recordTrialAttendance(sessionId, candidate.id, attended).subscribe({
+      next: (updated) =>
+        this.trials.update((list) => list.map((c) => (c.id === updated.id ? updated : c))),
+      error: () => this.notify.showError('Could not record that.'),
+    });
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -203,6 +253,7 @@ export class SessionDetailComponent implements OnInit {
           if (detail) {
             this.session.set(detail);
             this.buildRecords(detail);
+            this.loadTrials(detail);
           } else {
             this.notify.showError('Session not found');
             this.router.navigate(['/schedule']);
@@ -231,7 +282,8 @@ export class SessionDetailComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       const storedJson = localStorage.getItem(`lms_attendance_${session.id}`);
       if (storedJson) {
-        const storedMap: Record<string, { status: string; recordId?: number }> = JSON.parse(storedJson);
+        const storedMap: Record<string, { status: string; recordId?: number }> =
+          JSON.parse(storedJson);
         const apiIds = new Set(recs.map((r) => r.studentId));
         Object.entries(storedMap).forEach(([stIdStr, data]) => {
           if (!apiIds.has(Number(stIdStr))) {
@@ -335,7 +387,10 @@ export class SessionDetailComponent implements OnInit {
     });
   }
 
-  private finishSave(cacheMap: Record<string, { status: string; recordId?: number }>, hasError: boolean): void {
+  private finishSave(
+    cacheMap: Record<string, { status: string; recordId?: number }>,
+    hasError: boolean
+  ): void {
     const s = this.session();
     if (s && isPlatformBrowser(this.platformId)) {
       localStorage.setItem(`lms_attendance_${s.id}`, JSON.stringify(cacheMap));
@@ -350,11 +405,20 @@ export class SessionDetailComponent implements OnInit {
   }
 
   formatTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+    return new Date(iso).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
   }
 
   formatDateTime(iso: string): string {
@@ -535,9 +599,7 @@ export class SessionDetailComponent implements OnInit {
           },
           error: (err) => {
             this.saving.set(false);
-            this.notify.showError(
-              'Failed to apply forward: ' + (err.error?.message || 'Error')
-            );
+            this.notify.showError('Failed to apply forward: ' + (err.error?.message || 'Error'));
           },
         });
     } else {

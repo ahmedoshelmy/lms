@@ -23,7 +23,9 @@
       <div class="relative z-10">
         <div class="session-hero__top">
           <div class="flex items-center gap-2 flex-wrap mb-2">
-            <span class="session-badge" [ngClass]="getStatusBadgeClass(s.status)">{{ s.status }}</span>
+            <span class="session-badge" [ngClass]="getStatusBadgeClass(s.status)">{{
+              s.status
+            }}</span>
             @if (s.type) {
               <span class="type-badge">{{ s.type }}</span>
             }
@@ -112,7 +114,9 @@
                 @if (sel) {
                   <div class="flex items-center gap-2">
                     <span class="edit-avatar">{{ sel.name.charAt(0).toUpperCase() }}</span>
-                    <span class="text-sm font-semibold text-[var(--color-text-primary)]">{{ sel.name }}</span>
+                    <span class="text-sm font-semibold text-[var(--color-text-primary)]">{{
+                      sel.name
+                    }}</span>
                   </div>
                 }
               </ng-template>
@@ -123,7 +127,9 @@
           <div class="edit-field">
             <label class="edit-label" for="edit-session-date">
               Session Date
-              <span class="edit-label__hint">(Same Week = Reschedule, Next Week = Cancel &amp; Shift)</span>
+              <span class="edit-label__hint"
+                >(Same Week = Reschedule, Next Week = Cancel &amp; Shift)</span
+              >
             </label>
             <input
               id="edit-session-date"
@@ -198,7 +204,9 @@
 
           <!-- Apply Forward Options -->
           <div class="edit-field border-t border-[var(--color-border)] pt-3 mt-3">
-            <label class="flex items-center gap-2 text-xs font-bold text-[var(--color-primary)] cursor-pointer">
+            <label
+              class="flex items-center gap-2 text-xs font-bold text-[var(--color-primary)] cursor-pointer"
+            >
               <input
                 type="checkbox"
                 [checked]="applyForwardToRemaining()"
@@ -209,7 +217,9 @@
             </label>
 
             @if (applyForwardToRemaining()) {
-              <label class="flex items-center gap-2 text-[11px] font-semibold text-[var(--color-text-secondary)] ml-6 mt-2 cursor-pointer">
+              <label
+                class="flex items-center gap-2 text-[11px] font-semibold text-[var(--color-text-secondary)] ml-6 mt-2 cursor-pointer"
+              >
                 <input
                   type="checkbox"
                   [checked]="updateWeeklySchedule()"
@@ -223,7 +233,11 @@
         </div>
 
         <div class="edit-section__footer">
-          <button type="button" class="edit-footer-btn edit-footer-btn--secondary" (click)="cancelEditing()">
+          <button
+            type="button"
+            class="edit-footer-btn edit-footer-btn--secondary"
+            (click)="cancelEditing()"
+          >
             <i class="pi pi-times"></i> Cancel
           </button>
           <button
@@ -312,10 +326,20 @@
           </div>
         } @else {
           <div class="attendance-actions">
-            <button type="button" class="action-btn action-btn--secondary" (click)="resetChanges()" [disabled]="!isDirty()">
+            <button
+              type="button"
+              class="action-btn action-btn--secondary"
+              (click)="resetChanges()"
+              [disabled]="!isDirty()"
+            >
               <i class="pi pi-replay"></i> Reset
             </button>
-            <button type="button" class="action-btn action-btn--primary" (click)="saveAttendance()" [disabled]="saving() || !isDirty()">
+            <button
+              type="button"
+              class="action-btn action-btn--primary"
+              (click)="saveAttendance()"
+              [disabled]="saving() || !isDirty()"
+            >
               @if (saving()) {
                 <i class="pi pi-spin pi-spinner"></i> Saving...
               } @else {
@@ -330,10 +354,26 @@
         <!-- Bulk Actions -->
         <div class="bulk-actions">
           <span class="bulk-label">Bulk mark all as:</span>
-          <button type="button" class="bulk-btn bulk-btn--present" (click)="bulkSetStatus('Present')">Present</button>
-          <button type="button" class="bulk-btn bulk-btn--absent" (click)="bulkSetStatus('Absent')">Absent</button>
-          <button type="button" class="bulk-btn bulk-btn--late" (click)="bulkSetStatus('Late')">Late</button>
-          <button type="button" class="bulk-btn bulk-btn--excused" (click)="bulkSetStatus('Excused')">Excused</button>
+          <button
+            type="button"
+            class="bulk-btn bulk-btn--present"
+            (click)="bulkSetStatus('Present')"
+          >
+            Present
+          </button>
+          <button type="button" class="bulk-btn bulk-btn--absent" (click)="bulkSetStatus('Absent')">
+            Absent
+          </button>
+          <button type="button" class="bulk-btn bulk-btn--late" (click)="bulkSetStatus('Late')">
+            Late
+          </button>
+          <button
+            type="button"
+            class="bulk-btn bulk-btn--excused"
+            (click)="bulkSetStatus('Excused')"
+          >
+            Excused
+          </button>
         </div>
       }
 
@@ -341,29 +381,59 @@
       <div class="roster-toolbar">
         <div class="search-box">
           <i class="pi pi-search"></i>
-          <input type="text" placeholder="Search students..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" />
+          <input
+            type="text"
+            placeholder="Search students..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
         </div>
         <div class="filter-pills">
-          <button type="button" class="filter-pill" [class.filter-pill--active]="rosterStatusFilter() === 'all'" (click)="rosterStatusFilter.set('all')">
+          <button
+            type="button"
+            class="filter-pill"
+            [class.filter-pill--active]="rosterStatusFilter() === 'all'"
+            (click)="rosterStatusFilter.set('all')"
+          >
             All ({{ totalCount() }})
           </button>
           @if (presentCount() > 0) {
-            <button type="button" class="filter-pill filter-pill--present" [class.filter-pill--active]="rosterStatusFilter() === 'Present'" (click)="rosterStatusFilter.set('Present')">
+            <button
+              type="button"
+              class="filter-pill filter-pill--present"
+              [class.filter-pill--active]="rosterStatusFilter() === 'Present'"
+              (click)="rosterStatusFilter.set('Present')"
+            >
               Present ({{ presentCount() }})
             </button>
           }
           @if (absentCount() > 0) {
-            <button type="button" class="filter-pill filter-pill--absent" [class.filter-pill--active]="rosterStatusFilter() === 'Absent'" (click)="rosterStatusFilter.set('Absent')">
+            <button
+              type="button"
+              class="filter-pill filter-pill--absent"
+              [class.filter-pill--active]="rosterStatusFilter() === 'Absent'"
+              (click)="rosterStatusFilter.set('Absent')"
+            >
               Absent ({{ absentCount() }})
             </button>
           }
           @if (lateCount() > 0) {
-            <button type="button" class="filter-pill filter-pill--late" [class.filter-pill--active]="rosterStatusFilter() === 'Late'" (click)="rosterStatusFilter.set('Late')">
+            <button
+              type="button"
+              class="filter-pill filter-pill--late"
+              [class.filter-pill--active]="rosterStatusFilter() === 'Late'"
+              (click)="rosterStatusFilter.set('Late')"
+            >
               Late ({{ lateCount() }})
             </button>
           }
           @if (excusedCount() > 0) {
-            <button type="button" class="filter-pill filter-pill--excused" [class.filter-pill--active]="rosterStatusFilter() === 'Excused'" (click)="rosterStatusFilter.set('Excused')">
+            <button
+              type="button"
+              class="filter-pill filter-pill--excused"
+              [class.filter-pill--active]="rosterStatusFilter() === 'Excused'"
+              (click)="rosterStatusFilter.set('Excused')"
+            >
               Excused ({{ excusedCount() }})
             </button>
           }
@@ -374,9 +444,17 @@
       @if (totalCount() > 0) {
         <div class="attendance-progress">
           <div class="attendance-progress__bar">
-            <div class="attendance-progress__segment attendance-progress__segment--present" [style.width.%]="presentRate()" title="Present"></div>
+            <div
+              class="attendance-progress__segment attendance-progress__segment--present"
+              [style.width.%]="presentRate()"
+              title="Present"
+            ></div>
             @if (lateCount() > 0) {
-              <div class="attendance-progress__segment attendance-progress__segment--late" [style.width.%]="(lateCount() / totalCount()) * 100" title="Late"></div>
+              <div
+                class="attendance-progress__segment attendance-progress__segment--late"
+                [style.width.%]="(lateCount() / totalCount()) * 100"
+                title="Late"
+              ></div>
             }
           </div>
           <span class="attendance-progress__label">{{ presentRate() }}% attendance rate</span>
@@ -388,7 +466,9 @@
         <div class="empty-roster">
           <i class="pi pi-users text-4xl mb-3 opacity-30 text-[var(--color-secondary)]"></i>
           <p class="font-bold text-[var(--color-text-primary)]">No students in this session</p>
-          <p class="text-xs text-[var(--color-text-muted)] mt-1">This session has no enrolled students yet.</p>
+          <p class="text-xs text-[var(--color-text-muted)] mt-1">
+            This session has no enrolled students yet.
+          </p>
         </div>
       } @else {
         <div class="roster-table-wrap">
@@ -419,21 +499,47 @@
                     </div>
                   </td>
                   <td class="roster-td">
-                    <span class="record-badge" [ngClass]="getRecordStatusClass(rec.status)">{{ rec.status }}</span>
+                    <span class="record-badge" [ngClass]="getRecordStatusClass(rec.status)">{{
+                      rec.status
+                    }}</span>
                   </td>
                   @if (!isAttendanceDisabled()) {
                     <td class="roster-td roster-td--actions">
                       <div class="status-btns">
-                        <button type="button" class="status-btn status-btn--present" [class.status-btn--active]="rec.status === 'Present'" (click)="setStatus(rec, 'Present')" title="Mark Present">
+                        <button
+                          type="button"
+                          class="status-btn status-btn--present"
+                          [class.status-btn--active]="rec.status === 'Present'"
+                          (click)="setStatus(rec, 'Present')"
+                          title="Mark Present"
+                        >
                           <i class="pi pi-check"></i>
                         </button>
-                        <button type="button" class="status-btn status-btn--absent" [class.status-btn--active]="rec.status === 'Absent'" (click)="setStatus(rec, 'Absent')" title="Mark Absent">
+                        <button
+                          type="button"
+                          class="status-btn status-btn--absent"
+                          [class.status-btn--active]="rec.status === 'Absent'"
+                          (click)="setStatus(rec, 'Absent')"
+                          title="Mark Absent"
+                        >
                           <i class="pi pi-times"></i>
                         </button>
-                        <button type="button" class="status-btn status-btn--late" [class.status-btn--active]="rec.status === 'Late'" (click)="setStatus(rec, 'Late')" title="Mark Late">
+                        <button
+                          type="button"
+                          class="status-btn status-btn--late"
+                          [class.status-btn--active]="rec.status === 'Late'"
+                          (click)="setStatus(rec, 'Late')"
+                          title="Mark Late"
+                        >
                           <i class="pi pi-clock"></i>
                         </button>
-                        <button type="button" class="status-btn status-btn--excused" [class.status-btn--active]="rec.status === 'Excused'" (click)="setStatus(rec, 'Excused')" title="Mark Excused">
+                        <button
+                          type="button"
+                          class="status-btn status-btn--excused"
+                          [class.status-btn--active]="rec.status === 'Excused'"
+                          (click)="setStatus(rec, 'Excused')"
+                          title="Mark Excused"
+                        >
                           <i class="pi pi-shield"></i>
                         </button>
                       </div>
@@ -447,6 +553,88 @@
       }
     </div>
 
+    <!-- A trial is a real class with somebody sitting in on it, and only the
+         person in the room knows whether they came. -->
+    @if (trials().length) {
+      <div class="attendance-section">
+        <div class="attendance-header">
+          <div>
+            <h2 class="attendance-title"><i class="pi pi-user-plus"></i> Sitting in</h2>
+            <p class="attendance-desc">
+              {{ trials().length === 1 ? 'A candidate is' : trials().length + ' candidates are' }}
+              trying this class before deciding whether to join
+            </p>
+          </div>
+        </div>
+
+        <div class="roster-table-wrap">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th class="roster-th">Candidate</th>
+                <th class="roster-th">Came</th>
+                @if (!isAttendanceDisabled()) {
+                  <th class="roster-th roster-th--actions">Actions</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (candidate of trials(); track candidate.id) {
+                <tr class="roster-row">
+                  <td class="roster-td roster-td--student">
+                    <div class="student-cell">
+                      <div class="student-avatar">{{ initials(candidate.name) }}</div>
+                      <div class="student-info">
+                        <span class="student-name">{{ candidate.name }}</span>
+                        @if (candidate.parentName) {
+                          <span class="student-email">{{ candidate.parentName }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="roster-td">
+                    <span class="record-badge">
+                      {{
+                        candidate.trialAttended === true
+                          ? 'Came'
+                          : candidate.trialAttended === false
+                            ? 'Did not come'
+                            : 'Not recorded'
+                      }}
+                    </span>
+                  </td>
+                  @if (!isAttendanceDisabled()) {
+                    <td class="roster-td roster-td--actions">
+                      <div class="status-btns">
+                        <button
+                          type="button"
+                          class="status-btn status-btn--present"
+                          [class.status-btn--active]="candidate.trialAttended === true"
+                          (click)="markTrial(candidate, true)"
+                          title="Came"
+                        >
+                          <i class="pi pi-check"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="status-btn status-btn--absent"
+                          [class.status-btn--active]="candidate.trialAttended === false"
+                          (click)="markTrial(candidate, false)"
+                          title="Did not come"
+                        >
+                          <i class="pi pi-times"></i>
+                        </button>
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
     <!-- What this session covers, and what parents are told about it -->
     <app-session-syllabus [sessionId]="s.id" />
 
@@ -455,12 +643,20 @@
       <div class="sequence-card">
         <div class="sequence-header">
           <h3 class="sequence-title"><i class="pi pi-chart-line"></i> Session Progress</h3>
-          <span class="sequence-label">Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}</span>
+          <span class="sequence-label"
+            >Session {{ s.currentSessionNumber }} of {{ s.totalSessions }}</span
+          >
         </div>
         <div class="sequence-bar">
-          <div class="sequence-bar__fill" [style.width.%]="(s.currentSessionNumber / s.totalSessions) * 100"></div>
+          <div
+            class="sequence-bar__fill"
+            [style.width.%]="(s.currentSessionNumber / s.totalSessions) * 100"
+          ></div>
         </div>
-        <p class="sequence-desc">{{ s.courseTitle }} &middot; {{ ((s.currentSessionNumber / s.totalSessions) * 100) | number:'1.0-0' }}% complete</p>
+        <p class="sequence-desc">
+          {{ s.courseTitle }} &middot;
+          {{ (s.currentSessionNumber / s.totalSessions) * 100 | number: '1.0-0' }}% complete
+        </p>
       </div>
     }
   }
@@ -535,7 +731,8 @@
         Are you sure you want to delete session <strong>"{{ session()?.topic }}"</strong>?
       </p>
       <p class="text-[11px] text-red-700 dark:text-red-300">
-        Note: If this session already has recorded attendance, it will be safely marked as Cancelled instead of permanently deleted to preserve student attendance history.
+        Note: If this session already has recorded attendance, it will be safely marked as Cancelled
+        instead of permanently deleted to preserve student attendance history.
       </p>
     </div>
   </div>

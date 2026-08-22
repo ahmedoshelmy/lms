@@ -453,6 +453,26 @@ export class LmsService {
     return this.http.post(`${this.getApiUrl()}/Attendance/session/${sessionId}`, records);
   }
 
+  /**
+   * Candidates sitting in on a session as a trial. Open to the instructor
+   * teaching it as well as to admin, so whether a child came is recorded by
+   * the person who was in the room.
+   */
+  getSessionTrials(sessionId: number): Observable<Candidate[]> {
+    return this.http.get<Candidate[]>(`${this.getApiUrl()}/Attendance/session/${sessionId}/trials`);
+  }
+
+  recordTrialAttendance(
+    sessionId: number,
+    candidateId: number,
+    attended: boolean
+  ): Observable<Candidate> {
+    return this.http.post<Candidate>(
+      `${this.getApiUrl()}/Attendance/session/${sessionId}/trials/${candidateId}`,
+      { attended }
+    );
+  }
+
   getAttendanceSummary(): Observable<AttendanceSummaryDto> {
     return this.http.get<AttendanceSummaryDto>(`${this.getApiUrl()}/Attendance/summary`);
   }
