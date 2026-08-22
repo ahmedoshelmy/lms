@@ -59,14 +59,20 @@
     </div>
   } @else if (group()) {
     <!-- Compact Title & Subheader Row -->
-    <div class="p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs mb-6 relative overflow-hidden">
+    <div
+      class="p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs mb-6 relative overflow-hidden"
+    >
       <!-- Ambient Top Accent Gradient Bar -->
-      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"></div>
+      <div
+        class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-secondary)] to-[var(--color-primary)]"
+      ></div>
 
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-3 flex-wrap">
-            <h1 class="text-xl md:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
+            <h1
+              class="text-xl md:text-2xl font-black text-[var(--color-text-primary)] tracking-tight"
+            >
               {{ group()!.name }}
             </h1>
             <span
@@ -78,7 +84,9 @@
           </div>
 
           <!-- Metadata Line -->
-          <div class="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-[var(--color-text-secondary)] font-medium">
+          <div
+            class="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-[var(--color-text-secondary)] font-medium"
+          >
             <div class="flex items-center gap-1.5">
               <i class="pi pi-user text-[var(--color-secondary)] text-xs"></i>
               <button
@@ -98,7 +106,10 @@
             }
             <div class="flex items-center gap-1">
               <i class="pi pi-calendar text-[var(--color-text-muted)] text-xs"></i>
-              <span>{{ group()!.startDate | date: 'mediumDate' }} – {{ group()!.endDate | date: 'mediumDate' }}</span>
+              <span
+                >{{ group()!.startDate | date: 'mediumDate' }} –
+                {{ group()!.endDate | date: 'mediumDate' }}</span
+              >
             </div>
           </div>
         </div>
@@ -106,54 +117,95 @@
         <!-- Overall Progress Badge -->
         <div class="flex items-center gap-3 shrink-0">
           <div class="text-right">
-            <span class="text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider block">Overall Progress</span>
-            <span class="text-lg font-black text-[var(--color-secondary)]">{{ overallProgressPercent() }}%</span>
+            <span
+              class="text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider block"
+              >Overall Progress</span
+            >
+            <span class="text-lg font-black text-[var(--color-secondary)]"
+              >{{ overallProgressPercent() }}%</span
+            >
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center justify-center font-black text-sm text-[var(--color-primary)]">
+          <div
+            class="w-12 h-12 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center justify-center font-black text-sm text-[var(--color-primary)]"
+          >
             {{ overallProgressPercent() }}%
           </div>
         </div>
       </div>
 
       <!-- Compact KPI Chips Row -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[var(--color-border)]">
-        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold">
+      <div
+        class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[var(--color-border)]"
+      >
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold"
+          >
             👥
           </div>
           <div>
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Students</span>
-            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{ group()!.studentCount || (group()!.students?.length || 0) }}</span>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+              >Students</span
+            >
+            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{
+              group()!.studentCount || group()!.students?.length || 0
+            }}</span>
           </div>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-sm font-bold">
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-sm font-bold"
+          >
             📚
           </div>
           <div>
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Courses</span>
-            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{ group()!.courses.length }}</span>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+              >Courses</span
+            >
+            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{
+              group()!.courses.length
+            }}</span>
           </div>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold">
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold"
+          >
             📅
           </div>
           <div>
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Sessions</span>
-            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{ totalGroupSessionsCount() }}</span>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+              >Sessions</span
+            >
+            <span class="text-sm font-extrabold text-[var(--color-text-primary)]">{{
+              totalGroupSessionsCount()
+            }}</span>
           </div>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold">
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold"
+          >
             📈
           </div>
           <div>
-            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Progress</span>
-            <span class="text-sm font-extrabold text-[var(--color-success)]">{{ overallProgressPercent() }}%</span>
+            <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+              >Progress</span
+            >
+            <span class="text-sm font-extrabold text-[var(--color-success)]"
+              >{{ overallProgressPercent() }}%</span
+            >
           </div>
         </div>
       </div>
@@ -165,11 +217,17 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- LEFT 70% COLUMN: COURSES & CURRICULUM -->
         <div class="lg:col-span-8 space-y-6">
-          <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs">
+          <div
+            class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs"
+          >
             <div class="flex items-center justify-between mb-4">
               <div>
-                <h3 class="text-base font-black text-[var(--color-text-primary)]">Curriculum & Course Levels</h3>
-                <p class="text-xs text-[var(--color-text-muted)]">Track level progress and manage assigned courses.</p>
+                <h3 class="text-base font-black text-[var(--color-text-primary)]">
+                  Curriculum & Course Levels
+                </h3>
+                <p class="text-xs text-[var(--color-text-muted)]">
+                  Track level progress and manage assigned courses.
+                </p>
               </div>
 
               <div class="flex items-center gap-2">
@@ -192,26 +250,49 @@
             </div>
 
             @if (!group()!.courses || group()!.courses.length === 0) {
-              <div class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+              <div
+                class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
+              >
                 <i class="pi pi-book text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
-                <p class="text-xs font-bold text-[var(--color-text-primary)]">No course levels assigned</p>
-                <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Assign a course level to enable session scheduling.</p>
+                <p class="text-xs font-bold text-[var(--color-text-primary)]">
+                  No course levels assigned
+                </p>
+                <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+                  Assign a course level to enable session scheduling.
+                </p>
               </div>
             } @else {
               <div class="space-y-4">
-                @for (c of group()!.courses; track c.courseLevelId || c.courseId; let idx = $index) {
-                  <div class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)]/50 transition-all duration-200">
+                @for (
+                  c of group()!.courses;
+                  track c.courseLevelId || c.courseId;
+                  let idx = $index
+                ) {
+                  <div
+                    class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)]/50 transition-all duration-200"
+                  >
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <div class="flex items-center gap-2 mb-1">
-                          <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]">
+                          <span
+                            class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]"
+                          >
                             LEVEL {{ c.level }}
                           </span>
-                          <span class="text-xs font-bold" [ngClass]="c.status === 'Active' ? 'text-[var(--color-success)]' : 'text-[var(--color-text-muted)]'">
+                          <span
+                            class="text-xs font-bold"
+                            [ngClass]="
+                              c.status === 'Active'
+                                ? 'text-[var(--color-success)]'
+                                : 'text-[var(--color-text-muted)]'
+                            "
+                          >
                             • {{ c.status }}
                           </span>
                         </div>
-                        <h4 class="text-sm font-bold text-[var(--color-text-primary)]">{{ c.title }}</h4>
+                        <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
+                          {{ c.title }}
+                        </h4>
                         <p class="text-xs text-[var(--color-text-muted)]">Topic: {{ c.topic }}</p>
                       </div>
 
@@ -238,25 +319,44 @@
 
                     <!-- Progress Bar & Session Math -->
                     <div class="mt-4 pt-3 border-t border-[var(--color-border)]">
-                      <div class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-1.5">
+                      <div
+                        class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-1.5"
+                      >
                         <span>
-                          Completed: <strong>S1..S{{ c.currentSessionNumber }}</strong> ({{ c.currentSessionNumber }}/{{ c.totalSessions }})
+                          Completed: <strong>S1..S{{ c.currentSessionNumber }}</strong> ({{
+                            c.currentSessionNumber
+                          }}/{{ c.totalSessions }})
                         </span>
                         <span class="font-bold text-[var(--color-secondary)]">
-                          Next: Session {{ c.currentSessionNumber < c.totalSessions ? c.currentSessionNumber + 1 : 'Done' }}
+                          Next: Session
+                          {{
+                            c.currentSessionNumber < c.totalSessions
+                              ? c.currentSessionNumber + 1
+                              : 'Done'
+                          }}
                         </span>
                       </div>
 
-                      <div class="w-full h-2 rounded-full bg-[var(--color-border)] overflow-hidden mb-2">
+                      <div
+                        class="w-full h-2 rounded-full bg-[var(--color-border)] overflow-hidden mb-2"
+                      >
                         <div
                           class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
-                          [style.width.%]="c.totalSessions > 0 ? (c.currentSessionNumber / c.totalSessions) * 100 : 0"
+                          [style.width.%]="
+                            c.totalSessions > 0
+                              ? (c.currentSessionNumber / c.totalSessions) * 100
+                              : 0
+                          "
                         ></div>
                       </div>
 
                       <div class="flex items-center justify-between text-[11px]">
-                        <span class="font-bold text-[var(--color-primary)]">{{ c.scheduledSessionCount }} scheduled</span>
-                        <span class="text-[var(--color-text-muted)]">{{ c.remainingSessions }} remaining to schedule</span>
+                        <span class="font-bold text-[var(--color-primary)]"
+                          >{{ c.scheduledSessionCount }} scheduled</span
+                        >
+                        <span class="text-[var(--color-text-muted)]"
+                          >{{ c.remainingSessions }} remaining to schedule</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -269,9 +369,17 @@
         <!-- RIGHT 30% COLUMN: PERSISTENT GROUP DETAILS & QUICK ACTIONS -->
         <div class="lg:col-span-4 space-y-6">
           <!-- Persistent Group Details Sidebar Card -->
-          <div class="p-5 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4">
-            <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
-              <h3 class="text-sm font-black text-[var(--color-text-primary)] uppercase tracking-wider">Group Details</h3>
+          <div
+            class="p-5 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4"
+          >
+            <div
+              class="flex items-center justify-between border-b border-[var(--color-border)] pb-3"
+            >
+              <h3
+                class="text-sm font-black text-[var(--color-text-primary)] uppercase tracking-wider"
+              >
+                Group Details
+              </h3>
               @if (isAdmin()) {
                 <button
                   (click)="openEditModal()"
@@ -283,17 +391,27 @@
             </div>
 
             <div class="space-y-3 text-xs">
-              <div class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50">
+              <div
+                class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50"
+              >
                 <span class="text-[var(--color-text-muted)] font-semibold">Teacher</span>
-                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.defaultInstructorName }}</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{
+                  group()!.defaultInstructorName
+                }}</span>
               </div>
 
-              <div class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50">
+              <div
+                class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50"
+              >
                 <span class="text-[var(--color-text-muted)] font-semibold">Location</span>
-                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.location || 'Not Specified' }}</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{
+                  group()!.location || 'Not Specified'
+                }}</span>
               </div>
 
-              <div class="flex justify-between items-start py-1 border-b border-[var(--color-border)]/50">
+              <div
+                class="flex justify-between items-start py-1 border-b border-[var(--color-border)]/50"
+              >
                 <span class="text-[var(--color-text-muted)] font-semibold">Schedule Slots</span>
                 <div class="text-right font-bold text-[var(--color-text-primary)]">
                   @for (slot of group()!.schedules; track $index) {
@@ -305,22 +423,34 @@
                 </div>
               </div>
 
-              <div class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50">
+              <div
+                class="flex justify-between items-center py-1 border-b border-[var(--color-border)]/50"
+              >
                 <span class="text-[var(--color-text-muted)] font-semibold">Start Date</span>
-                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.startDate | date: 'mediumDate' }}</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{
+                  group()!.startDate | date: 'mediumDate'
+                }}</span>
               </div>
 
               <div class="flex justify-between items-center py-1">
                 <span class="text-[var(--color-text-muted)] font-semibold">End Date</span>
-                <span class="font-bold text-[var(--color-text-primary)]">{{ group()!.endDate | date: 'mediumDate' }}</span>
+                <span class="font-bold text-[var(--color-text-primary)]">{{
+                  group()!.endDate | date: 'mediumDate'
+                }}</span>
               </div>
             </div>
           </div>
 
           <!-- Quick Actions Sidebar Card -->
           @if (isAdmin()) {
-            <div class="p-5 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-3">
-              <h3 class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider mb-2">Quick Actions</h3>
+            <div
+              class="p-5 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-3"
+            >
+              <h3
+                class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider mb-2"
+              >
+                Quick Actions
+              </h3>
 
               <button
                 (click)="openCustomGenerateModal(group()!.courses[0] || null)"
@@ -359,18 +489,24 @@
       </div>
 
       <!-- SECTION 2: STUDENTS (FULL WIDTH SECTION) -->
-      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4">
+      <div
+        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 class="text-base font-black text-[var(--color-text-primary)]">
-              Enrolled Students ({{ group()!.studentCount || (group()!.students?.length || 0) }})
+              Enrolled Students ({{ group()!.studentCount || group()!.students?.length || 0 }})
             </h3>
-            <p class="text-xs text-[var(--color-text-muted)]">Manage student enrollments, progress, and actions.</p>
+            <p class="text-xs text-[var(--color-text-muted)]">
+              Manage student enrollments, progress, and actions.
+            </p>
           </div>
 
           <div class="flex items-center gap-3">
             <div class="relative">
-              <i class="pi pi-search absolute left-3 top-2.5 text-xs text-[var(--color-text-muted)]"></i>
+              <i
+                class="pi pi-search absolute left-3 top-2.5 text-xs text-[var(--color-text-muted)]"
+              ></i>
               <input
                 type="text"
                 placeholder="Search students..."
@@ -392,21 +528,32 @@
         </div>
 
         @if (!filteredStudents() || filteredStudents().length === 0) {
-          <div class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+          <div
+            class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
+          >
             <i class="pi pi-users text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
             <p class="text-xs font-bold text-[var(--color-text-primary)]">No students found</p>
-            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">No students match your query.</p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+              No students match your query.
+            </p>
           </div>
         } @else {
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
+            <table
+              class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse"
+            >
               <thead>
-                <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+                <tr
+                  class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
+                >
                   <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('studentName')">
                     Student <i [ngClass]="getStudentSortIcon('studentName')"></i>
                   </th>
                   <th class="py-3 px-3">Email</th>
-                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('attendanceRate')">
+                  <th
+                    class="py-3 px-3 cursor-pointer"
+                    (click)="toggleStudentSort('attendanceRate')"
+                  >
                     Attendance <i [ngClass]="getStudentSortIcon('attendanceRate')"></i>
                   </th>
                   <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('progressRate')">
@@ -421,32 +568,57 @@
               <tbody class="divide-y divide-[var(--color-border)]">
                 @for (st of filteredStudents(); track st.studentId) {
                   <tr class="hover:bg-[var(--color-background-alt)] transition-colors">
-                    <td class="py-3 px-3 font-bold text-[var(--color-text-primary)] flex items-center gap-2">
-                      <div class="w-7 h-7 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-bold flex items-center justify-center">
+                    <td
+                      class="py-3 px-3 font-bold text-[var(--color-text-primary)] flex items-center gap-2"
+                    >
+                      <div
+                        class="w-7 h-7 rounded-full bg-[var(--color-primary)] text-white text-[10px] font-bold flex items-center justify-center"
+                      >
                         {{ st.studentName.charAt(0).toUpperCase() }}
                       </div>
-                      <button (click)="openStudentDetailsModal(st)" class="hover:text-[var(--color-secondary)] transition-colors cursor-pointer">
+                      <button
+                        (click)="openStudentDetailsModal(st)"
+                        class="hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
+                      >
                         {{ st.studentName }}
                       </button>
                     </td>
-                    <td class="py-3 px-3 text-[var(--color-text-secondary)]">{{ st.studentEmail }}</td>
+                    <td class="py-3 px-3 text-[var(--color-text-secondary)]">
+                      {{ st.studentEmail }}
+                    </td>
                     <td class="py-3 px-3 font-bold">
-                      <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-600 font-extrabold">
+                      <span
+                        class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-600 font-extrabold"
+                      >
                         Enrolled
                       </span>
                     </td>
                     <td class="py-3 px-3 font-bold text-[var(--color-secondary)]">Active</td>
-                    <td class="py-3 px-3 text-[var(--color-text-muted)]">{{ st.joinedAt | date: 'mediumDate' }}</td>
+                    <td class="py-3 px-3 text-[var(--color-text-muted)]">
+                      {{ st.joinedAt | date: 'mediumDate' }}
+                    </td>
                     <td class="py-3 px-3 text-right">
                       <div class="flex items-center justify-end gap-1.5">
-                        <button (click)="openStudentDetailsModal(st)" class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] cursor-pointer" title="View Details">
+                        <button
+                          (click)="openStudentDetailsModal(st)"
+                          class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] cursor-pointer"
+                          title="View Details"
+                        >
                           <i class="pi pi-eye text-xs"></i>
                         </button>
                         @if (isAdmin()) {
-                          <button (click)="openEditStudentModal(st)" class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-primary)] cursor-pointer" title="Edit Student">
+                          <button
+                            (click)="openEditStudentModal(st)"
+                            class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-primary)] cursor-pointer"
+                            title="Edit Student"
+                          >
                             <i class="pi pi-pencil text-xs"></i>
                           </button>
-                          <button (click)="openRemoveStudentModal(st)" class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer" title="Remove from group">
+                          <button
+                            (click)="openRemoveStudentModal(st)"
+                            class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+                            title="Remove from group"
+                          >
                             <i class="pi pi-trash text-xs"></i>
                           </button>
                         }
@@ -461,13 +633,17 @@
       </div>
 
       <!-- SECTION 3: GENERATED SESSIONS FEED (FULL WIDTH SECTION) -->
-      <div class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4">
+      <div
+        class="p-6 rounded-3xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs space-y-4"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 class="text-base font-black text-[var(--color-text-primary)]">
               Generated Sessions Feed ({{ groupSessions().length }})
             </h3>
-            <p class="text-xs text-[var(--color-text-muted)]">Complete chronological list of scheduled and past sessions.</p>
+            <p class="text-xs text-[var(--color-text-muted)]">
+              Complete chronological list of scheduled and past sessions.
+            </p>
           </div>
 
           @if (isAdmin() && group()?.courses?.length) {
@@ -481,16 +657,26 @@
         </div>
 
         @if (!groupSessions() || groupSessions().length === 0) {
-          <div class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl">
+          <div
+            class="text-center py-10 border-2 border-dashed border-[var(--color-border)] rounded-2xl"
+          >
             <i class="pi pi-calendar-times text-3xl text-[var(--color-text-muted)] mb-2 block"></i>
-            <p class="text-xs font-bold text-[var(--color-text-primary)]">No sessions generated yet</p>
-            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Use "Generate Sessions" to populate recurring group sessions.</p>
+            <p class="text-xs font-bold text-[var(--color-text-primary)]">
+              No sessions generated yet
+            </p>
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+              Use "Generate Sessions" to populate recurring group sessions.
+            </p>
           </div>
         } @else {
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
+            <table
+              class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse"
+            >
               <thead>
-                <tr class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider">
+                <tr
+                  class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
+                >
                   <th class="py-3 px-3">#</th>
                   <th class="py-3 px-3">Topic</th>
                   <th class="py-3 px-3">Date & Time</th>
@@ -502,17 +688,31 @@
               <tbody class="divide-y divide-[var(--color-border)]">
                 @for (sess of groupSessions(); track sess.id; let idx = $index) {
                   <tr class="hover:bg-[var(--color-background-alt)] transition-colors">
-                    <td class="py-3 px-3 font-black text-[var(--color-text-primary)]">{{ getSessionCode(sess) }}</td>
-                    <td class="py-3 px-3 font-bold text-[var(--color-text-primary)]">{{ getSessionDisplayTopic(sess) }}</td>
-                    <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">{{ sess.startsAt | date: 'EEE, MMM d, y · h:mm a' }}</td>
-                    <td class="py-3 px-3 text-[var(--color-text-secondary)]">{{ sess.instructorName }}</td>
+                    <td class="py-3 px-3 font-black text-[var(--color-text-primary)]">
+                      {{ getSessionCode(sess) }}
+                    </td>
+                    <td class="py-3 px-3 font-bold text-[var(--color-text-primary)]">
+                      {{ getSessionDisplayTopic(sess) }}
+                    </td>
+                    <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">
+                      {{ sess.startsAt | date: 'EEE, MMM d, y · h:mm a' }}
+                    </td>
+                    <td class="py-3 px-3 text-[var(--color-text-secondary)]">
+                      {{ sess.instructorName }}
+                    </td>
                     <td class="py-3 px-3">
-                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold" [ngClass]="getStatusCss(sess.status)">
+                      <span
+                        class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold"
+                        [ngClass]="getStatusCss(sess.status)"
+                      >
                         {{ sess.status }}
                       </span>
                     </td>
                     <td class="py-3 px-3 text-right">
-                      <button (click)="viewSessionDetails(sess.id)" class="px-2.5 py-1 rounded-lg border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] transition-all cursor-pointer">
+                      <button
+                        (click)="viewSessionDetails(sess.id)"
+                        class="px-2.5 py-1 rounded-lg border border-[var(--color-border)] text-[11px] font-bold text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)] transition-all cursor-pointer"
+                      >
                         View
                       </button>
                     </td>
@@ -537,7 +737,9 @@
 >
   <div class="flex flex-col gap-6 py-2">
     <!-- Navigation Tabs -->
-    <div class="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)]">
+    <div
+      class="flex items-center gap-2 p-1.5 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)]"
+    >
       <button
         (click)="manageTab.set('overview')"
         [class.bg-[var(--color-surface)]]="manageTab() === 'overview'"
@@ -738,14 +940,20 @@
             </div>
           </div>
         } @empty {
-          <div class="py-8 text-center border border-dashed border-[var(--color-border)] rounded-2xl">
-            <p class="text-xs text-[var(--color-text-muted)]">No course levels assigned to this group yet.</p>
+          <div
+            class="py-8 text-center border border-dashed border-[var(--color-border)] rounded-2xl"
+          >
+            <p class="text-xs text-[var(--color-text-muted)]">
+              No course levels assigned to this group yet.
+            </p>
           </div>
         }
       </div>
 
       <!-- Add New Course Selector Inline -->
-      <div class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+      <div
+        class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+      >
         <select
           [(ngModel)]="newCourseLevelToAdd"
           class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] font-medium"
@@ -783,9 +991,14 @@
 
       <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
         @for (slot of editScheduleSlots(); track $index) {
-          <div class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+          <div
+            class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] grid grid-cols-1 sm:grid-cols-4 gap-3 items-center"
+          >
             <div>
-              <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Day</label>
+              <label
+                class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                >Day</label
+              >
               <select
                 [(ngModel)]="slot.dayOfWeek"
                 class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
@@ -801,7 +1014,10 @@
             </div>
 
             <div>
-              <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Start Time</label>
+              <label
+                class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                >Start Time</label
+              >
               <input
                 type="time"
                 [(ngModel)]="slot.startTime"
@@ -810,7 +1026,10 @@
             </div>
 
             <div>
-              <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">End Time</label>
+              <label
+                class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                >End Time</label
+              >
               <input
                 type="time"
                 [(ngModel)]="slot.endTime"
@@ -820,7 +1039,10 @@
 
             <div class="flex items-center gap-2 pt-3 sm:pt-0">
               <div class="flex-1">
-                <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Branch</label>
+                <label
+                  class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                  >Branch</label
+                >
                 <input
                   type="text"
                   [(ngModel)]="slot.location"
@@ -839,14 +1061,19 @@
         }
       </div>
 
-      <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 flex items-center gap-3">
+      <div
+        class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 flex items-center gap-3"
+      >
         <input
           type="checkbox"
           id="updateUpcoming"
           [(ngModel)]="editScheduleUpdateUpcoming"
           class="w-4 h-4 text-[var(--color-primary)] rounded border-amber-300"
         />
-        <label for="updateUpcoming" class="text-xs font-semibold text-amber-900 dark:text-amber-200 cursor-pointer">
+        <label
+          for="updateUpcoming"
+          class="text-xs font-semibold text-amber-900 dark:text-amber-200 cursor-pointer"
+        >
           Apply new schedule slots to upcoming scheduled sessions
         </label>
       </div>
@@ -1248,7 +1475,10 @@
         class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
       >
         <option [ngValue]="null">
-          Auto Detect Next Level @if (recommendedNextLevel()?.recommendedCourse) { (Recommended: {{ recommendedNextLevel()?.recommendedCourse?.title }}) }
+          Auto Detect Next Level
+          @if (recommendedNextLevel()?.recommendedCourse) {
+            (Recommended: {{ recommendedNextLevel()?.recommendedCourse?.title }})
+          }
         </option>
         <option *ngFor="let c of courseLevels()" [value]="c.id">
           {{ c.title }} ({{ c.topicName }} Level {{ c.level }} - {{ c.sessionCount }} sessions)
@@ -1814,9 +2044,13 @@
 >
   <div class="flex flex-col gap-5 py-2">
     <!-- Course Info Badge Header -->
-    <div class="p-4 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center justify-between">
+    <div
+      class="p-4 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center justify-between"
+    >
       <div>
-        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]">
+        <span
+          class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-[var(--color-secondary)]/15 text-[var(--color-secondary)]"
+        >
           Level {{ selectedCourseForManagement()?.level }}
         </span>
         <h4 class="font-bold text-sm text-[var(--color-text-primary)] mt-1">
@@ -1837,7 +2071,9 @@
     </div>
 
     <!-- Section 1: Settings & Offsets -->
-    <div class="flex flex-col gap-3 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div
+      class="flex flex-col gap-3 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]"
+    >
       <h5 class="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider">
         Course Settings & Offsets
       </h5>
@@ -1886,7 +2122,9 @@
       </div>
 
       <!-- Live Calculation Helper Banner -->
-      <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 dark:bg-blue-950/40 dark:border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+      <div
+        class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 dark:bg-blue-950/40 dark:border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs"
+      >
         <div>
           <span class="font-extrabold text-[var(--color-primary)]">
             Completed: {{ manageCourseCurrentSession() || 0 }} / {{ manageCourseTotalSessions() }}
@@ -1900,7 +2138,10 @@
             Next Session: Session {{ (manageCourseCurrentSession() || 0) + 1 }}
           </span>
           <span class="text-[var(--color-text-muted)] text-[11px] block">
-            {{ Math.max(0, manageCourseTotalSessions() - (manageCourseCurrentSession() || 0)) }} remaining to schedule
+            {{
+              Math.max(0, manageCourseTotalSessions() - (manageCourseCurrentSession() || 0))
+            }}
+            remaining to schedule
           </span>
         </div>
       </div>
@@ -1919,7 +2160,9 @@
     </div>
 
     <!-- Section 2: Session Generation -->
-    <div class="flex flex-col gap-3 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div
+      class="flex flex-col gap-3 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]"
+    >
       <h5 class="text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider">
         Session Generation Actions
       </h5>
@@ -1961,7 +2204,10 @@
             (ngModelChange)="manageCourseIncludeToday.set($event)"
             class="w-4 h-4 text-[var(--color-primary)] rounded border-[var(--color-border)]"
           />
-          <label for="incToday" class="text-xs font-medium text-[var(--color-text-secondary)] cursor-pointer">
+          <label
+            for="incToday"
+            class="text-xs font-medium text-[var(--color-text-secondary)] cursor-pointer"
+          >
             Include today if matching day slot
           </label>
         </div>
@@ -1972,8 +2218,14 @@
             [disabled]="regeneratingCourseId() === selectedCourseForManagement()?.courseId"
             class="px-3 py-2 border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
           >
-            <i *ngIf="regeneratingCourseId() === selectedCourseForManagement()?.courseId" class="pi pi-spin pi-spinner text-xs"></i>
-            <i *ngIf="regeneratingCourseId() !== selectedCourseForManagement()?.courseId" class="pi pi-refresh text-xs"></i>
+            <i
+              *ngIf="regeneratingCourseId() === selectedCourseForManagement()?.courseId"
+              class="pi pi-spin pi-spinner text-xs"
+            ></i>
+            <i
+              *ngIf="regeneratingCourseId() !== selectedCourseForManagement()?.courseId"
+              class="pi pi-refresh text-xs"
+            ></i>
             Regenerate All
           </button>
 
@@ -1991,11 +2243,11 @@
     </div>
 
     <!-- Section 3: Danger Zone -->
-    <div class="p-4 rounded-2xl bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 flex items-center justify-between">
+    <div
+      class="p-4 rounded-2xl bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 flex items-center justify-between"
+    >
       <div>
-        <h5 class="text-xs font-bold text-red-700 dark:text-red-300 uppercase">
-          Remove Course
-        </h5>
+        <h5 class="text-xs font-bold text-red-700 dark:text-red-300 uppercase">Remove Course</h5>
         <p class="text-[11px] text-red-600 dark:text-red-400">
           Unlink this course level from the group's curriculum.
         </p>
@@ -2033,14 +2285,18 @@
 >
   <div class="space-y-5 py-2">
     <!-- Explanatory Banner -->
-    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200">
+    <div
+      class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200"
+    >
       <div class="flex items-start gap-3">
         <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0"></i>
         <div class="text-xs leading-relaxed">
           <p class="font-bold text-sm mb-1">Robust Schedule Hold</p>
           <p>
-            Putting a group on hold cancels the target group sessions and <strong>automatically reschedules substitute sessions</strong> after the hold period.
-            All subsequent future sessions shift forward so <strong>no curriculum lessons are lost</strong>.
+            Putting a group on hold cancels the target group sessions and
+            <strong>automatically reschedules substitute sessions</strong> after the hold period.
+            All subsequent future sessions shift forward so
+            <strong>no curriculum lessons are lost</strong>.
           </p>
         </div>
       </div>
@@ -2048,10 +2304,14 @@
 
     <!-- Hold Mode Tabs / Toggle -->
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">
+      <label
+        class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider mb-2"
+      >
         Hold Duration Mode
       </label>
-      <div class="grid grid-cols-2 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]">
+      <div
+        class="grid grid-cols-2 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]"
+      >
         <button
           type="button"
           (click)="holdMode.set('count')"
@@ -2095,7 +2355,8 @@
           />
         </div>
         <p class="text-[11px] text-[var(--color-text-muted)]">
-          The next {{ holdCount() || 1 }} scheduled group session(s) will be paused and shifted forward by {{ (holdCount() || 1) }} week(s).
+          The next {{ holdCount() || 1 }} scheduled group session(s) will be paused and shifted
+          forward by {{ holdCount() || 1 }} week(s).
         </p>
       </div>
     } @else {
@@ -2110,7 +2371,8 @@
           class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-semibold text-sm focus:outline-none focus:border-[var(--color-primary)] shadow-xs"
         />
         <p class="text-[11px] text-[var(--color-text-muted)]">
-          All scheduled sessions on or before this date will be paused, with substitute sessions added after this date.
+          All scheduled sessions on or before this date will be paused, with substitute sessions
+          added after this date.
         </p>
       </div>
     }
@@ -2130,29 +2392,46 @@
     </div>
 
     <!-- Live Impact Summary Box -->
-    <div class="p-4 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] space-y-2.5">
-      <span class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wide flex items-center gap-2">
+    <div
+      class="p-4 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] space-y-2.5"
+    >
+      <span
+        class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wide flex items-center gap-2"
+      >
         <i class="pi pi-sliders-h text-[var(--color-primary)]"></i>
         System Impact Breakdown
       </span>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
-        <div class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col">
-          <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase">1. Cancel Status</span>
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col"
+        >
+          <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase"
+            >1. Cancel Status</span
+          >
           <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
-            {{ holdMode() === 'count' ? (holdCount() || 1) : 'Target' }} session(s) marked Cancelled
+            {{ holdMode() === 'count' ? holdCount() || 1 : 'Target' }} session(s) marked Cancelled
           </span>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col">
-          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase">2. Substitutes</span>
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col"
+        >
+          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase"
+            >2. Substitutes</span
+          >
           <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
-            {{ holdMode() === 'count' ? (holdCount() || 1) : 'Target' }} substitute(s) scheduled after break
+            {{ holdMode() === 'count' ? holdCount() || 1 : 'Target' }} substitute(s) scheduled after
+            break
           </span>
         </div>
 
-        <div class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col">
-          <span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase">3. Schedule Shift</span>
+        <div
+          class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col"
+        >
+          <span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase"
+            >3. Schedule Shift</span
+          >
           <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
             Remaining sessions shifted forward
           </span>

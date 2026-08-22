@@ -15,6 +15,8 @@ import {
   GROUP_STATUS_OPTIONS,
   Group,
   GroupScheduleSlot,
+  STALLED_COPY,
+  StalledReason,
   UpdateGroupPayload,
 } from '../../core/interfaces/Group';
 import { User } from '../../core/interfaces/User';
@@ -99,6 +101,60 @@ export class GroupsComponent implements OnInit {
 
   statusFilters = ['All', 'Running', 'Stopped', 'Completed', 'Archived'];
   statusOptions = GROUP_STATUS_OPTIONS;
+  readonly stalledCopy = STALLED_COPY;
+
+  /**
+   * Running groups with nothing coming up. Hoisted above the list because a
+   * group that has quietly stopped being scheduled is the thing worth knowing
+   * before anything else on this page.
+   */
+  readonly stalledGroups = computed(() =>
+    this.groups()
+      .filter((g) => !!g.stalledReason)
+      .sort((a, b) => (a.stalledReason! > b.stalledReason! ? 1 : -1))
+  );
+
+  readonly stalledOwed = computed(() =>
+    this.stalledGroups().filter((g) => g.stalledReason === 'Owed')
+  );
+
+  readonly showStalled = signal(false);
+
+  /** Creates what a group is owed, putting it back on the schedule. */
+  generateMissing(group: Group): void {
+    this.saving.set(true);
+    this.lmsService.generateMissingSessions(group.id).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.loadGroups();
+        this.loadSchedule();
+        this.notify.showSuccess(`${group.name} is back on the schedule.`);
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
+  /** Marks a taught-out group completed, which is what its status should say. */
+  markCompleted(group: Group): void {
+    this.saving.set(true);
+    this.lmsService
+      .updateGroup(group.id, {
+        name: group.name,
+        startDate: group.startDate,
+        endDate: group.endDate,
+        defaultInstructorId: group.defaultInstructorId,
+        status: GROUP_STATUS['Completed'],
+        location: group.location || undefined,
+      })
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.loadGroups();
+          this.notify.showSuccess(`${group.name} marked completed.`);
+        },
+        error: () => this.saving.set(false),
+      });
+  }
   daysOfWeek = DAYS_OF_WEEK;
   protected readonly Math = Math;
 

@@ -68,3 +68,124 @@
     border-color: var(--color-secondary);
   }
 }
+
+/* ── Groups that have fallen off the schedule ───────────────────────────── */
+
+.stalled {
+  margin-bottom: 16px;
+  border: 1px solid var(--color-warning-foreground);
+  border-radius: 16px;
+  background: var(--color-warning-background);
+  overflow: hidden;
+}
+
+.stalled__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 12px 15px;
+  border: 0;
+  background: transparent;
+  color: var(--color-warning-foreground);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stalled__title {
+  flex: 1;
+}
+
+.stalled__pill {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.stalled__list {
+  border-top: 1px solid var(--color-warning-foreground);
+  background: var(--color-surface);
+}
+
+.stalled__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.stalled__name {
+  min-width: 92px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-secondary);
+  }
+}
+
+.stalled__reason {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+  font-size: 10.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Owed is the one somebody can act on here; the rest need a decision. */
+.stalled__reason--Owed {
+  background: var(--color-info-background);
+  color: var(--color-secondary);
+}
+
+.stalled__reason--Finished {
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+}
+
+.stalled__fix {
+  flex: 1;
+  min-width: 200px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.stalled__action {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-secondary);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-secondary);
+  }
+}

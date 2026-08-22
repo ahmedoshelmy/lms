@@ -295,6 +295,14 @@ export class LmsService {
     );
   }
 
+  /** Creates the sessions a group's progress says remain. Admin only. */
+  generateMissingSessions(groupId: number): Observable<Group> {
+    return this.http.post<Group>(
+      `${this.getApiUrl()}/groups/${groupId}/generate-missing-sessions`,
+      {}
+    );
+  }
+
   updateGroupSchedule(groupId: number, payload: UpdateGroupSchedulePayload): Observable<Group> {
     return this.http.put<Group>(`${this.getApiUrl()}/groups/${groupId}/schedule`, payload);
   }

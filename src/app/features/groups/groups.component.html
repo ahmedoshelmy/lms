@@ -24,7 +24,9 @@
       </div>
 
       <!-- Quick Status Filter Pills -->
-      <div class="flex rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5">
+      <div
+        class="flex rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5"
+      >
         @for (s of statusFilters; track s) {
           <button
             (click)="statusFilter.set(s)"
@@ -58,11 +60,15 @@
     </div>
   } @else {
     <!-- Compact Collapsible Filter Bar -->
-    <div class="mb-6 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
+    <div
+      class="mb-6 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs"
+    >
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <i class="pi pi-filter text-xs text-[var(--color-secondary)]"></i>
-          <span class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider">Filters</span>
+          <span class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider"
+            >Filters</span
+          >
         </div>
         @if (hasActiveFilters()) {
           <button
@@ -76,7 +82,9 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Course</label>
+          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+            >Course</label
+          >
           <select
             [ngModel]="courseFilter()"
             (ngModelChange)="courseFilter.set($event)"
@@ -90,7 +98,9 @@
         </div>
 
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Topic</label>
+          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+            >Topic</label
+          >
           <select
             [ngModel]="topicFilter()"
             (ngModelChange)="topicFilter.set($event)"
@@ -105,7 +115,9 @@
 
         @if (isAdmin()) {
           <div>
-            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Instructor</label>
+            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+              >Instructor</label
+            >
             <select
               [ngModel]="instructorFilter()"
               (ngModelChange)="instructorFilter.set($event)"
@@ -120,7 +132,9 @@
         }
 
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1">Location</label>
+          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+            >Location</label
+          >
           <select
             [ngModel]="locationFilter()"
             (ngModelChange)="locationFilter.set($event)"
@@ -137,46 +151,143 @@
 
     <!-- Compact Stats Chips Grid -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-      <div class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between">
+      <div
+        class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between"
+      >
         <div>
-          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Total Groups</span>
-          <span class="text-lg font-black text-[var(--color-text-primary)]">{{ groups().length }}</span>
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+            >Total Groups</span
+          >
+          <span class="text-lg font-black text-[var(--color-text-primary)]">{{
+            groups().length
+          }}</span>
         </div>
-        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-xs font-bold">
+        <div
+          class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-xs font-bold"
+        >
           🏢
         </div>
       </div>
 
-      <div class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between">
+      <div
+        class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between"
+      >
         <div>
-          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Running</span>
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+            >Running</span
+          >
           <span class="text-lg font-black text-emerald-600">{{ countByStatus('Running') }}</span>
         </div>
-        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xs font-bold">
+        <div
+          class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xs font-bold"
+        >
           🟢
         </div>
       </div>
 
-      <div class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between">
+      <div
+        class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between"
+      >
         <div>
-          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Total Students</span>
-          <span class="text-lg font-black text-[var(--color-secondary)]">{{ totalStudents() }}</span>
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+            >Total Students</span
+          >
+          <span class="text-lg font-black text-[var(--color-secondary)]">{{
+            totalStudents()
+          }}</span>
         </div>
-        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-xs font-bold">
+        <div
+          class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-xs font-bold"
+        >
           👥
         </div>
       </div>
 
-      <div class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between">
+      <div
+        class="p-3 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-between"
+      >
         <div>
-          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block">Completed</span>
-          <span class="text-lg font-black text-[var(--color-text-muted)]">{{ countByStatus('Completed') }}</span>
+          <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
+            >Completed</span
+          >
+          <span class="text-lg font-black text-[var(--color-text-muted)]">{{
+            countByStatus('Completed')
+          }}</span>
         </div>
-        <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold">
+        <div
+          class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold"
+        >
           🔵
         </div>
       </div>
     </div>
+
+    <!-- A group that has quietly stopped being scheduled is worth knowing
+         before anything else on this page, so it sits above the list. -->
+    @if (stalledGroups().length) {
+      <div class="stalled">
+        <button type="button" class="stalled__head" (click)="showStalled.set(!showStalled())">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span class="stalled__title">
+            {{ stalledGroups().length }}
+            {{ stalledGroups().length === 1 ? 'group is' : 'groups are' }} not on the schedule
+          </span>
+          @if (stalledOwed().length) {
+            <span class="stalled__pill">{{ stalledOwed().length }} fixable here</span>
+          }
+          <i
+            class="pi"
+            [class.pi-chevron-down]="!showStalled()"
+            [class.pi-chevron-up]="showStalled()"
+          ></i>
+        </button>
+
+        @if (showStalled()) {
+          <div class="stalled__list">
+            @for (group of stalledGroups(); track group.id) {
+              <div class="stalled__row">
+                <button type="button" class="stalled__name" (click)="viewGroupDetails(group)">
+                  {{ group.name }}
+                </button>
+
+                <span class="stalled__reason stalled__reason--{{ group.stalledReason }}">
+                  {{ stalledCopy[group.stalledReason!].title }}
+                </span>
+
+                <span class="stalled__fix">
+                  {{ stalledCopy[group.stalledReason!].fix }}
+                </span>
+
+                @if (group.stalledReason === 'Owed') {
+                  <button
+                    type="button"
+                    class="stalled__action"
+                    [disabled]="saving()"
+                    (click)="generateMissing(group)"
+                  >
+                    Generate {{ group.sessionsOwed }}
+                    {{ group.sessionsOwed === 1 ? 'session' : 'sessions' }}
+                  </button>
+                } @else if (group.stalledReason === 'Finished') {
+                  <button
+                    type="button"
+                    class="stalled__action"
+                    [disabled]="saving()"
+                    (click)="markCompleted(group)"
+                  >
+                    Mark completed
+                  </button>
+                } @else {
+                  <button type="button" class="stalled__action" (click)="viewGroupDetails(group)">
+                    Open
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
 
     <!-- Group Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,25 +300,37 @@
           <div>
             <div class="flex items-start justify-between gap-3 mb-2">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center shadow-xs">
+                <div
+                  class="w-8 h-8 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center shadow-xs"
+                >
                   {{ group.name.charAt(0).toUpperCase() }}
                 </div>
                 <div>
-                  <h3 class="text-sm font-black text-[var(--color-text-primary)] group-hover/card:text-[var(--color-secondary)] transition-colors">
+                  <h3
+                    class="text-sm font-black text-[var(--color-text-primary)] group-hover/card:text-[var(--color-secondary)] transition-colors"
+                  >
                     {{ group.name }}
                   </h3>
                   <p class="text-[11px] text-[var(--color-text-muted)] font-medium">
-                    {{ group.defaultInstructorName }} @if (group.location) { • {{ group.location }} }
+                    {{ group.defaultInstructorName }}
+                    @if (group.location) {
+                      • {{ group.location }}
+                    }
                   </p>
                 </div>
               </div>
 
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" [ngClass]="getStatusCss(group.status)">
+                <span
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                  [ngClass]="getStatusCss(group.status)"
+                >
                   {{ group.status }}
                 </span>
 
-                <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/card:opacity-100 transition-opacity"></i>
+                <i
+                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/card:opacity-100 transition-opacity"
+                ></i>
 
                 @if (isAdmin()) {
                   <div class="flex items-center gap-1 ml-1" (click)="$event.stopPropagation()">
@@ -231,13 +354,17 @@
             </div>
 
             <!-- Compact KPI Row -->
-            <div class="flex items-center gap-4 text-[11px] font-bold text-[var(--color-text-secondary)] mt-3 py-1.5 px-3 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)]">
+            <div
+              class="flex items-center gap-4 text-[11px] font-bold text-[var(--color-text-secondary)] mt-3 py-1.5 px-3 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)]"
+            >
               <span>👥 {{ group.studentCount }} Students</span>
               <span>•</span>
               <span>📚 {{ group.courses.length }} Courses</span>
               @if (group.schedules && group.schedules.length > 0) {
                 <span>•</span>
-                <span>📅 {{ group.schedules[0].dayOfWeek }} {{ group.schedules[0].startTime }}</span>
+                <span
+                  >📅 {{ group.schedules[0].dayOfWeek }} {{ group.schedules[0].startTime }}</span
+                >
               }
             </div>
           </div>
@@ -246,7 +373,8 @@
           <div class="mt-4 pt-3 border-t border-[var(--color-border)]">
             <div class="flex items-center justify-between text-xs mb-1 font-bold">
               <span class="text-[var(--color-text-secondary)]">
-                Completed: {{ getGroupCompletedSessions(group) }} / {{ getGroupTotalSessions(group) }} Sessions
+                Completed: {{ getGroupCompletedSessions(group) }} /
+                {{ getGroupTotalSessions(group) }} Sessions
               </span>
               <span class="text-[var(--color-secondary)]">{{ getGroupProgress(group) }}%</span>
             </div>
@@ -259,20 +387,33 @@
               ></div>
             </div>
 
-            <div class="flex items-center justify-between text-[11px] text-[var(--color-text-muted)] font-medium mt-1">
-              <span>{{ Math.max(0, getGroupTotalSessions(group) - getGroupCompletedSessions(group)) }} remaining</span>
-              <span>{{ group.startDate | date: 'MMM y' }} – {{ group.endDate | date: 'MMM y' }}</span>
+            <div
+              class="flex items-center justify-between text-[11px] text-[var(--color-text-muted)] font-medium mt-1"
+            >
+              <span
+                >{{
+                  Math.max(0, getGroupTotalSessions(group) - getGroupCompletedSessions(group))
+                }}
+                remaining</span
+              >
+              <span
+                >{{ group.startDate | date: 'MMM y' }} – {{ group.endDate | date: 'MMM y' }}</span
+              >
             </div>
 
             <!-- Course Level Badges -->
             <div class="flex flex-wrap gap-1.5 mt-2.5">
               @for (c of group.courses.slice(0, 3); track c.courseId) {
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]">
+                <span
+                  class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]"
+                >
                   {{ c.topic || c.title }} L{{ c.level }}
                 </span>
               }
               @if (group.courses.length > 3) {
-                <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background-alt)]">
+                <span
+                  class="px-1.5 py-0.5 rounded-md text-[10px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background-alt)]"
+                >
                   +{{ group.courses.length - 3 }} more
                 </span>
               }
@@ -280,338 +421,353 @@
           </div>
         </div>
       } @empty {
-        <div class="col-span-2 text-center py-16 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl">
+        <div
+          class="col-span-2 text-center py-16 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"
+        >
           <i class="pi pi-users text-4xl text-[var(--color-text-muted)] mb-3 block"></i>
           <p class="text-xs font-bold text-[var(--color-text-primary)]">No groups found</p>
-          <p class="text-[11px] text-[var(--color-text-muted)] mt-1">Try adjusting your search query or filters.</p>
+          <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+            Try adjusting your search query or filters.
+          </p>
         </div>
       }
     </div>
   }
 </div>
 
-  <!-- Create / Edit Group Modal -->
-  <p-dialog
-    [(visible)]="showModal"
-    [header]="modalMode() === 'create' ? 'Create Group' : 'Edit Group'"
-    [modal]="true"
-    [style]="{ width: '90%', maxWidth: '560px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <form (ngSubmit)="saveGroup()" class="flex flex-col gap-4 pt-2">
-      <!-- Name -->
+<!-- Create / Edit Group Modal -->
+<p-dialog
+  [(visible)]="showModal"
+  [header]="modalMode() === 'create' ? 'Create Group' : 'Edit Group'"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '560px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form (ngSubmit)="saveGroup()" class="flex flex-col gap-4 pt-2">
+    <!-- Name -->
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >Group Name *</label
+      >
+      <input
+        type="text"
+        [(ngModel)]="formName"
+        name="name"
+        required
+        placeholder="e.g. Group A - Spring 2026"
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+      />
+    </div>
+
+    <!-- Instructor -->
+    <div>
+      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >Default Instructor *</label
+      >
+      <select
+        [(ngModel)]="formInstructorId"
+        name="defaultInstructorId"
+        required
+        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+      >
+        <option value="">Select Instructor...</option>
+        @for (inst of instructors(); track inst.id) {
+          <option [value]="inst.id">{{ inst.name }} ({{ inst.email }})</option>
+        }
+      </select>
+    </div>
+
+    <!-- Dates Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >Group Name *</label
+          >Start Date *</label
         >
         <input
-          type="text"
-          [(ngModel)]="formName"
-          name="name"
+          type="date"
+          [(ngModel)]="formStartDate"
+          name="startDate"
           required
-          placeholder="e.g. Group A - Spring 2026"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
         />
       </div>
-
-      <!-- Instructor -->
       <div>
         <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >Default Instructor *</label
+          >End Date *</label
+        >
+        <input
+          type="date"
+          [(ngModel)]="formEndDate"
+          name="endDate"
+          required
+          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+        />
+      </div>
+    </div>
+
+    <!-- Status & Location Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+          >Status *</label
         >
         <select
-          [(ngModel)]="formInstructorId"
-          name="defaultInstructorId"
+          [(ngModel)]="formStatus"
+          name="status"
           required
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
         >
-          <option value="">Select Instructor...</option>
-          @for (inst of instructors(); track inst.id) {
-            <option [value]="inst.id">{{ inst.name }} ({{ inst.email }})</option>
+          @for (opt of statusOptions; track opt.value) {
+            <option [ngValue]="opt.value">{{ opt.label }}</option>
           }
         </select>
       </div>
-
-      <!-- Dates Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >Start Date *</label
-          >
-          <input
-            type="date"
-            [(ngModel)]="formStartDate"
-            name="startDate"
-            required
-            class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
-          />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >End Date *</label
-          >
-          <input
-            type="date"
-            [(ngModel)]="formEndDate"
-            name="endDate"
-            required
-            class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
-          />
-        </div>
-      </div>
-
-      <!-- Status & Location Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >Status *</label
-          >
-          <select
-            [(ngModel)]="formStatus"
-            name="status"
-            required
-            class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
-          >
-            @for (opt of statusOptions; track opt.value) {
-              <option [ngValue]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-            >Location</label
-          >
-          <input
-            type="text"
-            [(ngModel)]="formLocation"
-            name="location"
-            placeholder="e.g. MOA Room 1"
-            class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
-          />
-        </div>
-      </div>
-
-      <!-- Course Level Selection & Single-Step Schedule Setup (Create Mode) -->
-      @if (modalMode() === 'create') {
-        <div class="p-4 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)] space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="sm:col-span-2">
-              <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
-                Course Level *
-              </label>
-              <select
-                [ngModel]="formSelectedCourseLevelId()"
-                (ngModelChange)="formSelectedCourseLevelId.set($any($event))"
-                name="primaryCourseLevelId"
-                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
-              >
-                <option [ngValue]="null">Select Course Level...</option>
-                @for (item of allCourseLevels(); track item.level.id) {
-                  <option [ngValue]="item.level.id">
-                    [{{ item.topicCode }}] {{ item.level.title }} (L{{ item.level.level }} • {{ item.level.sessionCount }} Sessions)
-                  </option>
-                }
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1" title="Set > 0 for groups that started before software onboarding">
-                Completed Sessions Offset
-              </label>
-              <input
-                type="number"
-                min="0"
-                [ngModel]="formInitialSessionNumber()"
-                (ngModelChange)="formInitialSessionNumber.set($any($event))"
-                name="initialSessionNumber"
-                placeholder="0"
-                class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
-              />
-              @if ((formInitialSessionNumber() || 0) > 0) {
-                <p class="text-[11px] text-[var(--color-secondary)] font-bold mt-1">
-                  Sessions 1 to {{ formInitialSessionNumber() }} offset. Next generated session will be <strong>Session {{ (formInitialSessionNumber() || 0) + 1 }}</strong>.
-                </p>
-              }
-            </div>
-          </div>
-
-          <!-- Weekly Schedule Slots -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="block text-xs font-bold text-[var(--color-text-primary)]">
-                Weekly Schedule Slots
-              </label>
-              <button
-                type="button"
-                (click)="addScheduleSlot()"
-                class="text-xs font-bold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] cursor-pointer"
-              >
-                <i class="pi pi-plus mr-1"></i> Add Slot
-              </button>
-            </div>
-
-            <div class="space-y-2">
-              @for (slot of scheduleSlots(); track $index) {
-                <div class="flex items-center gap-2 bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)]">
-                  <select
-                    [(ngModel)]="slot.dayOfWeek"
-                    [name]="'slotDay_' + $index"
-                    class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold bg-[var(--color-surface)]"
-                  >
-                    @for (day of daysOfWeek; track day) {
-                      <option [value]="day">{{ day }}</option>
-                    }
-                  </select>
-
-                  <input
-                    type="time"
-                    [(ngModel)]="slot.startTime"
-                    [name]="'slotStart_' + $index"
-                    class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
-                  />
-                  <span class="text-xs text-[var(--color-text-muted)]">-</span>
-                  <input
-                    type="time"
-                    [(ngModel)]="slot.endTime"
-                    [name]="'slotEnd_' + $index"
-                    class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
-                  />
-
-                  @if (scheduleSlots().length > 1) {
-                    <button
-                      type="button"
-                      (click)="removeScheduleSlot($index)"
-                      class="p-1 text-red-500 hover:text-red-700 cursor-pointer ml-auto"
-                    >
-                      <i class="pi pi-times text-xs"></i>
-                    </button>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Auto-Generate Sessions Checkbox -->
-          <div class="flex items-center gap-2.5 pt-1">
-            <input
-              type="checkbox"
-              id="autoGenCheck"
-              [checked]="formAutoGenerateSessions()"
-              (change)="formAutoGenerateSessions.set($any($event.target).checked)"
-              class="w-4 h-4 rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
-            />
-            <label for="autoGenCheck" class="text-xs font-bold text-[var(--color-text-primary)] cursor-pointer">
-              ⚡ Auto-generate recurring session schedule starting from current session offset
-            </label>
-          </div>
-        </div>
-      }
-
-      <!-- Submit buttons -->
-      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="showModal.set(false)"
-          class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+      <div>
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+          >Location</label
         >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          [disabled]="saving()"
-          class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
-        >
-          {{ saving() ? 'Saving...' : modalMode() === 'create' ? 'Create Group' : 'Save Changes' }}
-        </button>
-      </div>
-    </form>
-  </p-dialog>
-
-  <!-- Delete Confirmation Modal -->
-  <p-dialog
-    [(visible)]="showDeleteConfirmModal"
-    header="Delete Group"
-    [modal]="true"
-    [style]="{ width: '90%', maxWidth: '440px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <div class="pt-2">
-      <p class="text-sm text-[var(--color-text-primary)]">
-        Are you sure you want to delete group
-        <strong class="text-[var(--color-error)]">{{ groupToDelete()?.name }}</strong
-        >? This will delete all sessions, schedules, and enrollments linked to this group.
-      </p>
-
-      <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="showDeleteConfirmModal.set(false)"
-          class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          (click)="deleteGroup()"
-          [disabled]="saving()"
-          class="px-4 py-2 rounded-xl bg-[var(--color-error)] text-white font-semibold text-xs hover:opacity-90 transition-all duration-200 disabled:opacity-50"
-        >
-          {{ saving() ? 'Deleting...' : 'Delete' }}
-        </button>
+        <input
+          type="text"
+          [(ngModel)]="formLocation"
+          name="location"
+          placeholder="e.g. MOA Room 1"
+          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+        />
       </div>
     </div>
-  </p-dialog>
 
-  <!-- Instructor Reassignment Confirmation Modal -->
-  <p-dialog
-    [(visible)]="showInstructorConfirmModal"
-    header="Confirm Instructor Reassignment"
-    [modal]="true"
-    [style]="{ width: '90%', maxWidth: '460px' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <div class="pt-2 flex flex-col gap-4">
+    <!-- Course Level Selection & Single-Step Schedule Setup (Create Mode) -->
+    @if (modalMode() === 'create') {
       <div
-        class="flex items-center gap-3 p-3.5 rounded-xl bg-[color-mix(in_srgb,var(--color-warning)_12%,transparent)] border border-[color-mix(in_srgb,var(--color-warning)_30%,transparent)]"
+        class="p-4 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)] space-y-4"
       >
-        <i class="pi pi-exclamation-triangle text-xl text-[var(--color-warning)] shrink-0"></i>
-        <p class="text-xs text-[var(--color-text-primary)] leading-relaxed">
-          Reassigning the default instructor will update the group instructor and automatically
-          assign all remaining upcoming sessions.
-        </p>
-      </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+              Course Level *
+            </label>
+            <select
+              [ngModel]="formSelectedCourseLevelId()"
+              (ngModelChange)="formSelectedCourseLevelId.set($any($event))"
+              name="primaryCourseLevelId"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
+            >
+              <option [ngValue]="null">Select Course Level...</option>
+              @for (item of allCourseLevels(); track item.level.id) {
+                <option [ngValue]="item.level.id">
+                  [{{ item.topicCode }}] {{ item.level.title }} (L{{ item.level.level }} •
+                  {{ item.level.sessionCount }} Sessions)
+                </option>
+              }
+            </select>
+          </div>
 
-      <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">
-        Are you sure you want to assign the remaining
-        <strong class="font-bold text-[var(--color-primary)]">{{
-          pendingRemainingSessions()
-        }}</strong>
-        session{{ pendingRemainingSessions() === 1 ? '' : 's' }} to
-        <strong class="font-bold text-[var(--color-secondary)]">{{
-          pendingInstructorName()
-        }}</strong
-        >?
-      </p>
+          <div>
+            <label
+              class="block text-xs font-bold text-[var(--color-text-primary)] mb-1"
+              title="Set > 0 for groups that started before software onboarding"
+            >
+              Completed Sessions Offset
+            </label>
+            <input
+              type="number"
+              min="0"
+              [ngModel]="formInitialSessionNumber()"
+              (ngModelChange)="formInitialSessionNumber.set($any($event))"
+              name="initialSessionNumber"
+              placeholder="0"
+              class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm font-semibold"
+            />
+            @if ((formInitialSessionNumber() || 0) > 0) {
+              <p class="text-[11px] text-[var(--color-secondary)] font-bold mt-1">
+                Sessions 1 to {{ formInitialSessionNumber() }} offset. Next generated session will
+                be <strong>Session {{ (formInitialSessionNumber() || 0) + 1 }}</strong
+                >.
+              </p>
+            }
+          </div>
+        </div>
 
-      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
-        <button
-          type="button"
-          (click)="showInstructorConfirmModal.set(false)"
-          class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          (click)="confirmInstructorAssignment()"
-          [disabled]="saving()"
-          class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
-        >
-          {{ saving() ? 'Assigning...' : 'Confirm Assignment' }}
-        </button>
+        <!-- Weekly Schedule Slots -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-bold text-[var(--color-text-primary)]">
+              Weekly Schedule Slots
+            </label>
+            <button
+              type="button"
+              (click)="addScheduleSlot()"
+              class="text-xs font-bold text-[var(--color-secondary)] hover:text-[var(--color-secondary-hover)] cursor-pointer"
+            >
+              <i class="pi pi-plus mr-1"></i> Add Slot
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            @for (slot of scheduleSlots(); track $index) {
+              <div
+                class="flex items-center gap-2 bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)]"
+              >
+                <select
+                  [(ngModel)]="slot.dayOfWeek"
+                  [name]="'slotDay_' + $index"
+                  class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold bg-[var(--color-surface)]"
+                >
+                  @for (day of daysOfWeek; track day) {
+                    <option [value]="day">{{ day }}</option>
+                  }
+                </select>
+
+                <input
+                  type="time"
+                  [(ngModel)]="slot.startTime"
+                  [name]="'slotStart_' + $index"
+                  class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
+                />
+                <span class="text-xs text-[var(--color-text-muted)]">-</span>
+                <input
+                  type="time"
+                  [(ngModel)]="slot.endTime"
+                  [name]="'slotEnd_' + $index"
+                  class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
+                />
+
+                @if (scheduleSlots().length > 1) {
+                  <button
+                    type="button"
+                    (click)="removeScheduleSlot($index)"
+                    class="p-1 text-red-500 hover:text-red-700 cursor-pointer ml-auto"
+                  >
+                    <i class="pi pi-times text-xs"></i>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Auto-Generate Sessions Checkbox -->
+        <div class="flex items-center gap-2.5 pt-1">
+          <input
+            type="checkbox"
+            id="autoGenCheck"
+            [checked]="formAutoGenerateSessions()"
+            (change)="formAutoGenerateSessions.set($any($event.target).checked)"
+            class="w-4 h-4 rounded text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
+          />
+          <label
+            for="autoGenCheck"
+            class="text-xs font-bold text-[var(--color-text-primary)] cursor-pointer"
+          >
+            ⚡ Auto-generate recurring session schedule starting from current session offset
+          </label>
+        </div>
       </div>
+    }
+
+    <!-- Submit buttons -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="saving()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
+      >
+        {{ saving() ? 'Saving...' : modalMode() === 'create' ? 'Create Group' : 'Save Changes' }}
+      </button>
     </div>
-  </p-dialog>
+  </form>
+</p-dialog>
+
+<!-- Delete Confirmation Modal -->
+<p-dialog
+  [(visible)]="showDeleteConfirmModal"
+  header="Delete Group"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="pt-2">
+    <p class="text-sm text-[var(--color-text-primary)]">
+      Are you sure you want to delete group
+      <strong class="text-[var(--color-error)]">{{ groupToDelete()?.name }}</strong
+      >? This will delete all sessions, schedules, and enrollments linked to this group.
+    </p>
+
+    <div class="flex justify-end gap-3 pt-6 mt-4 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showDeleteConfirmModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="deleteGroup()"
+        [disabled]="saving()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-error)] text-white font-semibold text-xs hover:opacity-90 transition-all duration-200 disabled:opacity-50"
+      >
+        {{ saving() ? 'Deleting...' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Instructor Reassignment Confirmation Modal -->
+<p-dialog
+  [(visible)]="showInstructorConfirmModal"
+  header="Confirm Instructor Reassignment"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="pt-2 flex flex-col gap-4">
+    <div
+      class="flex items-center gap-3 p-3.5 rounded-xl bg-[color-mix(in_srgb,var(--color-warning)_12%,transparent)] border border-[color-mix(in_srgb,var(--color-warning)_30%,transparent)]"
+    >
+      <i class="pi pi-exclamation-triangle text-xl text-[var(--color-warning)] shrink-0"></i>
+      <p class="text-xs text-[var(--color-text-primary)] leading-relaxed">
+        Reassigning the default instructor will update the group instructor and automatically assign
+        all remaining upcoming sessions.
+      </p>
+    </div>
+
+    <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">
+      Are you sure you want to assign the remaining
+      <strong class="font-bold text-[var(--color-primary)]">{{
+        pendingRemainingSessions()
+      }}</strong>
+      session{{ pendingRemainingSessions() === 1 ? '' : 's' }} to
+      <strong class="font-bold text-[var(--color-secondary)]">{{ pendingInstructorName() }}</strong
+      >?
+    </p>
+
+    <div class="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        (click)="showInstructorConfirmModal.set(false)"
+        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-[var(--color-text-secondary)] font-semibold text-xs hover:bg-[var(--color-background-alt)] transition-all duration-200"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmInstructorAssignment()"
+        [disabled]="saving()"
+        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white font-semibold text-xs hover:bg-[var(--color-primary-hover)] transition-all duration-200 disabled:opacity-50"
+      >
+        {{ saving() ? 'Assigning...' : 'Confirm Assignment' }}
+      </button>
+    </div>
+  </div>
+</p-dialog>

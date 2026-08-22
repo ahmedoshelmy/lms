@@ -43,6 +43,33 @@ export interface GroupSchedule {
   location?: string;
 }
 
+/**
+ * Why a running group has nothing on the schedule. Null when it has.
+ *
+ * Three causes wanting three different answers, which is why the group says
+ * which one rather than leaving operations to work it out.
+ */
+export type StalledReason = 'Finished' | 'NoCourse' | 'NoSchedule' | 'Owed';
+
+export const STALLED_COPY: Record<StalledReason, { title: string; fix: string }> = {
+  Finished: {
+    title: 'Course taught out',
+    fix: 'Every session has been taught. Mark the group completed.',
+  },
+  NoCourse: {
+    title: 'No course assigned',
+    fix: 'Nothing can be scheduled until this group has a course.',
+  },
+  NoSchedule: {
+    title: 'No weekly slot',
+    fix: 'Give the group a day and time before generating its sessions.',
+  },
+  Owed: {
+    title: 'Sessions missing',
+    fix: 'Its progress says sessions remain but they were never created.',
+  },
+};
+
 export interface Group {
   id: number;
   name: string;
@@ -54,6 +81,10 @@ export interface Group {
   defaultInstructorName: string;
   defaultInstructorEmail?: string;
   studentCount: number;
+  /** Set only when a running group has nothing coming up. */
+  stalledReason?: StalledReason | null;
+  sessionsOwed?: number | null;
+  nextSessionAt?: string | null;
   students?: GroupStudent[];
   schedules?: GroupSchedule[];
   courses: GroupCourse[];
