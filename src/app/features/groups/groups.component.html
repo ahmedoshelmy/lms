@@ -314,6 +314,56 @@
       </div>
     }
 
+    <!-- The progress number and the sessions are two records of the same
+         thing, and they used to drift apart in silence. -->
+    @if (groupsWithDrift().length) {
+      <div class="overdue">
+        <button type="button" class="overdue__head" (click)="showDrift.set(!showDrift())">
+          <i class="pi pi-exclamation-circle"></i>
+          <span class="overdue__title">
+            {{ groupsWithDrift().length }}
+            {{
+              groupsWithDrift().length === 1 ? 'group records progress' : 'groups record progress'
+            }}
+            that disagrees with the sessions they have taught
+          </span>
+          <i
+            class="pi"
+            [class.pi-chevron-down]="!showDrift()"
+            [class.pi-chevron-up]="showDrift()"
+          ></i>
+        </button>
+
+        @if (showDrift()) {
+          <div class="stalled__list">
+            @for (group of groupsWithDrift(); track group.id) {
+              <div class="stalled__row">
+                <button type="button" class="stalled__name" (click)="viewGroupDetails(group)">
+                  {{ group.name }}
+                </button>
+                <span class="stalled__reason">
+                  says {{ group.progressRecorded }}, taught
+                  {{ group.progressShouldBe! - 1 }}
+                </span>
+                <span class="stalled__fix">
+                  Its next session is session {{ group.progressShouldBe }}. Sessions are labelled
+                  from this number, and it decides when the group moves up a level.
+                </span>
+                <button
+                  type="button"
+                  class="stalled__action"
+                  [disabled]="saving()"
+                  (click)="reconcileProgress(group)"
+                >
+                  Set to {{ group.progressShouldBe }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <!-- A running group can look healthy and still be dragging a fortnight of
          registers nobody took, so this is counted separately. -->
     @if (groupsWithOverdue().length) {

@@ -152,6 +152,33 @@ export class GroupsComponent implements OnInit {
     });
   }
 
+  /**
+   * Groups whose progress and sessions tell different stories. The number
+   * labels every session on the schedule and decides when a group moves up a
+   * level, so a wrong one is worth putting in front of somebody rather than
+   * leaving for the next person who notices a session called the wrong thing.
+   */
+  readonly groupsWithDrift = computed(() =>
+    this.groups().filter((g) => g.progressShouldBe != null)
+  );
+
+  readonly showDrift = signal(false);
+
+  /** Sets a group's progress to what its delivered sessions say it is. */
+  reconcileProgress(group: Group): void {
+    this.saving.set(true);
+    const shouldBe = group.progressShouldBe;
+    this.lmsService.reconcileProgress(group.id).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.loadGroups();
+        this.loadSchedule();
+        this.notify.showSuccess(`${group.name} is now at session ${shouldBe}.`);
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
   readonly showStalled = signal(false);
 
   /** Creates what a group is owed, putting it back on the schedule. */

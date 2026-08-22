@@ -91,6 +91,14 @@ export interface Group {
   nextSessionAt?: string | null;
   /** Past their date and still marked scheduled. Counted on every group. */
   overdueSessions?: number;
+  /**
+   * Where the group's progress should be, read off the sessions it has
+   * actually taught, when that disagrees with what it records. Absent when
+   * they agree, which is the normal case.
+   */
+  progressShouldBe?: number | null;
+  /** What that same course records today. Sent alongside progressShouldBe. */
+  progressRecorded?: number | null;
   students?: GroupStudent[];
   schedules?: GroupSchedule[];
   courses: GroupCourse[];

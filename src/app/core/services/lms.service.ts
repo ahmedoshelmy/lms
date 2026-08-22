@@ -304,6 +304,11 @@ export class LmsService {
   }
 
   /** Moves unmarked past sessions forward onto the group's pattern. Admin only. */
+  /** Sets a group's progress to what its delivered sessions say. Admin only. */
+  reconcileProgress(groupId: number): Observable<Group> {
+    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/reconcile-progress`, {});
+  }
+
   rescheduleOverdueSessions(groupId: number): Observable<Group> {
     return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/reschedule-overdue`, {});
   }
