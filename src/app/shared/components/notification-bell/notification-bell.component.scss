@@ -1,0 +1,197 @@
+:host {
+  position: relative;
+  display: block;
+}
+
+/* ── The bell ─────────────────────────────────────────────────────────────── */
+
+.bell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: rgb(255 255 255 / 0.08);
+  }
+}
+
+.bell--compact {
+  width: auto;
+  padding: 8px;
+  justify-content: center;
+}
+
+.bell__icon {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+/* Sits on the lip of the icon rather than beside it, so a collapsed sidebar
+   still shows there is something waiting. */
+.bell__badge {
+  position: absolute;
+  top: -6px;
+  left: 9px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.bell__label {
+  white-space: nowrap;
+}
+
+/* ── The panel ────────────────────────────────────────────────────────────── */
+
+.panel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 1200;
+  width: min(340px, calc(100vw - 32px));
+  max-height: min(460px, 70vh);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.18);
+  overflow: hidden;
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel__title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.panel__action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.panel__empty {
+  margin: 0;
+  padding: 26px 20px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.feed {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 12px 15px;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-background-alt);
+  }
+}
+
+.row--unread {
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+.row__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.row--unread .row__icon {
+  color: var(--color-primary);
+}
+
+.row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.row__title {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-text-primary);
+}
+
+.row__body {
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.row__when {
+  margin-top: 1px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.row__dot {
+  flex-shrink: 0;
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--color-primary);
+}

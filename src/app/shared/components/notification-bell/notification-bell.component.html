@@ -1,0 +1,63 @@
+<button
+  type="button"
+  class="bell"
+  [class.bell--compact]="compact()"
+  [attr.aria-label]="unreadCount() ? unreadCount() + ' unread notifications' : 'Notifications'"
+  [attr.aria-expanded]="open()"
+  (click)="toggle()"
+>
+  <span class="bell__icon">
+    <i class="pi pi-bell" aria-hidden="true"></i>
+    @if (unreadCount()) {
+      <span class="bell__badge">{{ badge() }}</span>
+    }
+  </span>
+
+  @if (!compact()) {
+    <span class="bell__label">Notifications</span>
+  }
+</button>
+
+@if (open()) {
+  <div class="panel" role="dialog" aria-label="Notifications">
+    <header class="panel__head">
+      <span class="panel__title">Notifications</span>
+      @if (unreadCount()) {
+        <button type="button" class="panel__action" (click)="markAllRead($event)">
+          Mark all read
+        </button>
+      }
+    </header>
+
+    @if (!items().length) {
+      <p class="panel__empty">
+        Nothing yet. Registers, changes to your classes and answers to your requests turn up here.
+      </p>
+    } @else {
+      <ul class="feed">
+        @for (item of items(); track item.id) {
+          <li>
+            <button
+              type="button"
+              class="row"
+              [class.row--unread]="!item.isRead"
+              (click)="activate(item)"
+            >
+              <i class="row__icon" [ngClass]="icons[item.kind]" aria-hidden="true"></i>
+
+              <span class="row__text">
+                <span class="row__title">{{ item.title }}</span>
+                <span class="row__body">{{ item.body }}</span>
+                <span class="row__when">{{ ago(item.createdAt) }}</span>
+              </span>
+
+              @if (!item.isRead) {
+                <span class="row__dot" aria-hidden="true"></span>
+              }
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+}

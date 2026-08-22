@@ -7,11 +7,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LmsService } from '../../../core/services/lms.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
+import { NotificationCenterService } from '../../../core/services/notification-center.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, NotificationBellComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
 })
@@ -19,6 +21,7 @@ export class SidebarComponent {
   private readonly authService = inject(AuthService);
   private readonly lmsService = inject(LmsService);
   private readonly themeService = inject(ThemeService);
+  private readonly notificationCentre = inject(NotificationCenterService);
   private readonly router = inject(Router);
 
   readonly isDark = this.themeService.isDark;
@@ -75,6 +78,9 @@ export class SidebarComponent {
   }
 
   private finishLogout(): void {
+    // Emptied here rather than left to expire, so the next person to sign in
+    // on this browser does not see somebody else's bell for a minute.
+    this.notificationCentre.clear();
     this.authService.logout();
     this.router.navigate(['/login']);
   }

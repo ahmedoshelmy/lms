@@ -56,6 +56,11 @@
       </div>
     </a>
 
+    <!-- Above the sign-out row rather than in it: the badge is the one thing
+         in the sidebar that changes on its own, and it should not sit next to
+         a button that ends the session. -->
+    <app-notification-bell [compact]="!isOpen()" />
+
     <div class="footer-actions">
       <button
         type="button"
