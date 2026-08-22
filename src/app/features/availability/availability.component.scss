@@ -203,12 +203,13 @@
   opacity: 0.8;
 }
 
+/* A day column is a seventh of the page, so the group name gets its own line
+   rather than competing with the time for the same one. */
 .slot {
   display: flex;
-  align-items: baseline;
-  gap: 5px;
-  flex-wrap: wrap;
-  padding: 4px 7px;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 7px;
   border-radius: 8px;
   background: var(--color-surface-secondary);
 }
@@ -221,19 +222,14 @@
 }
 
 .slot__label {
-  flex: 1;
-  min-width: 0;
   font-size: 10px;
+  line-height: 1.35;
   color: var(--color-text-muted);
+  /* Two lines is enough for a group name; the full text is in the tooltip. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.slot__count {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--color-text-muted);
 }
 
 .day__add {

@@ -139,15 +139,12 @@ export class AvailabilityComponent implements OnInit {
   });
 
   /**
-   * Distinct weekly slots this instructor teaches, from the sessions on the
-   * books. The same group recurs every week, so identical times are collapsed
-   * into one entry with a count rather than listed over and over.
+   * The weekly slots this instructor teaches, from the sessions on the books.
+   * Identical times are collapsed into one entry: the grid is a picture of a
+   * typical week, not a list of dates.
    */
   readonly bookedByDay = computed(() => {
-    const byDay = new Map<
-      number,
-      { start: string; end: string; label: string; occurrences: number }[]
-    >();
+    const byDay = new Map<number, { start: string; end: string; label: string }[]>();
 
     for (const session of this.sessions()) {
       if (!session.startsAt) continue;
@@ -160,12 +157,11 @@ export class AvailabilityComponent implements OnInit {
       const end = this.clockOf(endsAt);
       const label = session.groupName || session.topic || 'Session';
 
+      // The same group recurs every week, so one entry per weekly slot rather
+      // than one per occurrence.
       const slots = byDay.get(day) ?? [];
-      const existing = slots.find((s) => s.start === start && s.end === end && s.label === label);
-      if (existing) {
-        existing.occurrences += 1;
-      } else {
-        slots.push({ start, end, label, occurrences: 1 });
+      if (!slots.some((s) => s.start === start && s.end === end && s.label === label)) {
+        slots.push({ start, end, label });
       }
       byDay.set(day, slots);
     }

@@ -133,6 +133,14 @@ export const routes: Routes = [
       { path: 'users', redirectTo: 'students', pathMatch: 'full' },
 
       {
+        path: 'sales',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('sales') },
+        loadComponent: () =>
+          import('./features/sales/sales.component').then((c) => c.SalesComponent),
+      },
+
+      {
         path: 'availability',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('availability') },

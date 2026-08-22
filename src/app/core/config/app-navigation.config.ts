@@ -83,6 +83,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'sales',
+    label: 'Sales',
+    icon: 'pi pi-briefcase',
+    roles: SALES_ROLES,
+    showInMenu: true,
+  },
+  {
     path: 'availability',
     label: 'Availability',
     icon: 'pi pi-clock',

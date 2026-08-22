@@ -250,12 +250,9 @@
               <div class="day__booked">
                 <div class="day__booked-label">Booked</div>
                 @for (slot of day.booked; track $index) {
-                  <div class="slot">
+                  <div class="slot" [title]="slot.label">
                     <span class="slot__time">{{ slot.start }}–{{ slot.end }}</span>
                     <span class="slot__label">{{ slot.label }}</span>
-                    @if (slot.occurrences > 1) {
-                      <span class="slot__count">×{{ slot.occurrences }}</span>
-                    }
                   </div>
                 }
               </div>

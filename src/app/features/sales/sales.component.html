@@ -1,0 +1,727 @@
+<div class="sales-page">
+  <header class="sales-head">
+    <div>
+      <h1 class="sales-head__title">Sales</h1>
+      <p class="sales-head__sub">
+        Find a free hour, hold it while you sell it, and hand it over when it is full.
+      </p>
+    </div>
+
+    <nav class="tabs">
+      <button
+        type="button"
+        class="tab"
+        [class.tab--on]="tab() === 'find'"
+        (click)="tab.set('find')"
+      >
+        Find a slot
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.tab--on]="tab() === 'holds'"
+        (click)="tab.set('holds')"
+      >
+        Held slots
+        @if (liveHolds().length) {
+          <span class="tab__count">{{ liveHolds().length }}</span>
+        }
+      </button>
+      <button
+        type="button"
+        class="tab"
+        [class.tab--on]="tab() === 'pipeline'"
+        (click)="tab.set('pipeline')"
+      >
+        Pipeline
+        @if (candidates().length) {
+          <span class="tab__count">{{ candidates().length }}</span>
+        }
+      </button>
+    </nav>
+  </header>
+
+  <!-- What needs attention, wherever you are on the page. -->
+  @if (readyToConvert().length || expiringSoon().length) {
+    <div class="alerts">
+      @if (isAdmin() && readyToConvert().length) {
+        <button type="button" class="alert alert--ok" (click)="tab.set('holds')">
+          <i class="pi pi-check-circle"></i>
+          {{ readyToConvert().length }}
+          {{ readyToConvert().length === 1 ? 'hold is' : 'holds are' }} ready to become a group
+        </button>
+      }
+      @if (expiringSoon().length) {
+        <button type="button" class="alert alert--warn" (click)="tab.set('holds')">
+          <i class="pi pi-clock"></i>
+          {{ expiringSoon().length }}
+          {{ expiringSoon().length === 1 ? 'hold expires' : 'holds expire' }} within three days
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ── Find a slot ───────────────────────────────────────────────────── -->
+  @if (tab() === 'find') {
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">What are you selling?</h2>
+      </div>
+
+      <div class="search">
+        <label class="field">
+          <span class="field__label">Course</span>
+          <select
+            class="input"
+            [ngModel]="search().topicId"
+            (ngModelChange)="search.set({ ...search(), topicId: +$event, courseLevelId: 0 })"
+          >
+            <option [value]="0">Choose a course…</option>
+            @for (topic of topics(); track topic.id) {
+              <option [value]="topic.id">{{ topic.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Level</span>
+          <select
+            class="input"
+            [ngModel]="search().courseLevelId"
+            (ngModelChange)="search.set({ ...search(), courseLevelId: +$event })"
+          >
+            <option [value]="0">Any level</option>
+            @for (level of topicLevels(); track level.id) {
+              <option [value]="level.id">
+                {{ level.title }} ({{ level.sessionCount }} sessions)
+              </option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Starting from</span>
+          <input
+            type="date"
+            class="input"
+            [ngModel]="search().fromDate"
+            (ngModelChange)="search.set({ ...search(), fromDate: $event })"
+          />
+        </label>
+
+        <label class="field">
+          <span class="field__label">Day</span>
+          <select
+            class="input"
+            [ngModel]="search().dayOfWeek"
+            (ngModelChange)="search.set({ ...search(), dayOfWeek: +$event })"
+          >
+            <option [value]="-1">Any day</option>
+            @for (name of weekdays; track $index) {
+              <option [value]="$index">{{ name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Instructor</span>
+          <select
+            class="input"
+            [ngModel]="search().instructorId"
+            (ngModelChange)="search.set({ ...search(), instructorId: +$event })"
+          >
+            <option [value]="0">Anyone</option>
+            @for (inst of instructors(); track inst.id) {
+              <option [value]="inst.id">{{ inst.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span class="field__label">Room</span>
+          <select
+            class="input"
+            [ngModel]="search().roomId"
+            (ngModelChange)="search.set({ ...search(), roomId: +$event })"
+          >
+            <option [value]="0">Anywhere</option>
+            @for (room of rooms(); track room.id) {
+              <option [value]="room.id">{{ room.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="check">
+          <input
+            type="checkbox"
+            [ngModel]="search().perfectOnly"
+            (ngModelChange)="search.set({ ...search(), perfectOnly: $event })"
+          />
+          <span>Only slots free for the whole course</span>
+        </label>
+
+        <div class="search__actions">
+          @if (searched()) {
+            <button type="button" class="btn btn--ghost" (click)="clearSearch()">Clear</button>
+          }
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="searching()"
+            (click)="runSearch()"
+          >
+            <i class="pi pi-search"></i> Find slots
+          </button>
+        </div>
+      </div>
+    </section>
+
+    @if (searching()) {
+      <div class="loading"><p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" /></div>
+    } @else if (searched() && !slots().length) {
+      <div class="empty">
+        <i class="pi pi-calendar-times"></i>
+        <p class="empty__title">Nothing free matches that</p>
+        <p class="empty__note">
+          Try a different day, or untick "free for the whole course" to see slots with a gap or two.
+          If a customer needs an hour nobody covers, ask for it on the Availability page.
+        </p>
+      </div>
+    } @else if (slots().length) {
+      <section class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">{{ slots().length }} free slots</h2>
+          <span class="panel__meta">Best first</span>
+        </div>
+
+        <div class="slots">
+          @for (slot of slots(); track $index) {
+            <article class="slot" [class.slot--perfect]="isPerfect(slot)">
+              <div class="slot__when">
+                <span class="slot__day">{{ weekdays[toDayNumber(slot.dayOfWeek)] }}</span>
+                <span class="slot__time">
+                  {{ shortTime(slot.startTime) }}–{{ shortTime(slot.endTime) }}
+                </span>
+              </div>
+
+              <div class="slot__who">
+                <strong>{{ slot.instructorName }}</strong>
+                <span class="slot__room">{{ slot.roomName || 'Any room' }}</span>
+              </div>
+
+              <div class="slot__cover">
+                <span class="cover" [class.cover--full]="isPerfect(slot)">
+                  {{ coverage(slot) }}
+                </span>
+                <span class="slot__from">from {{ slot.firstDate }}</span>
+              </div>
+
+              @if (slot.blockers.length) {
+                <details class="slot__gaps">
+                  <summary>{{ slot.blockers.length }} gaps</summary>
+                  <ul>
+                    @for (blocker of slot.blockers; track $index) {
+                      <li>{{ blocker.date }} — {{ blocker.reason }}</li>
+                    }
+                  </ul>
+                </details>
+              }
+
+              <button type="button" class="btn btn--primary" (click)="openHoldDialog(slot)">
+                Hold it
+              </button>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  <!-- ── Held slots ────────────────────────────────────────────────────── -->
+  @if (tab() === 'holds') {
+    @if (loading()) {
+      <div class="loading"><p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" /></div>
+    } @else if (!liveHolds().length && !closedHolds().length) {
+      <div class="empty">
+        <i class="pi pi-bookmark"></i>
+        <p class="empty__title">Nothing held yet</p>
+        <p class="empty__note">Find a slot and hold it to take that hour off the market.</p>
+      </div>
+    } @else {
+      @for (hold of liveHolds(); track hold.id) {
+        <section class="panel hold" [class.hold--soon]="hold.daysUntilExpiry <= 3">
+          <div class="panel__head">
+            <h2 class="panel__title">{{ hold.courseLevelTitle || hold.topicName }}</h2>
+            @for (schedule of hold.schedules; track $index) {
+              <span class="chip chip--strong">{{ describeSlot(schedule) }}</span>
+            }
+            <span class="panel__meta">
+              {{ hold.instructorName }} &middot; {{ hold.roomName || 'Any room' }}
+            </span>
+
+            <span
+              class="pill"
+              [class.pill--warn]="hold.daysUntilExpiry <= 3"
+              [title]="'Expires ' + hold.expiresAt"
+            >
+              @if (hold.daysUntilExpiry < 0) {
+                Expired
+              } @else if (hold.daysUntilExpiry === 0) {
+                Expires today
+              } @else {
+                {{ hold.daysUntilExpiry }}d left
+              }
+            </span>
+
+            <div class="panel__actions">
+              <button type="button" class="btn btn--ghost" (click)="extendHold(hold)">
+                Extend
+              </button>
+              <button type="button" class="btn btn--ghost" (click)="releaseHold(hold)">
+                Release
+              </button>
+              @if (isAdmin()) {
+                <button
+                  type="button"
+                  class="btn btn--primary"
+                  [disabled]="!hold.committedCount"
+                  [title]="
+                    hold.committedCount
+                      ? 'Create the group and enrol everyone who committed'
+                      : 'Nobody has committed yet'
+                  "
+                  (click)="openConvertDialog(hold)"
+                >
+                  Make it a group
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="hold__body">
+            <p class="hold__meta">
+              Starts {{ hold.proposedStartDate }} &middot; {{ hold.totalSessions }} sessions
+              &middot; held by {{ hold.createdBySalesName }}
+              @if (hold.notes) {
+                &middot; {{ hold.notes }}
+              }
+            </p>
+
+            <div class="hold__people">
+              @for (candidate of hold.candidates; track candidate.id) {
+                <div class="person" [class.person--committed]="candidate.status === 'Committed'">
+                  <span class="person__name">{{ candidate.name }}</span>
+                  @if (candidate.parentName) {
+                    <span class="person__parent">{{ candidate.parentName }}</span>
+                  }
+                  <select
+                    class="input input--tiny"
+                    [ngModel]="candidate.status"
+                    (ngModelChange)="setStatus(candidate, $event)"
+                  >
+                    @for (status of candidateStatuses; track status) {
+                      <option
+                        [value]="status"
+                        [disabled]="status === 'Enrolled' && candidate.status !== 'Enrolled'"
+                      >
+                        {{ statusLabels[status] }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              } @empty {
+                <p class="hold__none">Nobody on this slot yet.</p>
+              }
+
+              <button
+                type="button"
+                class="btn btn--ghost"
+                (click)="openCandidateDialog(undefined, hold.id)"
+              >
+                <i class="pi pi-user-plus"></i> Add someone
+              </button>
+            </div>
+
+            @if (!hold.committedCount) {
+              <p class="hold__hint">It becomes a group once at least one person has committed.</p>
+            }
+          </div>
+        </section>
+      }
+
+      @if (closedHolds().length) {
+        <section class="panel">
+          <div class="panel__head"><h2 class="panel__title">Closed</h2></div>
+          <div class="closed-list">
+            @for (hold of closedHolds(); track hold.id) {
+              <div class="closed">
+                <span class="pill pill--{{ hold.status }}">{{ hold.status }}</span>
+                <strong>{{ hold.courseLevelTitle || hold.topicName }}</strong>
+                @for (schedule of hold.schedules; track $index) {
+                  <span class="chip">{{ describeSlot(schedule) }}</span>
+                }
+                <span class="closed__who">{{ hold.instructorName }}</span>
+                @if (hold.outcomeNote) {
+                  <span class="closed__note">{{ hold.outcomeNote }}</span>
+                }
+                @if (hold.status === 'Expired' || hold.status === 'Released') {
+                  <button type="button" class="btn btn--ghost" (click)="extendHold(hold)">
+                    Take it again
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      }
+    }
+  }
+
+  <!-- ── Pipeline ──────────────────────────────────────────────────────── -->
+  @if (tab() === 'pipeline') {
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Everyone you are talking to</h2>
+        <span class="panel__meta">{{ unattached().length }} not on a slot yet</span>
+        <div class="panel__actions">
+          <button type="button" class="btn btn--primary" (click)="openCandidateDialog()">
+            <i class="pi pi-user-plus"></i> Add a candidate
+          </button>
+        </div>
+      </div>
+
+      @if (!candidates().length) {
+        <div class="empty empty--flat">
+          <p class="empty__title">Nobody in the pipeline</p>
+          <p class="empty__note">
+            Add the people you are talking to and move them along as they go.
+          </p>
+        </div>
+      } @else {
+        <div class="board">
+          @for (column of pipeline(); track column.status) {
+            <div class="column">
+              <div class="column__head">
+                <span class="column__name">{{ column.label }}</span>
+                <span class="column__count">{{ column.candidates.length }}</span>
+              </div>
+
+              @for (candidate of column.candidates; track candidate.id) {
+                <article class="card">
+                  <button type="button" class="card__name" (click)="openCandidateDialog(candidate)">
+                    {{ candidate.name }}
+                  </button>
+                  @if (candidate.parentName) {
+                    <span class="card__parent">{{ candidate.parentName }}</span>
+                  }
+                  @if (candidate.phone) {
+                    <span class="card__phone">{{ candidate.phone }}</span>
+                  }
+                  <span class="card__hold">{{ holdName(candidate.slotHoldId) }}</span>
+
+                  @if (candidate.status !== 'Enrolled') {
+                    <div class="card__actions">
+                      <select
+                        class="input input--tiny"
+                        [ngModel]="candidate.status"
+                        (ngModelChange)="setStatus(candidate, $event)"
+                      >
+                        @for (status of candidateStatuses; track status) {
+                          <option [value]="status" [disabled]="status === 'Enrolled'">
+                            {{ statusLabels[status] }}
+                          </option>
+                        }
+                      </select>
+                      <button
+                        type="button"
+                        class="card__remove"
+                        title="Remove"
+                        (click)="removeCandidate(candidate)"
+                      >
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  }
+                </article>
+              } @empty {
+                <p class="column__none">—</p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
+
+<!-- ── Hold dialog ─────────────────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showHoldDialog"
+  header="Hold this slot"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  @if (holdSlot(); as slot) {
+    <div class="form">
+      <p class="form__for">
+        <strong>{{ describeSlot(slot) }}</strong> with {{ slot.instructorName }}
+        @if (slot.roomName) {
+          at {{ slot.roomName }}
+        }
+      </p>
+      <p class="form__note">Starting {{ slot.firstDate }} · {{ coverage(slot) }}</p>
+
+      <label class="field">
+        <span class="field__label">Sessions in the course</span>
+        <input
+          type="number"
+          class="input"
+          min="1"
+          max="60"
+          [ngModel]="holdForm().totalSessions"
+          (ngModelChange)="holdForm.set({ ...holdForm(), totalSessions: +$event })"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Hold it for (days)</span>
+        <input
+          type="number"
+          class="input"
+          min="1"
+          max="90"
+          [ngModel]="holdForm().holdForDays"
+          (ngModelChange)="holdForm.set({ ...holdForm(), holdForDays: +$event })"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Notes</span>
+        <textarea
+          class="input"
+          rows="2"
+          placeholder="Which customer, anything operations should know."
+          [ngModel]="holdForm().notes"
+          (ngModelChange)="holdForm.set({ ...holdForm(), notes: $event })"
+        ></textarea>
+      </label>
+
+      <p class="form__warn">
+        <i class="pi pi-info-circle"></i>
+        This hour disappears from everyone's search until you release it or it expires.
+      </p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button type="button" class="btn btn--ghost" (click)="showHoldDialog.set(false)">
+        Cancel
+      </button>
+      <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitHold()">
+        Hold it
+      </button>
+    </ng-template>
+  }
+</p-dialog>
+
+<!-- ── Candidate dialog ────────────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showCandidateDialog"
+  [header]="editingCandidate() ? 'Edit candidate' : 'Add a candidate'"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="form">
+    <label class="field">
+      <span class="field__label">Student's name</span>
+      <input
+        type="text"
+        class="input"
+        [ngModel]="candidateForm().name"
+        (ngModelChange)="candidateForm.set({ ...candidateForm(), name: $event })"
+      />
+    </label>
+
+    <label class="field">
+      <span class="field__label">Parent</span>
+      <input
+        type="text"
+        class="input"
+        [ngModel]="candidateForm().parentName"
+        (ngModelChange)="candidateForm.set({ ...candidateForm(), parentName: $event })"
+      />
+    </label>
+
+    <div class="field field--row">
+      <label class="field">
+        <span class="field__label">Phone</span>
+        <input
+          type="tel"
+          class="input"
+          [ngModel]="candidateForm().phone"
+          (ngModelChange)="candidateForm.set({ ...candidateForm(), phone: $event })"
+        />
+      </label>
+      <label class="field">
+        <span class="field__label">Email</span>
+        <input
+          type="email"
+          class="input"
+          [ngModel]="candidateForm().email"
+          (ngModelChange)="candidateForm.set({ ...candidateForm(), email: $event })"
+        />
+      </label>
+    </div>
+
+    <div class="field field--row">
+      <label class="field">
+        <span class="field__label">Source</span>
+        <input
+          type="text"
+          class="input"
+          placeholder="Referral, walk-in…"
+          [ngModel]="candidateForm().source"
+          (ngModelChange)="candidateForm.set({ ...candidateForm(), source: $event })"
+        />
+      </label>
+      <label class="field">
+        <span class="field__label">Stage</span>
+        <select
+          class="input"
+          [ngModel]="candidateForm().status"
+          (ngModelChange)="candidateForm.set({ ...candidateForm(), status: $event })"
+        >
+          @for (status of candidateStatuses; track status) {
+            <option [value]="status" [disabled]="status === 'Enrolled'">
+              {{ statusLabels[status] }}
+            </option>
+          }
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field__label">Slot</span>
+      <select
+        class="input"
+        [ngModel]="candidateForm().slotHoldId"
+        (ngModelChange)="candidateForm.set({ ...candidateForm(), slotHoldId: $event })"
+      >
+        <option [ngValue]="null">Not on a slot yet</option>
+        @for (hold of liveHolds(); track hold.id) {
+          <option [ngValue]="hold.id">{{ holdName(hold.id) }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="field__label">Notes</span>
+      <textarea
+        class="input"
+        rows="2"
+        [ngModel]="candidateForm().notes"
+        (ngModelChange)="candidateForm.set({ ...candidateForm(), notes: $event })"
+      ></textarea>
+    </label>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showCandidateDialog.set(false)">
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="saving() || candidateForm().name.trim().length < 2"
+      (click)="submitCandidate()"
+    >
+      Save
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Convert dialog ──────────────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showConvertDialog"
+  header="Make it a group"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  @if (convertingHold(); as hold) {
+    <div class="form">
+      <p class="form__for">
+        <strong>{{ hold.committedCount }}</strong>
+        {{ hold.committedCount === 1 ? 'person has' : 'people have' }} committed. They become
+        students in a new group.
+      </p>
+      <p class="form__note">
+        {{ hold.instructorName }} &middot;
+        @for (schedule of hold.schedules; track $index) {
+          {{ describeSlot(schedule) }}
+        }
+        &middot; from {{ hold.proposedStartDate }}
+      </p>
+
+      @if (!hold.courseLevelId) {
+        <label class="field">
+          <span class="field__label">Level</span>
+          <select
+            class="input"
+            [ngModel]="convertForm().courseLevelId"
+            (ngModelChange)="convertForm.set({ ...convertForm(), courseLevelId: +$event })"
+          >
+            <option [value]="0">Choose a level…</option>
+            @for (level of levels(); track level.id) {
+              <option [value]="level.id">{{ level.title }}</option>
+            }
+          </select>
+        </label>
+      }
+
+      <label class="field">
+        <span class="field__label">Group name</span>
+        <input
+          type="text"
+          class="input"
+          placeholder="Left blank, it is named after the course and month."
+          [ngModel]="convertForm().groupName"
+          (ngModelChange)="convertForm.set({ ...convertForm(), groupName: $event })"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Note</span>
+        <textarea
+          class="input"
+          rows="2"
+          [ngModel]="convertForm().note"
+          (ngModelChange)="convertForm.set({ ...convertForm(), note: $event })"
+        ></textarea>
+      </label>
+
+      <p class="form__warn">
+        <i class="pi pi-info-circle"></i>
+        Anybody not marked committed stays in the pipeline rather than joining the group.
+      </p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button type="button" class="btn btn--ghost" (click)="showConvertDialog.set(false)">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="saving()"
+        (click)="submitConvert()"
+      >
+        Create the group
+      </button>
+    </ng-template>
+  }
+</p-dialog>

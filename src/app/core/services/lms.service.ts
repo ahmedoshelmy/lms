@@ -59,6 +59,16 @@ import {
   InstructorTimeOff,
   Room,
 } from '../interfaces/Availability';
+import {
+  AvailableSlot,
+  Candidate,
+  CandidateStatus,
+  CreateSlotHold,
+  SlotHold,
+  SlotHoldStatus,
+  SlotSearch,
+  UpsertCandidate,
+} from '../interfaces/Sales';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -562,5 +572,97 @@ export class LmsService {
       `${this.getApiUrl()}/availability/requests/${id}/withdraw`,
       {}
     );
+  }
+
+  // ── Slot finder ───────────────────────────────────────────────────────────
+
+  /**
+   * The weekly hours a new group could go into. The one answer to "is this hour
+   * free", shared by the sales search and operations.
+   */
+  findAvailableSlots(search: SlotSearch): Observable<AvailableSlot[]> {
+    const params: string[] = [];
+    if (search.fromDate) params.push(`fromDate=${search.fromDate}`);
+    if (search.weeks) params.push(`weeks=${search.weeks}`);
+    if (search.instructorId) params.push(`instructorId=${search.instructorId}`);
+    if (search.dayOfWeek !== undefined && search.dayOfWeek !== null) {
+      params.push(`dayOfWeek=${search.dayOfWeek}`);
+    }
+    if (search.roomId) params.push(`roomId=${search.roomId}`);
+    if (search.maxBlockedWeeks !== undefined && search.maxBlockedWeeks !== null) {
+      params.push(`maxBlockedWeeks=${search.maxBlockedWeeks}`);
+    }
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<AvailableSlot[]>(`${this.getApiUrl()}/Availability/slots${query}`);
+  }
+
+  // ── Holds ─────────────────────────────────────────────────────────────────
+
+  getSlotHolds(
+    options: {
+      status?: SlotHoldStatus;
+      readyOnly?: boolean;
+      mineOnly?: boolean;
+    } = {}
+  ): Observable<SlotHold[]> {
+    const params: string[] = [];
+    if (options.status) params.push(`status=${options.status}`);
+    if (options.readyOnly) params.push('readyOnly=true');
+    if (options.mineOnly) params.push('mineOnly=true');
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<SlotHold[]>(`${this.getApiUrl()}/Sales/holds${query}`);
+  }
+
+  createSlotHold(payload: CreateSlotHold): Observable<SlotHold> {
+    return this.http.post<SlotHold>(`${this.getApiUrl()}/Sales/holds`, payload);
+  }
+
+  extendSlotHold(id: number, days: number): Observable<SlotHold> {
+    return this.http.post<SlotHold>(`${this.getApiUrl()}/Sales/holds/${id}/extend`, { days });
+  }
+
+  releaseSlotHold(id: number, reason?: string): Observable<SlotHold> {
+    return this.http.post<SlotHold>(`${this.getApiUrl()}/Sales/holds/${id}/release`, {
+      reason: reason ?? null,
+    });
+  }
+
+  convertSlotHold(
+    id: number,
+    payload: { groupName?: string | null; courseLevelId?: number | null; note?: string | null }
+  ): Observable<SlotHold> {
+    return this.http.post<SlotHold>(`${this.getApiUrl()}/Sales/holds/${id}/convert`, {
+      ...payload,
+      generateSessions: true,
+    });
+  }
+
+  // ── Candidates ────────────────────────────────────────────────────────────
+
+  getCandidates(
+    options: {
+      holdId?: number;
+      status?: CandidateStatus;
+      mineOnly?: boolean;
+    } = {}
+  ): Observable<Candidate[]> {
+    const params: string[] = [];
+    if (options.holdId) params.push(`holdId=${options.holdId}`);
+    if (options.status) params.push(`status=${options.status}`);
+    if (options.mineOnly) params.push('mineOnly=true');
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<Candidate[]>(`${this.getApiUrl()}/Sales/candidates${query}`);
+  }
+
+  createCandidate(payload: UpsertCandidate): Observable<Candidate> {
+    return this.http.post<Candidate>(`${this.getApiUrl()}/Sales/candidates`, payload);
+  }
+
+  updateCandidate(id: number, payload: UpsertCandidate): Observable<Candidate> {
+    return this.http.put<Candidate>(`${this.getApiUrl()}/Sales/candidates/${id}`, payload);
+  }
+
+  deleteCandidate(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.getApiUrl()}/Sales/candidates/${id}`);
   }
 }
