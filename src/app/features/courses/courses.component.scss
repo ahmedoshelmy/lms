@@ -210,18 +210,6 @@
    An open level takes the full width of the grid. At three columns a level
    card is far too narrow to read a session description in, so expanding one
    promotes it to a full-width row rather than squeezing text into a third. */
-.course-card--open {
-  grid-column: 1 / -1;
-  border-color: var(--color-secondary);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-}
-
-.course-accordion {
-  margin-top: 4px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
-}
-
 .course-accordion__status {
   margin: 0;
   padding: 14px 0;

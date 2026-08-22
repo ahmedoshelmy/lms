@@ -47,7 +47,12 @@ export class CoursesComponent implements OnInit {
   editingTopic = signal<Topic | null>(null);
   selectedTopic = signal<Topic | null>(null);
   editingLevel = signal<CourseLevel | null>(null);
-  deletingTarget = signal<{ type: 'topic' | 'level'; id: number; topicId?: number; name: string } | null>(null);
+  deletingTarget = signal<{
+    type: 'topic' | 'level';
+    id: number;
+    topicId?: number;
+    name: string;
+  } | null>(null);
 
   // Topic Form
   topicCode = signal('');
@@ -63,15 +68,20 @@ export class CoursesComponent implements OnInit {
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
   // ─── Course content (per-level syllabus) ──────────────────────────────────
-  /** The level whose sessions are open. One at a time, so the page stays short. */
-  expandedLevelId = signal<number | null>(null);
+  /**
+   * Sessions open in a dialog rather than inside the card. The level cards sit
+   * in a three-column grid, so expanding one in place reflows every card after
+   * it; a dialog also gives twelve sessions of syllabus room to scroll.
+   */
+  showSyllabusModal = signal(false);
+  syllabusLevel = signal<CourseLevel | null>(null);
+  syllabusTopic = signal<Topic | null>(null);
   syllabus = signal<SessionSyllabus[]>([]);
   loadingSyllabus = signal<boolean>(false);
-  /** Cached per level, so collapsing and reopening does not refetch. */
+  /** Cached per level, so reopening does not refetch. */
   private syllabusCache = new Map<number, SessionSyllabus[]>();
   /** Session numbers currently expanded in the list. */
   private expandedSessions = signal<ReadonlySet<number>>(new Set<number>());
-
 
   readonly filteredTopics = computed(() => {
     const q = this.searchQuery().trim().toLowerCase();
@@ -131,7 +141,10 @@ export class CoursesComponent implements OnInit {
   openCreateLevelModal(topic: Topic): void {
     this.selectedTopic.set(topic);
     this.editingLevel.set(null);
-    const nextLvl = topic.levels && topic.levels.length > 0 ? Math.max(...topic.levels.map(l => l.level)) + 1 : 1;
+    const nextLvl =
+      topic.levels && topic.levels.length > 0
+        ? Math.max(...topic.levels.map((l) => l.level)) + 1
+        : 1;
     this.levelNumber.set(nextLvl);
     this.levelTitle.set(`${topic.name} Level ${nextLvl}`);
     this.levelDescription.set(`${topic.name} course level ${nextLvl}`);
@@ -149,7 +162,12 @@ export class CoursesComponent implements OnInit {
     this.showLevelModal.set(true);
   }
 
-  openDeleteModal(target: { type: 'topic' | 'level'; id: number; topicId?: number; name: string }): void {
+  openDeleteModal(target: {
+    type: 'topic' | 'level';
+    id: number;
+    topicId?: number;
+    name: string;
+  }): void {
     this.deletingTarget.set(target);
     this.showDeleteModal.set(true);
   }
@@ -270,22 +288,15 @@ export class CoursesComponent implements OnInit {
     });
   }
 
-  isLevelExpanded(levelId: number): boolean {
-    return this.expandedLevelId() === levelId;
-  }
-
   /**
-   * Opens a course level's sessions inline, closing whichever was open.
-   * The syllabus is fetched once per level and kept, so reopening is instant.
+   * Opens a course level's sessions in a dialog. The syllabus is fetched once
+   * per level and kept, so reopening is instant.
    */
-  toggleLevel(topic: Topic, level: CourseLevel): void {
-    if (this.expandedLevelId() === level.id) {
-      this.expandedLevelId.set(null);
-      return;
-    }
-
-    this.expandedLevelId.set(level.id);
+  openSyllabus(topic: Topic, level: CourseLevel): void {
+    this.syllabusTopic.set(topic);
+    this.syllabusLevel.set(level);
     this.expandedSessions.set(new Set<number>());
+    this.showSyllabusModal.set(true);
 
     const cached = this.syllabusCache.get(level.id);
     if (cached) {
@@ -299,7 +310,7 @@ export class CoursesComponent implements OnInit {
       next: (sessions) => {
         this.syllabusCache.set(level.id, sessions || []);
         // Guard against a slow response arriving after the user moved on.
-        if (this.expandedLevelId() === level.id) {
+        if (this.syllabusLevel()?.id === level.id) {
           this.syllabus.set(sessions || []);
         }
         this.loadingSyllabus.set(false);
@@ -309,6 +320,12 @@ export class CoursesComponent implements OnInit {
         this.loadingSyllabus.set(false);
       },
     });
+  }
+
+  closeSyllabus(): void {
+    this.showSyllabusModal.set(false);
+    this.syllabusLevel.set(null);
+    this.syllabusTopic.set(null);
   }
 
   readonly syllabusWithParentCopy = computed(
