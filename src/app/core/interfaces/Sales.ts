@@ -119,6 +119,15 @@ export interface Candidate {
   createdAt: string;
 }
 
+export interface TrialSession {
+  sessionId: number;
+  candidateName: string;
+  startsAt: string;
+  endsAt: string;
+  instructorName: string;
+  location: string | null;
+}
+
 export interface UpsertCandidate {
   name: string;
   parentName?: string | null;

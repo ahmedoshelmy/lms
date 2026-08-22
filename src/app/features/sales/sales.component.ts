@@ -95,6 +95,10 @@ export class SalesComponent implements OnInit {
     status: 'New' as CandidateStatus,
   });
 
+  readonly trialFor = signal<{ hold: SlotHold; candidate: Candidate } | null>(null);
+  readonly showTrialDialog = signal(false);
+  readonly trialDate = signal('');
+
   readonly convertingHold = signal<SlotHold | null>(null);
   readonly showConvertDialog = signal(false);
   readonly convertForm = signal({ groupName: '', courseLevelId: 0, note: '' });
@@ -280,6 +284,69 @@ export class SalesComponent implements OnInit {
         this.loadCandidates();
         this.notify.showSuccess('Slot released. Anyone on it is back in the pipeline.');
       },
+    });
+  }
+
+  // ── Trials ───────────────────────────────────────────────────────────────
+
+  openTrialDialog(hold: SlotHold, candidate: Candidate): void {
+    this.trialFor.set({ hold, candidate });
+    this.trialDate.set(this.nextSlotDate(hold));
+    this.showTrialDialog.set(true);
+  }
+
+  /**
+   * The next date the hold's pattern falls on. A trial has to sit in the hour
+   * being sold, so the date is picked from the pattern rather than free-typed.
+   */
+  private nextSlotDate(hold: SlotHold): string {
+    const days = hold.schedules.map((s) => toDayNumber(s.dayOfWeek));
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    for (let i = 1; i <= 28; i++) {
+      date.setDate(date.getDate() + 1);
+      if (days.includes(date.getDay())) {
+        return date.toISOString().slice(0, 10);
+      }
+    }
+    return hold.proposedStartDate;
+  }
+
+  /** The dates in the next month this hold actually runs on. */
+  readonly trialDates = computed(() => {
+    const pending = this.trialFor();
+    if (!pending) return [];
+
+    const days = pending.hold.schedules.map((s) => toDayNumber(s.dayOfWeek));
+    const out: string[] = [];
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    for (let i = 1; i <= 42; i++) {
+      date.setDate(date.getDate() + 1);
+      if (days.includes(date.getDay())) {
+        out.push(date.toISOString().slice(0, 10));
+      }
+    }
+    return out;
+  });
+
+  submitTrial(): void {
+    const pending = this.trialFor();
+    const date = this.trialDate();
+    if (!pending || !date) return;
+
+    this.saving.set(true);
+    this.lms.bookTrial(pending.hold.id, pending.candidate.id, date).subscribe({
+      next: (trial) => {
+        this.showTrialDialog.set(false);
+        this.saving.set(false);
+        this.loadHolds();
+        this.loadCandidates();
+        this.notify.showSuccess(
+          `Trial booked for ${trial.candidateName} with ${trial.instructorName}.`
+        );
+      },
+      error: () => this.saving.set(false),
     });
   }
 

@@ -328,6 +328,17 @@
                       </option>
                     }
                   </select>
+
+                  @if (candidate.status !== 'Enrolled') {
+                    <button
+                      type="button"
+                      class="person__trial"
+                      title="Book them into this slot for a trial"
+                      (click)="openTrialDialog(hold, candidate)"
+                    >
+                      <i class="pi pi-calendar-plus"></i>
+                    </button>
+                  }
                 </div>
               } @empty {
                 <p class="hold__none">Nobody on this slot yet.</p>
@@ -721,6 +732,51 @@
         (click)="submitConvert()"
       >
         Create the group
+      </button>
+    </ng-template>
+  }
+</p-dialog>
+
+<!-- ── Trial dialog ────────────────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showTrialDialog"
+  header="Book a trial"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '420px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  @if (trialFor(); as pending) {
+    <div class="form">
+      <p class="form__for">
+        <strong>{{ pending.candidate.name }}</strong> sits in the slot with
+        {{ pending.hold.instructorName }}
+        @if (pending.hold.roomName) {
+          at {{ pending.hold.roomName }}
+        }
+      </p>
+
+      <label class="field">
+        <span class="field__label">Which date</span>
+        <select class="input" [ngModel]="trialDate()" (ngModelChange)="trialDate.set($event)">
+          @for (date of trialDates(); track date) {
+            <option [value]="date">{{ date }}</option>
+          }
+        </select>
+      </label>
+
+      <p class="form__note">
+        Only the dates this slot actually runs on — a trial in a different hour tells the parent
+        nothing about the one they would be buying.
+      </p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button type="button" class="btn btn--ghost" (click)="showTrialDialog.set(false)">
+        Cancel
+      </button>
+      <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitTrial()">
+        Book it
       </button>
     </ng-template>
   }

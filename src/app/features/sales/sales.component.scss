@@ -375,6 +375,28 @@
   color: var(--color-text-muted);
 }
 
+.person__trial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-secondary);
+  cursor: pointer;
+
+  i {
+    font-size: 11px;
+  }
+
+  &:hover {
+    background: var(--color-info-background);
+  }
+}
+
 .hold__none {
   margin: 0;
   font-size: 12px;

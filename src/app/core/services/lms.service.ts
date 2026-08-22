@@ -67,6 +67,7 @@ import {
   SlotHold,
   SlotHoldStatus,
   SlotSearch,
+  TrialSession,
   UpsertCandidate,
 } from '../interfaces/Sales';
 
@@ -634,6 +635,14 @@ export class LmsService {
     return this.http.post<SlotHold>(`${this.getApiUrl()}/Sales/holds/${id}/convert`, {
       ...payload,
       generateSessions: true,
+    });
+  }
+
+  /** Books a candidate into the held hour so they can sit in it before deciding. */
+  bookTrial(holdId: number, candidateId: number, date: string): Observable<TrialSession> {
+    return this.http.post<TrialSession>(`${this.getApiUrl()}/Sales/holds/${holdId}/trial`, {
+      candidateId,
+      date,
     });
   }
 
