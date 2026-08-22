@@ -1,5 +1,27 @@
 import { GroupCourse, GroupCourseAssignDto, GroupCourseUpdateItemDto } from './GroupCourse';
 
+/**
+ * Must match GroupStatus on the API exactly.
+ *
+ * Both edit screens carried their own copy of this numbered from zero, so
+ * saving a Running group sent 0 — not a value the enum has — and saving a
+ * Stopped one sent 1, which the API reads as Running. Every status save was
+ * wrong by one step. Defined once here so the two cannot drift again.
+ */
+export const GROUP_STATUS: Record<string, number> = {
+  Running: 1,
+  Stopped: 2,
+  Completed: 3,
+  Archived: 4,
+};
+
+export const GROUP_STATUS_LABELS: Record<number, string> = {
+  1: 'Running',
+  2: 'Stopped',
+  3: 'Completed',
+  4: 'Archived',
+};
+
 export interface GroupStudent {
   studentId: number;
   studentName: string;
@@ -97,4 +119,3 @@ export interface CancelUpcomingSessionsResult {
   cancelledSessionIds: number[];
   substituteSessionIds: number[];
 }
-

@@ -11,13 +11,14 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role, parseRole } from '../../../core/interfaces/Role';
 import {
+  CancelUpcomingSessionsPayload,
+  CancelUpcomingSessionsResult,
+  GROUP_STATUS,
+  GenerateCustomSessionsPayload,
   Group,
   GroupStudent,
   UpdateGroupPayload,
   UpdateGroupSchedulePayload,
-  GenerateCustomSessionsPayload,
-  CancelUpcomingSessionsPayload,
-  CancelUpcomingSessionsResult,
 } from '../../../core/interfaces/Group';
 import { GroupCourse } from '../../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
@@ -43,13 +44,6 @@ const STATUS_OPTIONS = [
   { label: 'Completed', value: 2 },
   { label: 'Archived', value: 3 },
 ];
-
-const STATUS_MAP: Record<string, number> = {
-  Running: 0,
-  Stopped: 1,
-  Completed: 2,
-  Archived: 3,
-};
 
 @Component({
   selector: 'app-group-detail',
@@ -597,7 +591,7 @@ export class GroupDetailComponent implements OnInit {
     this.formStartDate = grp.startDate ? grp.startDate.split('T')[0] : '';
     this.formEndDate = grp.endDate ? grp.endDate.split('T')[0] : '';
     this.formInstructorId = grp.defaultInstructorId || 0;
-    this.formStatus = STATUS_MAP[grp.status] ?? 0;
+    this.formStatus = GROUP_STATUS[grp.status] ?? 0;
     this.formLocation = grp.location || 'MOA';
 
     // Populate editable courses
@@ -678,7 +672,12 @@ export class GroupDetailComponent implements OnInit {
   addScheduleSlotToUnifiedEdit(): void {
     this.editScheduleSlots.update((slots) => [
       ...slots,
-      { dayOfWeek: 'Sunday', startTime: '15:00', endTime: '16:30', location: this.formLocation || 'MOA' },
+      {
+        dayOfWeek: 'Sunday',
+        startTime: '15:00',
+        endTime: '16:30',
+        location: this.formLocation || 'MOA',
+      },
     ]);
   }
 
@@ -757,7 +756,7 @@ export class GroupDetailComponent implements OnInit {
       startDate: grp.startDate ? grp.startDate.split('T')[0] : '',
       endDate: grp.endDate ? grp.endDate.split('T')[0] : '',
       defaultInstructorId: grp.defaultInstructorId,
-      status: STATUS_MAP[grp.status] ?? 0,
+      status: GROUP_STATUS[grp.status] ?? 0,
       courses: [
         {
           groupCourseId: course.id,

@@ -9,7 +9,13 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
-import { CreateGroupPayload, Group, GroupScheduleSlot, UpdateGroupPayload } from '../../core/interfaces/Group';
+import {
+  CreateGroupPayload,
+  GROUP_STATUS,
+  Group,
+  GroupScheduleSlot,
+  UpdateGroupPayload,
+} from '../../core/interfaces/Group';
 import { User } from '../../core/interfaces/User';
 import { Topic } from '../../core/interfaces/Topic';
 import { CourseLevel } from '../../core/interfaces/CourseLevel';
@@ -29,13 +35,6 @@ const STATUS_OPTIONS = [
   { label: 'Completed', value: 2 },
   { label: 'Archived', value: 3 },
 ];
-
-const STATUS_MAP: Record<string, number> = {
-  Running: 0,
-  Stopped: 1,
-  Completed: 2,
-  Archived: 3,
-};
 
 const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -304,7 +303,7 @@ export class GroupsComponent implements OnInit {
     this.formStartDate = group.startDate ? group.startDate.split('T')[0] : '';
     this.formEndDate = group.endDate ? group.endDate.split('T')[0] : '';
     this.formInstructorId = group.defaultInstructorId || 0;
-    this.formStatus = STATUS_MAP[group.status] ?? 0;
+    this.formStatus = GROUP_STATUS[group.status] ?? 0;
     this.formLocation = group.location || '';
     this.showModal.set(true);
   }
@@ -312,7 +311,12 @@ export class GroupsComponent implements OnInit {
   addScheduleSlot(): void {
     this.scheduleSlots.update((slots) => [
       ...slots,
-      { dayOfWeek: 'Sunday', startTime: '15:00', endTime: '16:30', location: this.formLocation || 'MOA' },
+      {
+        dayOfWeek: 'Sunday',
+        startTime: '15:00',
+        endTime: '16:30',
+        location: this.formLocation || 'MOA',
+      },
     ]);
   }
 
