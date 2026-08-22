@@ -477,6 +477,19 @@
               class="flex items-center gap-4 text-[11px] font-bold text-[var(--color-text-secondary)] mt-3 py-1.5 px-3 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)]"
             >
               <span>👥 {{ group.studentCount }} Students</span>
+              @if (seatsOverBy(group); as over) {
+                <span
+                  class="text-[var(--color-warning)]"
+                  [title]="
+                    group.roomName +
+                    ' seats ' +
+                    group.roomStudentCapacity +
+                    '. Nothing stops the group being this size; it just needs the chairs.'
+                  "
+                >
+                  ({{ over }} over {{ group.roomName }})
+                </span>
+              }
               <span>•</span>
               <span>📚 {{ group.courses.length }} Courses</span>
               @if (group.schedules && group.schedules.length > 0) {

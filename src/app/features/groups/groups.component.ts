@@ -18,6 +18,7 @@ import {
   STALLED_COPY,
   StalledReason,
   UpdateGroupPayload,
+  seatsOverBy,
 } from '../../core/interfaces/Group';
 import { User } from '../../core/interfaces/User';
 import { Topic } from '../../core/interfaces/Topic';
@@ -178,6 +179,9 @@ export class GroupsComponent implements OnInit {
       error: () => this.saving.set(false),
     });
   }
+
+  /** How far a group has outgrown its room, for the card. */
+  readonly seatsOverBy = seatsOverBy;
 
   readonly showStalled = signal(false);
 

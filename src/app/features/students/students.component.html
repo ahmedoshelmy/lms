@@ -472,6 +472,9 @@
             <option [value]="grp.id">{{ grp.name }} ({{ grp.defaultInstructorName }})</option>
           }
         </select>
+        @if (roomWarning(bulkTargetGroupId(), selectedStudentIds().size); as warning) {
+          <p class="mt-1.5 text-[11px] font-semibold text-[var(--color-warning)]">{{ warning }}</p>
+        }
       </div>
     </div>
 
@@ -563,6 +566,9 @@
             <option [value]="grp.id">{{ grp.name }}</option>
           }
         </select>
+        @if (roomWarning(formGroupId(), editingStudent() ? 0 : 1); as warning) {
+          <p class="mt-1.5 text-[11px] font-semibold text-[var(--color-warning)]">{{ warning }}</p>
+        }
       </div>
     </div>
 

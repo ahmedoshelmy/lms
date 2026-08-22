@@ -99,6 +99,10 @@ export interface Group {
   progressShouldBe?: number | null;
   /** What that same course records today. Sent alongside progressShouldBe. */
   progressRecorded?: number | null;
+  /** The room the group's weekly slot occupies, where it has one. */
+  roomName?: string | null;
+  /** How many that room seats. Null when nothing about it caps the group. */
+  roomStudentCapacity?: number | null;
   students?: GroupStudent[];
   schedules?: GroupSchedule[];
   courses: GroupCourse[];
@@ -108,6 +112,22 @@ export interface Group {
   nextCourseTitle?: string;
   nextCourseLevel?: string;
   nextCourseTotalSessions?: number;
+}
+
+/**
+ * How far a group's roll has outgrown the room it meets in, or null when it
+ * has not, or when nothing about the room caps it: online, a partner site, or
+ * a room whose seating nobody has recorded.
+ *
+ * Nothing refuses an enrolment over this. A class of thirteen in a room of
+ * twelve is a chair to find, not a sale to turn away — but it should not be a
+ * surprise on the morning either.
+ */
+export function seatsOverBy(group: Group): number | null {
+  const seats = group.roomStudentCapacity;
+  if (seats == null) return null;
+  const over = group.studentCount - seats;
+  return over > 0 ? over : null;
 }
 
 export interface GroupScheduleSlot {

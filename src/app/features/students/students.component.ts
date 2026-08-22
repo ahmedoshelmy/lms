@@ -8,7 +8,7 @@ import { forkJoin } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
-import { Group } from '../../core/interfaces/Group';
+import { Group, seatsOverBy } from '../../core/interfaces/Group';
 import { User } from '../../core/interfaces/User';
 
 @Component({
@@ -170,6 +170,27 @@ export class StudentsComponent implements OnInit {
       },
       error: () => {},
     });
+  }
+
+  /**
+   * What to say when the group somebody has picked will not seat everyone.
+   * Nothing here refuses the assignment: a class of thirteen in a room of
+   * twelve is a chair to find, not a sale to turn away. It should just not be
+   * a surprise on the morning.
+   */
+  roomWarning(groupId: number | string, joining: number): string | null {
+    const group = this.groups().find((g) => g.id === Number(groupId));
+    if (!group || group.roomStudentCapacity == null) return null;
+
+    const over = group.studentCount + joining - group.roomStudentCapacity;
+    if (over <= 0) return null;
+
+    const already = seatsOverBy(group);
+    const lead = already
+      ? `${group.name} is already ${already} over`
+      : `This would put ${group.name} ${over} over`;
+
+    return `${lead} what ${group.roomName} seats (${group.roomStudentCapacity}). Allowed, but somebody has to find the chairs.`;
   }
 
   // Selection Helpers
