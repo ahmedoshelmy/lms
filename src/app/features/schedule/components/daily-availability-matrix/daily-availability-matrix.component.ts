@@ -2,13 +2,18 @@ import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
+import {
+  InstructorAvailability,
+  InstructorTimeOff,
+} from '../../../../core/interfaces/Availability';
+import { isDeclaredAvailable, isOnLeave } from '../../../../core/utils/availability.utils';
 
 export interface TimeSlot {
   label: string;
   hour: number;
 }
 
-export type AvailabilityState = 'available' | 'booked' | 'off';
+export type AvailabilityState = 'available' | 'booked' | 'leave' | 'off';
 
 export interface SlotAvailability {
   state: AvailabilityState;
@@ -31,7 +36,7 @@ export interface SlotAvailability {
             Instructor availability matrix by day
           </h3>
           <p class="text-xs text-[var(--color-text-muted)]">
-            Real-time availability status for instructors on {{ formattedDayLabel() }}
+            Declared hours, leave and what is booked on {{ formattedDayLabel() }}
           </p>
         </div>
 
@@ -46,8 +51,12 @@ export interface SlotAvailability {
             <span class="font-medium text-[var(--color-text-secondary)]">Booked</span>
           </div>
           <div class="flex items-center gap-1.5">
+            <span class="h-3 w-3 rounded bg-[var(--color-warning-foreground)]"></span>
+            <span class="font-medium text-[var(--color-text-secondary)]">On leave</span>
+          </div>
+          <div class="flex items-center gap-1.5">
             <span class="h-3 w-3 rounded bg-[var(--color-border)]"></span>
-            <span class="font-medium text-[var(--color-text-muted)]">Off-Duty</span>
+            <span class="font-medium text-[var(--color-text-muted)]">Not working</span>
           </div>
         </div>
       </div>
@@ -118,11 +127,17 @@ export interface SlotAvailability {
                       >
                         Available
                       </div>
+                    } @else if (avail.state === 'leave') {
+                      <div
+                        class="h-full rounded-md border border-[var(--color-warning-foreground)] bg-[var(--color-warning-background)] flex items-center justify-center font-semibold text-[10px] text-[var(--color-warning-foreground)]"
+                      >
+                        On leave
+                      </div>
                     } @else {
                       <div
                         class="h-full rounded-md bg-[var(--color-surface-secondary)] opacity-50 flex items-center justify-center text-[10px] text-[var(--color-text-muted)]"
                       >
-                        Off
+                        Not working
                       </div>
                     }
                   </td>
@@ -155,6 +170,10 @@ export class DailyAvailabilityMatrixComponent {
   sessions = input<ScheduleSession[]>([]);
   instructors = input<User[]>([]);
   selectedDate = input<Date>(new Date());
+
+  /** What each instructor has actually declared, rather than an assumed 9-to-6. */
+  availability = input<InstructorAvailability[]>([]);
+  timeOff = input<InstructorTimeOff[]>([]);
 
   readonly timeSlots: TimeSlot[] = [
     { label: '08:00', hour: 8 },
@@ -213,11 +232,6 @@ export class DailyAvailabilityMatrixComponent {
   });
 
   getSlotAvailability(instructorId: number, hour: number): SlotAvailability {
-    // Working hours window: 09:00 to 18:00 is standard working hours
-    if (hour < 9 || hour >= 18) {
-      return { state: 'off' };
-    }
-
     const session = this.daySessions().find((s) => {
       if (s.instructorId !== instructorId) {
         const inst = this.activeInstructors().find((i) => i.id === instructorId);
@@ -233,7 +247,16 @@ export class DailyAvailabilityMatrixComponent {
       return { state: 'booked', session };
     }
 
-    return { state: 'available' };
+    // A booked hour shows as booked whatever the declared week says — the
+    // session is the fact. Everything else comes from what was declared.
+    const date = this.selectedDate();
+    if (isOnLeave(this.timeOff(), instructorId, date, hour)) {
+      return { state: 'leave' };
+    }
+
+    return isDeclaredAvailable(this.availability(), instructorId, date, hour)
+      ? { state: 'available' }
+      : { state: 'off' };
   }
 
   getAvailabilitySummary(instructorId: number): string {

@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
+import {
+  InstructorAvailability,
+  InstructorTimeOff,
+} from '../../../../core/interfaces/Availability';
+import { isDeclaredAvailable, isOnLeave } from '../../../../core/utils/availability.utils';
 
 export interface DayColumnMeta {
   dayName: string;
@@ -33,9 +38,9 @@ export interface TimeSlot {
           </h3>
           <p class="text-xs text-[var(--color-text-muted)]">
             @if (canPickInstructor()) {
-              View weekly workload and availability for an individual instructor
+              Declared hours, leave and what is booked, for one instructor
             } @else {
-              Your weekly workload and availability for this week
+              Your declared hours and what is booked this week
             }
           </p>
         </div>
@@ -187,6 +192,12 @@ export interface TimeSlot {
                           📍 {{ cell.session.location || 'Room' }}
                         </div>
                       </div>
+                    } @else if (cell.onLeave) {
+                      <div
+                        class="h-full rounded-md border border-[var(--color-warning-foreground)] bg-[var(--color-warning-background)] flex items-center justify-center font-semibold text-[10px] text-[var(--color-warning-foreground)]"
+                      >
+                        On leave
+                      </div>
                     } @else if (cell.isWorkingHour) {
                       <div
                         class="h-full rounded-md border border-[var(--color-success)] bg-[var(--color-success-background)] flex items-center justify-center font-semibold text-[10px] text-[var(--color-success-foreground)]"
@@ -197,7 +208,7 @@ export interface TimeSlot {
                       <div
                         class="h-full rounded-md bg-[var(--color-surface-secondary)] opacity-40 flex items-center justify-center text-[10px] text-[var(--color-text-muted)]"
                       >
-                        Off
+                        Not working
                       </div>
                     }
                   </td>
@@ -227,6 +238,10 @@ export class InstructorAvailabilityMatrixComponent {
    * instructor, who only ever sees their own week.
    */
   canPickInstructor = input<boolean>(false);
+
+  /** What each instructor has actually declared, rather than an assumed 9-to-6. */
+  availability = input<InstructorAvailability[]>([]);
+  timeOff = input<InstructorTimeOff[]>([]);
 
   sessionSelected = output<ScheduleSession>();
 
@@ -301,11 +316,12 @@ export class InstructorAvailabilityMatrixComponent {
   getInstructorSlotState(
     date: Date,
     hour: number
-  ): { isWorkingHour: boolean; session?: ScheduleSession } {
+  ): { isWorkingHour: boolean; onLeave: boolean; session?: ScheduleSession } {
     const inst = this.selectedInstructor();
-    if (!inst) return { isWorkingHour: false };
+    if (!inst) return { isWorkingHour: false, onLeave: false };
 
-    const isWorkingHour = hour >= 9 && hour < 18;
+    const onLeave = isOnLeave(this.timeOff(), inst.id, date, hour);
+    const isWorkingHour = !onLeave && isDeclaredAvailable(this.availability(), inst.id, date, hour);
 
     const session = this.sessions().find((s) => {
       const isSameInst =
@@ -323,7 +339,7 @@ export class InstructorAvailabilityMatrixComponent {
       return d.getHours() === hour;
     });
 
-    return { isWorkingHour, session };
+    return { isWorkingHour, onLeave, session };
   }
 
   readonly weeklyBookedCount = computed(() => {

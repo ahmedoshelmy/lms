@@ -382,12 +382,16 @@
       />
     } @else if (viewMode() === 'daily-availability') {
       <app-daily-availability-matrix
+        [availability]="availability()"
+        [timeOff]="timeOff()"
         [sessions]="sessions()"
         [instructors]="instructors()"
         [selectedDate]="currentDate()"
       />
     } @else if (viewMode() === 'instructor-availability') {
       <app-instructor-availability-matrix
+        [availability]="availability()"
+        [timeOff]="timeOff()"
         [sessions]="sessions()"
         [instructors]="instructors()"
         [currentWeekStart]="currentWeekStart()"

@@ -16,6 +16,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Role, parseRole } from '../../core/interfaces/Role';
+import { InstructorAvailability, InstructorTimeOff } from '../../core/interfaces/Availability';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 
@@ -224,6 +225,7 @@ export class ScheduleComponent implements OnInit {
     }
 
     this.loadInstructors();
+    this.loadAvailability();
 
     if (!this.viewsAllInstructors) {
       const userId = this.auth.getUserId();
@@ -289,6 +291,31 @@ export class ScheduleComponent implements OnInit {
           );
           this.cancelling.set(false);
         },
+      });
+  }
+
+  /** What everyone has declared, so the matrices show it rather than assume it. */
+  readonly availability = signal<InstructorAvailability[]>([]);
+  readonly timeOff = signal<InstructorTimeOff[]>([]);
+
+  private loadAvailability(): void {
+    this.lmsService.getInstructorAvailability().subscribe({
+      next: (windows) => this.availability.set(windows || []),
+      error: () => this.availability.set([]),
+    });
+
+    // A fortnight either side of now covers the week being looked at however
+    // the user navigates within a sitting.
+    const from = new Date();
+    from.setDate(from.getDate() - 14);
+    const to = new Date();
+    to.setDate(to.getDate() + 60);
+
+    this.lmsService
+      .getTimeOff(undefined, from.toISOString().slice(0, 10), to.toISOString().slice(0, 10))
+      .subscribe({
+        next: (off) => this.timeOff.set(off || []),
+        error: () => this.timeOff.set([]),
       });
   }
 
