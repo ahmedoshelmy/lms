@@ -25,8 +25,6 @@ export interface Room {
   parallelCapacity: number | null;
   /** Reachable only as a recorded override. */
   overflowCapacity: number | null;
-  /** Fixed booking window, where the site works that way. */
-  defaultSessionMinutes: number | null;
   studentCapacity: number | null;
   isVirtual: boolean;
   /** A partner site we do not book space at — we supply an instructor only. */
