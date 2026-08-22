@@ -17,7 +17,9 @@ import {
   Room,
   WEEKDAYS,
   shortTime,
+  toDayNumber,
 } from '../../core/interfaces/Availability';
+import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 
 /** Half-hour marks from 08:00 to 21:00 — the range the schedule board covers. */
 function buildTimeOptions(): string[] {
@@ -64,6 +66,8 @@ export class AvailabilityComponent implements OnInit {
   readonly availability = signal<InstructorAvailability[]>([]);
   readonly timeOff = signal<InstructorTimeOff[]>([]);
   readonly requests = signal<AvailabilityRequest[]>([]);
+  /** What the instructor is actually booked for, laid over the declared week. */
+  readonly sessions = signal<ScheduleSession[]>([]);
 
   readonly selectedInstructorId = signal<number | null>(null);
   readonly loading = signal(false);
@@ -105,21 +109,81 @@ export class AvailabilityComponent implements OnInit {
     this.instructors().find((i) => i.id === this.selectedInstructorId())
   );
 
-  /** The selected instructor's week, as one list of windows per weekday. */
+  /**
+   * The selected instructor's week: the hours they have declared, and the
+   * sessions actually booked into them. Seeing both is the point — a declared
+   * window with nothing in it is what sales can sell, and a session outside
+   * every window is a sign the declared hours are wrong.
+   */
   readonly weekGrid = computed(() => {
     const windows = this.editing() ? this.draft() : this.currentWindows();
-    return this.weekdays.map((name, day) => ({
-      day,
-      name,
-      windows: windows
+    const booked = this.bookedByDay();
+
+    return this.weekdays.map((name, day) => {
+      const dayWindows = windows
         .filter((w) => w.dayOfWeek === day)
-        .sort((a, b) => a.startTime.localeCompare(b.startTime)),
-    }));
+        .sort((a, b) => a.startTime.localeCompare(b.startTime));
+      const dayBooked = booked.get(day) ?? [];
+
+      return {
+        day,
+        name,
+        windows: dayWindows,
+        booked: dayBooked,
+        /** Booked outside every declared window — the hours nobody has recorded. */
+        unaccounted: dayBooked.filter(
+          (b) => !dayWindows.some((w) => b.start >= w.startTime && b.end <= w.endTime)
+        ).length,
+      };
+    });
   });
+
+  /**
+   * Distinct weekly slots this instructor teaches, from the sessions on the
+   * books. The same group recurs every week, so identical times are collapsed
+   * into one entry with a count rather than listed over and over.
+   */
+  readonly bookedByDay = computed(() => {
+    const byDay = new Map<
+      number,
+      { start: string; end: string; label: string; occurrences: number }[]
+    >();
+
+    for (const session of this.sessions()) {
+      if (!session.startsAt) continue;
+      if ((session.status ?? '').toLowerCase().includes('cancel')) continue;
+
+      const startsAt = new Date(session.startsAt);
+      const endsAt = session.endsAt ? new Date(session.endsAt) : startsAt;
+      const day = startsAt.getDay();
+      const start = this.clockOf(startsAt);
+      const end = this.clockOf(endsAt);
+      const label = session.groupName || session.topic || 'Session';
+
+      const slots = byDay.get(day) ?? [];
+      const existing = slots.find((s) => s.start === start && s.end === end && s.label === label);
+      if (existing) {
+        existing.occurrences += 1;
+      } else {
+        slots.push({ start, end, label, occurrences: 1 });
+      }
+      byDay.set(day, slots);
+    }
+
+    for (const slots of byDay.values()) {
+      slots.sort((a, b) => a.start.localeCompare(b.start));
+    }
+    return byDay;
+  });
+
+  /** Sessions this instructor teaches outside any hours they have declared. */
+  readonly unaccountedTotal = computed(() =>
+    this.weekGrid().reduce((total, day) => total + day.unaccounted, 0)
+  );
 
   readonly currentWindows = computed<AvailabilityWindowInput[]>(() =>
     this.availability().map((a) => ({
-      dayOfWeek: a.dayOfWeek,
+      dayOfWeek: toDayNumber(a.dayOfWeek),
       startTime: shortTime(a.startTime),
       endTime: shortTime(a.endTime),
       roomId: a.roomId,
@@ -192,6 +256,25 @@ export class AvailabilityComponent implements OnInit {
     this.lms.getTimeOff(instructorId).subscribe({
       next: (off) => this.timeOff.set(off || []),
       error: () => this.timeOff.set([]),
+    });
+
+    this.loadSessions(instructorId);
+  }
+
+  /**
+   * Four weeks of the instructor's sessions. Long enough to catch a fortnightly
+   * group, short enough that a long-finished course does not show as a booking.
+   */
+  private loadSessions(instructorId: number): void {
+    const from = new Date();
+    from.setHours(0, 0, 0, 0);
+    const to = new Date(from);
+    to.setDate(to.getDate() + 28);
+
+    this.lms.getSchedule(from, to).subscribe({
+      next: (sessions) =>
+        this.sessions.set((sessions || []).filter((s) => s.instructorId === instructorId)),
+      error: () => this.sessions.set([]),
     });
   }
 
@@ -444,6 +527,35 @@ export class AvailabilityComponent implements OnInit {
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
+  /** Local "HH:mm" for a session, which is how the grid reads times. */
+  private clockOf(date: Date): string {
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+  }
+
+  /** Adopts the hours this instructor is already teaching as their declared week. */
+  adoptBookedHours(): void {
+    const windows: AvailabilityWindowInput[] = [];
+    for (const [day, slots] of this.bookedByDay()) {
+      if (!slots.length) continue;
+      // One window spanning the day's teaching, rather than a window per group:
+      // the gaps between sessions are exactly what sales wants to sell.
+      windows.push({
+        dayOfWeek: day,
+        startTime: slots.reduce((min, s) => (s.start < min ? s.start : min), slots[0].start),
+        endTime: slots.reduce((max, s) => (s.end > max ? s.end : max), slots[0].end),
+        roomId: null,
+      });
+    }
+
+    if (!windows.length) {
+      this.notify.showError('This instructor has no sessions in the next four weeks.');
+      return;
+    }
+
+    this.draft.set(windows.sort((a, b) => a.dayOfWeek - b.dayOfWeek));
+    this.editing.set(true);
+  }
+
   private minutesBetween(start: string, end: string): number {
     const [sh, sm] = start.split(':').map(Number);
     const [eh, em] = end.split(':').map(Number);
@@ -456,7 +568,8 @@ export class AvailabilityComponent implements OnInit {
   }
 
   /** "Mon 16:00–17:30", the shape a request reads best in. */
-  describeWindow(w: { dayOfWeek: number; startTime: string; endTime: string }): string {
-    return `${this.weekdays[w.dayOfWeek].slice(0, 3)} ${shortTime(w.startTime)}–${shortTime(w.endTime)}`;
+  describeWindow(w: { dayOfWeek: number | string; startTime: string; endTime: string }): string {
+    const day = this.weekdays[toDayNumber(w.dayOfWeek)].slice(0, 3);
+    return `${day} ${shortTime(w.startTime)}–${shortTime(w.endTime)}`;
   }
 }

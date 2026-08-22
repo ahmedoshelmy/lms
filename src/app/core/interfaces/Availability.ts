@@ -38,7 +38,8 @@ export interface InstructorAvailability {
   id: number;
   instructorId: number;
   instructorName: string | null;
-  dayOfWeek: number;
+  /** A name such as "Tuesday" on the wire; use toDayNumber before comparing. */
+  dayOfWeek: number | string;
   /** "HH:mm:ss" from the API. */
   startTime: string;
   endTime: string;
@@ -74,7 +75,7 @@ export type AvailabilityRequestType = 'TimeOff' | 'AvailabilityChange' | 'SlotEx
 export type AvailabilityRequestStatus = 'Pending' | 'Approved' | 'Rejected' | 'Withdrawn';
 
 export interface AvailabilityRequestWindow {
-  dayOfWeek: number;
+  dayOfWeek: number | string;
   startTime: string;
   endTime: string;
   roomId: number | null;
@@ -138,4 +139,15 @@ export const REQUEST_TYPE_LABELS: Record<AvailabilityRequestType, string> = {
 /** Trims "HH:mm:ss" to "HH:mm"; the seconds are never meaningful here. */
 export function shortTime(time: string | null | undefined): string {
   return (time ?? '').slice(0, 5);
+}
+
+/**
+ * The API serialises enums as names, so DayOfWeek arrives as "Tuesday" rather
+ * than 2 — but a number is what every comparison and array index here wants.
+ * Accepts either, so the page does not depend on that setting staying put.
+ */
+export function toDayNumber(day: number | string): number {
+  if (typeof day === 'number') return day;
+  const index = WEEKDAYS.findIndex((name) => name.toLowerCase() === day.toLowerCase());
+  return index >= 0 ? index : Number(day) || 0;
 }

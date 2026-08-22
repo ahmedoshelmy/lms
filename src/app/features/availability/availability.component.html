@@ -125,6 +125,13 @@
 
       <span class="panel__meta">{{ weeklyHours() }} hours a week</span>
 
+      @if (unaccountedTotal() > 0 && !editing()) {
+        <span class="panel__flag" title="Sessions taught outside any declared window">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ unaccountedTotal() }} booked outside these hours
+        </span>
+      }
+
       <div class="panel__actions">
         @if (editing()) {
           <button type="button" class="btn btn--ghost" (click)="cancelEditing()">Cancel</button>
@@ -148,6 +155,16 @@
             </button>
           }
         } @else if (isAdmin() || isInstructor()) {
+          @if (unaccountedTotal() > 0) {
+            <button
+              type="button"
+              class="btn btn--ghost"
+              title="Start from the hours already being taught"
+              (click)="adoptBookedHours()"
+            >
+              <i class="pi pi-calendar-plus"></i> Use booked hours
+            </button>
+          }
           <button type="button" class="btn btn--ghost" (click)="startEditing()">
             <i class="pi pi-pencil"></i>
             {{ isAdmin() ? 'Edit' : 'Propose a change' }}
@@ -224,10 +241,25 @@
                 <button type="button" class="day__add" (click)="addWindow(day.day)">
                   <i class="pi pi-plus"></i> Add
                 </button>
-              } @else if (!day.windows.length) {
+              } @else if (!day.windows.length && !day.booked.length) {
                 <span class="day__none">Not working</span>
               }
             </div>
+
+            @if (!editing() && day.booked.length) {
+              <div class="day__booked">
+                <div class="day__booked-label">Booked</div>
+                @for (slot of day.booked; track $index) {
+                  <div class="slot">
+                    <span class="slot__time">{{ slot.start }}–{{ slot.end }}</span>
+                    <span class="slot__label">{{ slot.label }}</span>
+                    @if (slot.occurrences > 1) {
+                      <span class="slot__count">×{{ slot.occurrences }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
           </div>
         }
       </div>
