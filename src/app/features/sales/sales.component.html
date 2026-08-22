@@ -497,6 +497,36 @@
       <p class="form__note">Starting {{ slot.firstDate }} · {{ coverage(slot) }}</p>
 
       <label class="field">
+        <span class="field__label">Course</span>
+        <select
+          class="input"
+          [ngModel]="holdForm().topicId"
+          (ngModelChange)="setHoldTopic(+$event)"
+        >
+          <option [value]="0">Choose a course…</option>
+          @for (topic of topics(); track topic.id) {
+            <option [value]="topic.id">{{ topic.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Level</span>
+        <select
+          class="input"
+          [ngModel]="holdForm().courseLevelId"
+          (ngModelChange)="setHoldLevel(+$event)"
+        >
+          <option [value]="0">Decide later</option>
+          @for (level of holdLevels(); track level.id) {
+            <option [value]="level.id">
+              {{ level.title }} ({{ level.sessionCount }} sessions)
+            </option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
         <span class="field__label">Sessions in the course</span>
         <input
           type="number"
@@ -539,8 +569,16 @@
   }
 
   <ng-template pTemplate="footer">
+    @if (!holdForm().topicId) {
+      <span class="footer__hint">Choose a course first</span>
+    }
     <button type="button" class="btn btn--ghost" (click)="showHoldDialog.set(false)">Cancel</button>
-    <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitHold()">
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="saving() || !holdForm().topicId"
+      (click)="submitHold()"
+    >
       Hold it
     </button>
   </ng-template>

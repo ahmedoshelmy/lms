@@ -81,7 +81,13 @@ export class SalesComponent implements OnInit {
   // ── Dialogs ──────────────────────────────────────────────────────────────
   readonly holdSlot = signal<AvailableSlot | null>(null);
   readonly showHoldDialog = signal(false);
-  readonly holdForm = signal({ totalSessions: 12, holdForDays: 14, notes: '' });
+  readonly holdForm = signal({
+    topicId: 0,
+    courseLevelId: 0,
+    totalSessions: 12,
+    holdForDays: 14,
+    notes: '',
+  });
 
   readonly showCandidateDialog = signal(false);
   readonly editingCandidate = signal<Candidate | null>(null);
@@ -215,9 +221,15 @@ export class SalesComponent implements OnInit {
   // ── Holding ──────────────────────────────────────────────────────────────
 
   openHoldDialog(slot: AvailableSlot): void {
-    const level = this.levels().find((l) => l.id === this.search().courseLevelId);
+    const search = this.search();
+    const level = this.levels().find((l) => l.id === search.courseLevelId);
     this.holdSlot.set(slot);
+    // Seeded from the search, but editable here: searching without a course is
+    // a fair question ("what is free at all?"), and holding one is not — so the
+    // dialog has to be able to answer it rather than refusing.
     this.holdForm.set({
+      topicId: search.topicId,
+      courseLevelId: search.courseLevelId,
       totalSessions: level?.sessionCount || 12,
       holdForDays: 14,
       notes: '',
@@ -225,23 +237,37 @@ export class SalesComponent implements OnInit {
     this.showHoldDialog.set(true);
   }
 
+  /** Levels of whichever course the hold dialog has chosen. */
+  readonly holdLevels = computed(() => {
+    const topicId = this.holdForm().topicId;
+    return this.levels().filter((l) => !topicId || l.topicId === topicId);
+  });
+
+  setHoldTopic(topicId: number): void {
+    this.holdForm.set({ ...this.holdForm(), topicId, courseLevelId: 0 });
+  }
+
+  /** Picking a level sets the course length, which is what the hold covers. */
+  setHoldLevel(courseLevelId: number): void {
+    const level = this.levels().find((l) => l.id === courseLevelId);
+    this.holdForm.set({
+      ...this.holdForm(),
+      courseLevelId,
+      totalSessions: level?.sessionCount || this.holdForm().totalSessions,
+    });
+  }
+
   submitHold(): void {
     const slot = this.holdSlot();
     const form = this.holdForm();
-    const search = this.search();
-    if (!slot) return;
-
-    if (!search.topicId) {
-      this.notify.showError('Choose which course this is for before holding a slot.');
-      return;
-    }
+    if (!slot || !form.topicId) return;
 
     this.saving.set(true);
     this.lms
       .createSlotHold({
         instructorId: slot.instructorId,
-        topicId: search.topicId,
-        courseLevelId: search.courseLevelId || null,
+        topicId: form.topicId,
+        courseLevelId: form.courseLevelId || null,
         roomId: slot.roomId,
         proposedStartDate: slot.firstDate,
         totalSessions: form.totalSessions,
