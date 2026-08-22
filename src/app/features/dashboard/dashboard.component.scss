@@ -958,7 +958,9 @@
       background: var(--color-secondary-hover);
     }
   }
-  i { font-size: 11px; }
+  i {
+    font-size: 11px;
+  }
 }
 
 .view-interval-label {
@@ -967,8 +969,13 @@
   gap: 5px;
   font-size: 12px;
   color: var(--color-text-muted);
-  i { font-size: 11px; }
-  strong { color: var(--color-text-primary); font-weight: 700; }
+  i {
+    font-size: 11px;
+  }
+  strong {
+    color: var(--color-text-primary);
+    font-weight: 700;
+  }
 }
 
 /* Charts Row */
@@ -1006,7 +1013,10 @@
   font-weight: 800;
   color: var(--color-text-primary);
   margin: 0;
-  i { color: var(--color-secondary); font-size: 13px; }
+  i {
+    color: var(--color-secondary);
+    font-size: 13px;
+  }
 }
 
 .chart-card__badge {
@@ -1216,7 +1226,11 @@
 .vbar-fill {
   width: 100%;
   border-radius: 4px;
-  background: linear-gradient(to top, var(--color-secondary), color-mix(in srgb, var(--color-secondary) 70%, white));
+  background: linear-gradient(
+    to top,
+    var(--color-secondary),
+    color-mix(in srgb, var(--color-secondary) 70%, white)
+  );
   transition: height 0.5s ease;
   min-height: 4px;
 }

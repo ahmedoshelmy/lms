@@ -1,475 +1,604 @@
 <div class="dashboard-page p-5 md:p-8 lg:p-10 max-w-[1440px] mx-auto min-h-screen">
-  <!-- View Toggle -->
-  <div class="view-toggle-bar mb-6">
-    <div class="view-toggle">
-      <button type="button" class="view-toggle__btn" [class.view-toggle__btn--active]="activeView() === 'today'" (click)="setView('today')">
-        <i class="pi pi-sun"></i> Today
-      </button>
-      <button type="button" class="view-toggle__btn" [class.view-toggle__btn--active]="activeView() === 'week'" (click)="setView('week')">
-        <i class="pi pi-calendar"></i> This Week
-      </button>
-      <button type="button" class="view-toggle__btn" [class.view-toggle__btn--active]="activeView() === 'month'" (click)="setView('month')">
-        <i class="pi pi-calendar-clock"></i> This Month
-      </button>
+  @if (isSales()) {
+    <app-sales-overview />
+  } @else {
+    <!-- View Toggle -->
+    <div class="view-toggle-bar mb-6">
+      <div class="view-toggle">
+        <button
+          type="button"
+          class="view-toggle__btn"
+          [class.view-toggle__btn--active]="activeView() === 'today'"
+          (click)="setView('today')"
+        >
+          <i class="pi pi-sun"></i> Today
+        </button>
+        <button
+          type="button"
+          class="view-toggle__btn"
+          [class.view-toggle__btn--active]="activeView() === 'week'"
+          (click)="setView('week')"
+        >
+          <i class="pi pi-calendar"></i> This Week
+        </button>
+        <button
+          type="button"
+          class="view-toggle__btn"
+          [class.view-toggle__btn--active]="activeView() === 'month'"
+          (click)="setView('month')"
+        >
+          <i class="pi pi-calendar-clock"></i> This Month
+        </button>
+      </div>
+      <div class="view-interval-label">
+        <i class="pi pi-info-circle"></i>
+        Showing data for: <strong>{{ viewIntervalLabel() }}</strong>
+      </div>
     </div>
-    <div class="view-interval-label">
-      <i class="pi pi-info-circle"></i>
-      Showing data for: <strong>{{ viewIntervalLabel() }}</strong>
-    </div>
-  </div>
 
-  <!-- Main Layout: Content + Sidebar -->
-  <div class="dashboard-layout">
-    <!-- Left Column (Main Content) -->
-    <div class="dashboard-main">
-      <!-- Attendance Stats Section -->
-      <section class="stat-section">
-        <h2 class="section-label">
-          <span class="section-label__dot section-label__dot--green"></span>
-          Attendance
-        </h2>
-        <div class="stat-grid stat-grid--4">
-          @for (card of attendanceStatCards(); track card.label) {
-            <a
-              [routerLink]="card.action ? null : (card.link ?? null)"
-              (click)="onStatCardClick(card, $event)"
-              class="stat-card"
-              [style.--card-color]="card.color"
-            >
-              <div class="stat-card__icon">
-                <i [class]="card.icon"></i>
-              </div>
-              @if (card.loading) {
-                <div class="skeleton-line skeleton-line--value"></div>
-                <div class="skeleton-line skeleton-line--label"></div>
-              } @else {
-                <p class="stat-card__value">{{ card.value }}</p>
-                <p class="stat-card__label">{{ card.label }}</p>
-                @if (card.subtitle) {
-                  <span class="stat-card__subtitle">{{ card.subtitle }}</span>
-                }
-              }
-            </a>
-          }
-        </div>
-      </section>
-
-      <!-- Overview Stats Section -->
-      <section class="stat-section">
-        <h2 class="section-label">
-          <span class="section-label__dot section-label__dot--blue"></span>
-          Overview
-        </h2>
-        <div class="stat-grid" [class.stat-grid--4]="isAdmin()" [class.stat-grid--3]="!isAdmin()">
-          @for (card of overviewStatCards(); track card.label) {
-            <a
-              [routerLink]="card.action ? null : (card.link ?? null)"
-              (click)="onStatCardClick(card, $event)"
-              class="stat-card"
-              [style.--card-color]="card.color"
-            >
-              <div class="stat-card__icon">
-                <i [class]="card.icon"></i>
-              </div>
-              @if (card.loading) {
-                <div class="skeleton-line skeleton-line--value"></div>
-                <div class="skeleton-line skeleton-line--label"></div>
-              } @else {
-                <p class="stat-card__value">{{ card.value }}</p>
-                <p class="stat-card__label">{{ card.label }}</p>
-                @if (card.subtitle) {
-                  <span class="stat-card__subtitle">{{ card.subtitle }}</span>
-                }
-              }
-            </a>
-          }
-        </div>
-      </section>
-
-      <!-- Charts Section (Admin only) -->
-      @if (isAdmin()) {
-        <div class="charts-row">
-          <!-- Sessions per Instructor -->
-          @if (sessionsPerInstructor().length > 0) {
-            <section class="chart-card">
-              <div class="chart-card__header">
-                <h3 class="chart-card__title"><i class="pi pi-users"></i> Sessions per Instructor</h3>
-                <span class="chart-card__badge">{{ viewLabel() }}</span>
-              </div>
-              <div class="chart-card__body">
-                @for (bar of sessionsPerInstructor(); track bar.label) {
-                  <div class="hbar-row">
-                    <span class="hbar-label" [title]="bar.label">{{ bar.label }}</span>
-                    <div class="hbar-track">
-                      <div class="hbar-fill" [style.width.%]="bar.percent" [style.background]="bar.color"></div>
-                    </div>
-                    <span class="hbar-value">{{ bar.value }}</span>
-                  </div>
-                }
-              </div>
-            </section>
-          }
-
-          <!-- Sessions per Course -->
-          @if (sessionsPerCourse().length > 0) {
-            <section class="chart-card">
-              <div class="chart-card__header">
-                <h3 class="chart-card__title"><i class="pi pi-book"></i> Sessions per Course</h3>
-                <span class="chart-card__badge">{{ viewLabel() }}</span>
-              </div>
-              <div class="chart-card__body">
-                @for (bar of sessionsPerCourse(); track bar.label) {
-                  <div class="hbar-row">
-                    <span class="hbar-label" [title]="bar.label">{{ bar.label }}</span>
-                    <div class="hbar-track">
-                      <div class="hbar-fill" [style.width.%]="bar.percent" [style.background]="bar.color"></div>
-                    </div>
-                    <span class="hbar-value">{{ bar.value }}</span>
-                  </div>
-                }
-              </div>
-            </section>
-          }
-        </div>
-      }
-
-      <!-- Status Distribution + Daily Breakdown (Admin) -->
-      @if (isAdmin() && totalSessionsCount() > 0) {
-        <div class="charts-row">
-          <!-- Status Distribution Donut -->
-          <section class="chart-card chart-card--donut">
-            <div class="chart-card__header">
-              <h3 class="chart-card__title"><i class="pi pi-chart-pie"></i> Status Distribution</h3>
-              <span class="chart-card__badge">{{ totalSessionsCount() }} total</span>
-            </div>
-            <div class="chart-card__body chart-card__body--donut">
-              <div class="donut-wrap">
-                <svg viewBox="0 0 36 36" class="donut-chart">
-                  <!-- Scheduled segment -->
-                  @if (statusDistribution().scheduledPercent > 0) {
-                    <circle class="donut-ring" cx="18" cy="18" r="15.91549" fill="transparent"
-                      stroke="var(--color-info)" stroke-width="3"
-                      [attr.stroke-dasharray]="statusDistribution().scheduledPercent + ' ' + (100 - statusDistribution().scheduledPercent)"
-                      stroke-dashoffset="25" />
+    <!-- Main Layout: Content + Sidebar -->
+    <div class="dashboard-layout">
+      <!-- Left Column (Main Content) -->
+      <div class="dashboard-main">
+        <!-- Attendance Stats Section -->
+        <section class="stat-section">
+          <h2 class="section-label">
+            <span class="section-label__dot section-label__dot--green"></span>
+            Attendance
+          </h2>
+          <div class="stat-grid stat-grid--4">
+            @for (card of attendanceStatCards(); track card.label) {
+              <a
+                [routerLink]="card.action ? null : (card.link ?? null)"
+                (click)="onStatCardClick(card, $event)"
+                class="stat-card"
+                [style.--card-color]="card.color"
+              >
+                <div class="stat-card__icon">
+                  <i [class]="card.icon"></i>
+                </div>
+                @if (card.loading) {
+                  <div class="skeleton-line skeleton-line--value"></div>
+                  <div class="skeleton-line skeleton-line--label"></div>
+                } @else {
+                  <p class="stat-card__value">{{ card.value }}</p>
+                  <p class="stat-card__label">{{ card.label }}</p>
+                  @if (card.subtitle) {
+                    <span class="stat-card__subtitle">{{ card.subtitle }}</span>
                   }
-                  <!-- Completed segment -->
-                  @if (statusDistribution().completedPercent > 0) {
-                    <circle class="donut-ring" cx="18" cy="18" r="15.91549" fill="transparent"
-                      stroke="var(--color-success)" stroke-width="3"
-                      [attr.stroke-dasharray]="statusDistribution().completedPercent + ' ' + (100 - statusDistribution().completedPercent)"
-                      [attr.stroke-dashoffset]="25 - statusDistribution().scheduledPercent" />
-                  }
-                  <!-- Cancelled segment -->
-                  @if (statusDistribution().cancelledPercent > 0) {
-                    <circle class="donut-ring" cx="18" cy="18" r="15.91549" fill="transparent"
-                      stroke="var(--color-danger)" stroke-width="3"
-                      [attr.stroke-dasharray]="statusDistribution().cancelledPercent + ' ' + (100 - statusDistribution().cancelledPercent)"
-                      [attr.stroke-dashoffset]="25 - statusDistribution().scheduledPercent - statusDistribution().completedPercent" />
-                  }
-                </svg>
-                <div class="donut-center">
-                  <span class="donut-center__value">{{ totalSessionsCount() }}</span>
-                  <span class="donut-center__label">sessions</span>
-                </div>
-              </div>
-              <div class="donut-legend">
-                <div class="donut-legend__item">
-                  <span class="donut-legend__dot" style="background: var(--color-info)"></span>
-                  <span class="donut-legend__text">Scheduled</span>
-                  <span class="donut-legend__count">{{ allScheduledCount() }}</span>
-                  <span class="donut-legend__pct">{{ statusDistribution().scheduledPercent }}%</span>
-                </div>
-                <div class="donut-legend__item">
-                  <span class="donut-legend__dot" style="background: var(--color-success)"></span>
-                  <span class="donut-legend__text">Completed</span>
-                  <span class="donut-legend__count">{{ allCompletedCount() }}</span>
-                  <span class="donut-legend__pct">{{ statusDistribution().completedPercent }}%</span>
-                </div>
-                <div class="donut-legend__item">
-                  <span class="donut-legend__dot" style="background: var(--color-danger)"></span>
-                  <span class="donut-legend__text">Cancelled</span>
-                  <span class="donut-legend__count">{{ allCancelledCount() }}</span>
-                  <span class="donut-legend__pct">{{ statusDistribution().cancelledPercent }}%</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Daily Session Breakdown -->
-          @if (dailySessionCounts().length > 0) {
-            <section class="chart-card chart-card--daily">
-              <div class="chart-card__header">
-                <h3 class="chart-card__title"><i class="pi pi-chart-bar"></i> Daily Sessions</h3>
-                <span class="chart-card__badge">{{ viewLabel() }}</span>
-              </div>
-              <div class="chart-card__body chart-card__body--daily">
-                @for (day of dailySessionCounts(); track day.date) {
-                  <div class="vbar-col">
-                    <div class="vbar-value">{{ day.count }}</div>
-                    <div class="vbar-track">
-                      <div class="vbar-fill" [style.height.%]="day.percent"></div>
-                    </div>
-                    <div class="vbar-label">{{ day.label }}</div>
-                  </div>
                 }
-              </div>
-            </section>
-          }
-        </div>
-      }
-
-      <!-- Sessions List -->
-      <section>
-        <div class="section-header">
-          <div>
-            <h2 class="section-title"><i class="pi pi-calendar-clock"></i> Sessions {{ viewLabel() }}</h2>
-            <p class="section-desc">Filter and review sessions for {{ viewIntervalLabel() | lowercase }}</p>
-          </div>
-
-          @if (!loadingUpcoming() && filteredSessions().length > 0) {
-            <div class="filter-chips">
-              <button type="button" class="chip" [class.chip--active]="activeStatusFilter() === 'all'" (click)="setFilter('all')">
-                All ({{ intervalSessions().length }})
-              </button>
-
-              @if (scheduledCount() > 0) {
-                <button type="button" class="chip chip--scheduled" [class.chip--active]="activeStatusFilter() === 'scheduled'" (click)="setFilter('scheduled')">
-                  <span class="chip__dot"></span> Scheduled ({{ scheduledCount() }})
-                </button>
-              }
-
-              @if (completedCount() > 0) {
-                <button type="button" class="chip chip--completed" [class.chip--active]="activeStatusFilter() === 'completed'" (click)="setFilter('completed')">
-                  <span class="chip__dot"></span> Completed ({{ completedCount() }})
-                </button>
-              }
-
-              @if (cancelledCount() > 0) {
-                <button type="button" class="chip chip--cancelled" [class.chip--active]="activeStatusFilter() === 'cancelled'" (click)="setFilter('cancelled')">
-                  <span class="chip__dot"></span> Cancelled ({{ cancelledCount() }})
-                </button>
-              }
-            </div>
-          }
-        </div>
-
-        @if (loadingUpcoming()) {
-          <div class="sessions-grid">
-            <div class="session-skeleton">
-              <div class="skeleton-line w-1/3 h-4"></div>
-              <div class="skeleton-line w-2/3 h-5"></div>
-              <div class="skeleton-line w-1/2 h-3"></div>
-            </div>
-            <div class="session-skeleton">
-              <div class="skeleton-line w-1/3 h-4"></div>
-              <div class="skeleton-line w-2/3 h-5"></div>
-              <div class="skeleton-line w-1/2 h-3"></div>
-            </div>
-          </div>
-        } @else if (filteredSessions().length === 0) {
-          <div class="empty-state">
-            <i class="pi pi-calendar-times text-4xl mb-3 opacity-40 text-[var(--color-secondary)]"></i>
-            <p class="font-bold text-base text-[var(--color-text-primary)]">No sessions found</p>
-            <p class="text-xs text-[var(--color-text-muted)] mt-1">
-              @if (activeStatusFilter() !== 'all') {
-                No sessions match the status filter "{{ activeStatusFilter() }}" for {{ viewLabel() | lowercase }}.
-              } @else {
-                No sessions scheduled for {{ viewLabel() | lowercase }}.
-              }
-            </p>
-          </div>
-        } @else {
-          <div class="sessions-grid">
-            @for (s of filteredSessions(); track s.id) {
-              <a [routerLink]="['/sessions', s.id]" class="session-card group"
-                [class.session-card--completed]="isSessionCompleted(s)"
-                [class.session-card--cancelled]="isSessionCancelled(s)"
-                [class.session-card--scheduled]="!isSessionCancelled(s) && !isSessionCompleted(s)">
-                <div class="session-card__accent"></div>
-                <div class="session-card__body">
-                  <div class="session-card__top">
-                    <div class="session-card__info">
-                      <div class="session-card__icon-wrap">
-                        <i class="pi pi-calendar-clock"></i>
-                      </div>
-                      <div class="min-w-0">
-                        <h3 class="session-card__topic">{{ getSessionDisplayTopic(s) }}</h3>
-                        <p class="session-card__course">{{ s.courseTitle }}</p>
-                      </div>
-                    </div>
-                    <div class="session-card__badges">
-                      <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">{{ s.status }}</span>
-                    </div>
-                  </div>
-                  <div class="session-card__footer">
-                    <div class="session-card__meta">
-                      <span class="session-card__group">
-                        <i class="pi pi-users"></i> {{ s.groupName }}
-                      </span>
-                      @if (s.instructorName) {
-                        <span class="session-card__instructor">
-                          <i class="pi pi-user"></i> {{ s.instructorName }}
-                        </span>
-                      }
-                    </div>
-                    <div class="session-card__time">
-                      <span class="session-card__time-value">
-                        <i class="pi pi-clock"></i> {{ formatTime(s.startsAt) }}
-                      </span>
-                      <span class="session-card__time-date">{{ formatDate(s.startsAt) }}</span>
-                    </div>
-                  </div>
-                </div>
               </a>
             }
           </div>
+        </section>
+
+        <!-- Overview Stats Section -->
+        <section class="stat-section">
+          <h2 class="section-label">
+            <span class="section-label__dot section-label__dot--blue"></span>
+            Overview
+          </h2>
+          <div class="stat-grid" [class.stat-grid--4]="isAdmin()" [class.stat-grid--3]="!isAdmin()">
+            @for (card of overviewStatCards(); track card.label) {
+              <a
+                [routerLink]="card.action ? null : (card.link ?? null)"
+                (click)="onStatCardClick(card, $event)"
+                class="stat-card"
+                [style.--card-color]="card.color"
+              >
+                <div class="stat-card__icon">
+                  <i [class]="card.icon"></i>
+                </div>
+                @if (card.loading) {
+                  <div class="skeleton-line skeleton-line--value"></div>
+                  <div class="skeleton-line skeleton-line--label"></div>
+                } @else {
+                  <p class="stat-card__value">{{ card.value }}</p>
+                  <p class="stat-card__label">{{ card.label }}</p>
+                  @if (card.subtitle) {
+                    <span class="stat-card__subtitle">{{ card.subtitle }}</span>
+                  }
+                }
+              </a>
+            }
+          </div>
+        </section>
+
+        <!-- Charts Section (Admin only) -->
+        @if (isAdmin()) {
+          <div class="charts-row">
+            <!-- Sessions per Instructor -->
+            @if (sessionsPerInstructor().length > 0) {
+              <section class="chart-card">
+                <div class="chart-card__header">
+                  <h3 class="chart-card__title">
+                    <i class="pi pi-users"></i> Sessions per Instructor
+                  </h3>
+                  <span class="chart-card__badge">{{ viewLabel() }}</span>
+                </div>
+                <div class="chart-card__body">
+                  @for (bar of sessionsPerInstructor(); track bar.label) {
+                    <div class="hbar-row">
+                      <span class="hbar-label" [title]="bar.label">{{ bar.label }}</span>
+                      <div class="hbar-track">
+                        <div
+                          class="hbar-fill"
+                          [style.width.%]="bar.percent"
+                          [style.background]="bar.color"
+                        ></div>
+                      </div>
+                      <span class="hbar-value">{{ bar.value }}</span>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+
+            <!-- Sessions per Course -->
+            @if (sessionsPerCourse().length > 0) {
+              <section class="chart-card">
+                <div class="chart-card__header">
+                  <h3 class="chart-card__title"><i class="pi pi-book"></i> Sessions per Course</h3>
+                  <span class="chart-card__badge">{{ viewLabel() }}</span>
+                </div>
+                <div class="chart-card__body">
+                  @for (bar of sessionsPerCourse(); track bar.label) {
+                    <div class="hbar-row">
+                      <span class="hbar-label" [title]="bar.label">{{ bar.label }}</span>
+                      <div class="hbar-track">
+                        <div
+                          class="hbar-fill"
+                          [style.width.%]="bar.percent"
+                          [style.background]="bar.color"
+                        ></div>
+                      </div>
+                      <span class="hbar-value">{{ bar.value }}</span>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+          </div>
         }
-      </section>
-    </div>
 
-    <!-- Right Column (Sidebar) -->
-    <aside class="dashboard-sidebar">
-      <!-- Interval Status Breakdown -->
-      @if (totalSessionsCount() > 0) {
-        <div class="sidebar-card">
-          <div class="sidebar-card__header">
-            <div>
-              <h2 class="sidebar-card__title"><i class="pi pi-chart-bar"></i> {{ viewLabel() }} Activity</h2>
-              <p class="sidebar-card__desc">Session status for {{ viewIntervalLabel() | lowercase }}</p>
-            </div>
-            <a routerLink="/schedule" class="sidebar-link">
-              Full Schedule <i class="pi pi-arrow-right"></i>
-            </a>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="monthly-bar" title="Status breakdown">
-            <div class="monthly-bar__segment monthly-bar__segment--scheduled"
-              [style.width.%]="monthlyProgressPercentages().scheduled"
-              [attr.title]="'Scheduled: ' + monthlyProgressPercentages().scheduled + '%'"></div>
-            <div class="monthly-bar__segment monthly-bar__segment--completed"
-              [style.width.%]="monthlyProgressPercentages().completed"
-              [attr.title]="'Completed: ' + monthlyProgressPercentages().completed + '%'"></div>
-            <div class="monthly-bar__segment monthly-bar__segment--cancelled"
-              [style.width.%]="monthlyProgressPercentages().cancelled"
-              [attr.title]="'Cancelled: ' + monthlyProgressPercentages().cancelled + '%'"></div>
-          </div>
-
-          <!-- Legend -->
-          <div class="monthly-legend">
-            <div class="monthly-legend__item">
-              <span class="monthly-legend__dot monthly-legend__dot--scheduled"></span>
-              <span class="monthly-legend__label">Scheduled</span>
-              <span class="monthly-legend__value">{{ allScheduledCount() }}</span>
-            </div>
-            <div class="monthly-legend__item">
-              <span class="monthly-legend__dot monthly-legend__dot--completed"></span>
-              <span class="monthly-legend__label">Completed</span>
-              <span class="monthly-legend__value">{{ allCompletedCount() }}</span>
-            </div>
-            <div class="monthly-legend__item">
-              <span class="monthly-legend__dot monthly-legend__dot--cancelled"></span>
-              <span class="monthly-legend__label">Cancelled</span>
-              <span class="monthly-legend__value">{{ allCancelledCount() }}</span>
-            </div>
-          </div>
-
-          <!-- Total -->
-          <div class="monthly-total">
-            <span class="monthly-total__label">Total Sessions</span>
-            <span class="monthly-total__value">{{ totalSessionsCount() }}</span>
-          </div>
-        </div>
-      }
-
-      <!-- Quick Actions -->
-      <div class="sidebar-card">
-        <div class="sidebar-card__header">
-          <h2 class="sidebar-card__title"><i class="pi pi-bolt"></i> Quick Actions</h2>
-        </div>
-        <div class="quick-actions">
-          @for (link of quickLinks(); track link.label) {
-            <a [routerLink]="link.route" class="quick-action">
-              <div class="quick-action__icon" [style.background]="link.color">
-                <i [class]="link.icon"></i>
+        <!-- Status Distribution + Daily Breakdown (Admin) -->
+        @if (isAdmin() && totalSessionsCount() > 0) {
+          <div class="charts-row">
+            <!-- Status Distribution Donut -->
+            <section class="chart-card chart-card--donut">
+              <div class="chart-card__header">
+                <h3 class="chart-card__title">
+                  <i class="pi pi-chart-pie"></i> Status Distribution
+                </h3>
+                <span class="chart-card__badge">{{ totalSessionsCount() }} total</span>
               </div>
-              <div class="quick-action__text">
-                <p class="quick-action__label">{{ link.label }}</p>
-                <p class="quick-action__desc">{{ link.description }}</p>
-              </div>
-              <i class="pi pi-chevron-right quick-action__arrow"></i>
-            </a>
-          }
-        </div>
-      </div>
-    </aside>
-  </div>
-
-  <!-- Modal for Attendance Updated Today / Pending Attendance Sessions -->
-  @if (activeSessionModal() !== null) {
-    <div class="modal-overlay" (click)="closeSessionModal()">
-      <div class="modal-panel" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title">
-              @if (activeSessionModal() === 'updated') {
-                <i class="pi pi-file-edit text-[var(--color-warning)]"></i> Attendance Updated Today
-              } @else {
-                <i class="pi pi-exclamation-circle text-[var(--color-danger)]"></i> Pending
-                Attendance Sessions
-              }
-            </h2>
-            <p class="modal-desc">
-              @if (activeSessionModal() === 'updated') {
-                Sessions where attendance was recorded or edited today
-              } @else {
-                Scheduled or completed sessions requiring attendance marking
-              }
-            </p>
-          </div>
-          <button type="button" (click)="closeSessionModal()" class="modal-close">
-            <i class="pi pi-times"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          @let sessionsList =
-            activeSessionModal() === 'updated' ? updatedSessionsList() : pendingSessionsList();
-          @if (sessionsList.length === 0) {
-            <div class="modal-empty">
-              <i class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success)]"></i>
-              <p class="font-semibold text-[var(--color-text-primary)]">No sessions found in this list</p>
-              <p class="text-xs text-[var(--color-text-muted)] mt-1">All attendance records are up to date.</p>
-            </div>
-          } @else {
-            @for (s of sessionsList; track s.id) {
-              <div class="modal-session">
-                <div class="modal-session__info">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="modal-session__course">{{ s.courseTitle }}</span>
-                    <span class="modal-session__group">{{ s.groupName }}</span>
-                  </div>
-                  <h3 class="modal-session__topic">{{ getSessionDisplayTopic(s) }}</h3>
-                  <div class="modal-session__meta">
-                    <span class="flex items-center gap-1 text-[var(--color-primary)] font-semibold">
-                      <i class="pi pi-user text-xs"></i> Instructor: {{ s.instructorName }}
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <i class="pi pi-clock text-xs"></i> {{ formatDate(s.startsAt) }} at
-                      {{ formatTime(s.startsAt) }}
-                    </span>
+              <div class="chart-card__body chart-card__body--donut">
+                <div class="donut-wrap">
+                  <svg viewBox="0 0 36 36" class="donut-chart">
+                    <!-- Scheduled segment -->
+                    @if (statusDistribution().scheduledPercent > 0) {
+                      <circle
+                        class="donut-ring"
+                        cx="18"
+                        cy="18"
+                        r="15.91549"
+                        fill="transparent"
+                        stroke="var(--color-info)"
+                        stroke-width="3"
+                        [attr.stroke-dasharray]="
+                          statusDistribution().scheduledPercent +
+                          ' ' +
+                          (100 - statusDistribution().scheduledPercent)
+                        "
+                        stroke-dashoffset="25"
+                      />
+                    }
+                    <!-- Completed segment -->
+                    @if (statusDistribution().completedPercent > 0) {
+                      <circle
+                        class="donut-ring"
+                        cx="18"
+                        cy="18"
+                        r="15.91549"
+                        fill="transparent"
+                        stroke="var(--color-success)"
+                        stroke-width="3"
+                        [attr.stroke-dasharray]="
+                          statusDistribution().completedPercent +
+                          ' ' +
+                          (100 - statusDistribution().completedPercent)
+                        "
+                        [attr.stroke-dashoffset]="25 - statusDistribution().scheduledPercent"
+                      />
+                    }
+                    <!-- Cancelled segment -->
+                    @if (statusDistribution().cancelledPercent > 0) {
+                      <circle
+                        class="donut-ring"
+                        cx="18"
+                        cy="18"
+                        r="15.91549"
+                        fill="transparent"
+                        stroke="var(--color-danger)"
+                        stroke-width="3"
+                        [attr.stroke-dasharray]="
+                          statusDistribution().cancelledPercent +
+                          ' ' +
+                          (100 - statusDistribution().cancelledPercent)
+                        "
+                        [attr.stroke-dashoffset]="
+                          25 -
+                          statusDistribution().scheduledPercent -
+                          statusDistribution().completedPercent
+                        "
+                      />
+                    }
+                  </svg>
+                  <div class="donut-center">
+                    <span class="donut-center__value">{{ totalSessionsCount() }}</span>
+                    <span class="donut-center__label">sessions</span>
                   </div>
                 </div>
+                <div class="donut-legend">
+                  <div class="donut-legend__item">
+                    <span class="donut-legend__dot" style="background: var(--color-info)"></span>
+                    <span class="donut-legend__text">Scheduled</span>
+                    <span class="donut-legend__count">{{ allScheduledCount() }}</span>
+                    <span class="donut-legend__pct"
+                      >{{ statusDistribution().scheduledPercent }}%</span
+                    >
+                  </div>
+                  <div class="donut-legend__item">
+                    <span class="donut-legend__dot" style="background: var(--color-success)"></span>
+                    <span class="donut-legend__text">Completed</span>
+                    <span class="donut-legend__count">{{ allCompletedCount() }}</span>
+                    <span class="donut-legend__pct"
+                      >{{ statusDistribution().completedPercent }}%</span
+                    >
+                  </div>
+                  <div class="donut-legend__item">
+                    <span class="donut-legend__dot" style="background: var(--color-danger)"></span>
+                    <span class="donut-legend__text">Cancelled</span>
+                    <span class="donut-legend__count">{{ allCancelledCount() }}</span>
+                    <span class="donut-legend__pct"
+                      >{{ statusDistribution().cancelledPercent }}%</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </section>
 
-                <a [routerLink]="['/sessions', s.id]" (click)="closeSessionModal()" class="modal-session__btn">
-                  <i class="pi pi-check-square"></i>
-                  {{ s.hasAttendance ? 'View / Edit' : 'Mark Attendance' }}
-                </a>
+            <!-- Daily Session Breakdown -->
+            @if (dailySessionCounts().length > 0) {
+              <section class="chart-card chart-card--daily">
+                <div class="chart-card__header">
+                  <h3 class="chart-card__title"><i class="pi pi-chart-bar"></i> Daily Sessions</h3>
+                  <span class="chart-card__badge">{{ viewLabel() }}</span>
+                </div>
+                <div class="chart-card__body chart-card__body--daily">
+                  @for (day of dailySessionCounts(); track day.date) {
+                    <div class="vbar-col">
+                      <div class="vbar-value">{{ day.count }}</div>
+                      <div class="vbar-track">
+                        <div class="vbar-fill" [style.height.%]="day.percent"></div>
+                      </div>
+                      <div class="vbar-label">{{ day.label }}</div>
+                    </div>
+                  }
+                </div>
+              </section>
+            }
+          </div>
+        }
+
+        <!-- Sessions List -->
+        <section>
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">
+                <i class="pi pi-calendar-clock"></i> Sessions {{ viewLabel() }}
+              </h2>
+              <p class="section-desc">
+                Filter and review sessions for {{ viewIntervalLabel() | lowercase }}
+              </p>
+            </div>
+
+            @if (!loadingUpcoming() && filteredSessions().length > 0) {
+              <div class="filter-chips">
+                <button
+                  type="button"
+                  class="chip"
+                  [class.chip--active]="activeStatusFilter() === 'all'"
+                  (click)="setFilter('all')"
+                >
+                  All ({{ intervalSessions().length }})
+                </button>
+
+                @if (scheduledCount() > 0) {
+                  <button
+                    type="button"
+                    class="chip chip--scheduled"
+                    [class.chip--active]="activeStatusFilter() === 'scheduled'"
+                    (click)="setFilter('scheduled')"
+                  >
+                    <span class="chip__dot"></span> Scheduled ({{ scheduledCount() }})
+                  </button>
+                }
+
+                @if (completedCount() > 0) {
+                  <button
+                    type="button"
+                    class="chip chip--completed"
+                    [class.chip--active]="activeStatusFilter() === 'completed'"
+                    (click)="setFilter('completed')"
+                  >
+                    <span class="chip__dot"></span> Completed ({{ completedCount() }})
+                  </button>
+                }
+
+                @if (cancelledCount() > 0) {
+                  <button
+                    type="button"
+                    class="chip chip--cancelled"
+                    [class.chip--active]="activeStatusFilter() === 'cancelled'"
+                    (click)="setFilter('cancelled')"
+                  >
+                    <span class="chip__dot"></span> Cancelled ({{ cancelledCount() }})
+                  </button>
+                }
               </div>
             }
+          </div>
+
+          @if (loadingUpcoming()) {
+            <div class="sessions-grid">
+              <div class="session-skeleton">
+                <div class="skeleton-line w-1/3 h-4"></div>
+                <div class="skeleton-line w-2/3 h-5"></div>
+                <div class="skeleton-line w-1/2 h-3"></div>
+              </div>
+              <div class="session-skeleton">
+                <div class="skeleton-line w-1/3 h-4"></div>
+                <div class="skeleton-line w-2/3 h-5"></div>
+                <div class="skeleton-line w-1/2 h-3"></div>
+              </div>
+            </div>
+          } @else if (filteredSessions().length === 0) {
+            <div class="empty-state">
+              <i
+                class="pi pi-calendar-times text-4xl mb-3 opacity-40 text-[var(--color-secondary)]"
+              ></i>
+              <p class="font-bold text-base text-[var(--color-text-primary)]">No sessions found</p>
+              <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                @if (activeStatusFilter() !== 'all') {
+                  No sessions match the status filter "{{ activeStatusFilter() }}" for
+                  {{ viewLabel() | lowercase }}.
+                } @else {
+                  No sessions scheduled for {{ viewLabel() | lowercase }}.
+                }
+              </p>
+            </div>
+          } @else {
+            <div class="sessions-grid">
+              @for (s of filteredSessions(); track s.id) {
+                <a
+                  [routerLink]="['/sessions', s.id]"
+                  class="session-card group"
+                  [class.session-card--completed]="isSessionCompleted(s)"
+                  [class.session-card--cancelled]="isSessionCancelled(s)"
+                  [class.session-card--scheduled]="!isSessionCancelled(s) && !isSessionCompleted(s)"
+                >
+                  <div class="session-card__accent"></div>
+                  <div class="session-card__body">
+                    <div class="session-card__top">
+                      <div class="session-card__info">
+                        <div class="session-card__icon-wrap">
+                          <i class="pi pi-calendar-clock"></i>
+                        </div>
+                        <div class="min-w-0">
+                          <h3 class="session-card__topic">{{ getSessionDisplayTopic(s) }}</h3>
+                          <p class="session-card__course">{{ s.courseTitle }}</p>
+                        </div>
+                      </div>
+                      <div class="session-card__badges">
+                        <span class="status-badge" [ngClass]="getStatusBadgeClass(s.status)">{{
+                          s.status
+                        }}</span>
+                      </div>
+                    </div>
+                    <div class="session-card__footer">
+                      <div class="session-card__meta">
+                        <span class="session-card__group">
+                          <i class="pi pi-users"></i> {{ s.groupName }}
+                        </span>
+                        @if (s.instructorName) {
+                          <span class="session-card__instructor">
+                            <i class="pi pi-user"></i> {{ s.instructorName }}
+                          </span>
+                        }
+                      </div>
+                      <div class="session-card__time">
+                        <span class="session-card__time-value">
+                          <i class="pi pi-clock"></i> {{ formatTime(s.startsAt) }}
+                        </span>
+                        <span class="session-card__time-date">{{ formatDate(s.startsAt) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              }
+            </div>
           }
+        </section>
+      </div>
+
+      <!-- Right Column (Sidebar) -->
+      <aside class="dashboard-sidebar">
+        <!-- Interval Status Breakdown -->
+        @if (totalSessionsCount() > 0) {
+          <div class="sidebar-card">
+            <div class="sidebar-card__header">
+              <div>
+                <h2 class="sidebar-card__title">
+                  <i class="pi pi-chart-bar"></i> {{ viewLabel() }} Activity
+                </h2>
+                <p class="sidebar-card__desc">
+                  Session status for {{ viewIntervalLabel() | lowercase }}
+                </p>
+              </div>
+              <a routerLink="/schedule" class="sidebar-link">
+                Full Schedule <i class="pi pi-arrow-right"></i>
+              </a>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="monthly-bar" title="Status breakdown">
+              <div
+                class="monthly-bar__segment monthly-bar__segment--scheduled"
+                [style.width.%]="monthlyProgressPercentages().scheduled"
+                [attr.title]="'Scheduled: ' + monthlyProgressPercentages().scheduled + '%'"
+              ></div>
+              <div
+                class="monthly-bar__segment monthly-bar__segment--completed"
+                [style.width.%]="monthlyProgressPercentages().completed"
+                [attr.title]="'Completed: ' + monthlyProgressPercentages().completed + '%'"
+              ></div>
+              <div
+                class="monthly-bar__segment monthly-bar__segment--cancelled"
+                [style.width.%]="monthlyProgressPercentages().cancelled"
+                [attr.title]="'Cancelled: ' + monthlyProgressPercentages().cancelled + '%'"
+              ></div>
+            </div>
+
+            <!-- Legend -->
+            <div class="monthly-legend">
+              <div class="monthly-legend__item">
+                <span class="monthly-legend__dot monthly-legend__dot--scheduled"></span>
+                <span class="monthly-legend__label">Scheduled</span>
+                <span class="monthly-legend__value">{{ allScheduledCount() }}</span>
+              </div>
+              <div class="monthly-legend__item">
+                <span class="monthly-legend__dot monthly-legend__dot--completed"></span>
+                <span class="monthly-legend__label">Completed</span>
+                <span class="monthly-legend__value">{{ allCompletedCount() }}</span>
+              </div>
+              <div class="monthly-legend__item">
+                <span class="monthly-legend__dot monthly-legend__dot--cancelled"></span>
+                <span class="monthly-legend__label">Cancelled</span>
+                <span class="monthly-legend__value">{{ allCancelledCount() }}</span>
+              </div>
+            </div>
+
+            <!-- Total -->
+            <div class="monthly-total">
+              <span class="monthly-total__label">Total Sessions</span>
+              <span class="monthly-total__value">{{ totalSessionsCount() }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Quick Actions -->
+        <div class="sidebar-card">
+          <div class="sidebar-card__header">
+            <h2 class="sidebar-card__title"><i class="pi pi-bolt"></i> Quick Actions</h2>
+          </div>
+          <div class="quick-actions">
+            @for (link of quickLinks(); track link.label) {
+              <a [routerLink]="link.route" class="quick-action">
+                <div class="quick-action__icon" [style.background]="link.color">
+                  <i [class]="link.icon"></i>
+                </div>
+                <div class="quick-action__text">
+                  <p class="quick-action__label">{{ link.label }}</p>
+                  <p class="quick-action__desc">{{ link.description }}</p>
+                </div>
+                <i class="pi pi-chevron-right quick-action__arrow"></i>
+              </a>
+            }
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Modal for Attendance Updated Today / Pending Attendance Sessions -->
+    @if (activeSessionModal() !== null) {
+      <div class="modal-overlay" (click)="closeSessionModal()">
+        <div class="modal-panel" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div>
+              <h2 class="modal-title">
+                @if (activeSessionModal() === 'updated') {
+                  <i class="pi pi-file-edit text-[var(--color-warning)]"></i> Attendance Updated
+                  Today
+                } @else {
+                  <i class="pi pi-exclamation-circle text-[var(--color-danger)]"></i> Pending
+                  Attendance Sessions
+                }
+              </h2>
+              <p class="modal-desc">
+                @if (activeSessionModal() === 'updated') {
+                  Sessions where attendance was recorded or edited today
+                } @else {
+                  Scheduled or completed sessions requiring attendance marking
+                }
+              </p>
+            </div>
+            <button type="button" (click)="closeSessionModal()" class="modal-close">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            @let sessionsList =
+              activeSessionModal() === 'updated' ? updatedSessionsList() : pendingSessionsList();
+            @if (sessionsList.length === 0) {
+              <div class="modal-empty">
+                <i
+                  class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success)]"
+                ></i>
+                <p class="font-semibold text-[var(--color-text-primary)]">
+                  No sessions found in this list
+                </p>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                  All attendance records are up to date.
+                </p>
+              </div>
+            } @else {
+              @for (s of sessionsList; track s.id) {
+                <div class="modal-session">
+                  <div class="modal-session__info">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="modal-session__course">{{ s.courseTitle }}</span>
+                      <span class="modal-session__group">{{ s.groupName }}</span>
+                    </div>
+                    <h3 class="modal-session__topic">{{ getSessionDisplayTopic(s) }}</h3>
+                    <div class="modal-session__meta">
+                      <span
+                        class="flex items-center gap-1 text-[var(--color-primary)] font-semibold"
+                      >
+                        <i class="pi pi-user text-xs"></i> Instructor: {{ s.instructorName }}
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <i class="pi pi-clock text-xs"></i> {{ formatDate(s.startsAt) }} at
+                        {{ formatTime(s.startsAt) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <a
+                    [routerLink]="['/sessions', s.id]"
+                    (click)="closeSessionModal()"
+                    class="modal-session__btn"
+                  >
+                    <i class="pi pi-check-square"></i>
+                    {{ s.hasAttendance ? 'View / Edit' : 'Mark Attendance' }}
+                  </a>
+                </div>
+              }
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
   }
 </div>

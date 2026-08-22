@@ -1,0 +1,147 @@
+<div class="sales-home">
+  <header class="sales-home__head">
+    <h1 class="sales-home__title">
+      {{ firstName() ? 'Morning, ' + firstName() : 'Your desk' }}
+    </h1>
+    <p class="sales-home__sub">
+      @if (loading()) {
+        Loading your holds and candidates…
+      } @else if (!liveHolds().length && !openCandidates().length) {
+        Nothing held and nobody in the pipeline. Find a free hour to start.
+      } @else {
+        {{ liveHolds().length }} {{ liveHolds().length === 1 ? 'hour' : 'hours' }} held,
+        {{ openCandidates().length }}
+        {{ openCandidates().length === 1 ? 'person' : 'people' }} still deciding.
+      }
+    </p>
+  </header>
+
+  <!-- The four numbers that describe a sales desk. Anything else belongs on a
+       tab, not on the page somebody sees first thing. -->
+  <div class="sales-home__stats">
+    <a routerLink="/sales" class="stat">
+      <span class="stat__value">{{ liveHolds().length }}</span>
+      <span class="stat__label">Hours held</span>
+    </a>
+
+    <a routerLink="/sales" class="stat" [class.stat--urgent]="expiringHolds().length">
+      <span class="stat__value">{{ expiringHolds().length }}</span>
+      <span class="stat__label">Lapsing within 3 days</span>
+    </a>
+
+    <a routerLink="/sales" class="stat">
+      <span class="stat__value">{{ seatsCommitted() }}</span>
+      <span class="stat__label">Places committed</span>
+    </a>
+
+    <a routerLink="/sales" class="stat" [class.stat--good]="readyHolds().length">
+      <span class="stat__value">{{ readyHolds().length }}</span>
+      <span class="stat__label">Ready to hand over</span>
+    </a>
+  </div>
+
+  <div class="sales-home__cols">
+    <!-- A hold that lapses gives the hour back to whoever asks next. -->
+    <section class="panel">
+      <h2 class="panel__title">
+        <i class="pi pi-hourglass"></i>
+        Running out
+      </h2>
+
+      @if (!expiringHolds().length) {
+        <p class="panel__empty">
+          Nothing lapsing in the next three days. Holds run for a fortnight from the day you take
+          them.
+        </p>
+      } @else {
+        <ul class="rows">
+          @for (hold of expiringHolds(); track hold.id) {
+            <li class="row">
+              <div class="row__main">
+                <span class="row__name">{{ hold.topicName }}</span>
+                <span class="row__detail">
+                  {{ hold.instructorName }} · {{ dayList(hold) }}
+                  @if (hold.roomName) {
+                    · {{ hold.roomName }}
+                  }
+                </span>
+              </div>
+              <div class="row__side">
+                <span class="pill" [class.pill--urgent]="hold.daysUntilExpiry <= 1">
+                  {{ expiryLabel(hold.daysUntilExpiry) }}
+                </span>
+                <span class="row__detail">
+                  {{ hold.committedCount }}
+                  {{ hold.committedCount === 1 ? 'place' : 'places' }}
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- The system can move nobody along on its own. -->
+    <section class="panel">
+      <h2 class="panel__title">
+        <i class="pi pi-phone"></i>
+        Waiting on you
+      </h2>
+
+      @if (!needsAStep().length) {
+        <p class="panel__empty">
+          Nobody is sitting waiting. Trials that have been sat, and people with no hour reserved,
+          show up here.
+        </p>
+      } @else {
+        <ul class="rows">
+          @for (candidate of needsAStep(); track candidate.id) {
+            <li class="row">
+              <div class="row__main">
+                <span class="row__name">{{ candidate.name }}</span>
+                <span class="row__detail">{{ reason(candidate) }}</span>
+              </div>
+              @if (candidate.phone) {
+                <a class="row__link" [href]="'tel:' + candidate.phone">{{ candidate.phone }}</a>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+
+  <div class="sales-home__links">
+    <a routerLink="/sales" class="link">
+      <i class="pi pi-search"></i>
+      <span class="link__label">Find an hour</span>
+      <span class="link__sub">Free slots, by instructor and day</span>
+    </a>
+    <a routerLink="/sales" class="link">
+      <i class="pi pi-users"></i>
+      <span class="link__label">Your pipeline</span>
+      <span class="link__sub">Everyone you are talking to</span>
+    </a>
+    <a routerLink="/availability" class="link">
+      <i class="pi pi-clock"></i>
+      <span class="link__label">Who works when</span>
+      <span class="link__sub">Instructor hours and time off</span>
+    </a>
+    <a routerLink="/courses" class="link">
+      <i class="pi pi-book"></i>
+      <span class="link__label">What we teach</span>
+      <span class="link__sub">Courses, levels and session content</span>
+    </a>
+  </div>
+
+  @if (byStatus().length) {
+    <div class="funnel">
+      @for (stage of byStatus(); track stage.status) {
+        <div class="funnel__stage">
+          <span class="funnel__count">{{ stage.count }}</span>
+          <span class="funnel__label">{{ stage.label }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

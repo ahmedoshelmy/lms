@@ -7,6 +7,7 @@ import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
+import { SalesOverviewComponent } from './sales-overview/sales-overview.component';
 
 interface StatCard {
   label: string;
@@ -32,7 +33,7 @@ export interface ChartBar {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SalesOverviewComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -128,6 +129,13 @@ export class DashboardComponent implements OnInit {
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
+
+  /**
+   * Sales gets a different page rather than a filtered version of this one.
+   * Sessions taught this month and cancellation rates are true and none of
+   * their business; what decides their day is which holds are about to lapse.
+   */
+  readonly isSales = computed(() => this.auth.hasRole(Role.Sales));
 
   readonly viewLabel = computed(() => {
     const v = this.activeView();
@@ -269,7 +277,8 @@ export class DashboardComponent implements OnInit {
     const viewLabel = this.viewLabel();
     const attendedValue = view === 'today' ? this.attendedToday() : this.attendedThisWeek();
     const attendedLabel = view === 'today' ? 'Attended Today' : `Attended ${viewLabel}`;
-    const attendedSubtitle = view === 'today' ? 'Students present today' : `Students present ${viewLabel.toLowerCase()}`;
+    const attendedSubtitle =
+      view === 'today' ? 'Students present today' : `Students present ${viewLabel.toLowerCase()}`;
     const sessionCount = this.intervalSessions().length;
 
     return [
