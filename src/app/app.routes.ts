@@ -65,6 +65,13 @@ export const routes: Routes = [
           import('./features/attendance/attendance.component').then((c) => c.AttendanceComponent),
       },
       {
+        path: 'my-learning',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('my-learning') },
+        loadComponent: () =>
+          import('./features/my-learning/my-learning.component').then((c) => c.MyLearningComponent),
+      },
+      {
         path: 'groups',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('groups') },

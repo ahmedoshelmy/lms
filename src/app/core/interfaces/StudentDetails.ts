@@ -16,13 +16,24 @@ export interface StudentGroup {
   status: string;
   joinedAt: string;
   leftAt: string | null;
+  /** Who teaches it. Printed on the certificate. */
+  instructorName: string | null;
+  /** Classes a week, which is what turns a session count into a length. */
+  sessionsPerWeek: number;
   courses: StudentCourse[];
 }
 
 export interface StudentCourse {
+  groupCourseId: number;
   title: string;
   topic: string;
   level: string;
+  /** How far the group has got, and how long the course runs. */
+  currentSessionNumber: number;
+  totalSessions: number;
+  isCompleted: boolean;
+  /** The day the last class was taught. Null while the course is still running. */
+  completedAt: string | null;
 }
 
 export interface StudentAttendanceRecord {

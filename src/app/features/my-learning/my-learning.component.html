@@ -1,0 +1,202 @@
+<div class="learning">
+  <header class="learning__head">
+    <h1 class="learning__title">Your learning</h1>
+    <p class="learning__sub">
+      @if (loading()) {
+        Loading your record…
+      } @else if (!group()) {
+        You are not in a group yet, so there is nothing to show here.
+      } @else {
+        {{ group()!.groupName }}
+        @if (group()!.instructorName) {
+          · {{ group()!.instructorName }}
+        }
+      }
+    </p>
+  </header>
+
+  <nav class="tabs">
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="tab() === 'progress'"
+      (click)="tab.set('progress')"
+    >
+      Progress
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="tab() === 'attendance'"
+      (click)="tab.set('attendance')"
+    >
+      Attendance
+      @if (attendanceRate() !== null) {
+        <span class="tab__count">{{ attendanceRate() }}%</span>
+      }
+    </button>
+    <button
+      type="button"
+      class="tab"
+      [class.tab--on]="tab() === 'classes'"
+      (click)="tab.set('classes')"
+    >
+      Your classes
+      @if (writtenUp().length) {
+        <span class="tab__count">{{ writtenUp().length }}</span>
+      }
+    </button>
+  </nav>
+
+  <!-- ── Progress ─────────────────────────────────────────────────────────── -->
+  @if (tab() === 'progress') {
+    @if (!courses().length && !loading()) {
+      <p class="empty">No courses assigned yet.</p>
+    }
+
+    @for (row of courses(); track row.course.groupCourseId) {
+      <section class="course">
+        <div class="course__head">
+          <div>
+            <h2 class="course__title">{{ row.course.title }}</h2>
+            <p class="course__meta">
+              {{ row.course.topic }} · Level {{ row.course.level }} · taught by
+              {{ row.instructorName }}
+            </p>
+          </div>
+          @if (row.course.isCompleted) {
+            <span class="tag tag--good">Finished</span>
+          }
+        </div>
+
+        <div class="bar" role="img" [attr.aria-label]="row.percent + '% of this course done'">
+          <div class="bar__fill" [style.width.%]="row.percent"></div>
+        </div>
+
+        <p class="course__line">
+          <strong>{{ row.done }}</strong> of {{ row.course.totalSessions }} classes
+          @if (!row.course.isCompleted) {
+            · {{ row.course.totalSessions - row.done }} to go
+          } @else if (row.course.completedAt) {
+            · last class {{ dateLabel(row.course.completedAt) }}
+          }
+        </p>
+
+        <!-- A certificate is earned, not granted on request. When it is not
+             available the reason is given rather than the button hidden. -->
+        <div class="course__cert">
+          @if (row.earned) {
+            <button
+              type="button"
+              class="btn"
+              [disabled]="saving()"
+              (click)="downloadCertificate(row)"
+            >
+              <i class="pi pi-download"></i>
+              {{ saving() ? 'Building…' : 'Download your certificate' }}
+            </button>
+          } @else {
+            <p class="course__blocked">
+              <i class="pi pi-lock"></i>
+              @for (reason of row.blockedBy; track reason) {
+                <span>{{ reason }}. </span>
+              }
+              @if (!row.blockedBy.length) {
+                <span>The certificate is not available yet.</span>
+              }
+            </p>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  <!-- ── Attendance ───────────────────────────────────────────────────────── -->
+  @if (tab() === 'attendance') {
+    @if (attendanceRate() === null) {
+      <p class="empty">
+        No classes recorded yet. Once your instructor takes the register, every class shows here.
+      </p>
+    } @else {
+      <div class="stats">
+        <div class="stat">
+          <span class="stat__value">{{ attendanceRate() }}%</span>
+          <span class="stat__label">Attended</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value">{{ attendedCount() }}</span>
+          <span class="stat__label">Classes attended</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value">{{ lateCount() }}</span>
+          <span class="stat__label">Arrived late</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value">{{ missedCount() }}</span>
+          <span class="stat__label">Missed</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Class</th>
+              <th>Course</th>
+              <th>You were</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of attendance(); track item.sessionId) {
+              <tr>
+                <td class="table__date">{{ dateLabel(item.startsAt) }}</td>
+                <td>{{ item.topic }}</td>
+                <td class="table__quiet">{{ item.courseTitle }}</td>
+                <td>
+                  <span class="tag" [ngClass]="statusClass(item)">{{ statusLabel(item) }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+
+  <!-- ── Classes ──────────────────────────────────────────────────────────── -->
+  @if (tab() === 'classes') {
+    @if (!writtenUp().length) {
+      <p class="empty">
+        Nothing written up yet. After each class your instructor publishes what was covered, and it
+        appears here.
+      </p>
+    }
+
+    @for (item of writtenUp(); track item.sessionId) {
+      <article class="class">
+        <div class="class__head">
+          <span class="class__date">{{ dateLabel(item.startsAt) }}</span>
+          <span class="class__number">Class {{ item.sessionNumber }}</span>
+        </div>
+
+        @if (item.title) {
+          <h2 class="class__title">{{ item.title }}</h2>
+        }
+
+        <p class="class__body">{{ item.parentSummary || item.content }}</p>
+
+        @if (item.parentHomeActivity) {
+          <p class="class__task">
+            <strong>To try at home:</strong>
+            {{ item.parentHomeActivity }}
+          </p>
+        }
+
+        @if (item.steamTopic) {
+          <p class="class__meta">STEM topic: {{ item.steamTopic }}</p>
+        }
+      </article>
+    }
+  }
+</div>

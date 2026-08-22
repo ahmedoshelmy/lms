@@ -159,6 +159,14 @@ export class LmsService {
     return this.http.delete<void>(`${this.getApiUrl()}/users/${id}`);
   }
 
+  /**
+   * The signed-in student's own record. Addressed by the token rather than by
+   * an id, so it cannot be pointed at somebody else.
+   */
+  getMyStudentRecord(): Observable<StudentDetails> {
+    return this.http.get<StudentDetails>(`${this.getApiUrl()}/students/me`);
+  }
+
   getStudentDetails(id: number): Observable<StudentDetails> {
     return this.http.get<StudentDetails>(`${this.getApiUrl()}/students/${id}/details`);
   }

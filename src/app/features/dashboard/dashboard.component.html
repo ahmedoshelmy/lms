@@ -1,6 +1,8 @@
 <div class="dashboard-page p-5 md:p-8 lg:p-10 max-w-[1440px] mx-auto min-h-screen">
   @if (isSales()) {
     <app-sales-overview />
+  } @else if (isStudent()) {
+    <app-student-home />
   } @else {
     <!-- View Toggle -->
     <div class="view-toggle-bar mb-6">

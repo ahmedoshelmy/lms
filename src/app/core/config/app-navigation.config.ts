@@ -69,6 +69,15 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'my-learning',
+    label: 'My Learning',
+    icon: 'pi pi-graduation-cap',
+    // A student's own record. Admin keeps it so the page can be checked
+    // without borrowing somebody's login.
+    roles: [Role.Student, Role.Admin],
+    showInMenu: true,
+  },
+  {
     path: 'instructors',
     label: 'Instructors',
     icon: 'pi pi-user',
@@ -102,7 +111,10 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'session-summaries',
     label: 'Session Summaries',
     icon: 'pi pi-comments',
-    roles: ALL_ROLES,
+    // The whole curriculum, every course and level. Staff and sales browse it
+    // to see what is taught; a student wants their own classes, which is what
+    // My Learning shows, not all 244 sessions of courses they are not on.
+    roles: [Role.Admin, Role.Instructor, Role.Sales],
     showInMenu: true,
   },
   {

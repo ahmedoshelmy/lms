@@ -8,6 +8,7 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { SalesOverviewComponent } from './sales-overview/sales-overview.component';
+import { StudentHomeComponent } from './student-home/student-home.component';
 
 interface StatCard {
   label: string;
@@ -33,7 +34,7 @@ export interface ChartBar {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SalesOverviewComponent],
+  imports: [CommonModule, RouterModule, SalesOverviewComponent, StudentHomeComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -136,6 +137,13 @@ export class DashboardComponent implements OnInit {
    * their business; what decides their day is which holds are about to lapse.
    */
   readonly isSales = computed(() => this.auth.hasRole(Role.Sales));
+
+  /**
+   * Students get their own page too. Sessions taught across the whole school
+   * and a bar chart per instructor answer none of the four things a student
+   * came to find out.
+   */
+  readonly isStudent = computed(() => this.auth.hasRole(Role.Student));
 
   readonly viewLabel = computed(() => {
     const v = this.activeView();

@@ -1,0 +1,133 @@
+<div class="student-home">
+  <header>
+    <h1 class="student-home__title">
+      {{ firstName() ? 'Hello, ' + firstName() : 'Your learning' }}
+    </h1>
+    <p class="student-home__sub">
+      @if (loading()) {
+        Loading your classes…
+      } @else if (!group()) {
+        You are not in a group yet. Once you are, your classes will show up here.
+      } @else {
+        {{ group()!.groupName }}
+        @if (group()!.instructorName) {
+          · taught by {{ group()!.instructorName }}
+        }
+      }
+    </p>
+  </header>
+
+  <!-- The one thing a student actually opens the page to find out. -->
+  @if (nextSession(); as next) {
+    <a class="next" [routerLink]="['/sessions', next.sessionId]">
+      <span class="next__label">Your next class</span>
+      <span class="next__when">{{ whenLabel(next.startsAt) }}</span>
+      <span class="next__where">
+        {{ next.courseTitle }}
+        @if (next.location) {
+          · {{ next.location }}
+        }
+        · with {{ next.instructorName }}
+      </span>
+    </a>
+  } @else if (!loading() && group()) {
+    <div class="next next--none">
+      <span class="next__label">Your next class</span>
+      <span class="next__when">Nothing on the timetable</span>
+      <span class="next__where">Ask your instructor when the next one is.</span>
+    </div>
+  }
+
+  <div class="student-home__cols">
+    <!-- How far through the course they are. -->
+    @if (activeCourse(); as course) {
+      <section class="panel">
+        <h2 class="panel__title">
+          <i class="pi pi-chart-line"></i>
+          {{ course.title }}
+        </h2>
+
+        <div class="bar" role="img" [attr.aria-label]="progressPercent() + '% of the course done'">
+          <div class="bar__fill" [style.width.%]="progressPercent()"></div>
+        </div>
+
+        <p class="panel__line">
+          <strong>{{ sessionsDone() }}</strong> of {{ course.totalSessions }} classes done
+          @if (course.isCompleted) {
+            — finished
+          } @else {
+            · {{ course.totalSessions - sessionsDone() }} to go
+          }
+        </p>
+
+        <a routerLink="/my-learning" class="panel__link">See every class and your certificate</a>
+      </section>
+    }
+
+    <!-- Turning up, which is the thing a parent asks about. -->
+    <section class="panel">
+      <h2 class="panel__title">
+        <i class="pi pi-check-circle"></i>
+        Turning up
+      </h2>
+
+      @if (attendanceRate() === null) {
+        <p class="panel__line panel__line--quiet">
+          No classes recorded yet. Once registers are taken, your record shows here.
+        </p>
+      } @else {
+        <p class="rate">{{ attendanceRate() }}<span class="rate__pct">%</span></p>
+        <p class="panel__line">
+          {{ attendedCount() }} of {{ counted().length }} classes attended
+          @if (missedCount()) {
+            · {{ missedCount() }} missed
+          }
+        </p>
+        <a routerLink="/my-learning" class="panel__link">See your full record</a>
+      }
+    </section>
+  </div>
+
+  <!-- What we did last time, in the words written for home. -->
+  @if (lastSummary(); as last) {
+    <section class="panel panel--wide">
+      <h2 class="panel__title">
+        <i class="pi pi-book"></i>
+        Last class · {{ dateLabel(last.startsAt) }}
+      </h2>
+
+      @if (last.title) {
+        <p class="last__heading">{{ last.title }}</p>
+      }
+
+      <p class="last__body">{{ last.parentSummary || last.content }}</p>
+
+      @if (last.parentHomeActivity) {
+        <p class="last__task">
+          <strong>To try at home:</strong>
+          {{ last.parentHomeActivity }}
+        </p>
+      }
+
+      <a routerLink="/my-learning" class="panel__link">Every class you have had</a>
+    </section>
+  }
+
+  <div class="student-home__links">
+    <a routerLink="/schedule" class="link">
+      <i class="pi pi-calendar"></i>
+      <span class="link__label">Your timetable</span>
+      <span class="link__sub">Every class, week by week</span>
+    </a>
+    <a routerLink="/my-learning" class="link">
+      <i class="pi pi-graduation-cap"></i>
+      <span class="link__label">Your learning</span>
+      <span class="link__sub">Progress, attendance and certificates</span>
+    </a>
+    <a routerLink="/courses" class="link">
+      <i class="pi pi-book"></i>
+      <span class="link__label">Courses</span>
+      <span class="link__sub">What each course covers</span>
+    </a>
+  </div>
+</div>
