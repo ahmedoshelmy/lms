@@ -29,13 +29,14 @@
             "Angry Birds programming game"
           ],
           "task": "Build a personal intro app (name, age, school, hobby)",
-          "steamTopic": null,
+          "steamTopic": "What mobile app development is",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1aZqFOzfRQ2O6x8Gues3zvkr1xywibnZdUsgKwZuCcg4/view",
           "parentSummary": "Your child met MIT App Inventor, the tool we use to build phone apps all term. Instead of typing code they drag blocks together, so the logic is real but the typing isn't in the way. They built their first working app: a button that speaks a short introduction out loud.",
           "parentHomeActivity": "Ask them to run their intro app on your phone and talk you through what each block does.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "What building an app involves, and the two halves of App Inventor: the Designer, where components are placed on a screen, and the Blocks editor, where their behaviour is written. Every component has properties — a label's text, its colour, its size — which can be set in the Designer or changed from blocks while the app runs."
         },
         {
           "sessionNumber": 2,
@@ -51,13 +52,14 @@
             "Debugging practice"
           ],
           "task": "Add up/down buttons to the project",
-          "steamTopic": null,
+          "steamTopic": "Communication skills",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1EAKDBoc01BnaUlsgo1wN77ly9hWO_prTtv9staHxgSw/view",
           "parentSummary": "This week was about what happens when someone taps the screen, and how to arrange things on it so an app doesn't look accidental. Your child built a small two-button game, then spent time debugging it — working out why something doesn't behave is half of programming.",
           "parentHomeActivity": "Ask what went wrong the first time and how they tracked it down.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The maths and comparison blocks: equal, not equal, greater than, less than, and the two that include equality. Each returns true or false, which is what lets the app decide. The two-button game is built on nothing more than that."
         },
         {
           "sessionNumber": 3,
@@ -72,13 +74,14 @@
             "\"Collect Treasure\" game"
           ],
           "task": "Add text-to-speech for age output",
-          "steamTopic": null,
+          "steamTopic": "Presentation skills",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1sSDbaoBjO5G0E-CNJVAEE_CzDz5JZhVewADsQbzbjzI/view",
           "parentSummary": "Your child built an app that asks for a birthday and works out an age from it, using a real date picker — the same control you see in booking apps.",
           "parentHomeActivity": "Give them your birthday and let the app tell you how old you are.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The DatePicker, a button that opens a calendar so the user can choose a date, with the Clock component doing the arithmetic on it. Buttons, labels, date pickers and layouts together make an age calculator."
         },
         {
           "sessionNumber": 4,
@@ -95,13 +98,14 @@
             "Player for notes"
           ],
           "task": "Modify piano notes and design",
-          "steamTopic": null,
+          "steamTopic": "Teamwork",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1A2cTatpcRthB_UB1QZm14ECruGQpHHeshJs6O9rGY44/view",
           "parentSummary": "An app that makes sound. Your child built a piano from image buttons, and learned the difference between information the whole app can see and information only one part of it can — a distinction that prevents a lot of bugs later.",
           "parentHomeActivity": "Ask them to play you something on their piano app.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Variables, and the difference between the two kinds. A global variable can be read and changed anywhere in the app; a local one exists only inside the block that declared it. The piano app uses them to keep track of what is playing."
         },
         {
           "sessionNumber": 5,
@@ -116,13 +120,14 @@
             "Flappy Bird game exercise"
           ],
           "task": "Add power (^) calculation button",
-          "steamTopic": null,
+          "steamTopic": "Teamwork and programming together",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/18e4OKb1qmA1bEZ4X1SPowSZFTYj53CAlaa4hpv5TbRU/view",
           "parentSummary": "Taking numbers a user types in and doing something with them. Your child built a working calculator, then extended it with a power button for homework.",
           "parentHomeActivity": "Test their calculator with an awkward sum and see whether it holds up.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The logic blocks and what equality really means: two numbers match if their values match, so 1 equals 1.0, but two pieces of text must match character for character, so banana is not Banana. The calculator project depends on getting that right."
         },
         {
           "sessionNumber": 6,
@@ -137,13 +142,14 @@
             "Loops with Rey and BB-8 game"
           ],
           "task": "Add high-score variable",
-          "steamTopic": null,
+          "steamTopic": "Algorithms and priority",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1POohgfv9ex3fvq5aESZLI6LhKX1wyQLTqzTDUb0s_Sw/view",
           "parentSummary": "Two larger ideas this week: lists, which hold many items under one name, and procedures — naming a chunk of work so it can be reused instead of rebuilt. Your child built a quiz app that runs through questions and keeps score.",
           "parentHomeActivity": "Ask them to add a question you'd know the answer to, then play it.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Algorithms, introduced through the order of steps in making a sandwich, then applied to a quiz app: present a question, compare the answer, update the score, move on. Getting the order wrong is the bug."
         },
         {
           "sessionNumber": 7,
@@ -158,13 +164,14 @@
             "\"Swimming Fish\" coding challenge"
           ],
           "task": "Add Level 2 screen (unlocks at 10 points)",
-          "steamTopic": null,
+          "steamTopic": "The x-y coordinate system",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1CQo1acS7HpyDDpyStueItfcHL-2CUFPsyJbIjLWg594/view",
           "parentSummary": "Game building starts here. Your child learned that a phone screen is really a grid of coordinates, and moved a character around it. The result was a working Snake game.",
           "parentHomeActivity": "Ask them to explain why the snake moves. It is arithmetic, not magic, and they can show you.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Canvas as a coordinate grid, and the ImageSprite: a graphic placed on it that can be touched and dragged, collide with other sprites and with the edges, and move on its own. The snake game is built from a canvas, sprites, a ball and a score label."
         },
         {
           "sessionNumber": 8,
@@ -179,13 +186,14 @@
             "Nested loops with Bee game"
           ],
           "task": "Add multiple balls and improve design",
-          "steamTopic": null,
+          "steamTopic": "Percentages and majorities",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1I-IpvCu3rog9IggkhN_89p_gjWf1bSLFIOctGl2aFg0/view",
           "parentSummary": "A bouncing ball game spread across more than one screen. Apps that move between pages have to hand information from one to the next, which is harder than it sounds.",
           "parentHomeActivity": "Ask them to show you both screens and explain how the app decides to switch.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Ball, a round sprite with the same collision and movement behaviour as an image sprite. The bouncing ball game is about what happens at the edges of the canvas and what happens when two sprites meet."
         },
         {
           "sessionNumber": 9,
@@ -200,13 +208,14 @@
             "Variables with Bee exercise"
           ],
           "task": "Enhance app design + internet safety tips",
-          "steamTopic": null,
+          "steamTopic": "Staying safe online",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Fo6lgFHIG17Y9JmjkNeQh_80exp_I8wxJwai8q0e07E/view",
           "parentSummary": "The first app that remembers anything after it closes. Your child built a shopping list that saves itself to the phone. We also spent part of the session on internet safety.",
           "parentHomeActivity": "Ask what they learned about staying safe online — it was part of the lesson, not an extra.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The ListView, which displays a list of text or images on screen, and TinyDB, which stores data on the device so it survives the app closing. Together they make a shopping list that is still there tomorrow."
         },
         {
           "sessionNumber": 10,
@@ -221,13 +230,14 @@
             "Minecraft conditionals game"
           ],
           "task": "Research machine learning + add more colors to the project",
-          "steamTopic": null,
+          "steamTopic": "Creativity and innovation",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1wT365Fj4v7DD_XjSr3kKpqRa7Bkp3guHG5PlllaaBXk/view",
           "parentSummary": "A drawing app your child designed themselves, which meant thinking about what makes an app pleasant to use rather than merely functional.",
           "parentHomeActivity": "Draw something on their app, then ask them what they would change about the design.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Canvas used for drawing rather than for games: a touch-sensitive panel whose background, paint colour and size can all be set, with the user's finger as the brush. The session also makes the point that an app is made for someone to use, so knowing who that is comes first."
         },
         {
           "sessionNumber": 11,
@@ -242,13 +252,14 @@
             "\"If\" conditions with Bee game"
           ],
           "task": "Add more recipes to the project",
-          "steamTopic": null,
+          "steamTopic": "Machine learning",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1B4vx8bacMaCpL74dsO6Pt4ixd0re7rJTDt7zsa3gSsA/view",
           "parentSummary": "Your child built an app you talk to. It listens, turns speech into text and finds a matching recipe. We also introduced machine learning at a basic level.",
           "parentHomeActivity": "Ask it for a recipe out loud and see how well it copes with your voice.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Spinner, a dropdown that presents a set of choices, and the speech recogniser, which turns what the user says into text the app can act on. The recipe app uses both."
         },
         {
           "sessionNumber": 12,
@@ -263,13 +274,14 @@
             "Minecraft debugging challenge"
           ],
           "task": "Improve app design + final quiz",
-          "steamTopic": null,
+          "steamTopic": "How the internet stores and sends data",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1sQCKD77SV86SZt2e6e63k1RrcK4NydxGzSZlqsxV7wk/view",
           "parentSummary": "The last app of the level: one that picks a contact and sends a message. The session finished with a quiz covering the whole term. Your child can now build a working Android app starting from a blank screen.",
           "parentHomeActivity": "Ask which of the twelve apps they are proudest of, and why.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Texting component, which sends a message to a number and raises an event when one arrives. Combined with the contact picker and a list view, it makes a working texting app — and the level closes on how data actually travels."
         }
       ]
     },
@@ -367,7 +379,7 @@
             "Greet the user by name when the quiz starts"
           ],
           "task": "Personalize start message (\"Hello [Name]...\")",
-          "steamTopic": null,
+          "steamTopic": "Power",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/10Lpu1IlLM5PbmDsMtTBBkEGGj_P_LdCo/view",
@@ -391,7 +403,7 @@
             "Draw a flowchart of the game logic"
           ],
           "task": "Design game flowchart",
-          "steamTopic": null,
+          "steamTopic": "Flowcharts",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1wQNvu3PhtigiZpnFhYiirVWjxTywXI0h/view",
@@ -414,7 +426,7 @@
             "Make messages disappear after a few seconds using a Clock"
           ],
           "task": "Add timed message disappearance",
-          "steamTopic": null,
+          "steamTopic": "How a keyboard, a mouse and a touchscreen work",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1JEQzKLBzU53hglmzhxlAOuQA9G66yGIa/view",
@@ -437,7 +449,7 @@
             "Add a TextBox so users can save a favourite book"
           ],
           "task": "Add favorite books database",
-          "steamTopic": null,
+          "steamTopic": "Algorithms",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/16CLRpYZ7WCLvkPzYWHAUR-nSwnSmREi9/view",
@@ -458,7 +470,7 @@
             "Add playback with adjustable speed"
           ],
           "task": "Add adjustable playback speed",
-          "steamTopic": null,
+          "steamTopic": "Patterns in real life",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1xGlBDsTe4w9eFswlMF0IfFwUa6MEw15d/view",
@@ -481,7 +493,7 @@
             "Add a power-up that makes all fruits explode"
           ],
           "task": "Add explosive fruit power-up",
-          "steamTopic": null,
+          "steamTopic": "Mixed numbers and improper fractions",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1CcUq7ttad31kXFjSWqDb2zxlz10C7Gi2/view",
@@ -504,7 +516,7 @@
             "Add a speed boost or shield power-up"
           ],
           "task": "Implement speed boost/shield",
-          "steamTopic": null,
+          "steamTopic": "Equivalent fractions",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/17BT22wG7HsF6n54I6IsVvfcRZ1gXEYka/view",
@@ -527,7 +539,7 @@
             "Compare how humans learn with how machines learn"
           ],
           "task": "Compare human vs machine learning",
-          "steamTopic": null,
+          "steamTopic": "Order of operations",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/158nbo2OX4FtMtDDl-ye4BtHc_LSDKaoe/view",
@@ -559,13 +571,14 @@
             "Develop Tic Tac Toe game with table arrangement"
           ],
           "task": "Add click sound effects to flashlight",
-          "steamTopic": null,
+          "steamTopic": "Mercury",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1GoH_lJ2NLZQPvcjsG4SRyPGaqodapPvP/view",
           "parentSummary": "Level 3 is about apps that use the phone itself. Your child built a flashlight that controls the real torch, which meant asking the phone for permission first, and a Tic Tac Toe game alongside it.",
           "parentHomeActivity": "Ask why an app has to ask permission before using the camera or torch.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Extensions: components that other people have written and published as .aix files, imported into a project to do things App Inventor cannot do on its own — Bluetooth, Firebase, machine learning. The flashlight and noughts and crosses apps put the idea to work."
         },
         {
           "sessionNumber": 2,
@@ -583,13 +596,14 @@
             "Voltage"
           ],
           "task": "Add low-battery (20%) notifier",
-          "steamTopic": null,
+          "steamTopic": "Venus",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/19Otz97wlnO-yGghR90iPMX1wJ-8GNXgi/view",
           "parentSummary": "An app that reads the phone's own battery — level, temperature and voltage — and warns when it runs low. Your child is now reading data out of the device rather than only putting things on the screen.",
           "parentHomeActivity": "Ask what temperature their phone battery is running at right now.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Reading the state of the device itself rather than the user's input. The battery monitor reports the charge level and reacts to it, which means the app is responding to something it did not cause."
         },
         {
           "sessionNumber": 3,
@@ -607,13 +621,14 @@
             "TinyDB storage"
           ],
           "task": "Combine ImagePicker with Camera",
-          "steamTopic": null,
+          "steamTopic": "Earth",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/12Lr0zffygX5Yam0VpF1tzQfSx8H76NreOsOyBzkBxLc/view",
           "parentSummary": "A camera app that takes photos, pulls existing ones from the gallery and stores them. Handling image files is noticeably harder than handling text.",
           "parentHomeActivity": "Take a photo with their app and ask where it gets saved.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Camera component, and storing what it captures. TinyDB keeps the images on the device so they are still there next time, and the ImagePicker lets the user choose one they already had."
         },
         {
           "sessionNumber": 4,
@@ -630,13 +645,14 @@
             "Secure password storage"
           ],
           "task": "Implement 8-character password validation",
-          "steamTopic": null,
+          "steamTopic": "Mars",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1DYok-ayg43vc94QewftEbqgCSd5YoZ2Zf8n3X7q07r4/view",
           "parentSummary": "Sign-up and login, including Google accounts and password rules. Your child learned why passwords are never stored as plain text, which is a genuinely important idea.",
           "parentHomeActivity": "Ask them why an app should not be able to tell you your own password.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Account management: a sign-up screen, a sign-in screen, and the stored credentials that connect them. Validating a password before accepting it is the point — an app that accepts anything is not really checking."
         },
         {
           "sessionNumber": 5,
@@ -654,13 +670,14 @@
             "Multi-screen flow"
           ],
           "task": "Add customizable player costumes",
-          "steamTopic": null,
+          "steamTopic": "Jupiter",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1bakAM3joYD284EKjsWRfNzTEjY56duuV/view",
           "parentSummary": "A side-scrolling game with obstacles, scoring and several screens, built on a timer that drives the animation.",
           "parentHomeActivity": "Play it and ask them to beat your score.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Apps with more than one screen, and how to move between them with the 'open another screen' block. The escape chicken game uses a canvas, sprites, a clock for timing, a player for sound and TinyDB for the score."
         },
         {
           "sessionNumber": 6,
@@ -675,13 +692,14 @@
             "Display space images/info"
           ],
           "task": "Expand API data utilization",
-          "steamTopic": null,
+          "steamTopic": "Saturn",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Ki6GViFnolUuICvCvReWwUbxQrORrfyXv-7FRc_AGTg/view",
           "parentSummary": "Your child's app now talks to NASA. It sends a request over the internet, receives data back and displays the images and information it finds. This is how most real apps get their content.",
           "parentHomeActivity": "Ask them to show you today's space image and explain where it came from.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "APIs. An API is how one program asks another for information; the Web component sends the request, and an event fires when the response arrives so the app can read it. The NASA app pulls real data over the internet."
         },
         {
           "sessionNumber": 7,
@@ -697,13 +715,14 @@
             "Voice input option"
           ],
           "task": "Add speech-to-text city input",
-          "steamTopic": null,
+          "steamTopic": "Uranus",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1_RVa1VDXV9USZ5W4mKGllDLW6NeB0yezhZNoLzN34uw/view",
           "parentSummary": "A weather app you can search by city, or ask out loud. It combines live internet data with voice input, pulling together two things learned separately.",
           "parentHomeActivity": "Ask it for the weather somewhere far away and see if it agrees with your phone.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "A second API project, this time weather. The user types a city, the app requests the forecast and displays what comes back — the same pattern as the NASA app, which is the point of doing it twice."
         },
         {
           "sessionNumber": 8,
@@ -720,13 +739,14 @@
             "Image display"
           ],
           "task": "Implement regenerate function",
-          "steamTopic": null,
+          "steamTopic": "Neptune",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1cABpFRpkCobEDX4lDz-YkHk_5_4kOZ5o/view",
           "parentSummary": "An app that generates artwork from a written description using an AI image service. Your child learned how the wording of a request changes what comes back.",
           "parentHomeActivity": "Give it a description and see what it produces. Try changing one word.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The ImageBot, a non-visible component that sends a description to DALL-E 2 and gets a generated image back. The app takes text from the user, requests the picture and displays it, with text-to-speech alongside."
         },
         {
           "sessionNumber": 9,
@@ -743,13 +763,14 @@
             "Map markers"
           ],
           "task": "Save coordinates to Firebase",
-          "steamTopic": null,
+          "steamTopic": "Latitude and longitude",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1PHHIyaFE-OqsaBd5OKAQ-ZtlF0fcPtaU_bpfNaCHZMM/view",
           "parentSummary": "A location tracker using the phone's GPS, showing position on a map and saving coordinates to the cloud.",
           "parentHomeActivity": "Ask them how accurate it is, and what the two numbers on screen actually mean.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Location. The location sensor reports latitude, longitude, altitude and speed from GPS or the network, and the Map component displays an interactive map with markers on it. Together they make a tracker that can share where you are."
         },
         {
           "sessionNumber": 10,
@@ -766,13 +787,14 @@
             "Themed UI"
           ],
           "task": "Enhance classifier UI design",
-          "steamTopic": null,
+          "steamTopic": "The ozone layer",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/16m-S4EAis2CuO4vibXqQMH-ld1YFfBwhaJNsJE-Tn_s/view",
           "parentSummary": "An app that recognises objects through the camera, trained on images your child supplied. They saw directly that a model is only as good as what it was shown.",
           "parentHomeActivity": "Show it something it wasn't trained on and watch it guess wrongly. That is the lesson.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Machine learning inside the app. The Personal Image Classifier is trained on labelled photographs and then recognises what the camera is pointed at, with the result driving what the app does next. A splash screen is added while the model loads."
         },
         {
           "sessionNumber": 11,
@@ -789,13 +811,14 @@
             "AI responses"
           ],
           "task": "Add introductory splash screen",
-          "steamTopic": null,
+          "steamTopic": "The sun",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1GToJLCiIpAR3ay9u9CZw2a8J2lWMB8iWp5R2L-aueNc/view",
           "parentSummary": "A wellbeing app with mood tracking and a chatbot that responds. Thinking about how an app should speak to someone having a difficult day is a design skill as much as a technical one.",
           "parentHomeActivity": "Ask them how they decided what the app should say back.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The Chatbot component, which holds a conversation with the user — reading what they type, working out what it means and answering. Built into a mental health app, where the answer matters more than the mechanism."
         },
         {
           "sessionNumber": 12,
@@ -812,13 +835,14 @@
             "Multi-currency support"
           ],
           "task": "Improve app visual design",
-          "steamTopic": null,
+          "steamTopic": "The moon",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1AM1sf_tdrPxYZ4kqLxbve90Z_EELczct/view",
           "parentSummary": "The final app of the course: a currency converter using live exchange rates. Your child has now built apps that use the camera, GPS, voice, cloud storage, AI and live internet data.",
           "parentHomeActivity": "Ask them to convert something into another currency, then ask what they want to build next.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The final project brings the API work back: a currency converter that requests live exchange rates from a web service, reads the JSON that comes back and calculates with it."
         }
       ]
     },
@@ -844,13 +868,14 @@
             "Build a basic LED circuit with a 9V battery"
           ],
           "task": "Research and present the history of electricity",
-          "steamTopic": null,
+          "steamTopic": "Electricity and its history",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1gWMf2XpIyyy6ppoo79UVqCmgZAIyxvj5/view",
           "parentSummary": "Before any code, electricity. Your child learned what voltage, current and resistance actually are, how to read the coloured bands on a resistor, and built a simple LED circuit powered by a battery.",
           "parentHomeActivity": "Ask them why an LED needs a resistor next to it. Without one it burns out, and they can tell you why.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Electricity from the ground up, taught through the water analogy: a tank of water is the charge, the pressure at the end of the hose is the voltage, and the flow through it is the current. Resistance is what narrows the hose. Ohm's law ties the three together, and the session ends on resistors in series and in parallel — plus why static from your hands can destroy a component."
         },
         {
           "sessionNumber": 2,
@@ -867,13 +892,14 @@
             "Simulate a simple LED blink project"
           ],
           "task": "Present real-world uses of Arduino",
-          "steamTopic": null,
+          "steamTopic": "Microprocessors and the chips inside a computer",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1DceeE_INgXScpkSK0HKxI1fjWmpsCavt/view",
           "parentSummary": "The Arduino board itself — what each pin does, how a breadboard connects things, and how computers represent letters as numbers. Your child made a binary bracelet spelling something in code.",
           "parentHomeActivity": "Ask them to write your name in binary. They have the method.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "What an Arduino actually is. A microcontroller is a whole tiny computer on one chip — powerful enough to run motors, read sensors and drive a display — as opposed to a microprocessor, which is only the processing part. The Arduino Uno is a circuit built around one of those chips, with digital pins that read on-or-off signals and analog pins that read a voltage level."
         },
         {
           "sessionNumber": 3,
@@ -890,13 +916,14 @@
             "Simulate a traffic light sequence"
           ],
           "task": "Explain how programming is used in everyday devices",
-          "steamTopic": null,
+          "steamTopic": "How a computer follows instructions",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1-VMaxk_EM1X16TmzcS6qnYZWHJ0nPbrF/view",
           "parentSummary": "The first programs. Your child made an LED blink, then two LEDs alternate, then built a working traffic light sequence. Getting a physical object to obey code for the first time is a good moment.",
           "parentHomeActivity": "Ask them to explain what the board is doing in the gap between blinks.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "What programming is, and how a computer stores what it is given. Binary uses two states because a circuit has two: 0 is a low voltage, 1 is high. ASCII maps text onto those numbers. Variables are the labels put on stored information, with rules about naming them, and the main types are numbers, strings and booleans."
         },
         {
           "sessionNumber": 4,
@@ -911,13 +938,14 @@
             "Build a dark-activated LED circuit with a photoresistor"
           ],
           "task": "Present applications of potentiometers in real life",
-          "steamTopic": null,
+          "steamTopic": "The design thinking process",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1-GqlIp3P5dlhLdtaOvYjHb37dPnMrRlO/view",
           "parentSummary": "The difference between a switch, which is on or off, and a dial, which is anywhere in between. Your child controlled LED brightness with a knob and built a light that comes on when the room goes dark.",
           "parentHomeActivity": "Ask where they have seen a light that switches itself on at dusk.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Analog signals, which carry a range of values rather than just on or off — sound levels, light levels, the position of a dial. The potentiometer is the example: turning it changes its resistance, the Arduino reads that as a number, and the number sets the brightness of an LED."
         },
         {
           "sessionNumber": 5,
@@ -933,13 +961,14 @@
             "Change tones based on LED states"
           ],
           "task": "Research and present buzzer applications (e.g., alarms, music)",
-          "steamTopic": null,
+          "steamTopic": "Sound and frequency",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1OY1lyb5_S-dmCBR13UQ0E4ELVoWAYd0F/view",
           "parentSummary": "Sound. Your child learned that pitch is just frequency, connected a buzzer, and added warning tones to the traffic light from an earlier week.",
           "parentHomeActivity": "Ask them to make the buzzer play a high note and a low note, and explain what changed.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The buzzer — a component that produces a tone when a signal is applied — and how the pitch changes with the frequency sent to it. Built into the traffic light project from the previous sessions, so the lights now make a sound as they change."
         },
         {
           "sessionNumber": 6,
@@ -955,13 +984,14 @@
             "Simulate a doorbell with a buzzer"
           ],
           "task": "Explore real-world uses of push-buttons (e.g., elevators, keyboards)",
-          "steamTopic": null,
+          "steamTopic": "Energy",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1zQrmg_SfzRRu68qN8-gg-O7PmvFPzoqn/view",
           "parentSummary": "Input from a person. Your child wired push-buttons to control LEDs and built a working doorbell. This is the first time their circuit reacts to someone rather than running on its own.",
           "parentHomeActivity": "Ask them how the board can tell the difference between a button pressed and one released.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The push-button, a mechanical switch that completes a circuit while it is held down and breaks it when released. Reading a button means reading a pin, deciding what the value means and acting on it — which is the first real algorithm in the level: take an input, apply a condition, produce an output."
         },
         {
           "sessionNumber": 7,
@@ -977,13 +1007,14 @@
             "Detect motion with a PIR sensor"
           ],
           "task": "presentation about previous sessions",
-          "steamTopic": null,
+          "steamTopic": "Computer worms",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1fKUY9gMOUpDy9NAtGLNlaTAMIWm-IIaO/view",
           "parentSummary": "Sensors — ultrasonic, motion and temperature. Your child built a Catch the Thief alarm that detects movement and responds with light and sound.",
           "parentHomeActivity": "Walk past their alarm and let it catch you.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Sensors as a family, and the passive infrared sensor in detail: it measures the infrared energy given off by a warm body, and triggers when that reading changes sharply. The session also covers the practical side — the pin headers and the male and female jumper wires that connect everything."
         },
         {
           "sessionNumber": 8,
@@ -999,13 +1030,14 @@
             "Experiment with variable types"
           ],
           "task": "Research Arduino board variants (e.g., Nano, Mega)",
-          "steamTopic": null,
+          "steamTopic": "Artificial intelligence",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1a2x1JBxxmp81xw8KU_2-iWAFTUJRjyyu/view",
           "parentSummary": "Moving from drag-and-drop to writing real C++ code in the Arduino editor. Your child also met the serial monitor, which lets you see what a program is thinking while it runs — the main tool for finding bugs.",
           "parentHomeActivity": "Ask them how they find out why a program is misbehaving.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Leaving the drag-and-drop simulator for the Arduino IDE and real C++. Five functions do most of the work: pinMode sets a pin to input or output, digitalWrite and digitalRead handle on-or-off signals, and analogWrite and analogRead handle values across a range."
         },
         {
           "sessionNumber": 9,
@@ -1020,13 +1052,14 @@
             "Calculate decimal division using float"
           ],
           "task": "Build a program to calculate the cart cost",
-          "steamTopic": null,
+          "steamTopic": "Critical thinking",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1tpbh_x02F0SMSspOd6OIsTuGI_VC8HNz/view",
           "parentSummary": "Variables and number types in C++, and why a program needs to be told whether something is a whole number or a decimal before it can do the sum.",
           "parentHomeActivity": "Ask what happens if you divide 7 by 2 and the program is expecting a whole number.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Variables in C++, which need a declared type — int, float, char, boolean — before they can be used, and are case-sensitive. The arithmetic operators are covered alongside, including modulus, increment and decrement."
         },
         {
           "sessionNumber": 10,
@@ -1041,13 +1074,14 @@
             "Check if the sum of two numbers equals 10"
           ],
           "task": "Design a program to determine the oldest among three ages",
-          "steamTopic": null,
+          "steamTopic": "Power",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/18nFft41J8C5VYk9T1s-jTW0hDYPwIXXh/view",
           "parentSummary": "Decisions in code. Your child wrote programs that assign grades from marks and compare ages, using conditions chained together.",
           "parentHomeActivity": "Ask them to describe how their grade program decides between a B and a C.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Making the program decide. Comparison operators produce true or false, if and else if choose between paths, and constants declared with const or #define give a fixed value a name so a pin number is written once rather than scattered through the code. The difference between a global and a local variable is covered here too."
         },
         {
           "sessionNumber": 11,
@@ -1063,13 +1097,14 @@
             "Use nested loops to print patterns"
           ],
           "task": "Draw a flowchart for a login system",
-          "steamTopic": null,
+          "steamTopic": "Flowcharts",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/16lRlKMZ-3kbuL9RAkmV46CS1MxtKlnwg/view",
           "parentSummary": "Loops and arrays — repeating work, and storing a row of values under one name. Your child also drew a flowchart for a login system.",
           "parentHomeActivity": "Ask to see the flowchart and follow it through with a wrong password.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "For loops, nested loops, and break and continue for leaving a loop early or skipping one pass. Then servo motors, which hold a precise angle: the angle is set by the width of the pulse sent to the control pin, which is why they are used wherever position matters."
         },
         {
           "sessionNumber": 12,
@@ -1085,13 +1120,14 @@
             "Simulate a robotic arm movement"
           ],
           "task": "Quiz on level 1",
-          "steamTopic": null,
+          "steamTopic": "Order of operations in mathematics",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1o7nKUkgoZ5AO7cwXD3wENE-ZB35hTauK/view",
           "parentSummary": "The level ends with functions and a servo motor, so the code now moves something physically. Your child simulated a robotic arm driven by a button, and sat a quiz on the whole level.",
           "parentHomeActivity": "Ask them to show you the arm moving and explain what tells it where to stop.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "While and do-while loops — the second always runs once before it checks — and functions: a named block of code that only runs when it is called, with parameters for passing information in. The level closes by combining the two."
         }
       ]
     },
@@ -1115,13 +1151,14 @@
             "Simulate an LED binary counter in Tinkercad"
           ],
           "task": "Convert more binary numbers to decimal numbers",
-          "steamTopic": null,
+          "steamTopic": "The five senses",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1EMcRFVVQWOWuYO5pUb-oFHcHf0EXQ2lp/view",
           "parentSummary": "Level 2 begins with how computers count. Your child converted binary to decimal and built an LED counter that displays numbers in binary.",
           "parentHomeActivity": "Ask them what 1010 means. It is ten, and they can show you why.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Sensors compared to human senses, and the split that matters in practice: a digital sensor reports on or off, an analog sensor reports a value across a range. Binary numbers are covered properly here, since a sensor reading arrives as one, and the class builds an LED binary counter to see it."
         },
         {
           "sessionNumber": 2,
@@ -1135,13 +1172,14 @@
             "Count up/down (0–9) using a seven-segment display"
           ],
           "task": "Display custom characters (e.g., \"H\" for \"HELLO\")",
-          "steamTopic": null,
+          "steamTopic": "Order of operations in mathematics",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/16DtV2_y2IaZTe8nIAqspXkhowbq391mB/view",
           "parentSummary": "Seven-segment displays — the blocky numerals on microwaves and clocks. Your child made one count up and down, then spell out letters.",
           "parentHomeActivity": "Ask them to make it show a letter and explain which segments switch on.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The seven-segment display: seven LEDs arranged so that lighting the right combination forms any digit from 0 to 9. Each segment needs its own resistor and pin, and the common leg goes to ground or to power depending on whether the part is common cathode or common anode."
         },
         {
           "sessionNumber": 3,
@@ -1156,13 +1194,14 @@
             "Detect motion with an IR sensor and trigger an LED/buzzer"
           ],
           "task": "Research ultrasonic sensors and their use in robotics",
-          "steamTopic": null,
+          "steamTopic": "Light and how it is detected",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1HftWXgyHgVjcOp0gv98v6xUnBaHPFGzK/view",
           "parentSummary": "Light sensors. Your child built a lamp that reacts to darkness and a motion detector using infrared, the same technology as a television remote.",
           "parentHomeActivity": "Ask them how a TV remote and a burglar alarm use the same kind of light you cannot see.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Two light sensors. The LDR changes resistance with the light falling on it, so it connects to an analog pin and reports a range. The infrared sensor detects reflected infrared and reports whether something is in front of it, so it connects to a digital pin."
         },
         {
           "sessionNumber": 4,
@@ -1177,13 +1216,14 @@
             "Create a theremin-like buzzer with variable pitch based on distance"
           ],
           "task": "Compare DC vs. AC motors in industrial applications",
-          "steamTopic": null,
+          "steamTopic": "Echolocation",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Vj5Q7zq-qPGY8FjUMRLTWplkg3rP2-Hq/view",
           "parentSummary": "Measuring distance with sound, the way a bat does. Your child calculated distance from how long an echo takes to return, then built an instrument whose pitch changes as your hand moves.",
           "parentHomeActivity": "Move your hand towards their sensor and listen to the note change.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The ultrasonic sensor, which measures distance by emitting a pulse of sound too high to hear and timing how long the echo takes to return. Distance comes out of that timing, and the session uses it to control an LED and to change the tone of a buzzer as something gets closer."
         },
         {
           "sessionNumber": 5,
@@ -1196,13 +1236,14 @@
             "Control motor direction using push buttons"
           ],
           "task": "Build a two-wheeled robot chassis (simulated or physical)",
-          "steamTopic": null,
+          "steamTopic": "Direct and alternating current",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1nz1uco_CtzyqSpU5jrXegSP1qr0d62G5/view",
           "parentSummary": "Motors. Your child learned how to make a motor turn both ways using a driver circuit, and started building a two-wheeled robot chassis.",
           "parentHomeActivity": "Ask why a motor needs a special chip between it and the board.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Driving motors. A DC motor needs more current than an Arduino pin can supply, so an L293D motor driver sits between them: the Arduino sends a small control signal and the driver switches the real power, which is also what makes reversing the direction possible. One driver runs two motors."
         },
         {
           "sessionNumber": 6,
@@ -1218,13 +1259,14 @@
             "Automate a plant watering system (simulated)"
           ],
           "task": "Create a soil moisture alert system with LEDs (Green/Yellow/Red)",
-          "steamTopic": null,
+          "steamTopic": "Where soil comes from",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1o07PxRzr4OB7VuYep60sWMqi46g-yFXQ/view",
           "parentSummary": "A soil moisture sensor and an automatic plant watering system. Your child had to calibrate it, because dry soil does not read the same in every pot.",
           "parentHomeActivity": "Ask them what reading their sensor gives for a watered plant versus a dry one.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The soil moisture sensor, whose two-pronged probe acts as a resistor that changes with the water around it. It offers both a digital output — wet or dry against a threshold — and an analog one, giving an actual reading, which is what an irrigation system needs."
         },
         {
           "sessionNumber": 7,
@@ -1238,13 +1280,14 @@
             "Monitor room temperature/humidity and log data to serial"
           ],
           "task": "Research the difference between DHT11, DHT22 and DS18B20",
-          "steamTopic": null,
+          "steamTopic": "Journeys in the sea",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1E-2a92N0P3UyLN1SyHxHH1W9cVM9xWEt/view",
           "parentSummary": "Temperature and humidity sensors, and comparing several types on accuracy and range. Choosing the right component for a job is an engineering decision, not just a wiring one.",
           "parentHomeActivity": "Ask them which sensor they would pick for a greenhouse, and why.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Measuring temperature and humidity. A thermistor is a resistor whose value changes with temperature; the DS18B20 does the conversion itself and hands back a digital reading; the DHT11 and DHT22 report temperature and humidity together, differing in range and accuracy."
         },
         {
           "sessionNumber": 8,
@@ -1258,13 +1301,14 @@
             "Display name and age on LCD"
           ],
           "task": "Research I2C LCD advantages over standard LCDs",
-          "steamTopic": null,
+          "steamTopic": "Seeing with sound",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1uHobCszSZNzAEMIsl4-zBA4060IJi2PS/view",
           "parentSummary": "An LCD screen, so projects can report their own readings instead of needing a computer attached. Your child displayed live sensor data on it.",
           "parentHomeActivity": "Ask them to put your name on the screen.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The LCD, a flat panel display that uses liquid crystals, wired through a set of data and control pins. Once the display works, the temperature and humidity readings from the previous session have somewhere to go other than the serial monitor."
         },
         {
           "sessionNumber": 9,
@@ -1278,13 +1322,14 @@
             "Print keypad inputs to an LCD"
           ],
           "task": "Present different keypad types (membrane, mechanical)",
-          "steamTopic": null,
+          "steamTopic": "How the internet works",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1mtKy1SwzLLS8JY9lTJBHstXDkaE2s_UG/view",
           "parentSummary": "A keypad for entering numbers and letters, and the problem of debouncing — a single press that the board reads as several, and how to stop it.",
           "parentHomeActivity": "Ask why a computer might think you pressed a button three times when you pressed it once.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The keypad, a grid of buttons wired as rows and columns: pressing one connects a single row to a single column, and the Arduino works out which key it was from that pair. A 3x4 keypad needs seven pins, a 4x4 needs eight. Combined with the LCD, it makes a working calculator."
         },
         {
           "sessionNumber": 10,
@@ -1296,13 +1341,14 @@
           ],
           "activities": [],
           "task": "Research about environmental sensors",
-          "steamTopic": null,
+          "steamTopic": "Biometrics",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1WuFJ9W9NZBjI4xu1D0NkllJNO8GcjPVi/view",
           "parentSummary": "The level closes with advanced sensors: gas and air quality, fingerprint and card readers, and GPS. Your child now has a working sense of what can be measured and how.",
           "parentHomeActivity": "Ask them what they would like to measure at home, and what sensor it would take.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The level closes on the sensors behind everyday technology: biometric sensors, which capture a face, fingerprint or iris as data a computer can match, and the sound sensor, which works like an ear — a microphone, a peak detector and an amplifier."
         }
       ]
     },
@@ -1325,13 +1371,14 @@
             "Send messages between two Arduinos using UART"
           ],
           "task": "Trigger an LED on Arduino 2 based on distance data from Arduino 1 (ultrasonic sensor)",
-          "steamTopic": null,
+          "steamTopic": "How Amazon uses robots in its warehouses",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1IB054fpCYxlybIUHz7ByclHpn7neI0Ni/view",
           "parentSummary": "Level 3 is about making devices talk to each other. Your child sent messages between two Arduino boards over a wire, then had one board switch on a light based on what the other measured.",
           "parentHomeActivity": "Ask them what a baud rate is. It is how fast the two boards agree to talk.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Getting two boards to talk to each other. A protocol is an agreed language, and UART is asynchronous — there is no shared clock, so the two devices simply agree in advance how fast to send, which is the baud rate. One Arduino reads a sensor, the other acts on the value."
         },
         {
           "sessionNumber": 2,
@@ -1345,13 +1392,14 @@
             "Display DHT22 data on an I2C LCD"
           ],
           "task": "Add LED/buzzer alerts for temperature ranges (cool/moderate/hot)",
-          "steamTopic": null,
+          "steamTopic": "Robotics fulfilment centres",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/15PiqXLCL9mXZYW6isAsk3nepPQmIHT1V/view",
           "parentSummary": "A second communication method that needs only two wires no matter how many devices are attached. Your child put a temperature sensor and a display on the same pair of wires.",
           "parentHomeActivity": "Ask why saving pins on the board matters once a project gets big.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Reading a DHT sensor properly and putting the result on an LCD. The DHT11 covers a narrow range and suits simple projects; the DHT22 is wider and more accurate. The code checks each reading is valid before displaying it, because a failed read returns nothing rather than an error."
         },
         {
           "sessionNumber": 3,
@@ -1365,13 +1413,14 @@
             "Build a Master-Slave system: Send keypad input (Master) to LCD (Slave) via SPI"
           ],
           "task": "Investigate SPI daisy-chaining",
-          "steamTopic": null,
+          "steamTopic": "How we see the past",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1QmB4YWXN6db93YybKNJ0lWR4NcsD54lr/view",
           "parentSummary": "A third protocol, faster than the last, with one device leading and the others following. Your child built a system where a keypad on one board writes to a screen on another.",
           "parentHomeActivity": "Ask them which of the three methods they would choose for a fast sensor, and why.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "SPI, a second communication protocol and a faster one. It uses four wires — one for data out, one for data in, a clock line that tells both sides when to read, and a select line that picks which device is being addressed. The class implements it bit by bit rather than calling a library, so what the wires carry is visible."
         },
         {
           "sessionNumber": 4,
@@ -1385,13 +1434,14 @@
             "Control LED brightness with a potentiometer using PWM"
           ],
           "task": "Send potentiometer values between Arduinos via serial for remote PWM control",
-          "steamTopic": null,
+          "steamTopic": "Acid rain",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/110PZdzPm4Ubs2nfyrlT1rNXhZRWsvEUk/view",
           "parentSummary": "How a board that can only switch on and off produces something in between, by switching very fast. This is how dimmed lights and motor speed control actually work.",
           "parentHomeActivity": "Ask them how a light can be half on when the board only knows on and off.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Pulse width modulation: a digital pin can only be on or off, but switching it on and off fast enough makes it behave like something in between. The proportion of time it spends on is the duty cycle. Mapping converts a reading from one range to another, which is what lets a potentiometer's 0-1023 drive a 0-255 output."
         },
         {
           "sessionNumber": 5,
@@ -1405,13 +1455,14 @@
             "Recover settings after power-off"
           ],
           "task": "Research EEPROM wear leveling",
-          "steamTopic": null,
+          "steamTopic": "How bees make honey",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1nKfo-Jag2QBJEadr0m5rTrBwonbIMoQd/view",
           "parentSummary": "Memory that survives being unplugged. Your child built a password lock that still remembers its code after the power is cut.",
           "parentHomeActivity": "Unplug their lock, plug it back in and check it still knows the password.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Memory that survives a power cut. EEPROM is storage on the chip itself that keeps its contents when the board is switched off — the difference between a robot that remembers its settings and one that forgets everything each time. Built into a digital code lock that keeps its code."
         },
         {
           "sessionNumber": 6,
@@ -1426,13 +1477,14 @@
             "Measure interrupt response time vs. polling"
           ],
           "task": "Identify interrupt use in smartphones (e.g., touchscreens)",
-          "steamTopic": null,
+          "steamTopic": "Acid rain",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1xrE5aK9fYaocI4CmgkAyUzsqJNthOALU/view",
           "parentSummary": "Interrupts — how a device drops what it is doing to respond immediately. Your child built an emergency stop button and measured how much faster it responds than checking in a loop.",
           "parentHomeActivity": "Ask them why an emergency stop cannot afford to wait its turn.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Interrupts. Instead of the program checking a pin over and over, an interrupt lets the hardware tap the processor on the shoulder: it stops, runs a short handler, and returns to what it was doing. The session compares polling with interrupts and covers the modes — rising, falling and change."
         },
         {
           "sessionNumber": 7,
@@ -1446,13 +1498,14 @@
             "Control dual servos with a joystick (pan-tilt mechanism)"
           ],
           "task": "Explore alternative movement sensors (e.g., accelerometers)",
-          "steamTopic": null,
+          "steamTopic": "Sea monsters",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1P3h04XP6wh5F6RBOvmR3QQqGbcO8VN9H/view",
           "parentSummary": "A joystick driving two servo motors, the pan-and-tilt mechanism used for cameras. Your child mapped the joystick's range onto the motors' range of movement.",
           "parentHomeActivity": "Ask them to steer it for you and explain what happens when the stick is centred.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The joystick, which is two potentiometers at right angles plus a push switch. Each axis reports 0 to 1023 with the centre in the middle, and the two readings together drive two servo motors — the same arrangement as a game controller."
         },
         {
           "sessionNumber": 8,
@@ -1460,13 +1513,14 @@
           "keyConcepts": [],
           "activities": [],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "How data is stored on the internet",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1W5_7yuS9kAHEYOPYAo9_01UfrVY76vEE/view",
           "parentSummary": "The graduation project. Your child designs and builds something of their own using everything from the three levels, with the instructor supporting rather than directing.",
           "parentHomeActivity": "Ask what they chose to build and why. This one is theirs.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The graduation project. Students choose what to build — a smart office, a calculator, a stopwatch or their own idea — then wire the components and write the code themselves, using everything from the three levels."
         }
       ]
     },
@@ -1492,7 +1546,7 @@
             "Research and document real-world applications of AI"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "The engineering design process",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1BfM-MFvJD7JNry_v4bOu2d3eQNnmCyyp/view",
@@ -1518,7 +1572,7 @@
             "Build a working clock application in Python"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Planning a solution with pseudocode",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1oQeWSzx8YcJ5yxMZbAjdv1i3J629HeFW/view",
@@ -1548,7 +1602,7 @@
             "Build a Tic-Tac-Toe game with an AI opponent"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Matrices and vectors",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Z_kn3VHbqYPxMAbhAW9suVQwWvXGSze5/view",
@@ -1574,7 +1628,7 @@
             "Split into training and testing sets, fit a model and check its performance"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Supervised and unsupervised learning",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/19PJiM4IynwfrK3Q-H5ujTB9yIPzCt55F/view",
@@ -1599,7 +1653,7 @@
             "Visualise the relationship between the variables"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "3D printing and the coordinate system",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1U-l0VJzm_kgyXp0EOOwqBb4QiHMpEsaI/view",
@@ -1625,7 +1679,7 @@
             "Build a neural network that recognises handwritten digits from the MNIST dataset"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "RGB: how a computer represents colour",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1TSGwRhDc8bF5JdmSbzfDtJXLikxPycAF/view",
@@ -1646,7 +1700,7 @@
             "Build a sequence model in TensorFlow"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Vectors",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1fIFYVFb-GdWU55dh3LmLd80rz4yP4Edm/view",
@@ -1673,7 +1727,7 @@
             "Select the highest-scoring sentences to build a summary"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "How computers represent text in binary",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1nrlfqoCAg4qQEIFvSCACiR8997eE9Upq/view",
@@ -1696,7 +1750,7 @@
             "Train and evaluate a model on Stack Overflow data"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Trial and error, and critical thinking",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1qGHsYJB1PH9Kb_QJL8nnCCAxB9r_b3Dl/view",
@@ -1721,7 +1775,7 @@
             "Run object detection on a photograph of your choice"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "How the eye works",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1MVRMjCiquQOFHd_NFtmyxYb4m3E0fw5L/view",
@@ -1768,7 +1822,7 @@
             "Examine the model for bias and unfairness"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Reviewing the course, and whether AI can help",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/15zsIhz4rbC9BTFTqKl6IpHZNO2qAyY1q/view",
@@ -1802,7 +1856,7 @@
             "Visualise the relationship between the variables, then fit a regression model"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "The equation of a straight line",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1tq_99hsYMUgcevhJDWKvhQDHN2lU7HaC/view",
@@ -1825,7 +1879,7 @@
             "Measure how performance changes as model complexity rises"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Uncertainty and error",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Ih8-G0zrKEjLCKFR8GUGPso-zpVdUinC/view",
@@ -1848,7 +1902,7 @@
             "Split the data and fit a linear model"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Logical fallacies",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1-vqyGdMzTnEuzvC9ePHoTs7gqNrm397s/view",
@@ -1878,7 +1932,7 @@
             "Evaluate it with a confusion matrix rather than accuracy alone"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "The placebo effect",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1BLEK60ezXTEVQ15z-KkpQtFZsSZt9eqX/view",
@@ -1901,7 +1955,7 @@
             "Build an unsupervised model comparing book reviews by similarity"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Similar shapes",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Ux2xI3NVuZUmvIflQzpRQl_z-90p3P3M/view",
@@ -1923,7 +1977,7 @@
             "Classify handwritten digits from raw pixel values using KNN and a decision tree"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "How Google Maps finds the shortest path",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1iWUY3i6cYnYge5qCsYvnuPjvXVP4gY3N/view",
@@ -1946,7 +2000,7 @@
             "Visualise the result"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "How bubbles pack together",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1aaSQ3MlF_t5XYTgZdFPj1MtRfIxe2lt6/view",
@@ -1972,7 +2026,7 @@
             "Compare the three approaches"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Graphs and why there are different kinds",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Pr2lPSbPym8kr1FUM_Sx3QLEM46azszL/view",
@@ -1992,7 +2046,7 @@
             "Fit an SVM to classify different animals"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Reading a change in performance from data",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1XGyLtdC1UhdD9CySmoJyHJcyLNhT_VT1/view",
@@ -2015,7 +2069,7 @@
             "Compare their performance"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Dimensions",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/15cCiKcKm44-Opr02hOpOYnXJikU2X9_x/view",
@@ -2039,7 +2093,7 @@
             "Build a graphical interface that predicts a test result from symptoms"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Making decisions with graphs",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1A8CJhdP6La925pvnLfPeTnzuMIOaFSPR/view",
@@ -2056,7 +2110,7 @@
             "Design and build an AI project of your own"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Where a dataset comes from",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1-aXGmRxotaqMkdVWJxHpu3TqxvepOX3G/view",
@@ -4929,13 +4983,14 @@
             "Experiment with different speed settings"
           ],
           "task": "Research the frog life cycle",
-          "steamTopic": null,
+          "steamTopic": "Motors and what they are used for",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1YvGfxwq-8Vt9wdJW4oRlLKGiVXZjq9dU/view",
           "parentSummary": "The first build. Your child learned what a motor actually does — turning electricity into movement — then built a motorcycle and programmed how fast and how long it runs.",
           "parentHomeActivity": "Ask them what a motor turns electricity into. Movement is the answer, and they built one.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The first build, and the first idea: a motor turns electrical energy into movement. The session looks at where motors appear in everyday machines, then puts one in a motorcycle model and controls it from blocks — speed, direction and how long it runs."
         },
         {
           "sessionNumber": 2,
@@ -4952,13 +5007,14 @@
             "Add sound effects to frog movement"
           ],
           "task": "Research lion habits and behaviors",
-          "steamTopic": null,
+          "steamTopic": "The life cycle of a frog",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1TAdJb6kdmktnborSAiGUDrO1r6fpMe3U/view",
           "parentSummary": "A frog model that hops backwards and forwards on a loop, with sound. Your child used repetition in a program for the first time, and researched the frog life cycle alongside it.",
           "parentHomeActivity": "Ask them to tell you the stages of a frog's life. It was their homework and it fits the model they built.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "A frog model, matched to its science topic: the frog life cycle, and the repeated hop that gives the program its first loop. Sound blocks are added so the model makes a noise as it moves."
         },
         {
           "sessionNumber": 3,
@@ -4977,13 +5033,14 @@
             "Adjust speed to 7 for 2 sec movements"
           ],
           "task": "Compare lion habits to other big cats",
-          "steamTopic": null,
+          "steamTopic": "The life cycle of a lion",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1mVlL5ixiuAGCsqghYC1zvF2rlNeEJ0Nk/view",
           "parentSummary": "A lion model, plus getting the program to display text and use a custom background. Your child also stored information like a name and age for the program to use.",
           "parentHomeActivity": "Ask them to make their program say your name.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Getting the program to show something on screen as well as move a model. Text and a custom background are displayed, and information such as a name and an age is stored for the program to use — a first variable, without the word."
         },
         {
           "sessionNumber": 4,
@@ -4999,13 +5056,14 @@
             "Test different sound effects"
           ],
           "task": "Research common uses of sensors",
-          "steamTopic": null,
+          "steamTopic": "Magnetism",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1NPpy5xvNsuQ64ecDFO6XTP_ZmqmGSg90/view",
           "parentSummary": "Magnetism — which materials are attracted and which are not, and how a speaker uses magnets to make sound. Your child built a swinging fairground model.",
           "parentHomeActivity": "Go round the kitchen with a magnet and ask them to predict what will stick.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Magnetism: which materials are attracted and which are not, and how a speaker uses a magnet to turn an electrical signal into sound. The swing attraction model is built and programmed with movement and a sound effect."
         },
         {
           "sessionNumber": 5,
@@ -5023,13 +5081,14 @@
             "Compare human and robot sensing abilities"
           ],
           "task": "Research gear mechanisms",
-          "steamTopic": null,
+          "steamTopic": "Sensors, and whether humans are like robots",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1LP0wt3MyP7LzbBzFIYkAXXJ_0g9kuyFX/view",
           "parentSummary": "Comparing human senses with robot sensors. Your child built a shark that reacts to what it detects, and discussed where a robot's senses fall short of ours.",
           "parentHomeActivity": "Ask which human sense is hardest for a robot to copy.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Sensors, opened with a question the class argues about — are humans like robots? A sensor is how a machine notices anything at all, and the shark model reacts to what its sensor detects rather than running a fixed sequence."
         },
         {
           "sessionNumber": 6,
@@ -5047,13 +5106,14 @@
             "Use different gear configurations"
           ],
           "task": "Research motion sensor applications",
-          "steamTopic": null,
+          "steamTopic": "Gears",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/10V0_C0bmSlr0rPwkkJMKkfzPjOqiMTyS/view",
           "parentSummary": "Gears — how teeth interlock, how gears reverse direction and how they trade speed for power. Your child built a spinner and tested different gear arrangements.",
           "parentHomeActivity": "Ask them why a bicycle has gears. They can now explain it properly.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Gears and the three things they are used for: changing speed, changing direction, and carrying movement from one place to another. The spinner build shows the speed change directly — swap the gears and the same motor spins it differently."
         },
         {
           "sessionNumber": 7,
@@ -5071,13 +5131,14 @@
             "Test different sensor modes"
           ],
           "task": "Research sources of energy",
-          "steamTopic": null,
+          "steamTopic": "Energy and its types",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1yC5nAZAWbuvCm5oanZq75WEOw8TgDguX/view",
           "parentSummary": "A racing car that starts when it detects movement, plus energy: where it comes from, and the difference between sources that run out and those that do not.",
           "parentHomeActivity": "Ask them to name a renewable energy source and one that is not.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Energy and the forms it takes, then the motion sensor, which detects something moving nearby. The racing car build uses it, so the car reacts to what passes rather than only to the program."
         },
         {
           "sessionNumber": 8,
@@ -5096,13 +5157,14 @@
             "Final Task: Comprehensive presentation on gears and sensors"
           ],
           "task": null,
-          "steamTopic": null,
+          "steamTopic": "Renewable and non-renewable sources of energy",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1nmzjtgsy7IRehKK_v6OpJM_Rt4qXoZTX/view",
           "parentSummary": "The level ends with the Milo rover, controlled by tilting, and a presentation on everything learned about gears and sensors. Presenting their own work is part of the assessment.",
           "parentHomeActivity": "Ask for the presentation. Explaining it out loud is where the learning settles.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Where energy comes from — renewable sources against non-renewable ones, and which is better and why. The tilt sensor is introduced, which reports how the model is being held, and the hungry crocodile game uses it."
         }
       ]
     },
@@ -5125,14 +5187,15 @@
             "Program rover movements"
           ],
           "task": "Research first person on moon",
-          "steamTopic": null,
+          "steamTopic": "Space exploration and the moon landing",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1PSnYgs60-yP9gwhxNlWo-GhUQsCriTmM/view",
           "parentSummary": "Level 2 opens with space. Your child built a lunar rover and programmed it to cross difficult ground, then researched the first person to walk on the moon.",
           "parentHomeActivity": "Ask them who first walked on the moon, and what makes driving on it so hard.",
           "isPublished": true,
-          "outlineSessionNumber": 9
+          "outlineSessionNumber": 9,
+          "content": "Level 2 opens with space. A lunar rover has to cross ground nobody has prepared for it, which is a build problem before it is a programming one, and the class researches the first person to walk on the moon alongside it."
         },
         {
           "sessionNumber": 2,
@@ -5147,14 +5210,15 @@
             "Adjust gear configurations"
           ],
           "task": "Draw/label gear types",
-          "steamTopic": null,
+          "steamTopic": "Gears and controlling speed",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1DljgPP4H7ucrU-y_mFJB92EljK81PsCm/view",
           "parentSummary": "A working forklift. Your child tested how much it could lift and changed the gears to find out how that affects lifting power.",
           "parentHomeActivity": "Ask them what changing the gears did to the lifting. Slower but stronger is the trade.",
           "isPublished": true,
-          "outlineSessionNumber": 10
+          "outlineSessionNumber": 10,
+          "content": "Gears again, now for lifting rather than spinning. The forklift build asks how much it can raise, and changing the gearing changes the answer — the trade between speed and force made concrete."
         },
         {
           "sessionNumber": 3,
@@ -5169,14 +5233,15 @@
             "Test blade angles"
           ],
           "task": "Research another renewable source",
-          "steamTopic": null,
+          "steamTopic": "Renewable energy",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1kMojTfAmGpyvQ-HlRr9zuQb7FNL3w3nw/view",
           "parentSummary": "A windmill, and how moving air becomes electricity. Your child tested different blade angles to find which generated most power.",
           "parentHomeActivity": "Ask which blade angle worked best. They tested it rather than guessing.",
           "isPublished": true,
-          "outlineSessionNumber": 11
+          "outlineSessionNumber": 11,
+          "content": "Renewable energy, and a windmill that turns moving air into electricity. Students test different blade angles to find which generates most, which makes it an experiment rather than a demonstration."
         },
         {
           "sessionNumber": 4,
@@ -5192,14 +5257,15 @@
             "Program sensor triggers"
           ],
           "task": "Create paper bin prototype",
-          "steamTopic": null,
+          "steamTopic": "Recycling",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1O8gA_PRMGiH9RpgbSMBG4r4FFWb70o-x/view",
           "parentSummary": "A smart bin that opens when it detects someone approaching, plus how recycling sorting actually works.",
           "parentHomeActivity": "Ask them what happens to a plastic bottle after it goes in the recycling.",
           "isPublished": true,
-          "outlineSessionNumber": 12
+          "outlineSessionNumber": 12,
+          "content": "Recycling — how waste is sorted and why it matters — followed by the motion sensor. The smart bin opens when it detects someone coming, which is a machine reacting to the world without being told to."
         },
         {
           "sessionNumber": 5,
@@ -5214,14 +5280,15 @@
             "Adjust gearbox setup"
           ],
           "task": "Research monkey species",
-          "steamTopic": null,
+          "steamTopic": "Gears and gearboxes",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1TomXWQ-4dCoqMTfb8DpdAN6dwV3aBdWP/view",
           "parentSummary": "A carousel driven by a gearbox, and how rotation is passed from one part of a machine to another. Your child tuned the gearbox to change the speed.",
           "parentHomeActivity": "Ask them to run it fast and slow, and explain what they changed.",
           "isPublished": true,
-          "outlineSessionNumber": 13
+          "outlineSessionNumber": 13,
+          "content": "The gearbox: several gears working together so one motor can drive something at a chosen speed. The carousel is built on one, and tuning the gearbox changes how fast it turns."
         },
         {
           "sessionNumber": 6,
@@ -5236,14 +5303,15 @@
             "Program swinging actions"
           ],
           "task": "Research sports benefits",
-          "steamTopic": null,
+          "steamTopic": "Monkeys and how animals move",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1TdRVgo6YKHfYVAkX3TjAdozDyFe031nj/view",
           "parentSummary": "A monkey model that climbs and swings, comparing how animals move with how robots do. Copying a living thing's motion is harder than it looks.",
           "parentHomeActivity": "Ask what a real monkey can do that their model cannot.",
           "isPublished": true,
-          "outlineSessionNumber": 14
+          "outlineSessionNumber": 14,
+          "content": "Copying an animal. The monkey model climbs and swings, which is a harder mechanical problem than rolling on wheels, and the session compares how a living thing moves with how a robot does."
         },
         {
           "sessionNumber": 7,
@@ -5256,14 +5324,15 @@
             "Program athletic motions"
           ],
           "task": "Research drawing bots",
-          "steamTopic": null,
+          "steamTopic": "Sport and the body",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1Xd1DIpY0-qPqKYxIj0F0u7tNIWbEJNXc/view",
           "parentSummary": "A sports robot, and a look at how robotics is used in real athletics — training aids, timing and analysis.",
           "parentHomeActivity": "Ask them how a robot could help someone get better at a sport.",
           "isPublished": true,
-          "outlineSessionNumber": 15
+          "outlineSessionNumber": 15,
+          "content": "Robotics in sport — the training aids, timing systems and analysis behind modern athletics — and a sports robot built and programmed to perform a movement of its own."
         },
         {
           "sessionNumber": 8,
@@ -5278,14 +5347,15 @@
             "Program geometric shapes"
           ],
           "task": "(None - celebration session)",
-          "steamTopic": null,
+          "steamTopic": "Art",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1cZt2_qHGfbQ4sgJ6-QFj31rBrH5sgwTX/view",
           "parentSummary": "The final build: a robot that draws. Your child programmed movement along two axes to produce geometric shapes, which is drawing by pure instruction. The session doubles as a celebration of the whole course.",
           "parentHomeActivity": "Ask it to draw you something, and keep it.",
           "isPublished": true,
-          "outlineSessionNumber": 16
+          "outlineSessionNumber": 16,
+          "content": "The final build is a drawing robot: movement along two axes, combined in the right order, produces a shape. Drawing by pure instruction, with nothing left to the hand. The session doubles as the course celebration."
         }
       ]
     },
@@ -5313,17 +5383,17 @@
           ],
           "activities": [
             "Create the basic structure of a portfolio website",
-            "Write a meaningful title and a short introduction using appropriate text tags",
-            "________________"
+            "Write a meaningful title and a short introduction using appropriate text tags"
           ],
-          "task": null,
+          "task": "Define a problem: pick a problem in your community and research it.",
           "steamTopic": "What is code and what is computer code?",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1yuI9eu-3Uf1olDXj9wqvRE8bhKIRKBj5/view",
           "parentSummary": "What a website actually is, the difference between what runs in your browser and what runs on a server, and the first HTML. Your child started the portfolio site they will build across the whole level.",
           "parentHomeActivity": "Ask them the difference between a browser and a website. Most adults get this wrong.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "What a website is and where it runs — the browser on your machine against the server it came from — and the split between frontend and backend. Then the first HTML: the doctype that declares the version, the head that holds information for machines, the body that holds what people see, and the text tags. The Engineering Design Process starts here too, one step per session, beginning with defining the problem."
         },
         {
           "sessionNumber": 2,
@@ -5339,17 +5409,17 @@
           "activities": [
             "Add a navigation menu using a list",
             "Add images and icons to the portfolio",
-            "Add an experience section using paragraphs, lists, or a table",
-            "________________"
+            "Add an experience section using paragraphs, lists, or a table"
           ],
-          "task": null,
+          "task": "Keep researching the problem you chose, and work out why it is a problem.",
           "steamTopic": "Understanding pixels and resolution",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1ms8vAyDBDHkQYlOcHqTm_90dn54BepqG/view",
           "parentSummary": "Links, images and buttons, and how attributes change what an element does. Your child added a navigation menu and an experience section to their portfolio.",
           "parentHomeActivity": "Ask them to show you their site so far and click through the menu.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Attributes, which change what an element does: href on a link, src and alt on an image, type and onclick on a button. Lists and tables give the page structure, and the same tags make a navigation menu and an experience section."
         },
         {
           "sessionNumber": 3,
@@ -5364,17 +5434,17 @@
           "activities": [
             "Add a button to view/download the CV",
             "Create a contact section using a form",
-            "Add navigational arrow buttons using images or icons",
-            "________________"
+            "Add navigational arrow buttons using images or icons"
           ],
-          "task": null,
+          "task": "Research the problem further — understand its causes and its consequences.",
           "steamTopic": "What is sound and how is it represented digitally",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1qmsunv_rRakywQnZ7W70l4S4jdcWOIgN/view",
           "parentSummary": "Video, audio, embedded maps and forms. Your child added a contact form and a CV download button to the portfolio.",
           "parentHomeActivity": "Fill in their contact form and ask what happens to what you typed.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Everything on a page that is not text: video, audio, and iframes for embedding a map or a video from elsewhere. Then forms — the input types for text, email, numbers, dates, checkboxes and radio buttons, and the attributes that name each field so the submitted data can be read."
         },
         {
           "sessionNumber": 4,
@@ -5392,17 +5462,17 @@
           "activities": [
             "Add class and ID attributes to structure elements in the portfolio",
             "Create an external CSS file and link it to the project",
-            "Begin styling selected components using CSS",
-            "________________"
+            "Begin styling selected components using CSS"
           ],
-          "task": null,
+          "task": "Start collecting what you need for your project, and save it on your computer.",
           "steamTopic": "Introduction to color theory",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1kEtJRLBBfLrl914lV0thdutxMgwRRoaL/view",
           "parentSummary": "CSS — the language that controls how a page looks, kept separate from the HTML that says what is on it. Your child set up a stylesheet and began styling the portfolio.",
           "parentHomeActivity": "Ask why the appearance is kept in a different file from the content.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "CSS, which controls how a page looks while HTML says what is on it. A rule picks an element with a selector and sets its properties. Class selectors, written with a dot, apply to many elements; id selectors, written with a hash, apply to one. Div and span group things so they can be styled together."
         },
         {
           "sessionNumber": 5,
@@ -5419,17 +5489,17 @@
           ],
           "activities": [
             "Apply a general style to the portfolio",
-            "Style the profile, about, experience, and contact sections individually using margins, paddings, and colors",
-            "________________"
+            "Style the profile, about, experience, and contact sections individually using margins, paddings, and colors"
           ],
-          "task": null,
+          "task": "Research solutions that would meet the requirements of your project.",
           "steamTopic": "Understanding the technology behind Microsoft Word and formatting logic",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1gSM8MmXJdb-T8yJ8vHDIFyF_3hMCf9bO/view",
           "parentSummary": "Choosing precisely which parts of a page to style, plus colours, backgrounds, spacing and hover effects. The portfolio starts looking designed rather than assembled.",
           "parentHomeActivity": "Hover over things on their site and see what reacts.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Making things look designed rather than default: border width, style, colour and radius; backgrounds, including how an image repeats or does not; and the spacing that separates one part of a page from another."
         },
         {
           "sessionNumber": 6,
@@ -5445,17 +5515,17 @@
           "activities": [
             "Update all text elements with appropriate font and text styles",
             "Apply different display options to structure layout",
-            "Add positioning to relevant sections (e.g., fixed navigation bar or sticky contact button)",
-            "________________"
+            "Add positioning to relevant sections (e.g., fixed navigation bar or sticky contact button)"
           ],
-          "task": null,
+          "task": "Start building a prototype — apply what you have learned to your own website.",
           "steamTopic": "Introduction to the Cartesian coordinate system",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1jAwaftvjWc7t0dg4bjxgeRAvy3lSQBg_/view",
           "parentSummary": "Typography and positioning — fonts, sizes, alignment, and how elements sit relative to one another. Layout is where most beginners struggle, so this session matters.",
           "parentHomeActivity": "Ask them to explain why one section sits beside another instead of below it.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Type and layout. Colour, horizontal and vertical alignment, and text direction control how words sit on the page; list styling controls the markers; and the display property decides whether an element takes a whole line or sits beside its neighbours."
         },
         {
           "sessionNumber": 7,
@@ -5469,17 +5539,17 @@
           ],
           "activities": [
             "Style and enhance the navigation bar (hover effects, spacing, colors)",
-            "Apply transitions and transforms to key elements (like buttons or image effects)",
-            "________________"
+            "Apply transitions and transforms to key elements (like buttons or image effects)"
           ],
-          "task": null,
+          "task": "Continue building your prototype.",
           "steamTopic": "Introduction to UI/UX Design principles (how users interact with interfaces)",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1lmbndTg5IpEIP6AWjiP5s7ale-o870gK/view",
           "parentSummary": "Interface design, and animation: smooth transitions, scaling and rotation. Your child polished the navigation bar and added movement to buttons.",
           "parentHomeActivity": "Ask them what makes a website feel good to use rather than just look good.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Tables styled properly — collapsed borders, rounded corners, alignment within cells — and transitions, which make a change happen over time instead of instantly. Applied to the navigation bar, which is where most users notice it. The STEM slot covers UI and UX design: how a thing looks against how it feels to use."
         },
         {
           "sessionNumber": 8,
@@ -5490,14 +5560,15 @@
             "Ensure the final site is structured, styled, and functional"
           ],
           "activities": [],
-          "task": null,
+          "task": "Share your website with your friends — upload it to GitHub or to Google Drive.",
           "steamTopic": "What is open source?",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1HnwkNk9PhK2-QsuuFY_2xr6okZV0_ALe/view",
           "parentSummary": "The portfolio is finished and pulled together — every technique from the first seven sessions in one site. Your child also learned what open source means.",
           "parentHomeActivity": "Ask for the full tour. This is the first substantial thing they have built.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The last step of the Engineering Design Process: share your findings. Students finish the EDP project they have been building since session one and put it somewhere other people can see it. The STEM slot looks at open source and how it changed what software is."
         },
         {
           "sessionNumber": 9,
@@ -5516,17 +5587,17 @@
             "Introduction to logging for output"
           ],
           "activities": [
-            "Create the HTML structure for a Quiz website",
-            "________________"
+            "Create the HTML structure for a Quiz website"
           ],
-          "task": null,
+          "task": "Research the difference between scripting and procedural programming languages.",
           "steamTopic": "What are variables?",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1a_Bl7abHaYgf2KD5yXrNM6AHGlueXwQM/view",
           "parentSummary": "JavaScript begins — the language that makes a page do things rather than just display them. Your child started building a quiz site.",
           "parentHomeActivity": "Ask them what the three web languages are for. Structure, appearance, behaviour.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "JavaScript, which makes a page do things rather than just show them. Variables are declared with var, let or const, with rules about what a name may contain, and the arithmetic operators work as expected. The quiz project that runs to the end of the level starts here."
         },
         {
           "sessionNumber": 10,
@@ -5539,17 +5610,17 @@
           "activities": [
             "Add logic and interactivity to the Quiz Website",
             "Use conditions to check answers and give feedback",
-            "Style the website using CSS",
-            "________________"
+            "Style the website using CSS"
           ],
-          "task": null,
+          "task": "Prepare a presentation about scripting programming languages.",
           "steamTopic": "What is a function in programming",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1P2ftFyjl9O9owDdAxe5RgOpYMISm0UZK/view",
           "parentSummary": "Conditions and functions in JavaScript, used to make the quiz check answers and respond.",
           "parentHomeActivity": "Take their quiz and get one wrong deliberately to see what it says.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Functions in JavaScript — a named block that runs when called — and conditions with if and else. The two combine to give the quiz project its logic, while the CSS from earlier sessions gives it its appearance."
         },
         {
           "sessionNumber": 11,
@@ -5564,17 +5635,17 @@
             "Using addEventListener"
           ],
           "activities": [
-            "Build an Interactive Color-Changing Game where clicking elements changes their colors dynamically",
-            "________________"
+            "Build an Interactive Color-Changing Game where clicking elements changes their colors dynamically"
           ],
-          "task": null,
+          "task": "Pick a problem in your community and research it.",
           "steamTopic": "Introduction to classical conditioning",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Hder7P_hgtfx58vLXuLC3cyBYDICSmem/view",
           "parentSummary": "How JavaScript reaches into a page and changes it while it is running, and how it responds to clicks. Your child built a colour-changing game.",
           "parentHomeActivity": "Play it and ask how the page changes without reloading.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The DOM: the page as a structure a program can reach into. Changing innerHTML replaces content, setting a style property restyles an element, and setAttribute changes an attribute — which is how a page responds to a click instead of reloading."
         },
         {
           "sessionNumber": 12,
@@ -5584,14 +5655,15 @@
             "Debugging and testing basic JS logic"
           ],
           "activities": [],
-          "task": null,
+          "task": "Pick a problem in your community and research it.",
           "steamTopic": "Online safety",
           "steamVideoUrls": [],
           "kahootUrl": null,
-          "materialUrl": null,
+          "materialUrl": "https://drive.google.com/file/d/1GXaWfJi0Nx3FpfuIfCosDwa_vF4A9ZBU/view",
           "parentSummary": "The level closes with debugging practice and a discussion of online safety and behaving well on the internet — a fitting end for people who can now build web pages themselves.",
           "parentHomeActivity": "Ask what responsibilities come with being able to build a website.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Putting loops, arrays and conditions together on a real calculation — averaging a set of scores and then judging the result — and a closing look at staying safe online."
         }
       ]
     },
@@ -5616,17 +5688,17 @@
             "Hobbies Website",
             "Animals Website",
             "Sports Website",
-            "Use HTML, CSS, and JS to apply all reviewed content",
-            "________________"
+            "Use HTML, CSS, and JS to apply all reviewed content"
           ],
-          "task": null,
+          "task": "Study the flashcards made in the session, and add more questions and answers to them.",
           "steamTopic": "Learning how to learn effectively",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1mz4btoh09zVH4LiZdRd4vaWKzwIlKknT/view",
           "parentSummary": "Level 2 opens with a recap project of your child's choosing, rebuilding everything from Level 1 in one site before moving on to harder material.",
           "parentHomeActivity": "Ask which theme they chose and why.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "A deliberate revision session, opening with why revision works at all. Everything from Level 1 is pulled back: the HTML document structure, CSS, and the DOM as the interface that lets a program change a page. Students then pick a topic — animals, sports or a hobby — for the project they build across the level."
         },
         {
           "sessionNumber": 2,
@@ -5636,17 +5708,17 @@
             "Common HTML Mistakes"
           ],
           "activities": [
-            "Restructure an old project using semantic HTML",
-            "________________"
+            "Restructure an old project using semantic HTML"
           ],
-          "task": null,
+          "task": "Look at Facebook's login page and draw a wireframe of it.",
           "steamTopic": "Introduction to Wireframes: What they are and why they matter",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/115VLPT-RctQee8J7Q0yPAprTsbbdbTCl/view",
           "parentSummary": "Writing HTML that describes what each part of a page means, not just how it looks. This is what lets screen readers and search engines make sense of a site. Your child also met wireframing.",
           "parentHomeActivity": "Ask how a blind person uses a website. Semantic HTML is a large part of the answer.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Planning a page before building it, the way a house gets a blueprint first. Semantic structure means choosing tags for what the content is rather than how it looks, and the session makes the case for the alt attribute on every image — for the people who cannot see it, and for when the image fails to load."
         },
         {
           "sessionNumber": 3,
@@ -5660,17 +5732,17 @@
             "Begin the Facebook Login Page Clone – Part 1",
             "Create the HTML structure",
             "Apply semantic layout",
-            "Begin styling with responsiveness in mind",
-            "________________"
+            "Begin styling with responsiveness in mind"
           ],
-          "task": null,
+          "task": "Research responsiveness principles and tools not covered in the session, to discuss next time.",
           "steamTopic": "What is a ratio?",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1qCRrEaQMrMTTYvG4awIZ5cX98YfkhVwA/view",
           "parentSummary": "Making a site work on any screen size. Your child started a Facebook login page clone, building it to adapt from phone to desktop.",
           "parentHomeActivity": "Open their page and resize the window. It should rearrange itself.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Making one page work on every screen. Media queries apply different styles at different widths, using the and, not and only keywords to say exactly when. The STEM slot covers aspect ratios — why there are black bars at the edges of some video."
         },
         {
           "sessionNumber": 4,
@@ -5682,17 +5754,17 @@
             "Continued practice with Media Queries for responsiveness"
           ],
           "activities": [
-            "Complete Facebook Login Page Clone – Part 2",
-            "________________"
+            "Complete Facebook Login Page Clone – Part 2"
           ],
-          "task": null,
+          "task": "Prepare a presentation on which responsive design principle you find most effective.",
           "steamTopic": "Understanding Hierarchy in Design",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1dCR88vspfx5hGfivN88AdpLEz0jPRTlD/view",
           "parentSummary": "Proper layout tools — grids and flexible boxes — which replace the awkward workarounds beginners rely on. The login clone was finished with them.",
           "parentHomeActivity": "Ask them to compare their new layout with how they would have done it in Level 1.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "CSS Grid, which lays a page out in rows and columns defined up front, with named areas, automatic sizing and gaps. The STEM slot covers visual hierarchy: how a design decides the order in which you read it, usually without you noticing."
         },
         {
           "sessionNumber": 5,
@@ -5705,17 +5777,17 @@
             "Transitions for smoother interactions"
           ],
           "activities": [
-            "Build an Art Gallery Website",
-            "________________"
+            "Build an Art Gallery Website"
           ],
-          "task": null,
+          "task": "Research animation tools such as Canva and how they differ, to discuss next time.",
           "steamTopic": "Creating digital presentations using Canva",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/14cBH7pr-3Bo_M-xyMzLfHWhPCx5TMzaR/view",
           "parentSummary": "Animation: keyframes, transitions and hover effects, applied to an art gallery site. Restraint matters here as much as capability.",
           "parentHomeActivity": "Ask them when an animation helps and when it just annoys.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "CSS animation. Keyframes describe what changes and when, and animation-fill-mode decides what the element looks like before it starts and after it ends. Applied to a page with a header, a hero section and a gallery."
         },
         {
           "sessionNumber": 6,
@@ -5728,17 +5800,17 @@
             "Colors and Buttons utilities"
           ],
           "activities": [
-            "Create a Travel Blog Website",
-            "________________"
+            "Create a Travel Blog Website"
           ],
-          "task": null,
+          "task": "Prepare a presentation about frontend frameworks for other programming languages.",
           "steamTopic": "Abstraction in Computing: Focusing on essentials and hiding unnecessary complexity",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1bb9Oh3hnXWd1TSPMnXwyTHbXO0kzYwcT/view",
           "parentSummary": "Bootstrap, a ready-made set of components, and the judgement of when to use someone else's work versus writing your own. Your child built a travel blog with it.",
           "parentHomeActivity": "Ask them what they gained by using Bootstrap, and what they gave up.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Abstraction — ignoring the detail that does not matter for the job in hand — and Bootstrap as an example of it: a framework of ready-made components and styles, against writing every rule yourself. One is faster, the other gives complete control."
         },
         {
           "sessionNumber": 7,
@@ -5749,17 +5821,17 @@
             "Destructuring in JavaScript for cleaner variable assignments"
           ],
           "activities": [
-            "Create a Quiz Game",
-            "________________"
+            "Create a Quiz Game"
           ],
-          "task": null,
+          "task": "Research why electrical wires are connected in series or in parallel, and what each is for.",
           "steamTopic": "Creative Coding",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1-fr0FWpkblqWq4iMWKwvK6GYNafUZGij/view",
           "parentSummary": "Modern JavaScript syntax — shorter ways of writing the same logic, and clearer rules about which values can change. Your child built a quiz game.",
           "parentHomeActivity": "Ask them to show you the old way and the new way of writing the same function.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "The three places JavaScript can run: in the browser console with F12, on your own machine through Node.js, or in an online editor. Students then build a quiz with cards, styling and logic of their own."
         },
         {
           "sessionNumber": 8,
@@ -5771,17 +5843,17 @@
             "Working with JavaScript Promises"
           ],
           "activities": [
-            "Build a Magic Website",
-            "________________"
+            "Build a Magic Website"
           ],
-          "task": null,
+          "task": "Prepare a presentation on how we protect our pages from cyber criminals.",
           "steamTopic": "Understanding Series vs. Parallel",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/153h2LqkLRyWRpmOgWW83DTAlBjtesb2q/view",
           "parentSummary": "Code that waits. Your child learned the difference between instructions that run in order and ones that carry on while something else finishes — the idea behind a page that stays responsive while loading.",
           "parentHomeActivity": "Ask why a website can stay usable while it is still loading something.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Why JavaScript does not freeze while it waits. The event loop is explained as a person working a to-do list: the call stack is what is being done now, web APIs are the helpers working in the background, and finished work joins a queue to be picked up — with urgent work jumping ahead."
         },
         {
           "sessionNumber": 9,
@@ -5797,34 +5869,34 @@
           "activities": [
             "Enhance the Facebook Clone Project",
             "Add validation and security-friendly code",
-            "Improve layout and ensure clean user interaction",
-            "________________"
+            "Improve layout and ensure clean user interaction"
           ],
-          "task": null,
+          "task": "Play the security game from the session, to discuss next time.",
           "steamTopic": "Introduction to Cookies and Cybersecurity Concepts",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1wXZt1TN1JbETDlgNW32v33WH2AxBV9av/view",
           "parentSummary": "Web security: the three goals every secure system aims at, how attacks get in through unchecked input, and why you never trust what a user types. Your child hardened the login clone.",
           "parentHomeActivity": "Ask them why a website should never trust what you type into it.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Web security. Confidentiality, integrity and availability as the three things being protected, and cross-site scripting as the worked example: an attacker leaves a script in a comment, and it runs in the browser of everyone who reads it. The defence is to never trust user input without cleaning it first."
         },
         {
           "sessionNumber": 10,
           "title": "SEO and Interactive Design",
           "keyConcepts": [],
           "activities": [
-            "Create an Interactive Product Showcase Website",
-            "________________"
+            "Create an Interactive Product Showcase Website"
           ],
-          "task": null,
+          "task": "Research version control systems, to discuss next time.",
           "steamTopic": "How Does SEO Work?",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/19bOZWlb9hdAA7LfPHG0UbfXJHDzZxqqi/view",
           "parentSummary": "How search engines find and rank a site, and what a developer can do about it. Your child built an interactive product showcase.",
           "parentHomeActivity": "Ask them what makes one page appear above another in search results.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Search engine optimisation — how a page ends up on the first results page rather than the tenth. The title tag and meta description are what a search engine shows, and heading tags give the content a hierarchy that both search engines and readers use."
         },
         {
           "sessionNumber": 11,
@@ -5837,17 +5909,17 @@
             "Key concepts: Repository, Branch, and Commit"
           ],
           "activities": [
-            "Create a Recipe Finder Website",
-            "________________"
+            "Create a Recipe Finder Website"
           ],
-          "task": null,
+          "task": "Build a small web project, push it to GitHub with Git, and bring the repository link next time.",
           "steamTopic": "Understanding IP Address and DNS",
           "steamVideoUrls": [],
           "kahootUrl": null,
           "materialUrl": "https://drive.google.com/file/d/1Va7uMBC-g0jo42NnwaLXF_MEY9qj3ruR/view",
           "parentSummary": "Version control with Git and GitHub — how professionals track changes and work together without overwriting each other. Your child started a recipe finder site.",
           "parentHomeActivity": "Ask them what a commit is. Saving with a note explaining what changed is close enough.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Version control. A commit is a snapshot with a note saying what changed, and a branch is a separate line of work that can be merged back — so an experiment does not put the working version at risk. The STEM slot covers IP addresses and DNS."
         },
         {
           "sessionNumber": 12,
@@ -5868,7 +5940,8 @@
           "materialUrl": "https://drive.google.com/file/d/19yiWghtYjIKj6pxDPfieMKoNxMzaGCEj/view",
           "parentSummary": "The course ends with deployment: your child published a website to the internet with a real address anyone can visit.",
           "parentHomeActivity": "Ask for the link. Their site is genuinely live, and that deserves a look.",
-          "isPublished": true
+          "isPublished": true,
+          "content": "Publishing. GitHub Pages hosts a site straight from a repository at no cost and with no server to manage, so pushing a change updates the live site. The course ends with each student's project actually online. The STEM slot covers the difference between HTTP and HTTPS."
         }
       ]
     }
