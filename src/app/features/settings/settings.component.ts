@@ -16,7 +16,7 @@ import { NotificationService } from '../../core/services/notification.service';
           Settings
         </h1>
         <p class="text-sm text-[var(--color-text-muted)] mt-1">
-          Application configuration and API management
+          Settings for this browser. They affect nobody else.
         </p>
       </div>
 
@@ -28,7 +28,9 @@ import { NotificationService } from '../../core/services/notification.service';
           </div>
           <div>
             <h2 class="settings-card__title">API Endpoint</h2>
-            <p class="settings-card__subtitle">Configure the backend API base URL</p>
+            <p class="settings-card__subtitle">
+              Which server this browser talks to. Stored on this device only.
+            </p>
           </div>
         </div>
 

@@ -123,7 +123,10 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'settings',
     label: 'Settings',
     icon: 'pi pi-cog',
-    roles: [Role.Admin],
+    // Nothing here is organisation data: the API endpoint, the connection
+    // check and the version are all per-browser. Keeping it admin-only meant
+    // anyone else testing against a different server was stuck.
+    roles: ALL_ROLES,
     showInMenu: true,
   },
 ];
