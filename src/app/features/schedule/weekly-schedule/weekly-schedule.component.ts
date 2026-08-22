@@ -137,7 +137,11 @@ export class WeeklyScheduleComponent {
   locationFilter = input<string>('');
   statusFilter = input<string>('');
   densityMode = input<DensityMode>('compact');
-  isAdmin = input<boolean>(false);
+  /**
+   * Whether a card names its instructor. Only useful when the view spans more
+   * than one of them — an instructor looking at their own week already knows.
+   */
+  showsInstructorName = input<boolean>(false);
 
   sessionSelected = output<ScheduleSession>();
 

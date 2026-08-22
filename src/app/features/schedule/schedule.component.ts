@@ -188,6 +188,19 @@ export class ScheduleComponent implements OnInit {
     return this.auth.hasRole(Role.Admin);
   }
 
+  get isSales(): boolean {
+    return this.auth.hasRole(Role.Sales);
+  }
+
+  /**
+   * Whether the user picks which instructor to look at. Instructors only ever
+   * see their own week; admin and sales need the whole board — sales to find a
+   * free slot, admin to run it.
+   */
+  get viewsAllInstructors(): boolean {
+    return this.isAdmin || this.isSales;
+  }
+
   get isInstructor(): boolean {
     return this.auth.hasRole(Role.Instructor);
   }
@@ -212,7 +225,7 @@ export class ScheduleComponent implements OnInit {
 
     this.loadInstructors();
 
-    if (!this.isAdmin) {
+    if (!this.viewsAllInstructors) {
       const userId = this.auth.getUserId();
       if (userId) {
         this.selectedInstructorId.set(userId);
@@ -291,7 +304,7 @@ export class ScheduleComponent implements OnInit {
           ...filtered,
         ];
         this.instructors.set(options);
-        if (this.isAdmin) {
+        if (this.viewsAllInstructors) {
           if (options.length > 0) {
             this.selectedInstructorId.set(options[0].id);
             this.loadSchedule();

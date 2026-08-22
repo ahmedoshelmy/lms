@@ -10,6 +10,8 @@
       <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
         @if (isAdmin) {
           Manage and view group schedules across instructors and locations
+        } @else if (isSales) {
+          Instructor schedules and where the free slots are
         } @else {
           Your teaching schedule
         }
@@ -224,8 +226,8 @@
         </p-select>
       }
 
-      <!-- Instructor filter (Admin only — instructors already see only their own sessions) -->
-      @if (isAdmin && uniqueInstructors().length > 0) {
+      <!-- Instructor filter: instructors already see only their own sessions -->
+      @if (viewsAllInstructors && uniqueInstructors().length > 0) {
         <p-select
           [options]="uniqueInstructors()"
           [ngModel]="instructorFilter()"
@@ -339,7 +341,7 @@
     <div class="flex justify-center items-center py-20">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
-  } @else if (isAdmin && instructors().length === 0) {
+  } @else if (viewsAllInstructors && instructors().length === 0) {
     <div
       class="flex flex-col items-center justify-center py-24 border border-dashed border-[var(--color-border)] rounded-2xl text-[var(--color-text-muted)] text-center"
     >
@@ -368,7 +370,7 @@
         [locationFilter]="locationFilter()"
         [statusFilter]="statusFilter()"
         [densityMode]="densityMode()"
-        [isAdmin]="isAdmin"
+        [showsInstructorName]="viewsAllInstructors"
         (sessionSelected)="onSessionSelected($event)"
       />
     } @else if (viewMode() === 'daily-schedule') {
@@ -389,7 +391,7 @@
         [sessions]="sessions()"
         [instructors]="instructors()"
         [currentWeekStart]="currentWeekStart()"
-        [isAdmin]="isAdmin"
+        [canPickInstructor]="viewsAllInstructors"
         (sessionSelected)="onSessionSelected($event)"
       />
     } @else if (viewMode() === 'analytics') {
@@ -421,11 +423,14 @@
 >
   <div class="space-y-4 py-2 text-xs">
     <p class="text-[var(--color-text-muted)]">
-      Cancelling a session allows you to optionally shift all remaining future sessions in this course forward by 1 week so student learning progression stays aligned.
+      Cancelling a session allows you to optionally shift all remaining future sessions in this
+      course forward by 1 week so student learning progression stays aligned.
     </p>
 
     <div>
-      <label class="block font-bold text-[var(--color-text-primary)] mb-1 uppercase tracking-wider text-[10px]">
+      <label
+        class="block font-bold text-[var(--color-text-primary)] mb-1 uppercase tracking-wider text-[10px]"
+      >
         Reason for Cancellation
       </label>
       <input
@@ -437,7 +442,9 @@
       />
     </div>
 
-    <div class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
+    <div
+      class="flex items-center gap-3 p-3 rounded-2xl bg-[var(--color-surface-secondary)] border border-[var(--color-border)]"
+    >
       <input
         type="checkbox"
         id="shiftCheckbox"
@@ -445,7 +452,10 @@
         (change)="shiftFutureSessions.set($any($event.target).checked)"
         class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] cursor-pointer"
       />
-      <label for="shiftCheckbox" class="cursor-pointer font-bold text-xs text-[var(--color-text-primary)]">
+      <label
+        for="shiftCheckbox"
+        class="cursor-pointer font-bold text-xs text-[var(--color-text-primary)]"
+      >
         Shift remaining course sessions forward by 1 week
       </label>
     </div>
@@ -482,4 +492,3 @@
   (close)="showStandaloneSessionModal.set(false)"
   (sessionCreated)="loadSchedule()"
 />
-

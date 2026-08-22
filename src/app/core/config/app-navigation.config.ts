@@ -1,7 +1,14 @@
 import { Role, parseRole } from '../interfaces/Role';
 import { MenuItem } from '../interfaces/MenuItem';
 
-export const ALL_ROLES: Role[] = [Role.Admin, Role.Instructor, Role.Student];
+/** Literally every role. A route using this is reachable by anyone signed in. */
+export const ALL_ROLES: Role[] = [Role.Admin, Role.Instructor, Role.Student, Role.Sales];
+
+/** Everyone who runs the schedule. */
+export const OPERATIONS_ROLES: Role[] = [Role.Admin, Role.Instructor];
+
+/** Sales proposes, operations disposes — both need the slot and hold screens. */
+export const SALES_ROLES: Role[] = [Role.Admin, Role.Sales];
 
 export interface RoutePermission {
   path: string;
@@ -23,7 +30,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'sessions',
     label: 'Session Detail',
     icon: 'pi pi-calendar',
-    roles: ALL_ROLES,
+    roles: [Role.Admin, Role.Instructor, Role.Student],
     showInMenu: false,
   },
   {
@@ -51,7 +58,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'groups',
     label: 'Groups',
     icon: 'pi pi-sitemap',
-    roles: [Role.Admin, Role.Instructor],
+    roles: OPERATIONS_ROLES,
     showInMenu: true,
   },
   {
@@ -111,8 +118,8 @@ export function getRolesForPath(path: string): Role[] {
 
 export function getMenuItemsForRole(rawRole: Role | unknown): MenuItem[] {
   const role = parseRole(rawRole);
-  return ROUTE_PERMISSIONS.filter((route) =>
-    route.showInMenu && route.roles.some((r) => parseRole(r) === role)
+  return ROUTE_PERMISSIONS.filter(
+    (route) => route.showInMenu && route.roles.some((r) => parseRole(r) === role)
   ).map(({ label, icon, roles, path }) => ({
     label,
     icon,

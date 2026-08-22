@@ -122,7 +122,10 @@
                 >
                   <!-- Conflict indicator flag -->
                   @if (isConflict(session)) {
-                    <div class="absolute right-2 top-2 text-rose-500 font-bold text-xs" title="Scheduling conflict detected">
+                    <div
+                      class="absolute right-2 top-2 text-rose-500 font-bold text-xs"
+                      title="Scheduling conflict detected"
+                    >
                       <i class="pi pi-exclamation-circle"></i>
                     </div>
                   }
@@ -130,7 +133,9 @@
                   <div>
                     <!-- Top Row: Time Hero + Session Progress -->
                     <div class="flex items-center justify-between gap-1 mb-1.5">
-                      <div class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]">
+                      <div
+                        class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]"
+                      >
                         <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
                         <span>{{ formatTime(session.startsAt) }}</span>
                       </div>
@@ -147,13 +152,19 @@
                     </div>
 
                     <!-- Topic / Course Title -->
-                    <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
+                    <h4
+                      class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate"
+                    >
                       {{ getSessionDisplayTopic(session) }}
                     </h4>
 
                     <!-- Group Code & Location -->
-                    <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">
-                      <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
+                    <div
+                      class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]"
+                    >
+                      <span class="text-[var(--color-secondary)] font-extrabold">{{
+                        session.groupName
+                      }}</span>
                       @if (session.location) {
                         <span>•</span>
                         <span>{{ session.location }}</span>
@@ -161,8 +172,10 @@
                     </div>
 
                     <!-- Instructor (Admin View) -->
-                    @if (isAdmin() && session.instructorName) {
-                      <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]">
+                    @if (showsInstructorName() && session.instructorName) {
+                      <div
+                        class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]"
+                      >
                         <i class="pi pi-user text-[9px] text-[var(--color-secondary)]"></i>
                         <span class="truncate">{{ session.instructorName }}</span>
                       </div>
@@ -170,14 +183,21 @@
                   </div>
 
                   <!-- Footer Row: Visual Attendance Status Indicator -->
-                  <div class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1">
+                  <div
+                    class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1"
+                  >
                     @let att = getAttendanceBadge(session);
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border"
+                      [ngClass]="att.css"
+                    >
                       <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
                       {{ att.label }}
                     </span>
 
-                    <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"></i>
+                    <i
+                      class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"
+                    ></i>
                   </div>
                 </div>
               } @empty {
@@ -252,7 +272,7 @@
                       <p class="text-[9px] text-[var(--color-text-muted)]">
                         {{ formatTime(session.startsAt) }} – {{ formatTime(session.endsAt) }}
                       </p>
-                      @if (isAdmin() && session.instructorName) {
+                      @if (showsInstructorName() && session.instructorName) {
                         <p class="text-[9px] font-semibold truncate" [style.color]="cat.color">
                           {{ session.instructorName }}
                         </p>
@@ -309,14 +329,19 @@
               [style.border-left-width]="'4px'"
             >
               @if (isConflict(session)) {
-                <div class="absolute right-2 top-2 text-rose-500 font-bold text-xs" title="Scheduling conflict detected">
+                <div
+                  class="absolute right-2 top-2 text-rose-500 font-bold text-xs"
+                  title="Scheduling conflict detected"
+                >
                   <i class="pi pi-exclamation-circle"></i>
                 </div>
               }
 
               <div>
                 <div class="flex items-center justify-between gap-1 mb-1.5">
-                  <div class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]">
+                  <div
+                    class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]"
+                  >
                     <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
                     <span>{{ formatTime(session.startsAt) }}</span>
                   </div>
@@ -332,34 +357,49 @@
                   }
                 </div>
 
-                <h4 class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate">
+                <h4
+                  class="text-xs font-black text-[var(--color-text-primary)] leading-tight group-hover/session:text-[var(--color-secondary)] transition-colors truncate"
+                >
                   {{ getSessionDisplayTopic(session) }}
                 </h4>
 
-                <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]">
-                  <span class="text-[var(--color-secondary)] font-extrabold">{{ session.groupName }}</span>
+                <div
+                  class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-muted)]"
+                >
+                  <span class="text-[var(--color-secondary)] font-extrabold">{{
+                    session.groupName
+                  }}</span>
                   @if (session.location) {
                     <span>•</span>
                     <span>{{ session.location }}</span>
                   }
                 </div>
 
-                @if (isAdmin() && session.instructorName) {
-                  <div class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]">
+                @if (showsInstructorName() && session.instructorName) {
+                  <div
+                    class="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-[var(--color-text-secondary)]"
+                  >
                     <i class="pi pi-user text-[9px] text-[var(--color-secondary)]"></i>
                     <span class="truncate">{{ session.instructorName }}</span>
                   </div>
                 }
               </div>
 
-              <div class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1">
+              <div
+                class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1"
+              >
                 @let att = getAttendanceBadge(session);
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border" [ngClass]="att.css">
+                <span
+                  class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border"
+                  [ngClass]="att.css"
+                >
                   <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
                   {{ att.label }}
                 </span>
 
-                <i class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"></i>
+                <i
+                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"
+                ></i>
               </div>
             </div>
           } @empty {

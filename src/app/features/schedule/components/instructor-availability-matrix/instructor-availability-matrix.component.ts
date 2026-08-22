@@ -32,7 +32,7 @@ export interface TimeSlot {
             Instructor weekly schedule & availability
           </h3>
           <p class="text-xs text-[var(--color-text-muted)]">
-            @if (isAdmin()) {
+            @if (canPickInstructor()) {
               View weekly workload and availability for an individual instructor
             } @else {
               Your weekly workload and availability for this week
@@ -41,7 +41,7 @@ export interface TimeSlot {
         </div>
 
         <!-- Instructor Filter Dropdown — Admin only -->
-        @if (isAdmin()) {
+        @if (canPickInstructor()) {
           <div class="flex items-center gap-2">
             <label class="text-xs font-semibold text-[var(--color-text-secondary)]">
               Select Instructor:
@@ -183,7 +183,12 @@ export class InstructorAvailabilityMatrixComponent {
   sessions = input<ScheduleSession[]>([]);
   instructors = input<User[]>([]);
   currentWeekStart = input<Date>(new Date());
-  isAdmin = input<boolean>(false);
+  /**
+   * Whether this user chooses which instructor to look at. True for admin and
+   * for sales, who need the whole board to find a free slot; false for an
+   * instructor, who only ever sees their own week.
+   */
+  canPickInstructor = input<boolean>(false);
 
   sessionSelected = output<ScheduleSession>();
 

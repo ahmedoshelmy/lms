@@ -51,6 +51,7 @@ export class SidebarComponent {
     const role = this.currentUser()?.role;
     if (role === Role.Admin) return 'pi pi-shield';
     if (role === Role.Instructor) return 'pi pi-user-edit';
+    if (role === Role.Sales) return 'pi pi-briefcase';
     return 'pi pi-graduation-cap';
   });
 

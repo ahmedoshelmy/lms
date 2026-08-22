@@ -129,9 +129,7 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
     this.lmsService.createStandaloneSession(payload).subscribe({
       next: (created) => {
         this.submitting.set(false);
-        this.notify.showSuccess(
-          `Standalone session "${created.topic}" created successfully.`
-        );
+        this.notify.showSuccess(`Standalone session "${created.topic}" created successfully.`);
         this.resetForm();
         this.sessionCreated.emit();
         this.close.emit();
