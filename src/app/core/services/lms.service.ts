@@ -303,6 +303,11 @@ export class LmsService {
     );
   }
 
+  /** Moves unmarked past sessions forward onto the group's pattern. Admin only. */
+  rescheduleOverdueSessions(groupId: number): Observable<Group> {
+    return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/reschedule-overdue`, {});
+  }
+
   updateGroupSchedule(groupId: number, payload: UpdateGroupSchedulePayload): Observable<Group> {
     return this.http.put<Group>(`${this.getApiUrl()}/groups/${groupId}/schedule`, payload);
   }

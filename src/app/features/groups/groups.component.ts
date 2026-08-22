@@ -118,6 +118,39 @@ export class GroupsComponent implements OnInit {
     this.stalledGroups().filter((g) => g.stalledReason === 'Owed')
   );
 
+  /**
+   * Groups dragging unmarked classes behind them. Counted separately from the
+   * stalled list because a group can be running perfectly well and still have a
+   * fortnight of registers nobody took.
+   */
+  readonly groupsWithOverdue = computed(() =>
+    this.groups()
+      .filter((g) => (g.overdueSessions ?? 0) > 0)
+      .sort((a, b) => (b.overdueSessions ?? 0) - (a.overdueSessions ?? 0))
+  );
+
+  readonly overdueTotal = computed(() =>
+    this.groupsWithOverdue().reduce((n, g) => n + (g.overdueSessions ?? 0), 0)
+  );
+
+  readonly showOverdue = signal(false);
+
+  /** Moves classes that never happened forward onto the group's pattern. */
+  rescheduleOverdue(group: Group): void {
+    this.saving.set(true);
+    this.lmsService.rescheduleOverdueSessions(group.id).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.loadGroups();
+        this.loadSchedule();
+        this.notify.showSuccess(
+          `${group.name}: ${group.overdueSessions} moved to the next free slots.`
+        );
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
   readonly showStalled = signal(false);
 
   /** Creates what a group is owed, putting it back on the schedule. */

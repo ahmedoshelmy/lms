@@ -189,3 +189,35 @@
     border-color: var(--color-secondary);
   }
 }
+
+/* Unmarked classes: a quieter problem than a stalled group, so a quieter panel. */
+.overdue {
+  margin-bottom: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.overdue__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 12px 15px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.overdue__title {
+  flex: 1;
+}

@@ -258,7 +258,16 @@
                   {{ stalledCopy[group.stalledReason!].fix }}
                 </span>
 
-                @if (group.stalledReason === 'Owed') {
+                @if (group.stalledReason === 'Overdue') {
+                  <button
+                    type="button"
+                    class="stalled__action"
+                    [disabled]="saving()"
+                    (click)="rescheduleOverdue(group)"
+                  >
+                    Move {{ group.overdueSessions }} forward
+                  </button>
+                } @else if (group.stalledReason === 'Owed') {
                   <button
                     type="button"
                     class="stalled__action"
@@ -282,6 +291,50 @@
                     Open
                   </button>
                 }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- A running group can look healthy and still be dragging a fortnight of
+         registers nobody took, so this is counted separately. -->
+    @if (groupsWithOverdue().length) {
+      <div class="overdue">
+        <button type="button" class="overdue__head" (click)="showOverdue.set(!showOverdue())">
+          <i class="pi pi-clock"></i>
+          <span class="overdue__title">
+            {{ overdueTotal() }} {{ overdueTotal() === 1 ? 'session has' : 'sessions have' }} passed
+            without being marked, across {{ groupsWithOverdue().length }}
+            {{ groupsWithOverdue().length === 1 ? 'group' : 'groups' }}
+          </span>
+          <i
+            class="pi"
+            [class.pi-chevron-down]="!showOverdue()"
+            [class.pi-chevron-up]="showOverdue()"
+          ></i>
+        </button>
+
+        @if (showOverdue()) {
+          <div class="stalled__list">
+            @for (group of groupsWithOverdue(); track group.id) {
+              <div class="stalled__row">
+                <button type="button" class="stalled__name" (click)="viewGroupDetails(group)">
+                  {{ group.name }}
+                </button>
+                <span class="stalled__reason"> {{ group.overdueSessions }} unmarked </span>
+                <span class="stalled__fix">
+                  Take the register if they happened, or move them forward if they did not.
+                </span>
+                <button
+                  type="button"
+                  class="stalled__action"
+                  [disabled]="saving()"
+                  (click)="rescheduleOverdue(group)"
+                >
+                  Move forward
+                </button>
               </div>
             }
           </div>

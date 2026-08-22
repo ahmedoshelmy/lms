@@ -49,9 +49,13 @@ export interface GroupSchedule {
  * Three causes wanting three different answers, which is why the group says
  * which one rather than leaving operations to work it out.
  */
-export type StalledReason = 'Finished' | 'NoCourse' | 'NoSchedule' | 'Owed';
+export type StalledReason = 'Overdue' | 'Finished' | 'NoCourse' | 'NoSchedule' | 'Owed';
 
 export const STALLED_COPY: Record<StalledReason, { title: string; fix: string }> = {
+  Overdue: {
+    title: 'Sessions never marked',
+    fix: 'Classes sit in the past still marked scheduled. Take the register if they happened, or move them forward if they did not.',
+  },
   Finished: {
     title: 'Course taught out',
     fix: 'Every session has been taught. Mark the group completed.',
@@ -85,6 +89,8 @@ export interface Group {
   stalledReason?: StalledReason | null;
   sessionsOwed?: number | null;
   nextSessionAt?: string | null;
+  /** Past their date and still marked scheduled. Counted on every group. */
+  overdueSessions?: number;
   students?: GroupStudent[];
   schedules?: GroupSchedule[];
   courses: GroupCourse[];
