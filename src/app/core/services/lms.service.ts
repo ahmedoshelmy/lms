@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { Role } from '../interfaces/Role';
 import { AttendanceStatus } from '../enums/AttendanceStatus';
@@ -365,9 +366,15 @@ export class LmsService {
    * the session's group course. Standalone trial and makeup sessions belong to
    * no curriculum and return 404.
    */
+  /**
+   * A 404 here is ordinary rather than broken: a trial or makeup session belongs
+   * to no curriculum, and a level may not have that session written up. The
+   * caller renders nothing, so the interceptor should stay quiet about it.
+   */
   getSessionSyllabus(sessionId: number): Observable<SessionSyllabus> {
     return this.http.get<SessionSyllabus>(
-      `${this.getApiUrl()}/Schedule/sessions/${sessionId}/syllabus`
+      `${this.getApiUrl()}/Schedule/sessions/${sessionId}/syllabus`,
+      { context: new HttpContext().set(SILENT_STATUSES, [404]) }
     );
   }
 
