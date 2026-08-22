@@ -95,6 +95,44 @@ export interface TimeSlot {
               }}</span>
               <span class="text-[10px] text-[var(--color-text-muted)]">Available Slots</span>
             </div>
+
+            <!-- Hours against the limit, which is what says whether this
+                 instructor can take another group. -->
+            <div
+              class="px-3 py-1 bg-[var(--color-surface)] rounded border"
+              [class.border-[var(--color-border)]]="!isOverCapacity()"
+              [class.border-[var(--color-warning-foreground)]]="isOverCapacity()"
+            >
+              <div class="flex items-baseline gap-1 justify-center">
+                <span
+                  class="font-bold text-sm"
+                  [class.text-[var(--color-warning-foreground)]]="isOverCapacity()"
+                  >{{ weeklyHours() }}</span
+                >
+                @if (capacityHours()) {
+                  <span class="text-[10px] text-[var(--color-text-muted)]"
+                    >/ {{ capacityHours() }}h</span
+                  >
+                }
+              </div>
+              <span class="text-[10px] text-[var(--color-text-muted)]">
+                @if (capacityHours()) {
+                  Hours this week
+                } @else {
+                  Hours this week &middot; no limit set
+                }
+              </span>
+              @if (capacityHours()) {
+                <div class="mt-1 h-1 w-full rounded-full bg-[var(--color-surface-secondary)]">
+                  <div
+                    class="h-full rounded-full"
+                    [class.bg-[var(--color-primary)]]="!isOverCapacity()"
+                    [class.bg-[var(--color-warning-foreground)]]="isOverCapacity()"
+                    [style.width.%]="capacityUsedPercent()"
+                  ></div>
+                </div>
+              }
+            </div>
           </div>
         </div>
       }
@@ -298,6 +336,50 @@ export class InstructorAvailabilityMatrixComponent {
       }
     }
     return count;
+  });
+
+  /**
+   * Hours actually taught this week, from the sessions themselves rather than
+   * from counting grid cells — a session can be 90 minutes, and the grid is
+   * hourly.
+   */
+  readonly weeklyHours = computed(() => {
+    const inst = this.selectedInstructor();
+    if (!inst) return 0;
+
+    const days = this.weekDays().map((d) => d.date.toDateString());
+    const minutes = this.sessions()
+      .filter((s) => {
+        if (!s.startsAt || s.instructorId !== inst.id) return false;
+        if ((s.status ?? '').toLowerCase().includes('cancel')) return false;
+        return days.includes(new Date(s.startsAt).toDateString());
+      })
+      .reduce((total, s) => {
+        const start = new Date(s.startsAt).getTime();
+        const end = s.endsAt
+          ? new Date(s.endsAt).getTime()
+          : start + (s.durationMinutes || 90) * 60000;
+        return total + Math.max(0, end - start) / 60000;
+      }, 0);
+
+    return Math.round((minutes / 60) * 10) / 10;
+  });
+
+  /** The agreed weekly limit in hours, or null where none is set. */
+  readonly capacityHours = computed(() => {
+    const minutes = this.selectedInstructor()?.weeklyCapacityMinutes;
+    return minutes ? Math.round((minutes / 60) * 10) / 10 : null;
+  });
+
+  readonly capacityUsedPercent = computed(() => {
+    const capacity = this.capacityHours();
+    if (!capacity) return 0;
+    return Math.min(100, Math.round((this.weeklyHours() / capacity) * 100));
+  });
+
+  readonly isOverCapacity = computed(() => {
+    const capacity = this.capacityHours();
+    return !!capacity && this.weeklyHours() > capacity;
   });
 
   readonly weeklyFreeCount = computed(() => {

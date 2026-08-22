@@ -77,6 +77,9 @@ export class AvailabilityComponent implements OnInit {
   readonly draft = signal<AvailabilityWindowInput[]>([]);
   readonly editing = signal(false);
 
+  readonly capacityDraft = signal<number | null>(null);
+  readonly editingCapacity = signal(false);
+
   readonly showTimeOffDialog = signal(false);
   readonly showSlotDialog = signal(false);
   readonly showDecisionDialog = signal(false);
@@ -278,6 +281,44 @@ export class AvailabilityComponent implements OnInit {
     this.lms.getAvailabilityRequests().subscribe({
       next: (requests) => this.requests.set(requests || []),
       error: () => this.requests.set([]),
+    });
+  }
+
+  /** The agreed weekly limit for the selected instructor, in hours. */
+  readonly capacityHours = computed(() => {
+    const minutes = this.selectedInstructor()?.weeklyCapacityMinutes;
+    return minutes ? Math.round((minutes / 60) * 10) / 10 : null;
+  });
+
+  startEditingCapacity(): void {
+    this.capacityDraft.set(this.capacityHours());
+    this.editingCapacity.set(true);
+  }
+
+  saveCapacity(): void {
+    const instructorId = this.selectedInstructorId();
+    if (!instructorId) return;
+
+    const hours = this.capacityDraft();
+    this.saving.set(true);
+    this.lms.setInstructorCapacity(instructorId, hours && hours > 0 ? hours : null).subscribe({
+      next: () => {
+        // Kept on the instructor record, so the local copy has to move with it
+        // or the gauge keeps showing the old number.
+        this.instructors.update((list) =>
+          list.map((i) =>
+            i.id === instructorId
+              ? { ...i, weeklyCapacityMinutes: hours && hours > 0 ? Math.round(hours * 60) : null }
+              : i
+          )
+        );
+        this.editingCapacity.set(false);
+        this.saving.set(false);
+        this.notify.showSuccess(
+          hours && hours > 0 ? `Limit set to ${hours} hours a week.` : 'Weekly limit removed.'
+        );
+      },
+      error: () => this.saving.set(false),
     });
   }
 

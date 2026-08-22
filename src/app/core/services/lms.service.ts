@@ -504,6 +504,14 @@ export class LmsService {
     );
   }
 
+  /** Admin only. Hours a week, or null to remove the limit. */
+  setInstructorCapacity(instructorId: number, weeklyHours: number | null): Observable<void> {
+    return this.http.put<void>(
+      `${this.getApiUrl()}/Availability/instructors/${instructorId}/capacity`,
+      { weeklyHours }
+    );
+  }
+
   getTimeOff(instructorId?: number, from?: string, to?: string): Observable<InstructorTimeOff[]> {
     const params: string[] = [];
     if (instructorId) params.push(`instructorId=${instructorId}`);

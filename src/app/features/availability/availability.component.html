@@ -123,7 +123,52 @@
         </select>
       }
 
-      <span class="panel__meta">{{ weeklyHours() }} hours a week</span>
+      <span class="panel__meta">{{ weeklyHours() }} hours declared</span>
+
+      <!-- Declared hours are when they could teach; the limit is how much of it
+           to fill. Two different numbers, side by side on purpose. -->
+      @if (editingCapacity()) {
+        <span class="cap cap--edit">
+          <input
+            type="number"
+            class="input input--cap"
+            min="1"
+            max="60"
+            step="0.5"
+            placeholder="No limit"
+            [ngModel]="capacityDraft()"
+            (ngModelChange)="capacityDraft.set($event === '' || $event === null ? null : +$event)"
+          />
+          <span class="cap__unit">h/week limit</span>
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="saving()"
+            (click)="saveCapacity()"
+          >
+            Save
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="editingCapacity.set(false)">
+            Cancel
+          </button>
+        </span>
+      } @else {
+        <button
+          type="button"
+          class="cap"
+          [class.cap--unset]="!capacityHours()"
+          [disabled]="!isAdmin()"
+          [title]="isAdmin() ? 'Set the weekly teaching limit' : 'Set by operations'"
+          (click)="startEditingCapacity()"
+        >
+          <i class="pi pi-gauge"></i>
+          @if (capacityHours()) {
+            {{ capacityHours() }}h a week limit
+          } @else {
+            No weekly limit
+          }
+        </button>
+      }
 
       @if (unaccountedTotal() > 0 && !editing()) {
         <span class="panel__flag" title="Sessions taught outside any declared window">

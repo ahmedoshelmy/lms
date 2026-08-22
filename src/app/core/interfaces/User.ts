@@ -14,6 +14,8 @@ export interface User {
   groupName?: string;
   groupId?: number;
   createdAt?: string;
+  /** Instructors only: the most they should teach in a week, in minutes. */
+  weeklyCapacityMinutes?: number | null;
 }
 
 export interface CreateUserPayload {
