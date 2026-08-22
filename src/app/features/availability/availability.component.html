@@ -1,0 +1,565 @@
+<div class="avail-page">
+  <header class="avail-head">
+    <div>
+      <h1 class="avail-head__title">Availability</h1>
+      <p class="avail-head__sub">
+        @if (isAdmin()) {
+          Who works when, the leave they have booked, and the requests waiting on you.
+        } @else if (isSales()) {
+          When each instructor is free. If a customer needs an hour nobody covers, ask for it.
+        } @else {
+          Your weekly hours and time off. Changes go to operations for approval.
+        }
+      </p>
+    </div>
+
+    <div class="avail-head__actions">
+      @if (isSales() || isAdmin()) {
+        <button type="button" class="btn btn--ghost" (click)="openSlotDialog()">
+          <i class="pi pi-plus-circle"></i> Request a slot
+        </button>
+      }
+      @if (isInstructor() || isAdmin()) {
+        <button type="button" class="btn btn--ghost" (click)="openTimeOffDialog()">
+          <i class="pi pi-calendar-times"></i> Request time off
+        </button>
+      }
+    </div>
+  </header>
+
+  <!-- ── Pending requests ──────────────────────────────────────────────── -->
+  @if (pendingRequests().length) {
+    <section class="panel panel--queue">
+      <div class="panel__head">
+        <h2 class="panel__title">
+          @if (isAdmin()) {
+            Waiting for a decision
+          } @else {
+            Your open requests
+          }
+        </h2>
+        <span class="pill pill--pending">{{ pendingRequests().length }}</span>
+      </div>
+
+      <div class="req-list">
+        @for (req of pendingRequests(); track req.id) {
+          <article class="req">
+            <div class="req__main">
+              <div class="req__line">
+                <span class="tag tag--{{ req.type }}">{{ typeLabels[req.type] }}</span>
+                <strong>{{ req.instructorName }}</strong>
+                @if (req.requestedById !== req.instructorId) {
+                  <span class="req__by">asked by {{ req.requestedByName }}</span>
+                }
+              </div>
+
+              <p class="req__detail">
+                @if (req.type === 'TimeOff') {
+                  {{ req.fromDate }}
+                  @if (req.toDate !== req.fromDate) {
+                    → {{ req.toDate }}
+                  }
+                  @if (req.startTime) {
+                    &middot; {{ shortTime(req.startTime) }}–{{ shortTime(req.endTime) }}
+                  } @else {
+                    &middot; whole day
+                  }
+                } @else {
+                  @for (w of req.windows; track $index) {
+                    <span class="chip">{{ describeWindow(w) }}</span>
+                  }
+                  @if (req.fromDate) {
+                    <span class="req__from">from {{ req.fromDate }}</span>
+                  }
+                }
+              </p>
+
+              <p class="req__reason">{{ req.reason }}</p>
+
+              @if (req.conflictingSessionCount > 0) {
+                <p class="req__warn">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  {{ req.conflictingSessionCount }}
+                  {{ req.conflictingSessionCount === 1 ? 'session is' : 'sessions are' }}
+                  already scheduled in this period.
+                </p>
+              }
+            </div>
+
+            <div class="req__actions">
+              @if (isAdmin()) {
+                <button type="button" class="btn btn--ok" (click)="openDecision(req, true)">
+                  Approve
+                </button>
+                <button type="button" class="btn btn--no" (click)="openDecision(req, false)">
+                  Reject
+                </button>
+              } @else if (canWithdraw(req)) {
+                <button type="button" class="btn btn--ghost" (click)="withdraw(req)">
+                  Withdraw
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── The week ──────────────────────────────────────────────────────── -->
+  <section class="panel">
+    <div class="panel__head">
+      <h2 class="panel__title">Weekly hours</h2>
+
+      @if (isAdmin() || isSales()) {
+        <select
+          class="input input--select"
+          [ngModel]="selectedInstructorId()"
+          (ngModelChange)="onInstructorChange(+$event)"
+        >
+          @for (inst of instructors(); track inst.id) {
+            <option [value]="inst.id">{{ inst.name }}</option>
+          }
+        </select>
+      }
+
+      <span class="panel__meta">{{ weeklyHours() }} hours a week</span>
+
+      <div class="panel__actions">
+        @if (editing()) {
+          <button type="button" class="btn btn--ghost" (click)="cancelEditing()">Cancel</button>
+          @if (isAdmin()) {
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="!!draftError() || saving()"
+              (click)="saveWeek()"
+            >
+              Save
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="!!draftError() || saving()"
+              (click)="proposeWeek()"
+            >
+              Send for approval
+            </button>
+          }
+        } @else if (isAdmin() || isInstructor()) {
+          <button type="button" class="btn btn--ghost" (click)="startEditing()">
+            <i class="pi pi-pencil"></i>
+            {{ isAdmin() ? 'Edit' : 'Propose a change' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (draftError()) {
+      <p class="panel__error"><i class="pi pi-exclamation-circle"></i> {{ draftError() }}</p>
+    }
+
+    @if (loading()) {
+      <div class="loading">
+        <p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" />
+      </div>
+    } @else {
+      <div class="week">
+        @for (day of weekGrid(); track day.day) {
+          <div class="day" [class.day--off]="!day.windows.length">
+            <div class="day__name">{{ day.name }}</div>
+
+            <div class="day__windows">
+              @for (w of day.windows; track $index) {
+                @if (editing()) {
+                  <div class="win win--edit">
+                    <select
+                      class="input input--time"
+                      [ngModel]="w.startTime"
+                      (ngModelChange)="updateWindow(day.day, $index, 'startTime', $event)"
+                    >
+                      @for (t of timeOptions; track t) {
+                        <option [value]="t">{{ t }}</option>
+                      }
+                    </select>
+                    <span class="win__dash">–</span>
+                    <select
+                      class="input input--time"
+                      [ngModel]="w.endTime"
+                      (ngModelChange)="updateWindow(day.day, $index, 'endTime', $event)"
+                    >
+                      @for (t of timeOptions; track t) {
+                        <option [value]="t">{{ t }}</option>
+                      }
+                    </select>
+                    <select
+                      class="input input--room"
+                      [ngModel]="w.roomId"
+                      (ngModelChange)="updateWindow(day.day, $index, 'roomId', $event)"
+                    >
+                      <option [ngValue]="null">Any room</option>
+                      @for (room of rooms(); track room.id) {
+                        <option [ngValue]="room.id">{{ room.name }}</option>
+                      }
+                    </select>
+                    <button
+                      type="button"
+                      class="win__remove"
+                      (click)="removeWindow(day.day, $index)"
+                      aria-label="Remove this window"
+                    >
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="win">
+                    <span class="win__time">{{ w.startTime }}–{{ w.endTime }}</span>
+                    <span class="win__room">{{ roomName(w.roomId) }}</span>
+                  </div>
+                }
+              }
+
+              @if (editing()) {
+                <button type="button" class="day__add" (click)="addWindow(day.day)">
+                  <i class="pi pi-plus"></i> Add
+                </button>
+              } @else if (!day.windows.length) {
+                <span class="day__none">Not working</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ── Booked leave ──────────────────────────────────────────────────── -->
+  @if (timeOff().length) {
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Booked time off</h2>
+      </div>
+      <div class="off-list">
+        @for (off of timeOff(); track off.id) {
+          <div class="off">
+            <span class="off__dates">
+              {{ off.fromDate }}
+              @if (off.toDate !== off.fromDate) {
+                → {{ off.toDate }}
+              }
+            </span>
+            <span class="off__when">
+              @if (off.startTime) {
+                {{ shortTime(off.startTime) }}–{{ shortTime(off.endTime) }}
+              } @else {
+                Whole day
+              }
+            </span>
+            @if (off.reason) {
+              <span class="off__reason">{{ off.reason }}</span>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ── Decided requests ──────────────────────────────────────────────── -->
+  @if (decidedRequests().length) {
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Recent decisions</h2>
+      </div>
+      <div class="req-list">
+        @for (req of decidedRequests().slice(0, 10); track req.id) {
+          <article class="req req--decided">
+            <div class="req__main">
+              <div class="req__line">
+                <span class="tag tag--{{ req.type }}">{{ typeLabels[req.type] }}</span>
+                <strong>{{ req.instructorName }}</strong>
+                <span class="pill pill--{{ req.status }}">{{ req.status }}</span>
+              </div>
+              <p class="req__reason">{{ req.reason }}</p>
+              @if (req.decisionNote) {
+                <p class="req__note">
+                  <strong>{{ req.decidedByName }}:</strong> {{ req.decisionNote }}
+                </p>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</div>
+
+<!-- ── Time off dialog ─────────────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showTimeOffDialog"
+  header="Request time off"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="form">
+    @if (isAdmin() && selectedInstructor()) {
+      <p class="form__for">
+        For <strong>{{ selectedInstructor()!.name }}</strong>
+      </p>
+    }
+
+    <label class="field">
+      <span class="field__label">From</span>
+      <input
+        type="date"
+        class="input"
+        [ngModel]="timeOffForm().fromDate"
+        (ngModelChange)="timeOffForm.set({ ...timeOffForm(), fromDate: $event })"
+      />
+    </label>
+
+    <label class="field">
+      <span class="field__label">To</span>
+      <input
+        type="date"
+        class="input"
+        [ngModel]="timeOffForm().toDate"
+        (ngModelChange)="timeOffForm.set({ ...timeOffForm(), toDate: $event })"
+      />
+    </label>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [ngModel]="timeOffForm().partial"
+        (ngModelChange)="timeOffForm.set({ ...timeOffForm(), partial: $event })"
+      />
+      <span>Only part of the day</span>
+    </label>
+
+    @if (timeOffForm().partial) {
+      <div class="field field--row">
+        <select
+          class="input input--time"
+          [ngModel]="timeOffForm().startTime"
+          (ngModelChange)="timeOffForm.set({ ...timeOffForm(), startTime: $event })"
+        >
+          @for (t of timeOptions; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+        <span class="win__dash">–</span>
+        <select
+          class="input input--time"
+          [ngModel]="timeOffForm().endTime"
+          (ngModelChange)="timeOffForm.set({ ...timeOffForm(), endTime: $event })"
+        >
+          @for (t of timeOptions; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <label class="field">
+      <span class="field__label">Reason</span>
+      <textarea
+        class="input"
+        rows="3"
+        placeholder="Operations decides on this, so say enough to decide on."
+        [ngModel]="timeOffForm().reason"
+        (ngModelChange)="timeOffForm.set({ ...timeOffForm(), reason: $event })"
+      ></textarea>
+    </label>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showTimeOffDialog.set(false)">
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="saving() || timeOffForm().reason.trim().length < 3"
+      (click)="submitTimeOff()"
+    >
+      Send request
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Slot exception dialog ───────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showSlotDialog"
+  header="Request a slot"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="form">
+    <p class="form__note">
+      For an hour nobody is currently available for. Approving it adds the window to that
+      instructor's week.
+    </p>
+
+    <label class="field">
+      <span class="field__label">Instructor</span>
+      <select
+        class="input"
+        [ngModel]="slotForm().instructorId"
+        (ngModelChange)="slotForm.set({ ...slotForm(), instructorId: +$event })"
+      >
+        @for (inst of instructors(); track inst.id) {
+          <option [value]="inst.id">{{ inst.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="field__label">Day</span>
+      <select
+        class="input"
+        [ngModel]="slotForm().dayOfWeek"
+        (ngModelChange)="slotForm.set({ ...slotForm(), dayOfWeek: +$event })"
+      >
+        @for (name of weekdays; track $index) {
+          <option [value]="$index">{{ name }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="field field--row">
+      <select
+        class="input input--time"
+        [ngModel]="slotForm().startTime"
+        (ngModelChange)="slotForm.set({ ...slotForm(), startTime: $event })"
+      >
+        @for (t of timeOptions; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+      <span class="win__dash">–</span>
+      <select
+        class="input input--time"
+        [ngModel]="slotForm().endTime"
+        (ngModelChange)="slotForm.set({ ...slotForm(), endTime: $event })"
+      >
+        @for (t of timeOptions; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+    </div>
+
+    <label class="field">
+      <span class="field__label">Room</span>
+      <select
+        class="input"
+        [ngModel]="slotForm().roomId"
+        (ngModelChange)="slotForm.set({ ...slotForm(), roomId: $event })"
+      >
+        <option [ngValue]="null">Any room</option>
+        @for (room of rooms(); track room.id) {
+          <option [ngValue]="room.id">
+            {{ room.name }}
+            @if (room.parallelCapacity) {
+              ({{ room.parallelCapacity }} at once)
+            }
+          </option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="field__label">Needed from</span>
+      <input
+        type="date"
+        class="input"
+        [ngModel]="slotForm().fromDate"
+        (ngModelChange)="slotForm.set({ ...slotForm(), fromDate: $event })"
+      />
+    </label>
+
+    <label class="field">
+      <span class="field__label">Why</span>
+      <textarea
+        class="input"
+        rows="3"
+        placeholder="Which customer, and why this hour."
+        [ngModel]="slotForm().reason"
+        (ngModelChange)="slotForm.set({ ...slotForm(), reason: $event })"
+      ></textarea>
+    </label>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showSlotDialog.set(false)">Cancel</button>
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="saving() || slotForm().reason.trim().length < 3"
+      (click)="submitSlotException()"
+    >
+      Send request
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Decision dialog ─────────────────────────────────────────────────── -->
+<p-dialog
+  [(visible)]="showDecisionDialog"
+  [header]="decision()?.approve ? 'Approve request' : 'Reject request'"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '440px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  @if (decision(); as pending) {
+    <div class="form">
+      <p class="form__for">
+        <strong>{{ typeLabels[pending.request.type] }}</strong> for
+        {{ pending.request.instructorName }}
+      </p>
+      <p class="form__note">{{ pending.request.reason }}</p>
+
+      @if (pending.approve && pending.request.conflictingSessionCount > 0) {
+        <p class="req__warn">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ pending.request.conflictingSessionCount }} scheduled
+          {{ pending.request.conflictingSessionCount === 1 ? 'session' : 'sessions' }}
+          fall in this period. Approving does not cancel them.
+        </p>
+      }
+
+      <label class="field">
+        <span class="field__label">
+          Note {{ pending.approve ? '(optional)' : '— say why, they will see it' }}
+        </span>
+        <textarea
+          class="input"
+          rows="3"
+          [ngModel]="pending.note"
+          (ngModelChange)="decision.set({ ...pending, note: $event })"
+        ></textarea>
+      </label>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button type="button" class="btn btn--ghost" (click)="showDecisionDialog.set(false)">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn"
+        [class.btn--ok]="pending.approve"
+        [class.btn--no]="!pending.approve"
+        [disabled]="saving()"
+        (click)="submitDecision()"
+      >
+        {{ pending.approve ? 'Approve' : 'Reject' }}
+      </button>
+    </ng-template>
+  }
+</p-dialog>

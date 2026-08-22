@@ -16,7 +16,11 @@ import {
 
 import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
 import { Topic, CreateTopicPayload, UpdateTopicPayload } from '../interfaces/Topic';
-import { CourseLevel, CreateCourseLevelPayload, UpdateCourseLevelPayload } from '../interfaces/CourseLevel';
+import {
+  CourseLevel,
+  CreateCourseLevelPayload,
+  UpdateCourseLevelPayload,
+} from '../interfaces/CourseLevel';
 import {
   Group,
   CreateGroupPayload,
@@ -26,10 +30,7 @@ import {
   CancelUpcomingSessionsPayload,
   CancelUpcomingSessionsResult,
 } from '../interfaces/Group';
-import {
-  GroupCourse,
-  UpdateCurrentSessionNumberDto,
-} from '../interfaces/GroupCourse';
+import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
 import {
   ScheduleSession,
   UpdateSessionPayload,
@@ -48,6 +49,16 @@ import {
   StudentSessionSummary,
   UpsertSessionSyllabusPayload,
 } from '../interfaces/SessionSyllabus';
+import {
+  AvailabilityRequest,
+  AvailabilityWindowInput,
+  CreateAvailabilityChangeRequest,
+  CreateSlotExceptionRequest,
+  CreateTimeOffRequest,
+  InstructorAvailability,
+  InstructorTimeOff,
+  Room,
+} from '../interfaces/Availability';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -309,7 +320,10 @@ export class LmsService {
     return this.http.put<ScheduleSession>(`${this.getApiUrl()}/Schedule/sessions/${id}`, payload);
   }
 
-  applySessionForward(id: number, payload: ApplySessionForwardPayload): Observable<ScheduleSession> {
+  applySessionForward(
+    id: number,
+    payload: ApplySessionForwardPayload
+  ): Observable<ScheduleSession> {
     return this.http.put<ScheduleSession>(
       `${this.getApiUrl()}/Schedule/sessions/${id}/apply-forward`,
       payload
@@ -443,5 +457,110 @@ export class LmsService {
       url += `?${params.join('&')}`;
     }
     return this.http.get<ScheduleSession[]>(url);
+  }
+
+  // ── Availability ──────────────────────────────────────────────────────────
+
+  getRooms(includeInactive = false): Observable<Room[]> {
+    return this.http.get<Room[]>(
+      `${this.getApiUrl()}/Availability/rooms?includeInactive=${includeInactive}`
+    );
+  }
+
+  /** Omit instructorId for the whole board, which is what the slot finder wants. */
+  getInstructorAvailability(
+    instructorId?: number,
+    onDate?: string
+  ): Observable<InstructorAvailability[]> {
+    const params: string[] = [];
+    if (instructorId) params.push(`instructorId=${instructorId}`);
+    if (onDate) params.push(`onDate=${onDate}`);
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<InstructorAvailability[]>(
+      `${this.getApiUrl()}/Availability/instructors${query}`
+    );
+  }
+
+  /** Admin only — everyone else asks for a change instead. */
+  replaceWeeklyAvailability(
+    instructorId: number,
+    windows: AvailabilityWindowInput[],
+    effectiveFrom?: string
+  ): Observable<InstructorAvailability[]> {
+    return this.http.put<InstructorAvailability[]>(
+      `${this.getApiUrl()}/Availability/instructors/${instructorId}`,
+      { windows, effectiveFrom: effectiveFrom ?? null }
+    );
+  }
+
+  getTimeOff(instructorId?: number, from?: string, to?: string): Observable<InstructorTimeOff[]> {
+    const params: string[] = [];
+    if (instructorId) params.push(`instructorId=${instructorId}`);
+    if (from) params.push(`from=${from}`);
+    if (to) params.push(`to=${to}`);
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<InstructorTimeOff[]>(`${this.getApiUrl()}/Availability/time-off${query}`);
+  }
+
+  // ── Availability requests ─────────────────────────────────────────────────
+
+  getAvailabilityRequests(status?: string, type?: string): Observable<AvailabilityRequest[]> {
+    const params: string[] = [];
+    if (status) params.push(`status=${status}`);
+    if (type) params.push(`type=${type}`);
+    const query = params.length ? `?${params.join('&')}` : '';
+    return this.http.get<AvailabilityRequest[]>(
+      `${this.getApiUrl()}/availability/requests${query}`
+    );
+  }
+
+  requestTimeOff(
+    payload: CreateTimeOffRequest,
+    instructorId?: number
+  ): Observable<AvailabilityRequest> {
+    const query = instructorId ? `?instructorId=${instructorId}` : '';
+    return this.http.post<AvailabilityRequest>(
+      `${this.getApiUrl()}/availability/requests/time-off${query}`,
+      payload
+    );
+  }
+
+  requestAvailabilityChange(
+    payload: CreateAvailabilityChangeRequest,
+    instructorId?: number
+  ): Observable<AvailabilityRequest> {
+    const query = instructorId ? `?instructorId=${instructorId}` : '';
+    return this.http.post<AvailabilityRequest>(
+      `${this.getApiUrl()}/availability/requests/availability-change${query}`,
+      payload
+    );
+  }
+
+  requestSlotException(payload: CreateSlotExceptionRequest): Observable<AvailabilityRequest> {
+    return this.http.post<AvailabilityRequest>(
+      `${this.getApiUrl()}/availability/requests/slot-exception`,
+      payload
+    );
+  }
+
+  approveAvailabilityRequest(id: number, note?: string): Observable<AvailabilityRequest> {
+    return this.http.post<AvailabilityRequest>(
+      `${this.getApiUrl()}/availability/requests/${id}/approve`,
+      { note: note ?? null }
+    );
+  }
+
+  rejectAvailabilityRequest(id: number, note?: string): Observable<AvailabilityRequest> {
+    return this.http.post<AvailabilityRequest>(
+      `${this.getApiUrl()}/availability/requests/${id}/reject`,
+      { note: note ?? null }
+    );
+  }
+
+  withdrawAvailabilityRequest(id: number): Observable<AvailabilityRequest> {
+    return this.http.post<AvailabilityRequest>(
+      `${this.getApiUrl()}/availability/requests/${id}/withdraw`,
+      {}
+    );
   }
 }

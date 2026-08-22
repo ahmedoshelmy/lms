@@ -1,0 +1,565 @@
+/* Three audiences, one picture: operations edits it, instructors ask about
+   their own part of it, sales reads it to find a slot. */
+
+.avail-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+
+  @media (min-width: 640px) {
+    padding: 24px 24px 72px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 40px 40px 80px;
+  }
+}
+
+.avail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.avail-head__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+
+  @media (min-width: 640px) {
+    font-size: 30px;
+  }
+}
+
+.avail-head__sub {
+  margin: 5px 0 0;
+  max-width: 62ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.avail-head__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Panels ─────────────────────────────────────────────────────────────── */
+
+.panel {
+  margin-bottom: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+/* The queue is the thing somebody has to act on, so it reads louder. */
+.panel--queue {
+  border-color: var(--color-secondary);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.panel__meta {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.panel__error {
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--color-error-background);
+  color: var(--color-error-foreground);
+  font-size: 12px;
+  font-weight: 600;
+
+  i {
+    margin-right: 6px;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* ── The week ───────────────────────────────────────────────────────────── */
+
+.week {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 900px) {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+.day {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+
+  @media (min-width: 900px) {
+    border-bottom: 0;
+    border-right: 1px solid var(--color-border);
+    min-height: 150px;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+}
+
+/* A day nobody works reads as quieter, not as empty space. */
+.day--off {
+  background: var(--color-background-alt);
+}
+
+.day__name {
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.day__windows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.day__none {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.day__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+  border: 1px dashed var(--color-border);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-secondary);
+    background: var(--color-info-background);
+  }
+}
+
+.win {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: var(--color-info-background);
+  border: 1px solid transparent;
+}
+
+.win__time {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.win__room {
+  font-size: 10.5px;
+  color: var(--color-text-muted);
+}
+
+.win--edit {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.win__dash {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.win__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  i {
+    font-size: 10px;
+  }
+
+  &:hover {
+    background: var(--color-error-background);
+    color: var(--color-error-foreground);
+  }
+}
+
+/* ── Requests ───────────────────────────────────────────────────────────── */
+
+.req-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.req {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.req--decided {
+  opacity: 0.75;
+}
+
+.req__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.req__line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.req__by {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.req__detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.req__from {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.req__reason {
+  margin: 5px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.req__note {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* What approving would cost. Stated, not buried. */
+.req__warn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.req__actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-surface-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+}
+
+.tag--TimeOff {
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+}
+
+.tag--SlotException {
+  background: var(--color-info-background);
+  color: var(--color-secondary);
+}
+
+.pill {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--color-surface-secondary);
+  color: var(--color-text-secondary);
+}
+
+.pill--pending {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.pill--Approved {
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+}
+
+.pill--Rejected {
+  background: var(--color-error-background);
+  color: var(--color-error-foreground);
+}
+
+/* ── Booked leave ───────────────────────────────────────────────────────── */
+
+.off-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.off {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12.5px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.off__dates {
+  font-weight: 800;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.off__when {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.off__reason {
+  color: var(--color-text-muted);
+}
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form__for,
+.form__note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.field__label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+
+  input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--color-secondary);
+  }
+}
+
+.input {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-secondary);
+  }
+}
+
+.input--select {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.input--time {
+  padding: 4px 6px;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.input--room {
+  padding: 4px 6px;
+  font-size: 11px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 11px;
+  }
+}
+
+.btn--ghost {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-secondary);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-secondary);
+  }
+}
+
+.btn--primary {
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.btn--ok {
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+}
+
+.btn--no {
+  background: var(--color-error-background);
+  color: var(--color-error-foreground);
+}

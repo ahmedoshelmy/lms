@@ -83,6 +83,15 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'availability',
+    label: 'Availability',
+    icon: 'pi pi-clock',
+    // Operations edits it, instructors ask about their own, sales reads it to
+    // find a slot. Students have no business here.
+    roles: [Role.Admin, Role.Instructor, Role.Sales],
+    showInMenu: true,
+  },
+  {
     path: 'session-summaries',
     label: 'Session Summaries',
     icon: 'pi pi-comments',

@@ -133,6 +133,16 @@ export const routes: Routes = [
       { path: 'users', redirectTo: 'students', pathMatch: 'full' },
 
       {
+        path: 'availability',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('availability') },
+        loadComponent: () =>
+          import('./features/availability/availability.component').then(
+            (c) => c.AvailabilityComponent
+          ),
+      },
+
+      {
         path: 'session-summaries',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('session-summaries') },
