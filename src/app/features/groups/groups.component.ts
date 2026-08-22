@@ -61,6 +61,7 @@ export class GroupsComponent implements OnInit {
   topicFilter = signal('');
   instructorFilter = signal('');
   locationFilter = signal('');
+  dayFilter = signal('');
 
   instructors = signal<User[]>([]);
   topics = signal<Topic[]>([]);
@@ -208,7 +209,8 @@ export class GroupsComponent implements OnInit {
       this.courseFilter() ||
       this.topicFilter() ||
       this.instructorFilter() ||
-      this.locationFilter()
+      this.locationFilter() ||
+      this.dayFilter()
     );
   });
 
@@ -250,6 +252,24 @@ export class GroupsComponent implements OnInit {
       .map(([name, count]) => ({ name, count }));
   });
 
+  /**
+   * The days groups actually meet on, in week order rather than alphabetical —
+   * a list running Friday, Monday, Saturday would be useless for finding
+   * Tuesday's groups. A group meeting twice a week appears under both days.
+   */
+  readonly uniqueDays = computed(() => {
+    const countMap = new Map<string, number>();
+    for (const g of this.groups()) {
+      for (const day of new Set((g.schedules || []).map((s) => s.dayOfWeek))) {
+        countMap.set(day, (countMap.get(day) || 0) + 1);
+      }
+    }
+    return DAYS_OF_WEEK.filter((d) => countMap.has(d)).map((name) => ({
+      name,
+      count: countMap.get(name)!,
+    }));
+  });
+
   readonly uniqueInstructors = computed(() => {
     const countMap = new Map<string, number>();
     for (const g of this.groups()) {
@@ -270,6 +290,7 @@ export class GroupsComponent implements OnInit {
     const topic = this.topicFilter();
     const instructor = this.instructorFilter();
     const location = this.locationFilter();
+    const day = this.dayFilter();
     return this.groups().filter((g) => {
       const matchesStatus = status === 'All' || g.status === status;
       const matchesSearch =
@@ -281,13 +302,15 @@ export class GroupsComponent implements OnInit {
       const matchesTopic = !topic || g.courses.some((c) => (c.topic || 'Other') === topic);
       const matchesInstructor = !instructor || g.defaultInstructorName === instructor;
       const matchesLocation = !location || g.location === location;
+      const matchesDay = !day || (g.schedules || []).some((s) => s.dayOfWeek === day);
       return (
         matchesStatus &&
         matchesSearch &&
         matchesCourse &&
         matchesTopic &&
         matchesInstructor &&
-        matchesLocation
+        matchesLocation &&
+        matchesDay
       );
     });
   });
@@ -303,6 +326,7 @@ export class GroupsComponent implements OnInit {
     this.topicFilter.set('');
     this.instructorFilter.set('');
     this.locationFilter.set('');
+    this.dayFilter.set('');
   }
 
   ngOnInit(): void {
