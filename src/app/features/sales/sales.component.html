@@ -160,6 +160,18 @@
           <span>Only slots free for the whole course</span>
         </label>
 
+        <label
+          class="check"
+          title="Slots normally sit back to back, since taking one rules out its neighbours"
+        >
+          <input
+            type="checkbox"
+            [ngModel]="search().allStartTimes"
+            (ngModelChange)="search.set({ ...search(), allStartTimes: $event })"
+          />
+          <span>Every start time</span>
+        </label>
+
         <div class="search__actions">
           @if (searched()) {
             <button type="button" class="btn btn--ghost" (click)="clearSearch()">Clear</button>
@@ -524,16 +536,14 @@
         This hour disappears from everyone's search until you release it or it expires.
       </p>
     </div>
-
-    <ng-template pTemplate="footer">
-      <button type="button" class="btn btn--ghost" (click)="showHoldDialog.set(false)">
-        Cancel
-      </button>
-      <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitHold()">
-        Hold it
-      </button>
-    </ng-template>
   }
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showHoldDialog.set(false)">Cancel</button>
+    <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitHold()">
+      Hold it
+    </button>
+  </ng-template>
 </p-dialog>
 
 <!-- ── Candidate dialog ────────────────────────────────────────────────── -->
@@ -720,21 +730,16 @@
         Anybody not marked committed stays in the pipeline rather than joining the group.
       </p>
     </div>
-
-    <ng-template pTemplate="footer">
-      <button type="button" class="btn btn--ghost" (click)="showConvertDialog.set(false)">
-        Cancel
-      </button>
-      <button
-        type="button"
-        class="btn btn--primary"
-        [disabled]="saving()"
-        (click)="submitConvert()"
-      >
-        Create the group
-      </button>
-    </ng-template>
   }
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showConvertDialog.set(false)">
+      Cancel
+    </button>
+    <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitConvert()">
+      Create the group
+    </button>
+  </ng-template>
 </p-dialog>
 
 <!-- ── Trial dialog ────────────────────────────────────────────────────── -->
@@ -770,14 +775,14 @@
         nothing about the one they would be buying.
       </p>
     </div>
-
-    <ng-template pTemplate="footer">
-      <button type="button" class="btn btn--ghost" (click)="showTrialDialog.set(false)">
-        Cancel
-      </button>
-      <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitTrial()">
-        Book it
-      </button>
-    </ng-template>
   }
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showTrialDialog.set(false)">
+      Cancel
+    </button>
+    <button type="button" class="btn btn--primary" [disabled]="saving()" (click)="submitTrial()">
+      Book it
+    </button>
+  </ng-template>
 </p-dialog>

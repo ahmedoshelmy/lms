@@ -55,6 +55,8 @@ export interface SlotSearch {
   dayOfWeek?: number;
   roomId?: number;
   maxBlockedWeeks?: number;
+  /** Every half-hour start, rather than slots packed back to back. */
+  allStartTimes?: boolean;
 }
 
 export interface SlotHoldSchedule {

@@ -593,6 +593,7 @@ export class LmsService {
     if (search.maxBlockedWeeks !== undefined && search.maxBlockedWeeks !== null) {
       params.push(`maxBlockedWeeks=${search.maxBlockedWeeks}`);
     }
+    if (search.allStartTimes) params.push('allStartTimes=true');
     const query = params.length ? `?${params.join('&')}` : '';
     return this.http.get<AvailableSlot[]>(`${this.getApiUrl()}/Availability/slots${query}`);
   }

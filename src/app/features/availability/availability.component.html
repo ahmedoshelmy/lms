@@ -574,21 +574,21 @@
         ></textarea>
       </label>
     </div>
-
-    <ng-template pTemplate="footer">
-      <button type="button" class="btn btn--ghost" (click)="showDecisionDialog.set(false)">
-        Cancel
-      </button>
-      <button
-        type="button"
-        class="btn"
-        [class.btn--ok]="pending.approve"
-        [class.btn--no]="!pending.approve"
-        [disabled]="saving()"
-        (click)="submitDecision()"
-      >
-        {{ pending.approve ? 'Approve' : 'Reject' }}
-      </button>
-    </ng-template>
   }
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showDecisionDialog.set(false)">
+      Cancel
+    </button>
+    <button
+      type="button"
+      class="btn"
+      [class.btn--ok]="decision()?.approve"
+      [class.btn--no]="!decision()?.approve"
+      [disabled]="saving()"
+      (click)="submitDecision()"
+    >
+      {{ decision()?.approve ? 'Approve' : 'Reject' }}
+    </button>
+  </ng-template>
 </p-dialog>

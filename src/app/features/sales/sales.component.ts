@@ -75,6 +75,7 @@ export class SalesComponent implements OnInit {
     dayOfWeek: -1,
     roomId: 0,
     perfectOnly: true,
+    allStartTimes: false,
   });
 
   // ── Dialogs ──────────────────────────────────────────────────────────────
@@ -195,6 +196,7 @@ export class SalesComponent implements OnInit {
         dayOfWeek: form.dayOfWeek >= 0 ? form.dayOfWeek : undefined,
         roomId: form.roomId || undefined,
         maxBlockedWeeks: form.perfectOnly ? 0 : undefined,
+        allStartTimes: form.allStartTimes,
       })
       .subscribe({
         next: (slots) => {
