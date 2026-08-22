@@ -14,7 +14,11 @@ import {
   InstructorAvailability,
   InstructorTimeOff,
   REQUEST_TYPE_LABELS,
+  LEAVE_TYPES,
+  LeaveSummary,
+  LeaveType,
   Room,
+  UpsertRoom,
   WEEKDAYS,
   shortTime,
   toDayNumber,
@@ -53,6 +57,7 @@ export class AvailabilityComponent implements OnInit {
   private readonly notify = inject(NotificationService);
 
   readonly weekdays = WEEKDAYS;
+  readonly leaveTypes = LEAVE_TYPES;
   readonly timeOptions = buildTimeOptions();
   readonly typeLabels = REQUEST_TYPE_LABELS;
   readonly shortTime = shortTime;
@@ -89,6 +94,7 @@ export class AvailabilityComponent implements OnInit {
     fromDate: '',
     toDate: '',
     reason: '',
+    leaveType: 'Holiday' as LeaveType,
     partial: false,
     startTime: '09:00',
     endTime: '13:00',
@@ -205,6 +211,9 @@ export class AvailabilityComponent implements OnInit {
   ngOnInit(): void {
     this.loadRooms();
     this.loadRequests();
+    if (this.isAdmin()) {
+      this.loadSummary();
+    }
 
     if (this.isAdmin() || this.isSales()) {
       this.loadInstructors();
@@ -233,7 +242,7 @@ export class AvailabilityComponent implements OnInit {
     });
   }
 
-  private loadRooms(): void {
+  loadRooms(): void {
     this.lms.getRooms().subscribe({
       next: (rooms) => this.rooms.set(rooms || []),
       error: () => this.notify.showError('Could not load rooms.'),
@@ -442,6 +451,7 @@ export class AvailabilityComponent implements OnInit {
       fromDate: today,
       toDate: today,
       reason: '',
+      leaveType: 'Holiday',
       partial: false,
       startTime: '09:00',
       endTime: '13:00',
@@ -461,6 +471,7 @@ export class AvailabilityComponent implements OnInit {
           toDate: form.toDate,
           startTime: form.partial ? form.startTime : null,
           endTime: form.partial ? form.endTime : null,
+          leaveType: form.leaveType,
           reason: form.reason.trim(),
         },
         this.isAdmin() ? (this.selectedInstructorId() ?? undefined) : undefined
@@ -560,6 +571,110 @@ export class AvailabilityComponent implements OnInit {
 
   canWithdraw(request: AvailabilityRequest): boolean {
     return request.status === 'Pending' && request.requestedById === this.auth.getUserId();
+  }
+
+  // ── Monthly leave report ─────────────────────────────────────────────────
+
+  readonly summary = signal<LeaveSummary | null>(null);
+  readonly summaryMonth = signal(new Date().toISOString().slice(0, 7));
+  readonly loadingSummary = signal(false);
+
+  loadSummary(): void {
+    const [year, month] = this.summaryMonth().split('-').map(Number);
+    if (!year || !month) return;
+
+    this.loadingSummary.set(true);
+    this.lms.getLeaveSummary(year, month).subscribe({
+      next: (summary) => {
+        this.summary.set(summary);
+        this.loadingSummary.set(false);
+      },
+      error: () => this.loadingSummary.set(false),
+    });
+  }
+
+  onSummaryMonthChange(value: string): void {
+    this.summaryMonth.set(value);
+    this.loadSummary();
+  }
+
+  // ── Rooms ────────────────────────────────────────────────────────────────
+
+  readonly showRoomDialog = signal(false);
+  readonly editingRoom = signal<Room | null>(null);
+  readonly roomForm = signal<UpsertRoom>({
+    name: '',
+    branch: '',
+    parallelCapacity: null,
+    overflowCapacity: null,
+    studentCapacity: null,
+    isVirtual: false,
+    isExternal: false,
+    isActive: true,
+  });
+
+  openRoomDialog(room?: Room): void {
+    this.editingRoom.set(room ?? null);
+    this.roomForm.set({
+      name: room?.name ?? '',
+      branch: room?.branch ?? '',
+      parallelCapacity: room?.parallelCapacity ?? null,
+      overflowCapacity: room?.overflowCapacity ?? null,
+      studentCapacity: room?.studentCapacity ?? null,
+      isVirtual: room?.isVirtual ?? false,
+      isExternal: room?.isExternal ?? false,
+      isActive: room?.isActive ?? true,
+    });
+    this.showRoomDialog.set(true);
+  }
+
+  /**
+   * Mirrors the API rule so the problem is pointed at rather than returned:
+   * overflow only means something above an ordinary limit.
+   */
+  readonly roomError = computed<string | null>(() => {
+    const form = this.roomForm();
+    if (!form.name.trim()) return 'A room needs a name.';
+    if (form.overflowCapacity == null) return null;
+    if (form.parallelCapacity == null) {
+      return 'A room with no ordinary limit cannot have an overflow limit.';
+    }
+    return form.overflowCapacity <= form.parallelCapacity
+      ? 'The overflow limit has to be higher than the ordinary limit.'
+      : null;
+  });
+
+  saveRoom(): void {
+    if (this.roomError()) return;
+
+    const form = this.roomForm();
+    const payload: UpsertRoom = { ...form, branch: form.branch?.trim() || null };
+    const existing = this.editingRoom();
+
+    this.saving.set(true);
+    const call = existing
+      ? this.lms.updateRoom(existing.id, payload)
+      : this.lms.createRoom(payload);
+
+    call.subscribe({
+      next: () => {
+        this.showRoomDialog.set(false);
+        this.saving.set(false);
+        this.loadRooms();
+        this.notify.showSuccess(existing ? 'Room updated.' : 'Room added.');
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
+  /** How a room's limit reads in a list. */
+  describeRoom(room: Room): string {
+    if (room.isExternal) return 'Partner site — instructor only';
+    if (room.isVirtual) return 'Online — no limit';
+    if (room.parallelCapacity == null) return 'No limit';
+    return room.overflowCapacity
+      ? `${room.parallelCapacity} at once (${room.overflowCapacity} in urgent cases)`
+      : `${room.parallelCapacity} at once`;
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

@@ -323,6 +323,7 @@
                 → {{ off.toDate }}
               }
             </span>
+            <span class="leave-tag">{{ off.leaveType }}</span>
             <span class="off__when">
               @if (off.startTime) {
                 {{ shortTime(off.startTime) }}–{{ shortTime(off.endTime) }}
@@ -366,6 +367,113 @@
       </div>
     </section>
   }
+
+  <!-- Leave is reviewed by month, so the report is by month. -->
+  @if (isAdmin()) {
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Leave by month</h2>
+        <input
+          type="month"
+          class="input input--select"
+          [ngModel]="summaryMonth()"
+          (ngModelChange)="onSummaryMonthChange($event)"
+        />
+        @if (summary(); as report) {
+          <span class="panel__meta">
+            {{ report.totalDays }} {{ report.totalDays === 1 ? 'day' : 'days' }} across
+            {{ report.rows.length }} {{ report.rows.length === 1 ? 'person' : 'people' }}
+          </span>
+        }
+      </div>
+
+      @if (loadingSummary()) {
+        <div class="loading"><p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" /></div>
+      } @else if (summary(); as report) {
+        @if (!report.rows.length) {
+          <p class="panel__none">Nobody took leave this month.</p>
+        } @else {
+          <div class="leave-table">
+            <div class="leave-row leave-row--head">
+              <span>Instructor</span>
+              <span>Holiday</span>
+              <span>Sick</span>
+              <span>Unpaid</span>
+              <span>Other</span>
+              <span>Total</span>
+            </div>
+            @for (row of report.rows; track row.instructorId) {
+              <div class="leave-row">
+                <span class="leave-row__name">{{ row.instructorName }}</span>
+                <span>{{ row.holidayDays || '-' }}</span>
+                <span>{{ row.sickDays || '-' }}</span>
+                <span>{{ row.unpaidDays || '-' }}</span>
+                <span>{{ row.otherDays || '-' }}</span>
+                <span class="leave-row__total">{{ row.totalDays }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Refusals belong here too: a month of them says something a total does not. -->
+        @if (report.decisions.length) {
+          <div class="decisions">
+            <p class="decisions__label">Decided this month</p>
+            @for (decision of report.decisions; track decision.id) {
+              <div class="decision">
+                <span class="pill pill--{{ decision.status }}">{{ decision.status }}</span>
+                <strong>{{ decision.instructorName }}</strong>
+                <span class="decision__dates">
+                  {{ decision.fromDate }}
+                  @if (decision.toDate !== decision.fromDate) {
+                    &rarr; {{ decision.toDate }}
+                  }
+                </span>
+                <span class="decision__reason">{{ decision.reason }}</span>
+                @if (decision.decisionNote) {
+                  <span class="decision__note">
+                    {{ decision.decidedByName }}: {{ decision.decisionNote }}
+                  </span>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </section>
+
+    <section class="panel">
+      <div class="panel__head">
+        <h2 class="panel__title">Rooms</h2>
+        <span class="panel__meta">How many sessions each place holds at once</span>
+        <div class="panel__actions">
+          <button type="button" class="btn btn--ghost" (click)="openRoomDialog()">
+            <i class="pi pi-plus"></i> Add a room
+          </button>
+        </div>
+      </div>
+
+      <div class="off-list">
+        @for (room of rooms(); track room.id) {
+          <div class="off">
+            <span class="off__dates">{{ room.name }}</span>
+            @if (room.branch) {
+              <span class="off__reason">{{ room.branch }}</span>
+            }
+            <span class="off__when">{{ describeRoom(room) }}</span>
+            @if (room.studentCapacity) {
+              <span class="off__reason">seats {{ room.studentCapacity }}</span>
+            }
+            <button type="button" class="btn btn--ghost" (click)="openRoomDialog(room)">
+              Edit
+            </button>
+          </div>
+        } @empty {
+          <p class="panel__none">No rooms yet.</p>
+        }
+      </div>
+    </section>
+  }
 </div>
 
 <!-- ── Time off dialog ─────────────────────────────────────────────────── -->
@@ -402,6 +510,19 @@
         [ngModel]="timeOffForm().toDate"
         (ngModelChange)="timeOffForm.set({ ...timeOffForm(), toDate: $event })"
       />
+    </label>
+
+    <label class="field">
+      <span class="field__label">Kind</span>
+      <select
+        class="input"
+        [ngModel]="timeOffForm().leaveType"
+        (ngModelChange)="timeOffForm.set({ ...timeOffForm(), leaveType: $event })"
+      >
+        @for (type of leaveTypes; track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
     </label>
 
     <label class="check">
@@ -634,6 +755,125 @@
       (click)="submitDecision()"
     >
       {{ decision()?.approve ? 'Approve' : 'Reject' }}
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Rooms are what the capacity rules hang off, so they need maintaining. -->
+<p-dialog
+  [(visible)]="showRoomDialog"
+  [header]="editingRoom() ? 'Edit room' : 'Add a room'"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '460px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="form">
+    <label class="field">
+      <span class="field__label">Name</span>
+      <input
+        type="text"
+        class="input"
+        [ngModel]="roomForm().name"
+        (ngModelChange)="roomForm.set({ ...roomForm(), name: $event })"
+      />
+    </label>
+
+    <label class="field">
+      <span class="field__label">Branch</span>
+      <input
+        type="text"
+        class="input"
+        placeholder="Mall of Arabia, New Cairo..."
+        [ngModel]="roomForm().branch"
+        (ngModelChange)="roomForm.set({ ...roomForm(), branch: $event })"
+      />
+    </label>
+
+    <div class="field field--row">
+      <label class="field">
+        <span class="field__label">Sessions at once</span>
+        <input
+          type="number"
+          class="input"
+          min="1"
+          placeholder="No limit"
+          [ngModel]="roomForm().parallelCapacity"
+          (ngModelChange)="
+            roomForm.set({ ...roomForm(), parallelCapacity: $event === '' ? null : +$event })
+          "
+        />
+      </label>
+      <label class="field">
+        <span class="field__label">In urgent cases</span>
+        <input
+          type="number"
+          class="input"
+          min="1"
+          placeholder="None"
+          [ngModel]="roomForm().overflowCapacity"
+          (ngModelChange)="
+            roomForm.set({ ...roomForm(), overflowCapacity: $event === '' ? null : +$event })
+          "
+        />
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field__label">Seats</span>
+      <input
+        type="number"
+        class="input"
+        min="1"
+        placeholder="Not tracked"
+        [ngModel]="roomForm().studentCapacity"
+        (ngModelChange)="
+          roomForm.set({ ...roomForm(), studentCapacity: $event === '' ? null : +$event })
+        "
+      />
+    </label>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [ngModel]="roomForm().isVirtual"
+        (ngModelChange)="roomForm.set({ ...roomForm(), isVirtual: $event })"
+      />
+      <span>Online, occupying no physical space</span>
+    </label>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [ngModel]="roomForm().isExternal"
+        (ngModelChange)="roomForm.set({ ...roomForm(), isExternal: $event })"
+      />
+      <span>Partner site, where we send an instructor and they provide the room</span>
+    </label>
+
+    <label class="check">
+      <input
+        type="checkbox"
+        [ngModel]="roomForm().isActive"
+        (ngModelChange)="roomForm.set({ ...roomForm(), isActive: $event })"
+      />
+      <span>In use</span>
+    </label>
+
+    @if (roomError()) {
+      <p class="panel__error"><i class="pi pi-exclamation-circle"></i> {{ roomError() }}</p>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn--ghost" (click)="showRoomDialog.set(false)">Cancel</button>
+    <button
+      type="button"
+      class="btn btn--primary"
+      [disabled]="saving() || !!roomError()"
+      (click)="saveRoom()"
+    >
+      Save
     </button>
   </ng-template>
 </p-dialog>

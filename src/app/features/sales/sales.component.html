@@ -42,13 +42,21 @@
   </header>
 
   <!-- What needs attention, wherever you are on the page. -->
-  @if (readyToConvert().length || expiringSoon().length) {
+  @if (readyToConvert().length || expiringSoon().length || trialsAwaitingOutcome().length) {
     <div class="alerts">
       @if (isAdmin() && readyToConvert().length) {
         <button type="button" class="alert alert--ok" (click)="tab.set('holds')">
           <i class="pi pi-check-circle"></i>
           {{ readyToConvert().length }}
           {{ readyToConvert().length === 1 ? 'hold is' : 'holds are' }} ready to become a group
+        </button>
+      }
+      @if (trialsAwaitingOutcome().length) {
+        <button type="button" class="alert alert--warn" (click)="tab.set('holds')">
+          <i class="pi pi-question-circle"></i>
+          {{ trialsAwaitingOutcome().length }}
+          {{ trialsAwaitingOutcome().length === 1 ? 'trial has' : 'trials have' }} happened with no
+          outcome recorded
         </button>
       }
       @if (expiringSoon().length) {
@@ -271,6 +279,12 @@
               {{ hold.instructorName }} &middot; {{ hold.roomName || 'Any room' }}
             </span>
 
+            @if (hold.usesOverflow) {
+              <span class="pill pill--warn" [title]="hold.overflowReason || ''">
+                Over the room limit
+              </span>
+            }
+
             <span
               class="pill"
               [class.pill--warn]="hold.daysUntilExpiry <= 3"
@@ -340,6 +354,34 @@
                       </option>
                     }
                   </select>
+
+                  @if (candidate.trialStartsAt && candidate.trialAttended === null) {
+                    <span class="person__ask">Came?</span>
+                    <button
+                      type="button"
+                      class="person__yes"
+                      title="They attended the trial"
+                      (click)="recordTrialOutcome(candidate, true)"
+                    >
+                      <i class="pi pi-check"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="person__no"
+                      title="They did not turn up"
+                      (click)="recordTrialOutcome(candidate, false)"
+                    >
+                      <i class="pi pi-times"></i>
+                    </button>
+                  } @else if (candidate.trialAttended === true) {
+                    <span class="person__flag person__flag--yes" title="Attended their trial">
+                      <i class="pi pi-check-circle"></i>
+                    </span>
+                  } @else if (candidate.trialAttended === false) {
+                    <span class="person__flag person__flag--no" title="Did not turn up">
+                      <i class="pi pi-times-circle"></i>
+                    </span>
+                  }
 
                   @if (candidate.status !== 'Enrolled') {
                     <button
@@ -560,6 +602,33 @@
           (ngModelChange)="holdForm.set({ ...holdForm(), notes: $event })"
         ></textarea>
       </label>
+
+      @if (roomFullMessage(); as full) {
+        <div class="form__blocked">
+          <p class="form__blocked-title"><i class="pi pi-exclamation-triangle"></i> {{ full }}</p>
+
+          <label class="check">
+            <input
+              type="checkbox"
+              [ngModel]="holdForm().allowOverflow"
+              (ngModelChange)="holdForm.set({ ...holdForm(), allowOverflow: $event })"
+            />
+            <span>Book it anyway, over the room's ordinary limit</span>
+          </label>
+
+          @if (holdForm().allowOverflow) {
+            <label class="field">
+              <span class="field__label">Why it cannot be helped</span>
+              <textarea
+                class="input"
+                rows="2"
+                [ngModel]="holdForm().overflowReason"
+                (ngModelChange)="holdForm.set({ ...holdForm(), overflowReason: $event })"
+              ></textarea>
+            </label>
+          }
+        </div>
+      }
 
       <p class="form__warn">
         <i class="pi pi-info-circle"></i>

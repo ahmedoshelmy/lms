@@ -58,7 +58,9 @@ import {
   CreateTimeOffRequest,
   InstructorAvailability,
   InstructorTimeOff,
+  LeaveSummary,
   Room,
+  UpsertRoom,
 } from '../interfaces/Availability';
 import {
   AvailableSlot,
@@ -511,6 +513,21 @@ export class LmsService {
     );
   }
 
+  createRoom(payload: UpsertRoom): Observable<Room> {
+    return this.http.post<Room>(`${this.getApiUrl()}/Availability/rooms`, payload);
+  }
+
+  updateRoom(id: number, payload: UpsertRoom): Observable<Room> {
+    return this.http.put<Room>(`${this.getApiUrl()}/Availability/rooms/${id}`, payload);
+  }
+
+  /** Admin only. A month's absences per instructor, with the decisions made in it. */
+  getLeaveSummary(year: number, month: number): Observable<LeaveSummary> {
+    return this.http.get<LeaveSummary>(
+      `${this.getApiUrl()}/Availability/time-off/summary?year=${year}&month=${month}`
+    );
+  }
+
   /** Admin only. Hours a week, or null to remove the limit. */
   setInstructorCapacity(instructorId: number, weeklyHours: number | null): Observable<void> {
     return this.http.put<void>(
@@ -560,6 +577,12 @@ export class LmsService {
       `${this.getApiUrl()}/availability/requests/availability-change${query}`,
       payload
     );
+  }
+
+  recordTrialOutcome(candidateId: number, attended: boolean): Observable<unknown> {
+    return this.http.post(`${this.getApiUrl()}/Sales/candidates/${candidateId}/trial-outcome`, {
+      attended,
+    });
   }
 
   requestSlotException(payload: CreateSlotExceptionRequest): Observable<AvailabilityRequest> {

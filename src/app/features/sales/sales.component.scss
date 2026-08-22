@@ -397,6 +397,78 @@
   }
 }
 
+.person__ask {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.person__yes,
+.person__no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+
+  i {
+    font-size: 10px;
+  }
+}
+
+.person__yes {
+  background: var(--color-success-background);
+  color: var(--color-success-foreground);
+}
+
+.person__no {
+  background: var(--color-error-background);
+  color: var(--color-error-foreground);
+}
+
+.person__flag {
+  display: inline-flex;
+  align-items: center;
+
+  i {
+    font-size: 12px;
+  }
+}
+
+.person__flag--yes {
+  color: var(--color-success-foreground);
+}
+
+.person__flag--no {
+  color: var(--color-error-foreground);
+}
+
+/* A refusal the salesperson can answer, rather than a toast that closes. */
+.form__blocked {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--color-warning-foreground);
+  border-radius: 12px;
+  background: var(--color-warning-background);
+}
+
+.form__blocked-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--color-warning-foreground);
+}
+
 .hold__none {
   margin: 0;
   font-size: 12px;

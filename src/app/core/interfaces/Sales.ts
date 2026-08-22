@@ -82,6 +82,8 @@ export interface SlotHold {
   totalSessions: number;
   expiresAt: string;
   notes: string | null;
+  usesOverflow: boolean;
+  overflowReason: string | null;
   schedules: SlotHoldSchedule[];
   candidates: Candidate[];
   convertedGroupId: number | null;
@@ -102,6 +104,8 @@ export interface CreateSlotHold {
   totalSessions: number;
   schedules: SlotHoldSchedule[];
   holdForDays?: number | null;
+  allowOverflow?: boolean;
+  overflowReason?: string | null;
   notes?: string | null;
 }
 
@@ -118,6 +122,10 @@ export interface Candidate {
   createdBySalesId: number;
   createdBySalesName: string | null;
   convertedUserId: number | null;
+  trialSessionId: number | null;
+  trialStartsAt: string | null;
+  /** Null until the trial has happened; then whether they came. */
+  trialAttended: boolean | null;
   createdAt: string;
 }
 

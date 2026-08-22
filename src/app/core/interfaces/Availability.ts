@@ -32,6 +32,17 @@ export interface Room {
   isActive: boolean;
 }
 
+export interface UpsertRoom {
+  name: string;
+  branch?: string | null;
+  parallelCapacity?: number | null;
+  overflowCapacity?: number | null;
+  studentCapacity?: number | null;
+  isVirtual: boolean;
+  isExternal: boolean;
+  isActive: boolean;
+}
+
 export interface InstructorAvailability {
   id: number;
   instructorId: number;
@@ -54,6 +65,10 @@ export interface AvailabilityWindowInput {
   roomId?: number | null;
 }
 
+export type LeaveType = 'Holiday' | 'Sick' | 'Unpaid' | 'Other';
+
+export const LEAVE_TYPES: LeaveType[] = ['Holiday', 'Sick', 'Unpaid', 'Other'];
+
 export interface InstructorTimeOff {
   id: number;
   instructorId: number;
@@ -63,8 +78,36 @@ export interface InstructorTimeOff {
   /** Null for a whole day. */
   startTime: string | null;
   endTime: string | null;
+  leaveType: LeaveType;
   reason: string | null;
+  /** Days this absence covers within the range asked about. */
+  days: number;
   conflictingSessionCount: number;
+}
+
+// ── Monthly leave report ─────────────────────────────────────────────────────
+
+export interface LeaveSummaryRow {
+  instructorId: number;
+  instructorName: string;
+  holidayDays: number;
+  sickDays: number;
+  unpaidDays: number;
+  otherDays: number;
+  totalDays: number;
+  absences: number;
+  entries: InstructorTimeOff[];
+}
+
+export interface LeaveSummary {
+  year: number;
+  month: number;
+  fromDate: string;
+  toDate: string;
+  totalDays: number;
+  rows: LeaveSummaryRow[];
+  /** Leave requests decided in this month, refusals included. */
+  decisions: AvailabilityRequest[];
 }
 
 // ── Requests ─────────────────────────────────────────────────────────────────
@@ -93,6 +136,7 @@ export interface AvailabilityRequest {
   toDate: string | null;
   startTime: string | null;
   endTime: string | null;
+  leaveType: LeaveType | null;
   windows: AvailabilityRequestWindow[];
   decidedByName: string | null;
   decidedAt: string | null;
@@ -107,6 +151,7 @@ export interface CreateTimeOffRequest {
   toDate: string;
   startTime?: string | null;
   endTime?: string | null;
+  leaveType: LeaveType;
   reason: string;
 }
 

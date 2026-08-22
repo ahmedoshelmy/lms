@@ -87,7 +87,12 @@ export class SalesComponent implements OnInit {
     totalSessions: 12,
     holdForDays: 14,
     notes: '',
+    allowOverflow: false,
+    overflowReason: '',
   });
+
+  /** Set when the API refuses a room that is full, so the dialog can offer the override. */
+  readonly roomFullMessage = signal<string | null>(null);
 
   readonly showCandidateDialog = signal(false);
   readonly editingCandidate = signal<Candidate | null>(null);
@@ -233,7 +238,10 @@ export class SalesComponent implements OnInit {
       totalSessions: level?.sessionCount || 12,
       holdForDays: 14,
       notes: '',
+      allowOverflow: false,
+      overflowReason: '',
     });
+    this.roomFullMessage.set(null);
     this.showHoldDialog.set(true);
   }
 
@@ -279,6 +287,8 @@ export class SalesComponent implements OnInit {
           },
         ],
         holdForDays: form.holdForDays,
+        allowOverflow: form.allowOverflow,
+        overflowReason: form.overflowReason.trim() || null,
         notes: form.notes.trim() || null,
       })
       .subscribe({
@@ -291,7 +301,15 @@ export class SalesComponent implements OnInit {
           this.tab.set('holds');
           this.notify.showSuccess('Slot held. It is off the market until you release it.');
         },
-        error: () => this.saving.set(false),
+        error: (err) => {
+          this.saving.set(false);
+          // A full room is a decision to make, not a dead end: the dialog stays
+          // open and offers the override rather than closing on a toast.
+          const message: string = err?.error?.message ?? '';
+          if (err?.status === 409 && message.toLowerCase().includes('room')) {
+            this.roomFullMessage.set(message);
+          }
+        },
       });
   }
 
@@ -418,6 +436,29 @@ export class SalesComponent implements OnInit {
         error: () => this.saving.set(false),
       });
   }
+
+  // ── Trial outcome ────────────────────────────────────────────────────────
+
+  /** Whether they turned up. The fact that decides whether the trial worked. */
+  recordTrialOutcome(candidate: Candidate, attended: boolean): void {
+    this.lms.recordTrialOutcome(candidate.id, attended).subscribe({
+      next: () => {
+        this.loadHolds();
+        this.loadCandidates();
+        this.notify.showSuccess(
+          attended ? `${candidate.name} attended.` : `${candidate.name} did not turn up.`
+        );
+      },
+    });
+  }
+
+  /** A trial that has happened but has no outcome recorded is the thing to chase. */
+  readonly trialsAwaitingOutcome = computed(() => {
+    const now = new Date();
+    return this.candidates().filter(
+      (c) => c.trialAttended === null && !!c.trialStartsAt && new Date(c.trialStartsAt) < now
+    );
+  });
 
   // ── Candidates ───────────────────────────────────────────────────────────
 
