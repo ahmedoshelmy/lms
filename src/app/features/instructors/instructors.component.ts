@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { RegisterComplianceComponent } from './register-compliance/register-compliance.component';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
@@ -12,7 +13,7 @@ import { User } from '../../core/interfaces/User';
 @Component({
   selector: 'app-instructors',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule],
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, RegisterComplianceComponent],
   templateUrl: './instructors.component.html',
   styleUrl: './instructors.component.scss',
 })

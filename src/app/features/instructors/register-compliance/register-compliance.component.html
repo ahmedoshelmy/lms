@@ -1,0 +1,91 @@
+<section class="compliance">
+  <header class="compliance__head">
+    <div>
+      <h2 class="compliance__title">Register keeping</h2>
+      <p class="compliance__sub">
+        Registers close 24 hours after the class. Past that only operations can record one, and this
+        is where those show up.
+      </p>
+    </div>
+
+    <div class="month">
+      <button type="button" class="month__step" (click)="step(-1)" aria-label="Previous month">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+      <span class="month__label">{{ monthLabel() }}</span>
+      <button
+        type="button"
+        class="month__step"
+        [disabled]="atLatest()"
+        (click)="step(1)"
+        aria-label="Next month"
+      >
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="compliance__empty">Loading…</p>
+  } @else if (!rows().length) {
+    <p class="compliance__empty">No classes were taught in {{ monthLabel() }}.</p>
+  } @else {
+    <div class="totals">
+      <div class="total">
+        <span class="total__value" [ngClass]="rateClass(overallRate() ?? 100)">
+          {{ overallRate() }}<span class="total__pct">%</span>
+        </span>
+        <span class="total__label">On time</span>
+      </div>
+      <div class="total">
+        <span class="total__value">{{ taught() }}</span>
+        <span class="total__label">Classes taught</span>
+      </div>
+      <div class="total">
+        <span class="total__value" [class.total__value--warn]="byOps() > 0">{{ byOps() }}</span>
+        <span class="total__label">Written by operations</span>
+      </div>
+      <div class="total">
+        <span class="total__value" [class.total__value--bad]="missing() > 0">{{ missing() }}</span>
+        <span class="total__label">Still no register</span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Instructor</th>
+            <th class="num">Taught</th>
+            <th class="num">On time</th>
+            <th class="num">Late</th>
+            <th class="num" title="Late registers somebody else had to write">By ops</th>
+            <th class="num">Missing</th>
+            <th class="num">Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.instructorId) {
+            <tr>
+              <td class="name">{{ row.instructorName }}</td>
+              <td class="num">{{ row.sessionsTaught }}</td>
+              <td class="num">{{ row.onTime }}</td>
+              <td class="num" [class.num--warn]="row.late > 0">{{ row.late }}</td>
+              <td class="num" [class.num--warn]="row.recordedByAdmin > 0">
+                {{ row.recordedByAdmin }}
+              </td>
+              <td class="num" [class.num--bad]="row.neverRegistered > 0">
+                {{ row.neverRegistered }}
+              </td>
+              <td class="num">
+                <span class="rate" [ngClass]="rateClass(row.onTimeRate)">
+                  {{ row.onTimeRate }}%
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -13,6 +13,7 @@ import {
   AttendanceResponseDto,
   UpdateAttendanceDto,
   AttendanceSummaryDto,
+  RegisterCompliance,
 } from '../interfaces/Attendance';
 
 import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
@@ -478,6 +479,13 @@ export class LmsService {
     return this.http.post<Candidate>(
       `${this.getApiUrl()}/Attendance/session/${sessionId}/trials/${candidateId}`,
       { attended }
+    );
+  }
+
+  /** How each instructor kept their registers over a period. Admin only. */
+  getRegisterCompliance(from: string, to: string): Observable<RegisterCompliance[]> {
+    return this.http.get<RegisterCompliance[]>(
+      `${this.getApiUrl()}/Attendance/compliance?from=${from}&to=${to}`
     );
   }
 

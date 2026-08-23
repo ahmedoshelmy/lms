@@ -162,16 +162,31 @@ export class SessionDetailComponent implements OnInit {
     return start.getTime() > todayEnd.getTime();
   });
 
-  readonly isLocked = computed(() => {
+  /**
+   * Registers close a day after the class. Past that an instructor is not
+   * writing down what they saw, they are reconstructing it, so the record is
+   * worth less than the discipline of taking it on the night.
+   */
+  readonly isPastWindow = computed(() => {
     const s = this.session();
     if (!s) return false;
     const elapsed = Date.now() - new Date(s.startsAt).getTime();
     return elapsed > 24 * 60 * 60 * 1000;
   });
 
+  /**
+   * Operations is the only way a missed register ever gets filled in, so the
+   * window does not apply to them. The server enforces the same rule; this
+   * only decides whether the buttons are worth showing.
+   */
+  readonly isLocked = computed(() => this.isPastWindow() && !this.canEdit());
+
   readonly isAttendanceDisabled = computed(() => {
     return this.isUpcoming() || this.isCancelled() || this.isLocked();
   });
+
+  /** True when an admin is filling in something the instructor did not. */
+  readonly isLateEntry = computed(() => this.isPastWindow() && this.canEdit());
 
   readonly presentCount = computed(() => this.countByStatus('Present'));
   readonly absentCount = computed(() => this.countByStatus('Absent'));

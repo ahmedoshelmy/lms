@@ -66,3 +66,25 @@ export interface AttendanceSummaryDto {
   sessionsUpdatedToday: PendingAttendanceSessionDto[];
   pendingAttendanceSessions: PendingAttendanceSessionDto[];
 }
+
+/**
+ * How one instructor kept their registers over a period.
+ *
+ * Derived from the attendance rows themselves — who wrote each one and when —
+ * rather than counted as it happens, so it answers for months that passed
+ * before anybody thought to measure it.
+ */
+export interface RegisterCompliance {
+  instructorId: number;
+  instructorName: string;
+  /** Classes taught in the period, cancellations excluded. */
+  sessionsTaught: number;
+  onTime: number;
+  /** Registered, but after the 24-hour window had closed. */
+  late: number;
+  /** Of the late ones, those somebody else had to write. */
+  recordedByAdmin: number;
+  /** Still empty, with the window long closed. */
+  neverRegistered: number;
+  onTimeRate: number;
+}

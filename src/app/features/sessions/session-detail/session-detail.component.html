@@ -321,11 +321,17 @@
             } @else if (isUpcoming()) {
               <span>Session not yet started</span>
             } @else {
-              <span>Locked (24h passed)</span>
+              <span>Registers closed 24h after the class — ask operations</span>
             }
           </div>
         } @else {
           <div class="attendance-actions">
+            @if (isLateEntry()) {
+              <span class="attendance-late" title="The instructor did not take this one in time">
+                <i class="pi pi-exclamation-triangle"></i>
+                Past the window — recorded by operations
+              </span>
+            }
             <button
               type="button"
               class="action-btn action-btn--secondary"
