@@ -88,3 +88,18 @@ export interface RegisterCompliance {
   neverRegistered: number;
   onTimeRate: number;
 }
+
+/**
+ * A period's register keeping, and the period it really covers.
+ *
+ * A month that starts before the school did is answered for the part that
+ * counts, so the dates come back rather than being assumed — "100% of two
+ * classes" needs the reason it is two.
+ */
+export interface RegisterComplianceReport {
+  from: string;
+  to: string;
+  /** The day measurement began, whatever period was asked for. */
+  measuredFrom: string;
+  instructors: RegisterCompliance[];
+}

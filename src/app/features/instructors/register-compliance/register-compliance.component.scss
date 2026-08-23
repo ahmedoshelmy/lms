@@ -31,6 +31,13 @@
   color: var(--color-text-muted);
 }
 
+.compliance__since {
+  display: block;
+  margin-top: 5px;
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
 .compliance__empty {
   margin: 0;
   padding: 22px 0;

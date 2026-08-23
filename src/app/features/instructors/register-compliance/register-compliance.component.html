@@ -5,6 +5,12 @@
       <p class="compliance__sub">
         Registers close 24 hours after the class. Past that only operations can record one, and this
         is where those show up.
+        @if (partialLabel(); as since) {
+          <strong class="compliance__since">
+            Counted from {{ since }}, when the school started keeping registers here — nothing
+            before that counts against anybody.
+          </strong>
+        }
       </p>
     </div>
 

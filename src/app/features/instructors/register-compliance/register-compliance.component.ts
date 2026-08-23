@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
-import { RegisterCompliance } from '../../../core/interfaces/Attendance';
+import { RegisterCompliance, RegisterComplianceReport } from '../../../core/interfaces/Attendance';
 
 /**
  * How each instructor kept their registers, month by month.
@@ -23,7 +23,30 @@ export class RegisterComplianceComponent implements OnInit {
   private lms = inject(LmsService);
 
   readonly loading = signal(false);
-  readonly rows = signal<RegisterCompliance[]>([]);
+  readonly report = signal<RegisterComplianceReport | null>(null);
+
+  readonly rows = computed<RegisterCompliance[]>(() => this.report()?.instructors ?? []);
+
+  /**
+   * When the month asked for starts before the school began keeping registers
+   * here, the figures only cover part of it. Saying so is the difference
+   * between a fair number and an accusation.
+   */
+  readonly partialFrom = computed(() => {
+    const report = this.report();
+    if (!report) return null;
+
+    // Clamped when the answer starts later than the month asked for.
+    const asked = new Date(`${this.month()}-01T00:00:00Z`).getTime();
+    return new Date(report.from).getTime() > asked ? report.from : null;
+  });
+
+  readonly partialLabel = computed(() => {
+    const from = this.partialFrom();
+    return from
+      ? new Date(from).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+      : null;
+  });
 
   /** The month being looked at, as `yyyy-MM`. Starts on the one just gone. */
   readonly month = signal(RegisterComplianceComponent.previousMonth());
@@ -66,9 +89,9 @@ export class RegisterComplianceComponent implements OnInit {
     this.loading.set(true);
     this.lms
       .getRegisterCompliance(from, to)
-      .pipe(catchError(() => of([] as RegisterCompliance[])))
-      .subscribe((rows) => {
-        this.rows.set(rows);
+      .pipe(catchError(() => of(null)))
+      .subscribe((report) => {
+        this.report.set(report);
         this.loading.set(false);
       });
   }
