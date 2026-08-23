@@ -305,3 +305,13 @@
     pointer-events: all;
   }
 }
+
+/* The clock switch carries its current setting as text — an icon would have to
+   be learnt, and "24h" says both what it is now and what tapping it changes. */
+.clock-toggle-btn {
+  min-width: 34px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}

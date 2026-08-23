@@ -73,6 +73,24 @@
         <span class="menu-label">Logout</span>
       </button>
 
+      <!-- How every time on the site reads. Here rather than on the settings
+           page, which is a technical corner most people never open. -->
+      <button
+        type="button"
+        class="theme-toggle-btn clock-toggle-btn"
+        [attr.aria-label]="
+          clock.is12Hour() ? 'Switch to the 24-hour clock' : 'Switch to the 12-hour clock'
+        "
+        [attr.title]="
+          clock.is12Hour()
+            ? 'Times read 4:30 pm — switch to 16:30'
+            : 'Times read 16:30 — switch to 4:30 pm'
+        "
+        (click)="clock.toggle()"
+      >
+        {{ clock.is12Hour() ? '12h' : '24h' }}
+      </button>
+
       <button
         type="button"
         class="theme-toggle-btn"

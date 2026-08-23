@@ -9,6 +9,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { NotificationCenterService } from '../../../core/services/notification-center.service';
+import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,6 +23,9 @@ export class SidebarComponent {
   private readonly lmsService = inject(LmsService);
   private readonly themeService = inject(ThemeService);
   private readonly notificationCentre = inject(NotificationCenterService);
+
+  /** Public: the template toggles it directly. */
+  protected readonly clock = inject(ClockFormatService);
   private readonly router = inject(Router);
 
   readonly isDark = this.themeService.isDark;
