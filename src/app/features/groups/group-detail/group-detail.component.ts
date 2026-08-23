@@ -31,6 +31,7 @@ import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/sess
 import { CertificateCandidate, CertificateStudentRef } from '../../../core/interfaces/Certificate';
 import { CertificateService } from '../../../core/services/certificate.service';
 import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
+import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -56,6 +57,9 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   styleUrl: './group-detail.component.scss',
 })
 export class GroupDetailComponent implements OnInit {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private lmsService = inject(LmsService);

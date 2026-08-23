@@ -206,7 +206,9 @@
     background: var(--color-danger);
     color: white;
   }
-  i { font-size: 10px; }
+  i {
+    font-size: 10px;
+  }
 }
 
 /* Loading */
@@ -231,7 +233,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Empty State */
@@ -290,8 +294,13 @@
   align-items: center;
   gap: 5px;
   transition: all 0.2s;
-  &:hover { background: var(--color-secondary-hover); transform: translateY(-1px); }
-  i { font-size: 11px; }
+  &:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-1px);
+  }
+  i {
+    font-size: 11px;
+  }
 }
 
 /* Session List */
@@ -332,9 +341,15 @@
 .session-row__accent {
   width: 4px;
   flex-shrink: 0;
-  &.status-scheduled { background: var(--color-info); }
-  &.status-completed { background: var(--color-success); }
-  &.status-cancelled { background: var(--color-danger); }
+  &.status-scheduled {
+    background: var(--color-info);
+  }
+  &.status-completed {
+    background: var(--color-success);
+  }
+  &.status-cancelled {
+    background: var(--color-danger);
+  }
 }
 
 .session-row__body {
@@ -369,10 +384,19 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  i { font-size: 14px; color: white; }
-  &.status-scheduled { background: var(--color-info); }
-  &.status-completed { background: var(--color-success); }
-  &.status-cancelled { background: var(--color-danger); }
+  i {
+    font-size: 14px;
+    color: white;
+  }
+  &.status-scheduled {
+    background: var(--color-info);
+  }
+  &.status-completed {
+    background: var(--color-success);
+  }
+  &.status-cancelled {
+    background: var(--color-danger);
+  }
 }
 
 .session-row__topic {
@@ -474,7 +498,10 @@
   font-weight: 600;
   color: var(--color-text-muted);
   white-space: nowrap;
-  i { font-size: 10px; color: var(--color-secondary); }
+  i {
+    font-size: 10px;
+    color: var(--color-secondary);
+  }
 }
 
 .session-row__time {
@@ -491,7 +518,10 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-primary);
-  i { font-size: 10px; color: var(--color-secondary); }
+  i {
+    font-size: 10px;
+    color: var(--color-secondary);
+  }
 }
 
 .session-row__clock {

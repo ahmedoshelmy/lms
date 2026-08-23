@@ -10,6 +10,7 @@ import {
   StudentUpcomingSession,
 } from '../../../core/interfaces/StudentDetails';
 import { StudentSessionSummary } from '../../../core/interfaces/SessionSyllabus';
+import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 /**
  * What a student lands on.
@@ -27,6 +28,9 @@ import { StudentSessionSummary } from '../../../core/interfaces/SessionSyllabus'
   styleUrl: './student-home.component.scss',
 })
 export class StudentHomeComponent implements OnInit {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private lms = inject(LmsService);
   private auth = inject(AuthService);
 
@@ -127,7 +131,7 @@ export class StudentHomeComponent implements OnInit {
     midnight.setHours(0, 0, 0, 0);
     const days = Math.floor((when.getTime() - midnight.getTime()) / 86_400_000);
 
-    const time = when.toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' });
+    const time = this.clock.time(when);
     if (days === 0) return `Today, ${time}`;
     if (days === 1) return `Tomorrow, ${time}`;
 

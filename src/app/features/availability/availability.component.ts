@@ -24,6 +24,7 @@ import {
   toDayNumber,
 } from '../../core/interfaces/Availability';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { ClockFormatService } from '../../core/services/clock-format.service';
 
 /** Half-hour marks from 08:00 to 21:00 — the range the schedule board covers. */
 function buildTimeOptions(): string[] {
@@ -60,7 +61,11 @@ export class AvailabilityComponent implements OnInit {
   readonly leaveTypes = LEAVE_TYPES;
   readonly timeOptions = buildTimeOptions();
   readonly typeLabels = REQUEST_TYPE_LABELS;
-  readonly shortTime = shortTime;
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clockFormat = inject(ClockFormatService);
+
+  /** For display. The raw form of it still fills the time inputs. */
+  readonly shortTime = this.clockFormat.clock;
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
   readonly isSales = computed(() => this.auth.hasRole(Role.Sales));
@@ -722,6 +727,6 @@ export class AvailabilityComponent implements OnInit {
   /** "Mon 16:00–17:30", the shape a request reads best in. */
   describeWindow(w: { dayOfWeek: number | string; startTime: string; endTime: string }): string {
     const day = this.weekdays[toDayNumber(w.dayOfWeek)].slice(0, 3);
-    return `${day} ${shortTime(w.startTime)}–${shortTime(w.endTime)}`;
+    return `${day} ${this.clockFormat.range(w.startTime, w.endTime)}`;
   }
 }

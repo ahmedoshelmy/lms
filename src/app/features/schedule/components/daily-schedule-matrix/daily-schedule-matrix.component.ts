@@ -1,7 +1,8 @@
-import { Component, input, output, computed } from '@angular/core';
+import { inject, Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
+import { ClockFormatService } from '../../../../core/services/clock-format.service';
 
 export interface TimeSlot {
   label: string; // e.g., "08:00"
@@ -150,6 +151,9 @@ export interface TimeSlot {
   ],
 })
 export class DailyScheduleMatrixComponent {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   sessions = input<ScheduleSession[]>([]);
   instructors = input<User[]>([]);
   selectedDate = input<Date>(new Date());
@@ -237,10 +241,6 @@ export class DailyScheduleMatrixComponent {
 
   formatTime(iso: string): string {
     if (!iso) return '';
-    return new Date(iso).toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+    return this.clock.time(iso);
   }
 }

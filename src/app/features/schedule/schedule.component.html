@@ -70,7 +70,9 @@
         ></button>
       }
 
-      @if (isAdmin || isInstructor) {
+      <!-- Operations only: putting a class on the timetable moves a room, an
+           hour and a family's Saturday. -->
+      @if (isAdmin) {
         <button
           pButton
           type="button"

@@ -12,6 +12,7 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 import { Group } from '../../core/interfaces/Group';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
+import { ClockFormatService } from '../../core/services/clock-format.service';
 
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
@@ -33,6 +34,9 @@ export interface DateSessionGroup {
   styleUrl: './attendance.component.scss',
 })
 export class AttendanceComponent implements OnInit {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
@@ -118,7 +122,8 @@ export class AttendanceComponent implements OnInit {
       }
 
       if (query) {
-        const searchable = `${s.topic} ${s.courseTitle} ${s.groupName} ${s.instructorName}`.toLowerCase();
+        const searchable =
+          `${s.topic} ${s.courseTitle} ${s.groupName} ${s.instructorName}`.toLowerCase();
         if (!searchable.includes(query)) return false;
       }
 
@@ -159,14 +164,27 @@ export class AttendanceComponent implements OnInit {
       const isToday = dayMs === todayMs;
       const isTomorrow = dayMs === tomorrowMs;
 
-      let dateLabel = sDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      let dateLabel = sDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
       let subLabel = '';
       if (isToday) {
         dateLabel = 'TODAY';
-        subLabel = sDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        subLabel = sDate.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+        });
       } else if (isTomorrow) {
         dateLabel = 'TOMORROW';
-        subLabel = sDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        subLabel = sDate.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+        });
       }
 
       if (!groupMap.has(key)) {
@@ -265,11 +283,7 @@ export class AttendanceComponent implements OnInit {
 
   formatTime(iso?: string): string {
     if (!iso) return '—';
-    return new Date(iso).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.clock.time(iso);
   }
 
   formatDate(iso?: string): string {
@@ -301,19 +315,35 @@ export class AttendanceComponent implements OnInit {
   getAttendanceBadge(s: ScheduleSession): { label: string; css: string; icon: string } {
     const status = (s.status || '').toLowerCase();
     if (status.includes('cancel')) {
-      return { label: 'Cancelled', css: 'bg-rose-500/10 text-rose-600 border-rose-500/20', icon: 'pi-times-circle' };
+      return {
+        label: 'Cancelled',
+        css: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
+        icon: 'pi-times-circle',
+      };
     }
     if (status.includes('completed')) {
-      return { label: 'Attendance Marked', css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', icon: 'pi-check-circle' };
+      return {
+        label: 'Attendance Marked',
+        css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        icon: 'pi-check-circle',
+      };
     }
 
     const now = new Date();
     const sessionTime = new Date(s.startsAt || Date.now());
     if (sessionTime <= now) {
-      return { label: 'Attendance Pending', css: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: 'pi-exclamation-triangle' };
+      return {
+        label: 'Attendance Pending',
+        css: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+        icon: 'pi-exclamation-triangle',
+      };
     }
 
-    return { label: 'Upcoming', css: 'bg-blue-500/10 text-blue-600 border-blue-500/20', icon: 'pi-clock' };
+    return {
+      label: 'Upcoming',
+      css: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+      icon: 'pi-clock',
+    };
   }
 
   getLeftAccentColor(s: ScheduleSession): string {

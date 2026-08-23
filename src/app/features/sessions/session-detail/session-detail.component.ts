@@ -22,6 +22,7 @@ import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
 import { Candidate } from '../../../core/interfaces/Sales';
 import { SessionSyllabusComponent } from '../../../shared/components/session-syllabus/session-syllabus.component';
+import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
 
@@ -102,6 +103,9 @@ function normalizeAttendanceStatus(raw: any): StudentStatus {
   styleUrl: './session-detail.component.scss',
 })
 export class SessionDetailComponent implements OnInit {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
@@ -420,11 +424,7 @@ export class SessionDetailComponent implements OnInit {
   }
 
   formatTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.clock.time(iso);
   }
 
   formatDate(iso: string): string {

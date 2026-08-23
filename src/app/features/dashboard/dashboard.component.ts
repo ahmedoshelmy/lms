@@ -9,6 +9,7 @@ import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { SalesOverviewComponent } from './sales-overview/sales-overview.component';
 import { StudentHomeComponent } from './student-home/student-home.component';
+import { ClockFormatService } from '../../core/services/clock-format.service';
 
 interface StatCard {
   label: string;
@@ -39,6 +40,9 @@ export interface ChartBar {
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private auth = inject(AuthService);
   private lms = inject(LmsService);
   private platformId = inject(PLATFORM_ID);
@@ -607,11 +611,7 @@ export class DashboardComponent implements OnInit {
   }
 
   formatTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.clock.time(iso);
   }
 
   formatDate(iso: string): string {

@@ -12,6 +12,7 @@ import { Role } from '../../core/interfaces/Role';
 import { GroupHistory, GroupCourseHistoryItem } from '../../core/interfaces/History';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { Course } from '../../core/interfaces/Course';
+import { ClockFormatService } from '../../core/services/clock-format.service';
 
 @Component({
   selector: 'app-history',
@@ -21,6 +22,9 @@ import { Course } from '../../core/interfaces/Course';
   styleUrl: './history.component.scss',
 })
 export class HistoryComponent implements OnInit {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);

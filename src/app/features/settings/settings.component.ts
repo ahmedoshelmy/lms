@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { ClockFormatService } from '../../core/services/clock-format.service';
 
 @Component({
   selector: 'app-settings',
@@ -68,6 +69,51 @@ import { NotificationService } from '../../core/services/notification.service';
               <i class="pi pi-refresh mr-2"></i> Reset to Default
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- Clock Card -->
+      <div class="settings-card mt-6">
+        <div class="settings-card__header">
+          <div class="settings-icon settings-icon--info">
+            <i class="pi pi-clock"></i>
+          </div>
+          <div>
+            <h2 class="settings-card__title">Time Format</h2>
+            <p class="settings-card__subtitle">
+              How every time on the site reads — the schedule, availability, sessions and summaries.
+            </p>
+          </div>
+        </div>
+
+        <div class="settings-card__body">
+          <div class="clock-choices">
+            <button
+              type="button"
+              class="clock-choice"
+              [class.clock-choice--on]="!clock.is12Hour()"
+              (click)="clock.set('24h')"
+            >
+              <span class="clock-choice__sample">16:30</span>
+              <span class="clock-choice__label">24-hour</span>
+            </button>
+
+            <button
+              type="button"
+              class="clock-choice"
+              [class.clock-choice--on]="clock.is12Hour()"
+              (click)="clock.set('12h')"
+            >
+              <span class="clock-choice__sample">4:30 pm</span>
+              <span class="clock-choice__label">12-hour</span>
+            </button>
+          </div>
+
+          <p class="clock-note">
+            Saved in this browser, like the theme, so it does not follow you to another machine or
+            change what anybody else sees. Emails and notifications already sent keep the wording
+            they were written with.
+          </p>
         </div>
       </div>
 
@@ -180,6 +226,60 @@ import { NotificationService } from '../../core/services/notification.service';
     </div>
   `,
   styles: `
+    /* Two samples rather than a switch labelled "12-hour": the reading is
+         the thing being chosen, so it should be the thing on the button. */
+    .clock-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      max-width: 380px;
+    }
+
+    .clock-choice {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 14px 16px;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      background: var(--color-surface);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .clock-choice:hover {
+      border-color: var(--color-primary);
+    }
+
+    .clock-choice--on {
+      border-color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
+    }
+
+    .clock-choice__sample {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .clock-choice__label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+
+    .clock-note {
+      max-width: 62ch;
+      margin-top: 12px;
+      font-size: 11.5px;
+      font-weight: 500;
+      line-height: 1.55;
+      color: var(--color-text-muted);
+    }
+
     :host {
       display: block;
       width: 100%;
@@ -341,6 +441,9 @@ import { NotificationService } from '../../core/services/notification.service';
   `,
 })
 export class SettingsComponent {
+  /** Public: the template drives it directly. */
+  protected readonly clock = inject(ClockFormatService);
+
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
   private destroyRef = inject(DestroyRef);

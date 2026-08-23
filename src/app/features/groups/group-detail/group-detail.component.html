@@ -695,7 +695,7 @@
                       {{ getSessionDisplayTopic(sess) }}
                     </td>
                     <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">
-                      {{ sess.startsAt | date: 'EEE, MMM d, y · h:mm a' }}
+                      {{ sess.startsAt | date: 'EEE, MMM d, y' }} · {{ clock.time(sess.startsAt) }}
                     </td>
                     <td class="py-3 px-3 text-[var(--color-text-secondary)]">
                       {{ sess.instructorName }}
@@ -2001,7 +2001,7 @@
                   {{ getSessionDisplayTopic(sess) }}
                 </td>
                 <td class="py-2.5 px-3 font-medium text-[var(--color-secondary)]">
-                  {{ sess.startsAt | date: 'EEE, MMM d, y · h:mm a' }}
+                  {{ sess.startsAt | date: 'EEE, MMM d, y' }} · {{ clock.time(sess.startsAt) }}
                 </td>
                 <td class="py-2.5 px-3 text-[var(--color-text-secondary)]">
                   {{ sess.instructorName }}

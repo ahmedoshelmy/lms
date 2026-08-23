@@ -19,6 +19,7 @@ import {
   CandidateStatus,
   SlotHold,
 } from '../../core/interfaces/Sales';
+import { ClockFormatService } from '../../core/services/clock-format.service';
 
 type Tab = 'find' | 'holds' | 'pipeline';
 
@@ -43,7 +44,10 @@ export class SalesComponent implements OnInit {
   private readonly notify = inject(NotificationService);
 
   readonly weekdays = WEEKDAYS;
-  readonly shortTime = shortTime;
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clockFormat = inject(ClockFormatService);
+
+  readonly shortTime = this.clockFormat.clock;
   readonly toDayNumber = toDayNumber;
   readonly candidateStatuses = CANDIDATE_STATUSES;
   readonly statusLabels = CANDIDATE_STATUS_LABELS;
@@ -545,7 +549,7 @@ export class SalesComponent implements OnInit {
 
   describeSlot(slot: AvailableSlot | SlotHold['schedules'][number]): string {
     const day = this.weekdays[toDayNumber(slot.dayOfWeek)];
-    return `${day} ${shortTime(slot.startTime)}–${shortTime(slot.endTime)}`;
+    return `${day} ${this.clockFormat.range(slot.startTime, slot.endTime)}`;
   }
 
   holdName(holdId: number | null): string {

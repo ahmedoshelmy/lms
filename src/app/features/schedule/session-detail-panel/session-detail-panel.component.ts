@@ -12,6 +12,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Role, parseRole } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
+import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 function sessionStatusToApiEnum(statusStr: string): number {
   const norm = (statusStr || '').toLowerCase();
@@ -41,6 +42,9 @@ function isSameWeek(d1: Date, d2: Date): boolean {
   styleUrl: './session-detail-panel.component.scss',
 })
 export class SessionDetailPanelComponent {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   private lms = inject(LmsService);
   private auth = inject(AuthService);
   private notify = inject(NotificationService);
@@ -297,11 +301,7 @@ export class SessionDetailPanelComponent {
 
   formatTime(isoString: string): string {
     if (!isoString) return '';
-    return new Date(isoString).toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+    return this.clock.time(isoString);
   }
 
   formatDate(isoString: string): string {

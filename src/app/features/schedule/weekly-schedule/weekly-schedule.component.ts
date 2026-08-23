@@ -1,4 +1,4 @@
-import { Component, input, computed, output, signal } from '@angular/core';
+import { inject, Component, input, computed, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import {
@@ -8,6 +8,7 @@ import {
   getSessionSequence,
   getSessionSequenceLabel,
 } from '../../../core/utils/session-code.utils';
+import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
 export type ViewMode = 'weekly' | 'daily';
@@ -125,6 +126,9 @@ function overlaps(a: ScheduleSession, b: ScheduleSession): boolean {
   styleUrl: './weekly-schedule.component.scss',
 })
 export class WeeklyScheduleComponent {
+  /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
+  protected readonly clock = inject(ClockFormatService);
+
   sessions = input<ScheduleSession[]>([]);
   currentWeekStart = input<Date>(new Date());
   currentDate = input<Date>(new Date());
@@ -447,11 +451,7 @@ export class WeeklyScheduleComponent {
 
   formatTime(iso: string): string {
     if (!iso) return '';
-    return new Date(iso).toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+    return this.clock.time(iso);
   }
 
   getTimelineHours(): number[] {

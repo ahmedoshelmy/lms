@@ -179,7 +179,14 @@ export const REQUEST_TYPE_LABELS: Record<AvailabilityRequestType, string> = {
   SlotException: 'New slot',
 };
 
-/** Trims "HH:mm:ss" to "HH:mm"; the seconds are never meaningful here. */
+/**
+ * Trims "HH:mm:ss" to "HH:mm"; the seconds are never meaningful here.
+ *
+ * Left as a plain function for the places that need a fixed 24-hour string —
+ * populating a time input, or building a value to send back. Anything a person
+ * reads should go through ClockFormatService instead, so it follows whichever
+ * clock they chose.
+ */
 export function shortTime(time: string | null | undefined): string {
   return (time ?? '').slice(0, 5);
 }

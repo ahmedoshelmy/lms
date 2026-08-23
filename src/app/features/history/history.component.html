@@ -223,7 +223,7 @@
             <td class="p-4 font-medium text-[var(--color-primary)]">
               <div>{{ s.startsAt | date: 'mediumDate' }}</div>
               <div class="text-xs text-[var(--color-secondary)]">
-                {{ s.startsAt | date: 'shortTime' }} - {{ s.endsAt | date: 'shortTime' }}
+                {{ clock.time(s.startsAt) }} - {{ clock.time(s.endsAt) }}
               </div>
             </td>
             <td class="p-4 font-semibold text-[var(--color-primary)]">{{ s.groupName }}</td>

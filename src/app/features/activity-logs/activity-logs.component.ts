@@ -52,16 +52,20 @@ export class ActivityLogsComponent implements OnInit {
             todayActivities: res.todayActivities ?? res.TodayActivities ?? 0,
             topActions: (res.topActions ?? res.TopActions ?? []).map((x: any) => ({
               action: x.action ?? x.Action,
-              count: x.count ?? x.Count
+              count: x.count ?? x.Count,
             })),
-            activitiesByRole: (res.activitiesByRole ?? res.ActivitiesByRole ?? []).map((x: any) => ({
-              role: x.role ?? x.Role,
-              count: x.count ?? x.Count
-            })),
-            recentDailyActivity: (res.recentDailyActivity ?? res.RecentDailyActivity ?? []).map((x: any) => ({
-              date: x.date ?? x.Date,
-              count: x.count ?? x.Count
-            }))
+            activitiesByRole: (res.activitiesByRole ?? res.ActivitiesByRole ?? []).map(
+              (x: any) => ({
+                role: x.role ?? x.Role,
+                count: x.count ?? x.Count,
+              })
+            ),
+            recentDailyActivity: (res.recentDailyActivity ?? res.RecentDailyActivity ?? []).map(
+              (x: any) => ({
+                date: x.date ?? x.Date,
+                count: x.count ?? x.Count,
+              })
+            ),
           };
           this.stats.set(mappedStats);
         }
@@ -92,7 +96,7 @@ export class ActivityLogsComponent implements OnInit {
             path: x.path ?? x.Path,
             statusCode: x.statusCode ?? x.StatusCode,
             details: x.details ?? x.Details,
-            createdAt: x.createdAt ?? x.CreatedAt
+            createdAt: x.createdAt ?? x.CreatedAt,
           }));
           this.logs.set(mappedItems);
           this.totalRecords.set(res?.totalCount ?? res?.TotalCount ?? mappedItems.length);

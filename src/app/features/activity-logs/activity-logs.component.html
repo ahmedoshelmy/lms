@@ -11,64 +11,112 @@
       </p>
     </div>
     <div>
-      <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm rounded-xl" (click)="fetchStats(); fetchLogs()"></button>
+      <button
+        pButton
+        icon="pi pi-refresh"
+        label="Refresh"
+        class="p-button-outlined p-button-sm rounded-xl"
+        (click)="fetchStats(); fetchLogs()"
+      ></button>
     </div>
   </div>
 
   <!-- Analytics Stats Section -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-5" *ngIf="stats() as s">
     <!-- Stat Card 1: Total Activities -->
-    <div class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs flex items-center justify-between">
+    <div
+      class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs flex items-center justify-between"
+    >
       <div>
-        <span class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider">Total System Activities</span>
-        <div class="text-3xl font-extrabold text-[var(--color-text-primary)] mt-1">{{ s.totalActivities | number }}</div>
-        <div class="text-xs text-[var(--color-success-foreground)] font-medium mt-2 flex items-center gap-1">
+        <span
+          class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider"
+          >Total System Activities</span
+        >
+        <div class="text-3xl font-extrabold text-[var(--color-text-primary)] mt-1">
+          {{ s.totalActivities | number }}
+        </div>
+        <div
+          class="text-xs text-[var(--color-success-foreground)] font-medium mt-2 flex items-center gap-1"
+        >
           <i class="pi pi-arrow-up text-xs"></i>
           <span>{{ s.todayActivities }} logged today</span>
         </div>
       </div>
-      <div class="w-12 h-12 rounded-xl bg-[var(--color-info-background)] flex items-center justify-center text-[var(--color-secondary)] text-xl">
+      <div
+        class="w-12 h-12 rounded-xl bg-[var(--color-info-background)] flex items-center justify-center text-[var(--color-secondary)] text-xl"
+      >
         <i class="pi pi-bolt"></i>
       </div>
     </div>
 
     <!-- Stat Card 2: Top Actions Used -->
-    <div class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs">
+    <div
+      class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs"
+    >
       <div class="flex items-center justify-between mb-3">
-        <span class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider">Top App Actions</span>
+        <span
+          class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider"
+          >Top App Actions</span
+        >
         <i class="pi pi-star text-amber-500"></i>
       </div>
       <div class="space-y-2">
-        <div *ngFor="let item of s.topActions.slice(0, 3)" class="flex justify-between items-center text-sm">
-          <span class="font-medium text-[var(--color-text-primary)] truncate max-w-[180px]">{{ item.action }}</span>
-          <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-background-alt)] text-[var(--color-primary)]">
+        <div
+          *ngFor="let item of s.topActions.slice(0, 3)"
+          class="flex justify-between items-center text-sm"
+        >
+          <span class="font-medium text-[var(--color-text-primary)] truncate max-w-[180px]">{{
+            item.action
+          }}</span>
+          <span
+            class="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-background-alt)] text-[var(--color-primary)]"
+          >
             {{ item.count }} ops
           </span>
         </div>
-        <div *ngIf="!s.topActions.length" class="text-xs text-[var(--color-text-muted)] italic">No actions recorded yet.</div>
+        <div *ngIf="!s.topActions.length" class="text-xs text-[var(--color-text-muted)] italic">
+          No actions recorded yet.
+        </div>
       </div>
     </div>
 
     <!-- Stat Card 3: Activity Breakdown by Role -->
-    <div class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs">
+    <div
+      class="stat-card bg-[var(--color-surface)] rounded-2xl p-5 border border-[var(--color-border)] shadow-xs"
+    >
       <div class="flex items-center justify-between mb-3">
-        <span class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider">Activity by User Role</span>
+        <span
+          class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider"
+          >Activity by User Role</span
+        >
         <i class="pi pi-users text-blue-500"></i>
       </div>
       <div class="space-y-2">
-        <div *ngFor="let roleItem of s.activitiesByRole" class="flex justify-between items-center text-sm">
+        <div
+          *ngFor="let roleItem of s.activitiesByRole"
+          class="flex justify-between items-center text-sm"
+        >
           <div class="flex items-center gap-2">
             <p-tag [value]="roleItem.role" [severity]="getRoleSeverity(roleItem.role)"></p-tag>
           </div>
-          <span class="font-semibold text-[var(--color-text-primary)]">{{ roleItem.count }} actions</span>
+          <span class="font-semibold text-[var(--color-text-primary)]"
+            >{{ roleItem.count }} actions</span
+          >
         </div>
-        <div *ngIf="!s.activitiesByRole.length" class="text-xs text-[var(--color-text-muted)] italic">No role activity data.</div>
+        <div
+          *ngIf="!s.activitiesByRole.length"
+          class="text-xs text-[var(--color-text-muted)] italic"
+        >
+          No role activity data.
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Audit Feed Table Container -->
-  <div class="bg-[var(--color-surface)] rounded-2xl p-6 border border-[var(--color-border)] shadow-xs space-y-4">
+  <div
+    class="bg-[var(--color-surface)] rounded-2xl p-6 border border-[var(--color-border)] shadow-xs space-y-4"
+  >
     <!-- Search Bar & Filters -->
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
       <h2 class="text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2">
@@ -86,9 +134,17 @@
             placeholder="Search action, user, path..."
             class="w-full sm:w-80 p-inputtext-sm pl-9 rounded-xl border-[var(--color-border)] text-[var(--color-text-primary)] bg-[var(--color-surface)]"
           />
-          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-sm"></i>
+          <i
+            class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] text-sm"
+          ></i>
         </div>
-        <button pButton icon="pi pi-search" label="Search" class="p-button-sm rounded-xl" (click)="onSearch()"></button>
+        <button
+          pButton
+          icon="pi pi-search"
+          label="Search"
+          class="p-button-sm rounded-xl"
+          (click)="onSearch()"
+        ></button>
       </div>
     </div>
 
@@ -126,7 +182,10 @@
             {{ log.userName || 'System / Guest' }}
           </td>
           <td>
-            <p-tag [value]="log.userRole || 'Guest'" [severity]="getRoleSeverity(log.userRole)"></p-tag>
+            <p-tag
+              [value]="log.userRole || 'Guest'"
+              [severity]="getRoleSeverity(log.userRole)"
+            ></p-tag>
           </td>
           <td class="font-semibold text-[var(--color-text-primary)]">
             {{ log.action }}
@@ -138,9 +197,15 @@
             {{ log.path }}
           </td>
           <td>
-            <p-tag [value]="log.statusCode.toString()" [severity]="getStatusSeverity(log.statusCode)"></p-tag>
+            <p-tag
+              [value]="log.statusCode.toString()"
+              [severity]="getStatusSeverity(log.statusCode)"
+            ></p-tag>
           </td>
-          <td class="text-xs text-[var(--color-text-secondary)] max-w-xs truncate" [title]="log.details">
+          <td
+            class="text-xs text-[var(--color-text-secondary)] max-w-xs truncate"
+            [title]="log.details"
+          >
             {{ log.details || '-' }}
           </td>
         </tr>
@@ -153,7 +218,9 @@
             <div class="flex flex-col items-center justify-center text-[var(--color-text-muted)]">
               <i class="pi pi-inbox text-4xl mb-3 text-[var(--color-text-muted)]"></i>
               <p class="font-semibold text-[var(--color-text-primary)]">No activity logs found</p>
-              <p class="text-xs text-[var(--color-text-secondary)] mt-1">Try clearing or updating your search filter.</p>
+              <p class="text-xs text-[var(--color-text-secondary)] mt-1">
+                Try clearing or updating your search filter.
+              </p>
             </div>
           </td>
         </tr>

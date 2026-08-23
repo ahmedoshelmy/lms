@@ -11,7 +11,11 @@ export type NotificationKind =
   | 'SessionCancelled'
   | 'SummaryPublished'
   | 'TimeOffDecided'
-  | 'HoldExpiring';
+  | 'HoldExpiring'
+  | 'ScheduleDigest'
+  | 'AttendanceOutstanding'
+  | 'ComplianceReport'
+  | 'GroupAssigned';
 
 export interface AppNotification {
   id: number;
@@ -43,6 +47,10 @@ export const NOTIFICATION_ICONS: Record<NotificationKind, string> = {
   SummaryPublished: 'pi pi-book',
   TimeOffDecided: 'pi pi-verified',
   HoldExpiring: 'pi pi-hourglass',
+  ScheduleDigest: 'pi pi-calendar',
+  AttendanceOutstanding: 'pi pi-exclamation-circle',
+  ComplianceReport: 'pi pi-chart-bar',
+  GroupAssigned: 'pi pi-sitemap',
 };
 
 /**
