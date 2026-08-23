@@ -38,6 +38,8 @@ import {
   UpdateSessionPayload,
   ApplySessionForwardPayload,
   CreateStandaloneSessionPayload,
+  SendScheduleDigest,
+  ScheduleDigestResult,
 } from '../interfaces/ScheduleSession';
 import {
   GroupHistory,
@@ -486,6 +488,17 @@ export class LmsService {
   getRegisterCompliance(from: string, to: string): Observable<RegisterComplianceReport> {
     return this.http.get<RegisterComplianceReport>(
       `${this.getApiUrl()}/Attendance/compliance?from=${from}&to=${to}`
+    );
+  }
+
+  /**
+   * Sends instructors their week ahead now. The same message the Thursday job
+   * sends, so a reminder pushed by hand cannot contradict the weekly one.
+   */
+  notifyInstructors(payload: SendScheduleDigest): Observable<ScheduleDigestResult> {
+    return this.http.post<ScheduleDigestResult>(
+      `${this.getApiUrl()}/schedule/notify-instructors`,
+      payload
     );
   }
 

@@ -47,3 +47,43 @@
     box-shadow: 0 4px 12px color-mix(in srgb, var(--color-secondary) 30%, transparent);
   }
 }
+
+/* The two ways to send a reminder, as a choice you read rather than a pair of
+   bare labels: which one is right depends on what just changed. */
+.notify-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  input {
+    margin-top: 2px;
+    accent-color: var(--color-primary);
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  strong {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  em {
+    font-size: 11px;
+    font-style: normal;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+}

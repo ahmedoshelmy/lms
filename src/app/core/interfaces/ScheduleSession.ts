@@ -61,3 +61,21 @@ export interface ApplySessionForwardPayload {
   status?: number | string;
   updateWeeklySchedule: boolean;
 }
+
+/** A request to tell instructors about their week, now rather than on Thursday. */
+export interface SendScheduleDigest {
+  /**
+   * Only instructors whose classes have moved. The weekly one goes to
+   * everybody on purpose; a reminder sent after rearranging two groups usually
+   * should not reach the eight people it did not touch.
+   */
+  onlyChanged: boolean;
+  /** A line from operations, put above the usual text. */
+  note?: string | null;
+}
+
+export interface ScheduleDigestResult {
+  notified: number;
+  /** Left out because nothing of theirs had changed. */
+  skipped: number;
+}

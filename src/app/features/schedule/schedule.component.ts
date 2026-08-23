@@ -66,6 +66,45 @@ export class ScheduleComponent implements OnInit {
 
   showStandaloneSessionModal = signal<boolean>(false);
 
+  // ── Telling instructors now, rather than waiting for Thursday ─────────────
+
+  readonly showNotifyDialog = signal(false);
+  readonly notifying = signal(false);
+  readonly notifyOnlyChanged = signal(false);
+  readonly notifyNote = signal('');
+
+  openNotifyDialog(): void {
+    // The note is cleared each time: it describes one particular change, and
+    // last week's reason sent again would be worse than no reason at all.
+    this.notifyNote.set('');
+    this.notifyOnlyChanged.set(false);
+    this.showNotifyDialog.set(true);
+  }
+
+  sendNotify(): void {
+    this.notifying.set(true);
+
+    this.lmsService
+      .notifyInstructors({
+        onlyChanged: this.notifyOnlyChanged(),
+        note: this.notifyNote().trim() || null,
+      })
+      .subscribe({
+        next: (result) => {
+          this.notifying.set(false);
+          this.showNotifyDialog.set(false);
+
+          this.notify.showSuccess(
+            result.notified === 0
+              ? "Nobody's schedule has changed, so nothing was sent."
+              : `Sent to ${result.notified} instructor${result.notified === 1 ? '' : 's'}` +
+                  (result.skipped ? `. ${result.skipped} had no changes.` : '.')
+          );
+        },
+        error: () => this.notifying.set(false),
+      });
+  }
+
   sessions = signal<ScheduleSession[]>([]);
   instructors = signal<User[]>([]);
   selectedInstructorId = signal<number>(0);
