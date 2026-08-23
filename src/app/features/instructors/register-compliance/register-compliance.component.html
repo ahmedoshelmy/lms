@@ -33,6 +33,12 @@
 
   @if (loading()) {
     <p class="compliance__empty">Loading…</p>
+  } @else if (beforeMeasuring()) {
+    <p class="compliance__empty">
+      {{ monthLabel() }} was before the school started keeping registers here, on
+      {{ measuredFromLabel() }}. There is nothing to measure, and nothing that counts against
+      anybody.
+    </p>
   } @else if (!rows().length) {
     <p class="compliance__empty">No classes were taught in {{ monthLabel() }}.</p>
   } @else {

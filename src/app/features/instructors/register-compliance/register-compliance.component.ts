@@ -48,13 +48,18 @@ export class RegisterComplianceComponent implements OnInit {
       : null;
   });
 
-  /** The month being looked at, as `yyyy-MM`. Starts on the one just gone. */
-  readonly month = signal(RegisterComplianceComponent.previousMonth());
+  /**
+   * The month being looked at, as `yyyy-MM`. Opens on the current one.
+   *
+   * The month just gone would be the natural choice for a review, and is what
+   * the monthly email reports on — but it is empty until the school has a full
+   * month of records behind it, and a page that greets you with nothing is
+   * worse than one showing a month still in progress.
+   */
+  readonly month = signal(RegisterComplianceComponent.monthOf(new Date()));
 
-  private static previousMonth(): string {
-    const now = new Date();
-    const previous = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    return `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, '0')}`;
+  private static monthOf(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
   }
 
   readonly monthLabel = computed(() => {
@@ -104,7 +109,35 @@ export class RegisterComplianceComponent implements OnInit {
   }
 
   /** Whether stepping forward would land on a month that has not happened. */
-  readonly atLatest = computed(() => this.month() >= RegisterComplianceComponent.previousMonth());
+  readonly atLatest = computed(
+    () => this.month() >= RegisterComplianceComponent.monthOf(new Date())
+  );
+
+  /**
+   * Whether the month being looked at ended before anybody was being measured.
+   * Distinct from a quiet month: nothing was expected then, so an empty table
+   * is the right answer rather than a worrying one.
+   */
+  readonly beforeMeasuring = computed(() => {
+    const report = this.report();
+    if (!report || this.rows().length) return false;
+
+    const monthEnd = new Date(`${this.month()}-01T00:00:00Z`);
+    monthEnd.setUTCMonth(monthEnd.getUTCMonth() + 1);
+
+    return monthEnd.getTime() <= new Date(report.measuredFrom).getTime();
+  });
+
+  readonly measuredFromLabel = computed(() => {
+    const from = this.report()?.measuredFrom;
+    return from
+      ? new Date(from).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+      : '';
+  });
 
   rateClass(rate: number): string {
     if (rate >= 95) return 'rate--good';
