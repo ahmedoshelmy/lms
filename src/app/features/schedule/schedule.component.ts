@@ -245,6 +245,15 @@ export class ScheduleComponent implements OnInit {
     return this.auth.hasRole(Role.Instructor);
   }
 
+  /**
+   * Anyone who is not a student. The availability overlay — which hours an
+   * instructor has declared, and which sessions fall outside them — is a
+   * staffing question, and the endpoint behind it refuses students.
+   */
+  get isStaff(): boolean {
+    return this.isAdmin || this.isInstructor || this.isSales;
+  }
+
   get totalSessionsThisWeek(): number {
     return this.sessions().length;
   }
@@ -264,7 +273,12 @@ export class ScheduleComponent implements OnInit {
     }
 
     this.loadInstructors();
-    this.loadAvailability();
+
+    // Asking for it as a student is a request that can only be refused, and a
+    // refusal reaches them as a red toast on a page they did nothing wrong on.
+    if (this.isStaff) {
+      this.loadAvailability();
+    }
 
     if (!this.viewsAllInstructors) {
       const userId = this.auth.getUserId();

@@ -1,3 +1,4 @@
+import { isDevMode } from '@angular/core';
 import { Role, parseRole } from '../interfaces/Role';
 import { MenuItem } from '../interfaces/MenuItem';
 
@@ -16,6 +17,8 @@ export interface RoutePermission {
   icon: string;
   roles: Role[];
   showInMenu: boolean;
+  /** Shown only in a development build. */
+  devOnly?: boolean;
 }
 
 export const ROUTE_PERMISSIONS: RoutePermission[] = [
@@ -140,6 +143,11 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     // anyone else testing against a different server was stuck.
     roles: ALL_ROLES,
     showInMenu: true,
+    // Kept out of the menu in a production build. It points the browser at a
+    // different server, which is what you want while developing and a way to
+    // break your own login otherwise. The route still answers, so anybody
+    // talked through it by hand can still get there.
+    devOnly: true,
   },
 ];
 
@@ -149,8 +157,15 @@ export function getRolesForPath(path: string): Role[] {
 
 export function getMenuItemsForRole(rawRole: Role | unknown): MenuItem[] {
   const role = parseRole(rawRole);
+  // isDevMode is read here rather than where the routes are declared, so it is
+  // answered when the menu is built rather than whenever this file first loads.
+  const showing = isDevMode();
+
   return ROUTE_PERMISSIONS.filter(
-    (route) => route.showInMenu && route.roles.some((r) => parseRole(r) === role)
+    (route) =>
+      route.showInMenu &&
+      (showing || !route.devOnly) &&
+      route.roles.some((r) => parseRole(r) === role)
   ).map(({ label, icon, roles, path }) => ({
     label,
     icon,
