@@ -75,17 +75,23 @@ export interface CommandItem {
                   <div
                     class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                     [ngClass]="{
-                      'bg-[var(--color-primary)]/10 text-[var(--color-primary)]': item.category === 'Navigation',
-                      'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]': item.category === 'Student',
-                      'bg-[var(--color-warning)]/10 text-[var(--color-warning-foreground)]': item.category === 'Instructor',
-                      'bg-[var(--color-success)]/10 text-[var(--color-success-foreground)]': item.category === 'Group',
-                      'bg-purple-500/10 text-purple-600': item.category === 'Course'
+                      'bg-[var(--color-primary)]/10 text-[var(--color-primary)]':
+                        item.category === 'Navigation',
+                      'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]':
+                        item.category === 'Student',
+                      'bg-[var(--color-warning)]/10 text-[var(--color-warning-foreground)]':
+                        item.category === 'Instructor',
+                      'bg-[var(--color-success)]/10 text-[var(--color-success-foreground)]':
+                        item.category === 'Group',
+                      'bg-purple-500/10 text-purple-600': item.category === 'Course',
                     }"
                   >
                     <i [class]="'pi ' + item.icon + ' text-sm'"></i>
                   </div>
                   <div class="min-w-0">
-                    <p class="font-extrabold text-xs sm:text-sm text-[var(--color-text-primary)] truncate">
+                    <p
+                      class="font-extrabold text-xs sm:text-sm text-[var(--color-text-primary)] truncate"
+                    >
                       {{ item.label }}
                     </p>
                     @if (item.detail) {
@@ -100,11 +106,15 @@ export interface CommandItem {
                   <span
                     class="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase border border-[var(--color-border)]"
                     [ngClass]="{
-                      'bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)]': item.category === 'Navigation',
-                      'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]': item.category === 'Student',
-                      'bg-[var(--color-warning-background)] text-[var(--color-warning-foreground)]': item.category === 'Instructor',
-                      'bg-[var(--color-success-background)] text-[var(--color-success-foreground)]': item.category === 'Group',
-                      'bg-purple-500/10 text-purple-600': item.category === 'Course'
+                      'bg-[var(--color-surface-secondary)] text-[var(--color-text-muted)]':
+                        item.category === 'Navigation',
+                      'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]':
+                        item.category === 'Student',
+                      'bg-[var(--color-warning-background)] text-[var(--color-warning-foreground)]':
+                        item.category === 'Instructor',
+                      'bg-[var(--color-success-background)] text-[var(--color-success-foreground)]':
+                        item.category === 'Group',
+                      'bg-purple-500/10 text-purple-600': item.category === 'Course',
                     }"
                   >
                     {{ item.category }}
@@ -149,6 +159,15 @@ export class CommandPaletteComponent implements OnInit {
   private lms = inject(LmsService);
   private auth = inject(AuthService);
 
+  /**
+   * Who may read the group list. The palette runs for everybody, so anything it
+   * loads has to be something the viewer is allowed to have — a refused request
+   * still reaches them as an error, whatever this component does with it.
+   */
+  private get canSeeGroups(): boolean {
+    return this.auth.hasRole(Role.Admin) || this.auth.hasRole(Role.Instructor);
+  }
+
   private get isAdmin(): boolean {
     return this.auth.hasRole(Role.Admin);
   }
@@ -162,27 +181,86 @@ export class CommandPaletteComponent implements OnInit {
   allItems = signal<CommandItem[]>([]);
 
   readonly staticNavItems: CommandItem[] = [
-    { id: 'dashboard', label: 'Dashboard', category: 'Navigation', icon: 'pi-th-large', route: ['/dashboard'] },
-    { id: 'schedule', label: 'Schedule & Calendar', category: 'Navigation', icon: 'pi-calendar', route: ['/schedule'] },
-    { id: 'attendance', label: 'Attendance Management', category: 'Navigation', icon: 'pi-check-square', route: ['/attendance'] },
-    { id: 'courses', label: 'Course Catalog', category: 'Navigation', icon: 'pi-book', route: ['/courses'] },
-    { id: 'groups', label: 'Cohort Groups', category: 'Navigation', icon: 'pi-users', route: ['/groups'] },
-    { id: 'students', label: 'Student Directory', category: 'Navigation', icon: 'pi-user', route: ['/students'], adminOnly: true },
-    { id: 'instructors', label: 'Instructor Roster', category: 'Navigation', icon: 'pi-user-edit', route: ['/instructors'], adminOnly: true },
-    { id: 'profile', label: 'My Profile Settings', category: 'Navigation', icon: 'pi-id-card', route: ['/profile'] },
-    { id: 'settings', label: 'System Settings & Diagnostics', category: 'Navigation', icon: 'pi-cog', route: ['/settings'], adminOnly: true },
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      category: 'Navigation',
+      icon: 'pi-th-large',
+      route: ['/dashboard'],
+    },
+    {
+      id: 'schedule',
+      label: 'Schedule & Calendar',
+      category: 'Navigation',
+      icon: 'pi-calendar',
+      route: ['/schedule'],
+    },
+    {
+      id: 'attendance',
+      label: 'Attendance Management',
+      category: 'Navigation',
+      icon: 'pi-check-square',
+      route: ['/attendance'],
+    },
+    {
+      id: 'courses',
+      label: 'Course Catalog',
+      category: 'Navigation',
+      icon: 'pi-book',
+      route: ['/courses'],
+    },
+    {
+      id: 'groups',
+      label: 'Cohort Groups',
+      category: 'Navigation',
+      icon: 'pi-users',
+      route: ['/groups'],
+    },
+    {
+      id: 'students',
+      label: 'Student Directory',
+      category: 'Navigation',
+      icon: 'pi-user',
+      route: ['/students'],
+      adminOnly: true,
+    },
+    {
+      id: 'instructors',
+      label: 'Instructor Roster',
+      category: 'Navigation',
+      icon: 'pi-user-edit',
+      route: ['/instructors'],
+      adminOnly: true,
+    },
+    {
+      id: 'profile',
+      label: 'My Profile Settings',
+      category: 'Navigation',
+      icon: 'pi-id-card',
+      route: ['/profile'],
+    },
+    {
+      id: 'settings',
+      label: 'System Settings & Diagnostics',
+      category: 'Navigation',
+      icon: 'pi-cog',
+      route: ['/settings'],
+      adminOnly: true,
+    },
   ] as (CommandItem & { adminOnly?: boolean })[];
 
   readonly filteredItems = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const list = this.allItems();
     if (!q) return list.slice(0, 10);
-    return list.filter(
-      (item) =>
-        item.label.toLowerCase().includes(q) ||
-        (item.detail && item.detail.toLowerCase().includes(q)) ||
-        item.category.toLowerCase().includes(q)
-    ).slice(0, 15);
+    return list
+      .filter(
+        (item) =>
+          item.label.toLowerCase().includes(q) ||
+          (item.detail && item.detail.toLowerCase().includes(q)) ||
+          item.category.toLowerCase().includes(q)
+      )
+      .slice(0, 15);
   });
 
   @HostListener('window:keydown', ['$event'])
@@ -230,9 +308,7 @@ export class CommandPaletteComponent implements OnInit {
       this.selectedIndex.set((this.selectedIndex() + 1) % Math.max(1, list.length));
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.selectedIndex.set(
-        (this.selectedIndex() - 1 + list.length) % Math.max(1, list.length)
-      );
+      this.selectedIndex.set((this.selectedIndex() - 1 + list.length) % Math.max(1, list.length));
     } else if (event.key === 'Enter') {
       event.preventDefault();
       const selected = list[this.selectedIndex()];
@@ -278,22 +354,26 @@ export class CommandPaletteComponent implements OnInit {
       this.allItems.set([...catalog]);
     }
 
-    // Load Groups
-    this.lms.getGroups().subscribe({
-      next: (groups) => {
-        (groups || []).forEach((g) => {
-          catalog.push({
-            id: `group-${g.id}`,
-            label: g.name,
-            detail: g.status ? `Status: ${g.status}` : 'Cohort Group',
-            category: 'Group',
-            icon: 'pi-users',
-            route: ['/groups', g.id.toString()],
+    // Load Groups — operations only. A group carries every student in it, so
+    // sales and students are refused, and asking anyway put an error in front
+    // of them on a page they had only just opened.
+    if (this.canSeeGroups) {
+      this.lms.getGroups().subscribe({
+        next: (groups) => {
+          (groups || []).forEach((g) => {
+            catalog.push({
+              id: `group-${g.id}`,
+              label: g.name,
+              detail: g.status ? `Status: ${g.status}` : 'Cohort Group',
+              category: 'Group',
+              icon: 'pi-users',
+              route: ['/groups', g.id.toString()],
+            });
           });
-        });
-        this.allItems.set([...catalog]);
-      },
-    });
+          this.allItems.set([...catalog]);
+        },
+      });
+    }
 
     // Load Courses
     this.lms.getCourses().subscribe({
