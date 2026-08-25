@@ -11,6 +11,17 @@ export const OPERATIONS_ROLES: Role[] = [Role.Admin, Role.Instructor];
 /** Sales proposes, operations disposes — both need the slot and hold screens. */
 export const SALES_ROLES: Role[] = [Role.Admin, Role.Sales];
 
+/**
+ * Everyone whose own week the schedule can show.
+ *
+ * Sales is not among them, and never was: the query behind the board returns
+ * an admin everything, an instructor their own sessions and a student theirs,
+ * and falls through to nothing for anybody else. A salesperson opening it saw
+ * an empty week. What they actually need — which hours are free — is the slot
+ * finder on their own page, which answers it and says why an hour is blocked.
+ */
+export const SCHEDULE_ROLES: Role[] = [Role.Admin, Role.Instructor, Role.Student];
+
 export interface RoutePermission {
   path: string;
   label: string;
@@ -40,7 +51,7 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: 'schedule',
     label: 'Schedule',
     icon: 'pi pi-calendar-clock',
-    roles: ALL_ROLES,
+    roles: SCHEDULE_ROLES,
     showInMenu: true,
   },
   {
