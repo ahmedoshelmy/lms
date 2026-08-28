@@ -19,6 +19,8 @@ import {
 import { CertificateCandidate, CertificateStudentRef } from '../../../core/interfaces/Certificate';
 import { CertificateService } from '../../../core/services/certificate.service';
 import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
+import { toGroupOptions } from '../../../core/interfaces/Group';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-student-detail',
@@ -30,12 +32,16 @@ import { CertificateDialogComponent } from '../../../shared/components/certifica
     ProgressSpinnerModule,
     ButtonModule,
     DialogModule,
+    SelectModule,
     CertificateDialogComponent,
   ],
   templateUrl: './student-detail.component.html',
   styleUrl: './student-detail.component.scss',
 })
 export class StudentDetailComponent implements OnInit {
+  /** Groups arranged for choosing between, searchable by name or instructor. */
+  readonly groupOptions = computed(() => toGroupOptions(this.groups(), true));
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private lmsService = inject(LmsService);

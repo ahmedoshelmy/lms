@@ -1324,14 +1324,17 @@
     <div>
       <label class="block font-bold text-[var(--color-text-primary)] mb-1">Assign Group</label>
       <p-select
-        [options]="allGroups()"
+        [options]="groupOptions()"
         [ngModel]="editFormGroupId()"
         (ngModelChange)="editFormGroupId.set($event)"
-        optionLabel="name"
+        optionLabel="label"
         optionValue="id"
         placeholder="Unassigned"
-        [showClear]="true"
-        class="w-full"
+        [filter]="true"
+        filterBy="label"
+        filterPlaceholder="Type a group or instructor"
+        appendTo="body"
+        styleClass="w-full"
       ></p-select>
     </div>
   </div>

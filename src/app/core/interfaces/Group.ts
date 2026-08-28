@@ -130,6 +130,56 @@ export function seatsOverBy(group: Group): number | null {
   return over > 0 ? over : null;
 }
 
+/** A group as a picker shows it. */
+export interface GroupOption {
+  id: number;
+  name: string;
+  /** What the list shows and what typing searches against. */
+  label: string;
+  running: boolean;
+}
+
+/**
+ * Groups arranged for choosing between, which is a different job from listing
+ * them.
+ *
+ * Running groups come first: a student is being put somewhere they will
+ * actually be taught, and a finished cohort is almost never the answer. Within
+ * that it is by name, which sorts by topic for free — every AI together, every
+ * PY together — because the names carry their topic code.
+ *
+ * The instructor is in the label because sixty-eight codes look alike and the
+ * person choosing usually knows whose class they mean. It is searched too, so
+ * typing a name narrows to their groups.
+ */
+export function toGroupOptions(groups: Group[], includeUnassigned = false): GroupOption[] {
+  const unassigned: GroupOption[] = includeUnassigned
+    ? [{ id: 0, name: '', label: 'No group', running: true }]
+    : [];
+
+  return unassigned.concat(
+    groups
+      .map((group) => {
+        const running = (group.status ?? '').toLowerCase() === 'running';
+        const instructor = group.defaultInstructorName;
+
+        return {
+          id: group.id,
+          name: group.name,
+          running,
+          label:
+            group.name +
+            (instructor && instructor !== 'Unassigned' ? ` — ${instructor}` : '') +
+            (running ? '' : ` (${group.status})`),
+        };
+      })
+      .sort((a, b) => {
+        if (a.running !== b.running) return a.running ? -1 : 1;
+        return a.name.localeCompare(b.name, undefined, { numeric: true });
+      })
+  );
+}
+
 export interface GroupScheduleSlot {
   dayOfWeek: string;
   startTime: string;

@@ -32,6 +32,7 @@ import { CertificateCandidate, CertificateStudentRef } from '../../../core/inter
 import { CertificateService } from '../../../core/services/certificate.service';
 import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
+import { toGroupOptions } from '../../../core/interfaces/Group';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -57,6 +58,9 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   styleUrl: './group-detail.component.scss',
 })
 export class GroupDetailComponent implements OnInit {
+  /** Groups arranged for choosing between, searchable by name or instructor. */
+  readonly groupOptions = computed(() => toGroupOptions(this.allGroups(), true));
+
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
   protected readonly clock = inject(ClockFormatService);
 

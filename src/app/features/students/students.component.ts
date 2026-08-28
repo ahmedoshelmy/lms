@@ -8,13 +8,14 @@ import { forkJoin } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
-import { Group, seatsOverBy } from '../../core/interfaces/Group';
+import { Group, seatsOverBy, toGroupOptions } from '../../core/interfaces/Group';
 import { User } from '../../core/interfaces/User';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-students',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule],
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, SelectModule],
   templateUrl: './students.component.html',
   styleUrl: './students.component.scss',
 })
@@ -22,6 +23,16 @@ export class StudentsComponent implements OnInit {
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
   private router = inject(Router);
+
+  /** Groups arranged for choosing between, searchable by name or instructor. */
+  readonly groupOptions = computed(() => toGroupOptions(this.groups(), true));
+
+  /** The same list, behind the two choices the filter row needs first. */
+  readonly groupFilterOptions = computed(() => [
+    { id: -1, name: 'All', label: 'All Groups', running: true },
+    { id: -2, name: 'Unassigned', label: 'Without a group', running: true },
+    ...toGroupOptions(this.groups()),
+  ]);
 
   students = signal<User[]>([]);
   groups = signal<Group[]>([]);

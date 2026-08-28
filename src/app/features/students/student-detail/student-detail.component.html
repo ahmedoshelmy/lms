@@ -647,16 +647,19 @@
       <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
         >Assigned Group</label
       >
-      <select
+      <p-select
+        [options]="groupOptions()"
         [ngModel]="formGroupId()"
         (ngModelChange)="formGroupId.set($event)"
-        class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] cursor-pointer"
-      >
-        <option value="0">-- Unassigned --</option>
-        @for (grp of groups(); track grp.id) {
-          <option [value]="grp.id">{{ grp.name }}</option>
-        }
-      </select>
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Unassigned"
+        [filter]="true"
+        filterBy="label"
+        filterPlaceholder="Type a group or instructor"
+        appendTo="body"
+        styleClass="w-full"
+      ></p-select>
     </div>
   </div>
 
