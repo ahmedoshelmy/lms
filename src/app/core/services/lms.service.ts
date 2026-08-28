@@ -245,6 +245,16 @@ export class LmsService {
     return this.http.get<Group>(`${this.getApiUrl()}/groups/${id}`);
   }
 
+  /**
+   * What the next group on this course would be called. A suggestion only —
+   * the name is settled again on the server when the group is saved.
+   */
+  suggestGroupName(courseLevelId: number): Observable<{ name: string }> {
+    return this.http.get<{ name: string }>(
+      `${this.getApiUrl()}/groups/next-name?courseLevelId=${courseLevelId}`
+    );
+  }
+
   createGroup(payload: CreateGroupPayload): Observable<Group> {
     return this.http.post<Group>(`${this.getApiUrl()}/groups`, payload);
   }

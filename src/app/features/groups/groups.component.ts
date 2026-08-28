@@ -25,6 +25,7 @@ import { Topic } from '../../core/interfaces/Topic';
 import { CourseLevel } from '../../core/interfaces/CourseLevel';
 import { GroupCourseAssignDto } from '../../core/interfaces/GroupCourse';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { catchError, of } from 'rxjs';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -403,12 +404,48 @@ export class GroupsComponent implements OnInit {
     });
   }
 
+  /** True while the name in the box is the one the server offered. */
+  readonly nameWasSuggested = signal(false);
+
+  /**
+   * Fills the name in from the chosen course: the topic's code and the next
+   * number that topic has reached.
+   *
+   * Only ever overwrites a name this same method put there. Somebody who has
+   * typed their own name keeps it, even if they then change the course — the
+   * form should not quietly undo what a person did on purpose.
+   */
+  suggestName(): void {
+    if (this.modalMode() !== 'create') return;
+    if (this.formName && !this.nameWasSuggested()) return;
+
+    const levelId = this.formSelectedCourseLevelId();
+    if (!levelId) return;
+
+    this.lmsService
+      .suggestGroupName(levelId)
+      .pipe(catchError(() => of(null)))
+      .subscribe((result) => {
+        if (result?.name) {
+          this.formName = result.name;
+          this.nameWasSuggested.set(true);
+        }
+      });
+  }
+
+  /** The person has typed over the suggestion, so stop replacing it. */
+  onNameEdited(value: string): void {
+    this.formName = value;
+    this.nameWasSuggested.set(false);
+  }
+
   openCreateModal(): void {
     this.modalMode.set('create');
     this.selectedGroupId.set(null);
     this.editingGroup.set(null);
     this.originalInstructorId.set(0);
     this.formName = '';
+    this.nameWasSuggested.set(false);
 
     const today = new Date();
     const end = new Date();
@@ -424,6 +461,7 @@ export class GroupsComponent implements OnInit {
 
     const levels = this.allCourseLevels();
     this.formSelectedCourseLevelId.set(levels.length > 0 ? levels[0].level.id : null);
+    this.suggestName();
 
     this.scheduleSlots.set([
       { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: 'MOA' },
