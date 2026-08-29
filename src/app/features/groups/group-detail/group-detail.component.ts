@@ -58,6 +58,10 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   styleUrl: './group-detail.component.scss',
 })
 export class GroupDetailComponent implements OnInit {
+  /** Templates cannot reach Math, and a count of what has been taught
+   *  must not go negative for a course that has taught nothing yet. */
+  readonly max = Math.max;
+
   /** Groups arranged for choosing between, searchable by name or instructor. */
   readonly groupOptions = computed(() => toGroupOptions(this.allGroups(), true));
 
