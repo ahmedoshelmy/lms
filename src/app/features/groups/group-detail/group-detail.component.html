@@ -909,13 +909,13 @@
               <!-- Current Session Offset -->
               <div class="flex flex-col gap-1">
                 <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
-                  Session Offset
+                  Sessions Taught
                 </label>
                 <input
                   type="number"
                   min="0"
                   [max]="item.totalSessions"
-                  [(ngModel)]="item.currentSessionNumber"
+                  [(ngModel)]="item.sessionsTaught"
                   class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
                 />
               </div>

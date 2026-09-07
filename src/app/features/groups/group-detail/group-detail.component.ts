@@ -179,7 +179,7 @@ export class GroupDetailComponent implements OnInit {
       topic: string;
       level: number;
       totalSessions: number;
-      currentSessionNumber: number;
+      sessionsTaught: number;
       isActive: boolean;
       status: string;
     }[]
@@ -350,7 +350,9 @@ export class GroupDetailComponent implements OnInit {
     let totalCompleted = 0;
     let totalAll = 0;
     for (const c of grp.courses) {
-      totalCompleted += c.currentSessionNumber;
+      totalCompleted += c.isCompleted
+        ? c.totalSessions
+        : Math.max((c.currentSessionNumber || 0) - 1, 0);
       totalAll += c.totalSessions;
     }
     return totalAll > 0 ? Math.round((totalCompleted / totalAll) * 100) : 0;
@@ -608,7 +610,8 @@ export class GroupDetailComponent implements OnInit {
       topic: c.topic || '',
       level: c.level,
       totalSessions: c.totalSessions || c.sessionCount || 12,
-      currentSessionNumber: c.currentSessionNumber || 0,
+      // Stored as the session owed next; shown as the count behind it.
+      sessionsTaught: Math.max((c.currentSessionNumber || 0) - 1, 0),
       isActive: c.status === 'Active',
       status: c.status || (idx === 0 ? 'Active' : 'Pending'),
     }));
@@ -653,7 +656,7 @@ export class GroupDetailComponent implements OnInit {
         topic: match.topicName || '',
         level: match.level,
         totalSessions: match.sessionCount || 12,
-        currentSessionNumber: 0,
+        sessionsTaught: 0,
         isActive: isFirst,
         status: isFirst ? 'Active' : 'Pending',
       },
@@ -718,7 +721,7 @@ export class GroupDetailComponent implements OnInit {
         courseLevelId: c.courseLevelId,
         orderIndex: idx,
         totalSessions: Number(c.totalSessions) || 12,
-        currentSessionNumber: Number(c.currentSessionNumber) || 0,
+        currentSessionNumber: (Number(c.sessionsTaught) || 0) + 1,
         isActive: c.isActive,
         status: c.isActive ? ('Active' as any) : c.status,
       })),
@@ -741,7 +744,7 @@ export class GroupDetailComponent implements OnInit {
 
   openManageCourseModal(course: GroupCourse): void {
     this.selectedCourseForManagement.set(course);
-    this.manageCourseCurrentSession.set(course.currentSessionNumber || 0);
+    this.manageCourseCurrentSession.set(Math.max((course.currentSessionNumber || 0) - 1, 0));
     this.manageCourseTotalSessions.set(course.totalSessions || course.sessionCount || 12);
     this.manageCourseStatus.set(course.status || 'Active');
     this.manageCourseCustomStartDate.set(new Date().toISOString().split('T')[0]);
@@ -768,7 +771,7 @@ export class GroupDetailComponent implements OnInit {
           groupCourseId: course.id,
           courseLevelId: course.courseLevelId || course.courseId,
           totalSessions: Number(this.manageCourseTotalSessions()) || 12,
-          currentSessionNumber: Number(this.manageCourseCurrentSession()) || 0,
+          currentSessionNumber: (Number(this.manageCourseCurrentSession()) || 0) + 1,
           isActive: this.manageCourseStatus() === 'Active',
           status: this.manageCourseStatus() as any,
         },
@@ -868,7 +871,9 @@ export class GroupDetailComponent implements OnInit {
     let completedSessions = 0;
     for (const c of group.courses) {
       totalSessions += c.totalSessions || 0;
-      completedSessions += c.currentSessionNumber || 0;
+      completedSessions += c.isCompleted
+        ? c.totalSessions || 0
+        : Math.max((c.currentSessionNumber || 0) - 1, 0);
     }
     if (totalSessions === 0) return 0;
     return Math.round((completedSessions / totalSessions) * 100);
@@ -1253,7 +1258,7 @@ export class GroupDetailComponent implements OnInit {
 
   openEditSessionNumberModal(gc: GroupCourse): void {
     this.editingSessionNumberGc.set(gc);
-    this.newCurrentSessionNumberInput.set(gc.currentSessionNumber);
+    this.newCurrentSessionNumberInput.set(Math.max((gc.currentSessionNumber || 0) - 1, 0));
     this.sessionNumberConflictMessage.set(null);
     this.showEditSessionNumberModal.set(true);
   }
