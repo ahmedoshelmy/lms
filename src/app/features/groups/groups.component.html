@@ -626,16 +626,29 @@
         />
       </div>
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >End Date *</label
-        >
-        <input
-          type="date"
-          [(ngModel)]="formEndDate"
-          name="endDate"
-          required
-          class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
-        />
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          End Date{{ editingGroup() ? '' : ' *' }}
+        </label>
+        @if (editingGroup()) {
+          <!-- Once a group has classes, the last one is the end date; there is
+               nothing left for anybody to type. -->
+          <p
+            class="w-full px-3 py-2 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background-alt)] text-[var(--color-text-secondary)] text-sm"
+          >
+            {{ formEndDate || 'No sessions yet' }}
+          </p>
+          <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">
+            Follows the group's last class.
+          </p>
+        } @else {
+          <input
+            type="date"
+            [(ngModel)]="formEndDate"
+            name="endDate"
+            required
+            class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
+          />
+        }
       </div>
     </div>
 

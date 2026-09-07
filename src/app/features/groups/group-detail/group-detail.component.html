@@ -810,13 +810,18 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-            End Date *
+            End Date
           </label>
-          <input
-            type="date"
-            [(ngModel)]="formEndDate"
-            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-          />
+          <!-- Derived from the last scheduled session, so there is nothing to
+               type: an editable box here only ever held a date nobody kept. -->
+          <p
+            class="w-full px-3.5 py-2.5 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background-alt)] text-xs text-[var(--color-text-secondary)] font-medium"
+          >
+            {{ formEndDate || 'No sessions yet' }}
+          </p>
+          <p class="mt-1 text-[10px] text-[var(--color-text-muted)] font-medium">
+            Follows the group's last class.
+          </p>
         </div>
       </div>
 
