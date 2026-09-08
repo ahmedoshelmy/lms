@@ -16,6 +16,21 @@ export interface User {
   createdAt?: string;
   /** Instructors only: the most they should teach in a week, in minutes. */
   weeklyCapacityMinutes?: number | null;
+
+  /** Students only: classes left on the course they are taking. */
+  sessionsRemaining?: number | null;
+
+  /**
+   * Students only: their course is within two classes of its end, so somebody
+   * should ask whether they are carrying on. Worked out from the course, so it
+   * appears and clears itself as classes are taught.
+   */
+  renewalDue?: boolean;
+
+  /** Students only: a colleague has already had that conversation. */
+  renewalHandled?: boolean;
+  renewalHandledAt?: string | null;
+  renewalHandledByName?: string | null;
 }
 
 export interface CreateUserPayload {

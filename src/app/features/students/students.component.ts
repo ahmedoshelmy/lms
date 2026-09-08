@@ -43,6 +43,8 @@ export class StudentsComponent implements OnInit {
   // Group Filter: 'All' | 'Unassigned' | groupName
   groupFilter = signal<string>('All');
   riskFilter = signal<'All' | 'At-Risk' | 'Low-Risk'>('All');
+  renewalFilter = signal<'All' | 'Needed' | 'Handled'>('All');
+  savingRenewalFor = signal<number | null>(null);
 
   // Persistent Selected Student IDs across searches and filters
   selectedStudentIds = signal<Set<number>>(new Set());
@@ -87,6 +89,43 @@ export class StudentsComponent implements OnInit {
       : 'pi-sort-amount-down text-[var(--color-secondary)] font-bold';
   }
 
+  /**
+   * Say the renewal is dealt with, or put it back on the list. Only the mark
+   * is stored: whether the renewal is due is read from the course, so this
+   * lapses by itself when the group starts its next one.
+   */
+  toggleRenewalHandled(student: User): void {
+    if (!student.groupId) {
+      this.notify.showError('That student is not in a group, so there is no course to renew.');
+      return;
+    }
+
+    const handled = !student.renewalHandled;
+    this.savingRenewalFor.set(student.id);
+
+    this.lms.setRenewalHandled(student.groupId, student.id, handled).subscribe({
+      next: () => {
+        this.students.update((list) =>
+          list.map((s) =>
+            s.id === student.id
+              ? { ...s, renewalHandled: handled, renewalHandledAt: new Date().toISOString() }
+              : s
+          )
+        );
+        this.savingRenewalFor.set(null);
+        this.notify.showSuccess(
+          handled
+            ? `${student.name}'s renewal marked as handled.`
+            : `${student.name} is back on the renewal list.`
+        );
+      },
+      error: () => {
+        this.savingRenewalFor.set(null);
+        this.notify.showError('Could not update the renewal.');
+      },
+    });
+  }
+
   isStudentAtRisk(s: User): boolean {
     return !s.groupId && !s.groupName;
   }
@@ -95,10 +134,36 @@ export class StudentsComponent implements OnInit {
     return this.students().filter((s) => this.isStudentAtRisk(s)).length;
   });
 
+  /**
+   * Their course is nearly out and nobody has said they have dealt with it.
+   * The server decides whether a renewal is due -- it reads the course each
+   * time, so this list empties itself as groups move up a level.
+   */
+  needsRenewal(s: User): boolean {
+    return !!s.renewalDue && !s.renewalHandled;
+  }
+
+  readonly renewalCount = computed(
+    () => this.students().filter((s) => this.needsRenewal(s)).length
+  );
+
+  readonly renewalHandledCount = computed(
+    () => this.students().filter((s) => s.renewalDue && s.renewalHandled).length
+  );
+
+  /** "Last class" reads better than "0 left" on a course that has run out. */
+  renewalLabel(s: User): string {
+    const left = s.sessionsRemaining;
+    if (left === null || left === undefined) return 'Renewal';
+    if (left <= 0) return 'Course finished';
+    return left === 1 ? 'Last class' : `${left} classes left`;
+  }
+
   filteredStudents = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
     const gFilter = this.groupFilter();
     const rFilter = this.riskFilter();
+    const renewal = this.renewalFilter();
 
     const list = this.students().filter((s) => {
       let matchesGroup = true;
@@ -121,7 +186,14 @@ export class StudentsComponent implements OnInit {
         (s.email && s.email.toLowerCase().includes(q)) ||
         (s.groupName && s.groupName.toLowerCase().includes(q));
 
-      return matchesGroup && matchesRisk && matchesSearch;
+      let matchesRenewal = true;
+      if (renewal === 'Needed') {
+        matchesRenewal = this.needsRenewal(s);
+      } else if (renewal === 'Handled') {
+        matchesRenewal = !!s.renewalDue && !!s.renewalHandled;
+      }
+
+      return matchesGroup && matchesRisk && matchesRenewal && matchesSearch;
     });
 
     const col = this.sortColumn();

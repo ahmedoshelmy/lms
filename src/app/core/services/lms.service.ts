@@ -178,6 +178,18 @@ export class LmsService {
     return this.http.get<InstructorDetails>(`${this.getApiUrl()}/instructors/${id}/details`);
   }
 
+  /**
+   * Take a student off the renewal list, or put them back on it. Whether the
+   * renewal is due is read from the course; this records only that somebody
+   * has dealt with it.
+   */
+  setRenewalHandled(groupId: number, studentId: number, handled: boolean): Observable<void> {
+    return this.http.put<void>(
+      `${this.getApiUrl()}/groups/${groupId}/students/${studentId}/renewal`,
+      { handled }
+    );
+  }
+
   getInstructorStats(id: number): Observable<InstructorStats> {
     return this.http.get<InstructorStats>(`${this.getApiUrl()}/instructors/${id}/stats`);
   }

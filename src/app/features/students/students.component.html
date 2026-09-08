@@ -67,6 +67,19 @@
         </select>
       </div>
 
+      <!-- Renewal Filter -->
+      <div class="relative w-full sm:w-52">
+        <select
+          [ngModel]="renewalFilter()"
+          (ngModelChange)="renewalFilter.set($event)"
+          class="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] cursor-pointer shadow-sm"
+        >
+          <option value="All">All Renewals</option>
+          <option value="Needed">🔔 Renewal needed ({{ renewalCount() }})</option>
+          <option value="Handled">Renewal handled ({{ renewalHandledCount() }})</option>
+        </select>
+      </div>
+
       <!-- Search Input -->
       <div
         class="flex items-center gap-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl px-4 py-2.5 w-full sm:w-64 shadow-sm"
@@ -252,9 +265,51 @@
                     Unassigned
                   </span>
                 }
+
+                <!-- Their course is nearly out. Worked out from the course
+                     itself, so it clears when the group moves up a level. -->
+                @if (needsRenewal(student)) {
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20"
+                    [title]="'Renewal needed — ' + renewalLabel(student)"
+                  >
+                    <i class="pi pi-bell text-[10px]"></i>
+                    {{ renewalLabel(student) }}
+                  </span>
+                } @else if (student.renewalDue && student.renewalHandled) {
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20"
+                    [title]="
+                      'Renewal handled' +
+                      (student.renewalHandledByName ? ' by ' + student.renewalHandledByName : '')
+                    "
+                  >
+                    <i class="pi pi-check text-[10px]"></i>
+                    Renewal handled
+                  </span>
+                }
               </div>
 
               <div class="flex items-center gap-1">
+                @if (student.renewalDue && student.groupId) {
+                  <button
+                    type="button"
+                    (click)="toggleRenewalHandled(student)"
+                    [disabled]="savingRenewalFor() === student.id"
+                    class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer disabled:opacity-40"
+                    [title]="
+                      student.renewalHandled
+                        ? 'Put back on the renewal list'
+                        : 'Mark this renewal as handled'
+                    "
+                  >
+                    <i
+                      class="pi text-sm"
+                      [class.pi-undo]="student.renewalHandled"
+                      [class.pi-check-circle]="!student.renewalHandled"
+                    ></i>
+                  </button>
+                }
                 <button
                   type="button"
                   (click)="viewStudent(student)"
