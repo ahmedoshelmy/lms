@@ -160,13 +160,33 @@ export class ScheduleComponent implements OnInit {
     return Array.from(set).sort();
   });
 
+  /**
+   * Everyone who could be filtered to, not only those already on screen.
+   *
+   * This was built from the loaded sessions alone, so an instructor appeared
+   * in the filter only once they had a class inside the dates being viewed. A
+   * newly added one was therefore missing from it — which reads as the account
+   * not having been created — and a colleague whose next class is a fortnight
+   * out could not be checked on at all.
+   *
+   * The roster comes first; names found only on sessions are kept alongside it
+   * so somebody who has since changed role does not vanish from their own past
+   * classes.
+   */
   readonly uniqueInstructors = computed(() => {
     const set = new Set<string>();
+
+    for (const i of this.instructors()) {
+      // id 0 is the "All Instructors" entry the dropdown adds for itself.
+      if (i.id !== 0 && i.name) set.add(i.name);
+    }
+
     for (const s of this.sessions()) {
       if (s.instructorName && s.instructorName.toLowerCase() !== 'unassigned') {
         set.add(s.instructorName);
       }
     }
+
     return Array.from(set).sort();
   });
 
