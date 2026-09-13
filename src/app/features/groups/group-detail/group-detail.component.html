@@ -322,26 +322,18 @@
                       <div
                         class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-1.5"
                       >
-                        <!-- currentSessionNumber is the session owed next, not the count already
-                           taught, so the sessions behind it stop one short of it. -->
+                        <!-- taught() and nextSession() are the shared rules, so this
+                             agrees with the groups list rather than guessing again. -->
                         <span>
                           Taught:
                           <strong>
-                            {{
-                              c.currentSessionNumber > 1
-                                ? 'S1..S' +
-                                  (c.isCompleted
-                                    ? c.totalSessions
-                                    : max(c.currentSessionNumber - 1, 0))
-                                : 'none yet'
-                            }}
+                            {{ taught(c) > 0 ? 'S1..S' + taught(c) : 'none yet' }}
                           </strong>
-                          ({{
-                            c.isCompleted ? c.totalSessions : max(c.currentSessionNumber - 1, 0)
-                          }}/{{ c.totalSessions }})
+                          ({{ taught(c) }}/{{ c.totalSessions }})
                         </span>
                         <span class="font-bold text-[var(--color-secondary)]">
-                          Next: {{ c.isCompleted ? 'Done' : 'Session ' + c.currentSessionNumber }}
+                          Next:
+                          {{ nextSession(c) === null ? 'Done' : 'Session ' + nextSession(c) }}
                         </span>
                       </div>
 
@@ -350,15 +342,7 @@
                       >
                         <div
                           class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-500"
-                          [style.width.%]="
-                            c.totalSessions > 0
-                              ? ((c.isCompleted
-                                  ? c.totalSessions
-                                  : max(c.currentSessionNumber - 1, 0)) /
-                                  c.totalSessions) *
-                                100
-                              : 0
-                          "
+                          [style.width.%]="progressOf(c)"
                         ></div>
                       </div>
 

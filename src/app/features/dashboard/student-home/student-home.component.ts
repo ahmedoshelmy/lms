@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -11,13 +11,14 @@ import {
 } from '../../../core/interfaces/StudentDetails';
 import { StudentSessionSummary } from '../../../core/interfaces/SessionSyllabus';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
+import { sessionsTaught } from '../../../core/utils/course-progress.utils';
 
 /**
  * What a student lands on.
  *
  * They used to arrive at the operations overview: sessions taught this month
  * across the whole school, cancellation rates, a bar chart per instructor.
- * A student wants four things — when is my next class, how far through am I,
+ * A student wants four things â€” when is my next class, how far through am I,
  * have I been turning up, and what did we do last time.
  */
 @Component({
@@ -52,7 +53,7 @@ export class StudentHomeComponent implements OnInit {
     () => this.record()?.upcomingSessions?.[0] ?? null
   );
 
-  // ── Progress ─────────────────────────────────────────────────────────────
+  // â”€â”€ Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * Sessions behind them, counted from where the course has got to. The
@@ -60,8 +61,7 @@ export class StudentHomeComponent implements OnInit {
    */
   readonly sessionsDone = computed(() => {
     const course = this.activeCourse();
-    if (!course) return 0;
-    return course.isCompleted ? course.totalSessions : Math.max(0, course.currentSessionNumber - 1);
+    return course ? sessionsTaught(course) : 0;
   });
 
   readonly progressPercent = computed(() => {
@@ -70,7 +70,7 @@ export class StudentHomeComponent implements OnInit {
     return Math.min(100, Math.round((this.sessionsDone() / course.totalSessions) * 100));
   });
 
-  // ── Attendance ───────────────────────────────────────────────────────────
+  // â”€â”€ Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /** Cancelled classes are nobody's absence, so they are left out of the sum. */
   readonly counted = computed(() =>
@@ -92,7 +92,7 @@ export class StudentHomeComponent implements OnInit {
     () => this.counted().filter((a) => a.attendanceStatus === 'Absent').length
   );
 
-  // ── Last class ───────────────────────────────────────────────────────────
+  // â”€â”€ Last class â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * The most recent class with something written about it. A summary nobody

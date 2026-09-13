@@ -33,6 +33,11 @@ import { CertificateService } from '../../../core/services/certificate.service';
 import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { toGroupOptions } from '../../../core/interfaces/Group';
+import {
+  nextSessionNumber,
+  progressPercent,
+  sessionsTaught,
+} from '../../../core/utils/course-progress.utils';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -61,6 +66,12 @@ export class GroupDetailComponent implements OnInit {
   /** Templates cannot reach Math, and a count of what has been taught
    *  must not go negative for a course that has taught nothing yet. */
   readonly max = Math.max;
+
+  // The shared progress rules, bound so the template can call them. Doing this
+  // arithmetic inline is what let the groups list and this page disagree.
+  readonly taught = sessionsTaught;
+  readonly nextSession = nextSessionNumber;
+  readonly progressOf = (course: GroupCourse): number => progressPercent([course]);
 
   /** Groups arranged for choosing between, searchable by name or instructor. */
   readonly groupOptions = computed(() => toGroupOptions(this.allGroups(), true));
@@ -344,19 +355,7 @@ export class GroupDetailComponent implements OnInit {
     return this.groupSessions().filter((s) => s.status === 'Completed');
   });
 
-  overallProgressPercent = computed(() => {
-    const grp = this.group();
-    if (!grp || !grp.courses || grp.courses.length === 0) return 0;
-    let totalCompleted = 0;
-    let totalAll = 0;
-    for (const c of grp.courses) {
-      totalCompleted += c.isCompleted
-        ? c.totalSessions
-        : Math.max((c.currentSessionNumber || 0) - 1, 0);
-      totalAll += c.totalSessions;
-    }
-    return totalAll > 0 ? Math.round((totalCompleted / totalAll) * 100) : 0;
-  });
+  overallProgressPercent = computed(() => progressPercent(this.group()?.courses));
 
   totalGroupSessionsCount = computed(() => {
     const grp = this.group();
@@ -866,17 +865,7 @@ export class GroupDetailComponent implements OnInit {
   }
 
   getGroupProgress(group: Group | null): number {
-    if (!group || !group.courses || group.courses.length === 0) return 0;
-    let totalSessions = 0;
-    let completedSessions = 0;
-    for (const c of group.courses) {
-      totalSessions += c.totalSessions || 0;
-      completedSessions += c.isCompleted
-        ? c.totalSessions || 0
-        : Math.max((c.currentSessionNumber || 0) - 1, 0);
-    }
-    if (totalSessions === 0) return 0;
-    return Math.round((completedSessions / totalSessions) * 100);
+    return progressPercent(group?.courses);
   }
 
   openAddStudentModal(): void {

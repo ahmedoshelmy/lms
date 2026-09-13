@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
@@ -17,6 +17,7 @@ import {
   StudentDetails,
 } from '../../core/interfaces/StudentDetails';
 import { StudentSessionSummary } from '../../core/interfaces/SessionSyllabus';
+import { sessionsTaught } from '../../core/utils/course-progress.utils';
 
 type Tab = 'progress' | 'attendance' | 'classes';
 
@@ -64,7 +65,7 @@ export class MyLearningComponent implements OnInit {
 
   readonly group = computed(() => this.record()?.currentGroup ?? null);
 
-  // ── Progress ─────────────────────────────────────────────────────────────
+  // â”€â”€ Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * Every course the group has been assigned, finished or not, judged by the
@@ -86,9 +87,7 @@ export class MyLearningComponent implements OnInit {
         course.isCompleted
       );
 
-      const done = course.isCompleted
-        ? course.totalSessions
-        : Math.max(0, course.currentSessionNumber - 1);
+      const done = sessionsTaught(course);
 
       return {
         course,
@@ -105,7 +104,7 @@ export class MyLearningComponent implements OnInit {
     });
   });
 
-  // ── Attendance ───────────────────────────────────────────────────────────
+  // â”€â”€ Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /** Cancelled classes are nobody's absence, so they are shown but not counted. */
   readonly attendance = computed(() =>
@@ -135,7 +134,7 @@ export class MyLearningComponent implements OnInit {
     () => this.counted().filter((a) => a.attendanceStatus === 'Late').length
   );
 
-  // ── Classes ──────────────────────────────────────────────────────────────
+  // â”€â”€ Classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   readonly writtenUp = computed(() =>
     this.summaries()

@@ -9,6 +9,7 @@ import {
   getSessionSequenceLabel,
 } from '../../../core/utils/session-code.utils';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
+import { progressPercent } from '../../../core/utils/course-progress.utils';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
 export type ViewMode = 'weekly' | 'daily';
@@ -354,9 +355,15 @@ export class WeeklyScheduleComponent {
       .slice(0, 2);
   }
 
+  /**
+   * How far the course is through, from the class in front of you.
+   *
+   * A session carries its course's progress pointer, which is the session owed
+   * next — so counting it as taught reported a course one session further on
+   * than it was, and a hundred per cent on the morning of the last class.
+   */
   getProgressPercent(s: ScheduleSession): number {
-    if (!s.totalSessions) return 0;
-    return Math.round((s.currentSessionNumber / s.totalSessions) * 100);
+    return progressPercent([s]);
   }
 
   getProgressLabel(s: ScheduleSession): string {

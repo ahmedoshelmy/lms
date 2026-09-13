@@ -24,6 +24,11 @@ import { User } from '../../core/interfaces/User';
 import { Topic } from '../../core/interfaces/Topic';
 import { CourseLevel } from '../../core/interfaces/CourseLevel';
 import { GroupCourseAssignDto } from '../../core/interfaces/GroupCourse';
+import {
+  courseTotals,
+  progressPercent,
+  sessionsRemaining,
+} from '../../core/utils/course-progress.utils';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { catchError, of } from 'rxjs';
 
@@ -513,12 +518,7 @@ export class GroupsComponent implements OnInit {
         return upcoming.length;
       }
     }
-    if (!group.courses || group.courses.length === 0) return 0;
-    return group.courses.reduce((sum, c) => {
-      const total = c.sessionCount || 12;
-      const current = c.currentSessionNumber || 0;
-      return sum + Math.max(0, total - current);
-    }, 0);
+    return (group.courses || []).reduce((sum, c) => sum + sessionsRemaining(c), 0);
   }
 
   saveGroup(): void {
@@ -660,26 +660,18 @@ export class GroupsComponent implements OnInit {
     return 'level-default';
   }
 
+  // All three read currentSessionNumber as a count of sessions taught. It is
+  // the session owed next, so every figure on this page was one per course too
+  // high — and disagreed with the group's own page, which had it right.
   getGroupProgress(group: Group): number {
-    if (!group.courses || group.courses.length === 0) return 0;
-    let totalSessions = 0;
-    let completedSessions = 0;
-    for (const c of group.courses) {
-      const total = c.totalSessions || c.sessionCount || 0;
-      totalSessions += total;
-      completedSessions += c.currentSessionNumber || 0;
-    }
-    if (totalSessions === 0) return 0;
-    return Math.min(100, Math.round((completedSessions / totalSessions) * 100));
+    return progressPercent(group.courses);
   }
 
   getGroupTotalSessions(group: Group): number {
-    if (!group.courses) return 0;
-    return group.courses.reduce((sum, c) => sum + (c.totalSessions || c.sessionCount || 0), 0);
+    return courseTotals(group.courses).total;
   }
 
   getGroupCompletedSessions(group: Group): number {
-    if (!group.courses) return 0;
-    return group.courses.reduce((sum, c) => sum + (c.currentSessionNumber || 0), 0);
+    return courseTotals(group.courses).taught;
   }
 }
