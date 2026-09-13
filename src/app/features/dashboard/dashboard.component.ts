@@ -1,10 +1,11 @@
-import { Component, inject, computed, signal, OnInit, PLATFORM_ID } from '@angular/core';
+﻿import { Component, inject, computed, signal, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LmsService } from '../../core/services/lms.service';
 import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { Group } from '../../core/interfaces/Group';
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { SalesOverviewComponent } from './sales-overview/sales-overview.component';
@@ -53,14 +54,15 @@ export class DashboardComponent implements OnInit {
   loadingAttendanceSummary = signal(false);
   upcomingSessions = signal<ScheduleSession[]>([]);
   allSessions = signal<ScheduleSession[]>([]);
-  courseCount = signal<number | '—'>('—');
-  instructorCount = signal<number | '—'>('—');
-  studentCount = signal<number | '—'>('—');
-  groupCount = signal<number | '—'>('—');
-  attendedToday = signal<number | '—'>('—');
-  attendedThisWeek = signal<number | '—'>('—');
-  sessionsUpdatedTodayCount = signal<number | '—'>('—');
-  pendingAttendanceCount = signal<number | '—'>('—');
+  courseCount = signal<number | 'â€”'>('â€”');
+  instructorCount = signal<number | 'â€”'>('â€”');
+  studentCount = signal<number | 'â€”'>('â€”');
+  groupCount = signal<number | 'â€”'>('â€”');
+  groups = signal<Group[]>([]);
+  attendedToday = signal<number | 'â€”'>('â€”');
+  attendedThisWeek = signal<number | 'â€”'>('â€”');
+  sessionsUpdatedTodayCount = signal<number | 'â€”'>('â€”');
+  pendingAttendanceCount = signal<number | 'â€”'>('â€”');
   updatedSessionsList = signal<PendingAttendanceSessionDto[]>([]);
   pendingSessionsList = signal<PendingAttendanceSessionDto[]>([]);
 
@@ -174,7 +176,7 @@ export class DashboardComponent implements OnInit {
     return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   });
 
-  // ─── Interval Sessions (the sessions for the selected view) ──────────
+  // â”€â”€â”€ Interval Sessions (the sessions for the selected view) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly intervalSessions = computed(() => {
     const view = this.activeView();
     const now = new Date();
@@ -196,7 +198,7 @@ export class DashboardComponent implements OnInit {
     return this.allSessions();
   });
 
-  // ─── Sessions per Instructor (chart data) ─────────────────────────────
+  // â”€â”€â”€ Sessions per Instructor (chart data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly sessionsPerInstructor = computed<ChartBar[]>(() => {
     const sessions = this.intervalSessions();
     const map = new Map<string, number>();
@@ -224,7 +226,7 @@ export class DashboardComponent implements OnInit {
       }));
   });
 
-  // ─── Sessions per Course (chart data) ─────────────────────────────────
+  // â”€â”€â”€ Sessions per Course (chart data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly sessionsPerCourse = computed<ChartBar[]>(() => {
     const sessions = this.intervalSessions();
     const map = new Map<string, number>();
@@ -252,7 +254,7 @@ export class DashboardComponent implements OnInit {
       }));
   });
 
-  // ─── Status Distribution (for donut chart) ────────────────────────────
+  // â”€â”€â”€ Status Distribution (for donut chart) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly statusDistribution = computed(() => {
     const total = this.totalSessionsCount();
     return {
@@ -266,7 +268,7 @@ export class DashboardComponent implements OnInit {
     };
   });
 
-  // ─── Daily Session Count (for bar chart) ──────────────────────────────
+  // â”€â”€â”€ Daily Session Count (for bar chart) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly dailySessionCounts = computed(() => {
     const sessions = this.intervalSessions();
     const map = new Map<string, number>();
@@ -333,6 +335,31 @@ export class DashboardComponent implements OnInit {
     ];
   });
 
+  /** Groups actually teaching, as opposed to finished, stopped or archived. */
+  readonly runningGroups = computed(() => this.groups().filter((g) => g.status === 'Running'));
+
+  /**
+   * Children currently in class, counted by head rather than by adding the
+   * groups up: three of them attend more than one running group, so the sum of
+   * group sizes is 144 where the number of children is 140. The roster comes
+   * down with the group list, so this costs nothing; where it has not, the
+   * group's own count stands in.
+   */
+  readonly studentsInRunningGroups = computed(() => {
+    const seen = new Set<number>();
+    let withoutRoster = 0;
+
+    for (const group of this.runningGroups()) {
+      if (group.students?.length) {
+        for (const student of group.students) seen.add(student.studentId);
+      } else {
+        withoutRoster += group.studentCount || 0;
+      }
+    }
+
+    return seen.size + withoutRoster;
+  });
+
   readonly overviewStatCards = computed<StatCard[]>(() => {
     const sessions = this.intervalSessions().length;
     const cards: StatCard[] = [
@@ -386,13 +413,22 @@ export class DashboardComponent implements OnInit {
           subtitle: 'Enrolled learners',
         },
         {
-          label: 'Groups',
-          value: this.groupCount(),
+          label: 'Running Groups',
+          value: this.runningGroups().length,
           icon: 'pi pi-sitemap',
           color: 'var(--color-primary)',
           link: '/groups',
           loading: this.loadingCounts(),
-          subtitle: 'Assigned cohorts',
+          subtitle: `${this.groupCount()} on the books`,
+        },
+        {
+          label: 'Students in Class',
+          value: this.studentsInRunningGroups(),
+          icon: 'pi pi-user-plus',
+          color: 'var(--color-accent)',
+          link: '/groups',
+          loading: this.loadingCounts(),
+          subtitle: 'Across the running groups',
         }
       );
     }
@@ -570,7 +606,10 @@ export class DashboardComponent implements OnInit {
         error: () => {},
       });
       this.lms.getGroups().subscribe({
-        next: (groups) => this.groupCount.set(groups?.length ?? 0),
+        next: (groups) => {
+          this.groups.set(groups ?? []);
+          this.groupCount.set(groups?.length ?? 0);
+        },
         error: () => {},
       });
     }
@@ -647,3 +686,4 @@ export class DashboardComponent implements OnInit {
     return 'status-badge--scheduled';
   }
 }
+
