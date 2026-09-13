@@ -930,10 +930,16 @@
   gap: 6px;
 }
 
+/* Start and end time sit together once there is room for them. On a phone two
+   time inputs in ~160px each are a fiddle to hit, so they stack. */
 .edit-field-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
+
+  @media (min-width: 480px) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .edit-label {

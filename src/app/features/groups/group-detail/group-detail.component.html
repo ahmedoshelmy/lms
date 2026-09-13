@@ -1,4 +1,4 @@
-<div class="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
+﻿<div class="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
   <!-- Top Compact Header & Breadcrumbs -->
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-2 text-xs font-semibold">
@@ -96,18 +96,18 @@
                 {{ group()!.defaultInstructorName }}
               </button>
             </div>
-            <span class="text-[var(--color-border)]">•</span>
+            <span class="text-[var(--color-border)]">â€¢</span>
             @if (group()!.location) {
               <div class="flex items-center gap-1">
                 <i class="pi pi-map-marker text-[var(--color-primary)] text-xs"></i>
                 <span class="font-semibold">{{ group()!.location }}</span>
               </div>
-              <span class="text-[var(--color-border)]">•</span>
+              <span class="text-[var(--color-border)]">â€¢</span>
             }
             <div class="flex items-center gap-1">
               <i class="pi pi-calendar text-[var(--color-text-muted)] text-xs"></i>
               <span
-                >{{ group()!.startDate | date: 'mediumDate' }} –
+                >{{ group()!.startDate | date: 'mediumDate' }} â€“
                 {{ group()!.endDate | date: 'mediumDate' }}</span
               >
             </div>
@@ -143,7 +143,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold"
           >
-            👥
+            ðŸ‘¥
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -161,7 +161,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-sm font-bold"
           >
-            📚
+            ðŸ“š
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -179,7 +179,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold"
           >
-            📅
+            ðŸ“…
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -197,7 +197,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold"
           >
-            📈
+            ðŸ“ˆ
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -287,7 +287,7 @@
                                 : 'text-[var(--color-text-muted)]'
                             "
                           >
-                            • {{ c.status }}
+                            â€¢ {{ c.status }}
                           </span>
                         </div>
                         <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
@@ -381,7 +381,7 @@
                   (click)="openEditModal()"
                   class="text-xs font-bold text-[var(--color-secondary)] hover:underline cursor-pointer"
                 >
-                  ✏ Edit
+                  âœ Edit
                 </button>
               }
             </div>
@@ -452,7 +452,7 @@
                 (click)="openCustomGenerateModal(group()!.courses[0] || null)"
                 class="w-full py-2.5 px-3.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>⚡ Generate Sessions</span>
+                <span>âš¡ Generate Sessions</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
 
@@ -460,7 +460,7 @@
                 (click)="openPromoteDialog()"
                 class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>🚀 Promote Group</span>
+                <span>ðŸš€ Promote Group</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
 
@@ -468,7 +468,7 @@
                 (click)="openAddStudentModal()"
                 class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>👥 Add Student</span>
+                <span>ðŸ‘¥ Add Student</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
 
@@ -476,7 +476,7 @@
                 (click)="openEditScheduleModal()"
                 class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>📅 Edit Weekly Schedule</span>
+                <span>ðŸ“… Edit Weekly Schedule</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
             </div>
@@ -691,7 +691,7 @@
                       {{ getSessionDisplayTopic(sess) }}
                     </td>
                     <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">
-                      {{ sess.startsAt | date: 'EEE, MMM d, y' }} · {{ clock.time(sess.startsAt) }}
+                      {{ sess.startsAt | date: 'EEE, MMM d, y' }} Â· {{ clock.time(sess.startsAt) }}
                     </td>
                     <td class="py-3 px-3 text-[var(--color-text-secondary)]">
                       {{ sess.instructorName }}
@@ -889,7 +889,7 @@
                   </span>
                 </div>
                 <p class="text-[11px] text-[var(--color-text-muted)]">
-                  {{ item.topic }} • Level {{ item.level }}
+                  {{ item.topic }} â€¢ Level {{ item.level }}
                 </p>
               </div>
             </div>
@@ -1570,7 +1570,7 @@
                   </span>
                   <span class="text-[10px] text-[var(--color-text-muted)]">{{ c.topicName }}</span>
                   <span class="text-[10px] text-[var(--color-text-muted)]"
-                    >· {{ c.sessionCount }} sessions</span
+                    >Â· {{ c.sessionCount }} sessions</span
                   >
                 </div>
               </div>
@@ -1979,7 +1979,7 @@
         <span class="text-xs font-bold text-[var(--color-text-muted)]">
           {{ courseSessions().length }} session{{ courseSessions().length !== 1 ? 's' : '' }}
         </span>
-        <span class="text-[10px] text-[var(--color-text-muted)]">·</span>
+        <span class="text-[10px] text-[var(--color-text-muted)]">Â·</span>
         <span class="text-xs text-[var(--color-text-secondary)]">
           {{ courseSessions() | slice: 0 : 1 }} - {{ courseSessions() | slice: -1 }}
         </span>
@@ -2005,7 +2005,7 @@
                   {{ getSessionDisplayTopic(sess) }}
                 </td>
                 <td class="py-2.5 px-3 font-medium text-[var(--color-secondary)]">
-                  {{ sess.startsAt | date: 'EEE, MMM d, y' }} · {{ clock.time(sess.startsAt) }}
+                  {{ sess.startsAt | date: 'EEE, MMM d, y' }} Â· {{ clock.time(sess.startsAt) }}
                 </td>
                 <td class="py-2.5 px-3 text-[var(--color-text-secondary)]">
                   {{ sess.instructorName }}
@@ -2312,7 +2312,7 @@
         Hold Duration Mode
       </label>
       <div
-        class="grid grid-cols-3 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]"
+        class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]"
       >
         <button
           type="button"
@@ -2397,7 +2397,7 @@
           Every class this group still has booked will be called off, and the group marked Stopped.
         </p>
         <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
-          Nothing is deleted — the classes stay on record as cancelled, with the reason below, and
+          Nothing is deleted â€” the classes stay on record as cancelled, with the reason below, and
           any register already taken is kept. The group disappears from the schedule until you set
           it Running again, at which point the rest of its course is laid out afresh from where its
           progress stands. Use this when you do not know the return date.

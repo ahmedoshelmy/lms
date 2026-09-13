@@ -1,4 +1,4 @@
-<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
+﻿<div class="p-6 md:p-10 max-w-7xl mx-auto min-h-screen">
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
     <div>
@@ -257,7 +257,7 @@
     [resizable]="false"
   >
     <div class="flex flex-col gap-4 py-2">
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="col-span-1">
           <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
             Code *
@@ -477,7 +477,7 @@
 
     @if (loadingSyllabus()) {
       <p class="course-accordion__status">
-        <i class="pi pi-spinner pi-spin text-[11px]"></i> Loading session content…
+        <i class="pi pi-spinner pi-spin text-[11px]"></i> Loading session contentâ€¦
       </p>
     } @else if (!syllabus().length) {
       <p class="course-accordion__status">No session content has been added for this level yet.</p>

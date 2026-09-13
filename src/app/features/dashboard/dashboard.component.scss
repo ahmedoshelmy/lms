@@ -106,9 +106,13 @@
 /* Stat Grid */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* Two across on a phone. Three squeezed a label, a number and a subtitle
+     into about a hundred points, which wrapped every card to four lines. */
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
+
   @media (min-width: 640px) {
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
 }
