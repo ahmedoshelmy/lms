@@ -2312,7 +2312,7 @@
         Hold Duration Mode
       </label>
       <div
-        class="grid grid-cols-2 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]"
+        class="grid grid-cols-3 gap-2 p-1 bg-[var(--color-background-alt)] rounded-xl border border-[var(--color-border)]"
       >
         <button
           type="button"
@@ -2335,6 +2335,17 @@
         >
           <i class="pi pi-calendar"></i>
           Pause until Resume Date
+        </button>
+        <button
+          type="button"
+          (click)="holdMode.set('indefinite')"
+          [class.bg-[var(--color-surface)]]="holdMode() === 'indefinite'"
+          [class.shadow-xs]="holdMode() === 'indefinite'"
+          [class.text-[var(--color-primary)]]="holdMode() === 'indefinite'"
+          class="py-2 px-3 rounded-lg text-xs font-bold transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <i class="pi pi-pause-circle"></i>
+          Stop until I say
         </button>
       </div>
     </div>
@@ -2361,7 +2372,7 @@
           forward by {{ holdCount() || 1 }} week(s).
         </p>
       </div>
-    } @else {
+    } @else if (holdMode() === 'untilDate') {
       <div class="space-y-2">
         <label class="block text-xs font-bold text-[var(--color-text-primary)]">
           Resume Date (Hold Until)
@@ -2375,6 +2386,21 @@
         <p class="text-[11px] text-[var(--color-text-muted)]">
           All scheduled sessions on or before this date will be paused, with substitute sessions
           added after this date.
+        </p>
+      </div>
+    } @else {
+      <!-- No date to invent. The group stops and stays stopped. -->
+      <div
+        class="p-4 rounded-2xl bg-[var(--color-background-alt)] border border-[var(--color-border)] space-y-2"
+      >
+        <p class="text-xs font-bold text-[var(--color-text-primary)]">
+          Every class this group still has booked will be called off, and the group marked Stopped.
+        </p>
+        <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+          Nothing is deleted — the classes stay on record as cancelled, with the reason below, and
+          any register already taken is kept. The group disappears from the schedule until you set
+          it Running again, at which point the rest of its course is laid out afresh from where its
+          progress stands. Use this when you do not know the return date.
         </p>
       </div>
     }

@@ -262,7 +262,7 @@ export class GroupDetailComponent implements OnInit {
 
   // Pause / Hold Group Modal Signals
   showHoldModal = signal<boolean>(false);
-  holdMode = signal<'count' | 'untilDate'>('count');
+  holdMode = signal<'count' | 'untilDate' | 'indefinite'>('count');
   holdCount = signal<number>(1);
   holdUntilDate = signal<string>('');
   holdReason = signal<string>('Holiday / Vacation Break');
@@ -1331,17 +1331,26 @@ export class GroupDetailComponent implements OnInit {
 
     if (this.holdMode() === 'count') {
       payload.count = Number(this.holdCount());
-    } else {
+    } else if (this.holdMode() === 'untilDate') {
       payload.holdUntilDate = this.holdUntilDate();
+    } else {
+      payload.indefinite = true;
     }
+
+    const indefinite = this.holdMode() === 'indefinite';
 
     this.lmsService.cancelUpcomingGroupSessions(groupData.id, payload).subscribe({
       next: (res) => {
         this.submittingHold.set(false);
         this.showHoldModal.set(false);
 
+        // An open-ended hold schedules no replacements, so reporting
+        // "0 substitutes scheduled" would read as a failure.
         this.notify.showSuccess(
-          `Group held successfully: ${res.cancelledCount} session(s) paused, ${res.substitutesCreated} substitute(s) scheduled, and ${res.shiftedCount} future session(s) shifted forward.`
+          indefinite
+            ? `${groupData.name} is stopped. ${res.cancelledCount} class(es) called off — ` +
+              `set the group Running again to put it back on the schedule.`
+            : `Group held successfully: ${res.cancelledCount} session(s) paused, ${res.substitutesCreated} substitute(s) scheduled, and ${res.shiftedCount} future session(s) shifted forward.`
         );
 
         this.loadGroupDetail(groupData.id);

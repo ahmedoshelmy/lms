@@ -229,6 +229,12 @@ export interface CancelUpcomingSessionsPayload {
   groupCourseId?: number;
   count?: number;
   holdUntilDate?: string;
+  /**
+   * Hold the group until somebody says otherwise: every class it has booked is
+   * called off and the group stopped, with nothing on the schedule until it is
+   * set Running again. For a break whose end nobody knows yet.
+   */
+  indefinite?: boolean;
   reason?: string;
 }
 
