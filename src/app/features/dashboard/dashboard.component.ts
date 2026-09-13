@@ -293,7 +293,10 @@ export class DashboardComponent implements OnInit {
     const attendedLabel = view === 'today' ? 'Attended Today' : `Attended ${viewLabel}`;
     const attendedSubtitle =
       view === 'today' ? 'Students present today' : `Students present ${viewLabel.toLowerCase()}`;
-    const sessionCount = this.intervalSessions().length;
+    // Cancelled classes are not classes. Counting them made a week with four
+    // call-offs read as four classes busier than it was.
+    const sessionCount = this.liveIntervalSessions().length;
+    const taughtCount = this.taughtIntervalCount();
 
     return [
       {
@@ -312,7 +315,9 @@ export class DashboardComponent implements OnInit {
         color: 'var(--color-secondary)',
         link: '/schedule',
         loading: this.loadingUpcoming(),
-        subtitle: `${this.viewIntervalLabel()}`,
+        subtitle: sessionCount
+          ? `${taughtCount} taught, ${sessionCount - taughtCount} to come`
+          : `${this.viewIntervalLabel()}`,
       },
       {
         label: 'Updated Today',
@@ -339,6 +344,23 @@ export class DashboardComponent implements OnInit {
   readonly runningGroups = computed(() => this.groups().filter((g) => g.status === 'Running'));
 
   /**
+   * Classes in the view that are still classes.
+   *
+   * The count included cancelled ones, so a week with four call-offs read as
+   * four classes busier than it was — and "62 sessions this week" against 56
+   * running groups looked like an error when it was cancellations and a week
+   * that starts on the Saturday just gone.
+   */
+  readonly liveIntervalSessions = computed(() =>
+    this.intervalSessions().filter((s) => !(s.status ?? '').toLowerCase().includes('cancel'))
+  );
+
+  /** Of those, the ones already behind us. */
+  readonly taughtIntervalCount = computed(
+    () => this.liveIntervalSessions().filter((s) => new Date(s.startsAt) < new Date()).length
+  );
+
+  /**
    * Children currently in class, counted by head rather than by adding the
    * groups up: three of them attend more than one running group, so the sum of
    * group sizes is 144 where the number of children is 140. The roster comes
@@ -361,7 +383,8 @@ export class DashboardComponent implements OnInit {
   });
 
   readonly overviewStatCards = computed<StatCard[]>(() => {
-    const sessions = this.intervalSessions().length;
+    const sessions = this.liveIntervalSessions().length;
+    const taught = this.taughtIntervalCount();
     const cards: StatCard[] = [
       {
         label: `Sessions (${this.viewLabel()})`,
@@ -370,7 +393,9 @@ export class DashboardComponent implements OnInit {
         color: 'var(--color-secondary)',
         link: '/schedule',
         loading: this.loadingUpcoming(),
-        subtitle: `${this.viewIntervalLabel()}`,
+        subtitle: sessions
+          ? `${taught} taught, ${sessions - taught} to come`
+          : `${this.viewIntervalLabel()}`,
       },
       {
         label: 'Hours',
