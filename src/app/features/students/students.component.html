@@ -448,12 +448,54 @@
                     Unassigned
                   </span>
                 }
+
+                <!-- Their course is nearly out. The same badge the card layout
+                     carries; this table had the filter but nothing to show for it. -->
+                @if (needsRenewal(student)) {
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20"
+                    [title]="'Renewal needed — ' + renewalLabel(student)"
+                  >
+                    <i class="pi pi-bell text-[10px]"></i>
+                    {{ renewalLabel(student) }}
+                  </span>
+                } @else if (student.renewalDue && student.renewalHandled) {
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20"
+                    [title]="
+                      'Renewal handled' +
+                      (student.renewalHandledByName ? ' by ' + student.renewalHandledByName : '')
+                    "
+                  >
+                    <i class="pi pi-check text-[10px]"></i>
+                    Handled
+                  </span>
+                }
               </td>
               <td class="px-4 py-3.5 text-xs text-[var(--color-text-muted)]">
                 {{ formatDate(student.createdAt) }}
               </td>
               <td class="px-4 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
+                  @if (student.renewalDue && student.groupId) {
+                    <button
+                      type="button"
+                      (click)="toggleRenewalHandled(student)"
+                      [disabled]="savingRenewalFor() === student.id"
+                      class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer disabled:opacity-40"
+                      [title]="
+                        student.renewalHandled
+                          ? 'Put back on the renewal list'
+                          : 'Mark this renewal as handled'
+                      "
+                    >
+                      <i
+                        class="pi text-xs"
+                        [class.pi-undo]="student.renewalHandled"
+                        [class.pi-check-circle]="!student.renewalHandled"
+                      ></i>
+                    </button>
+                  }
                   <button
                     type="button"
                     (click)="viewStudent(student)"
