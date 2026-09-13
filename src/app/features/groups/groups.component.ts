@@ -26,6 +26,7 @@ import { CourseLevel } from '../../core/interfaces/CourseLevel';
 import { GroupCourseAssignDto } from '../../core/interfaces/GroupCourse';
 import {
   courseTotals,
+  nextSessionNumber,
   progressPercent,
   sessionsRemaining,
 } from '../../core/utils/course-progress.utils';
@@ -673,5 +674,25 @@ export class GroupsComponent implements OnInit {
 
   getGroupCompletedSessions(group: Group): number {
     return courseTotals(group.courses).taught;
+  }
+
+  /**
+   * The level and session the group teaches next — the thing people open this
+   * page to find out, and what they were reading off a "Completed: 11 / 12"
+   * that meant neither.
+   */
+  nextUp(group: Group): string {
+    const courses = group.courses || [];
+    const course =
+      courses.find((c) => c.status === 'Active') ??
+      courses.find((c) => sessionsRemaining(c) > 0);
+
+    if (!course) return 'Nothing left to teach';
+
+    const next = nextSessionNumber(course);
+    if (next === null) return 'Nothing left to teach';
+
+    const left = sessionsRemaining(course);
+    return `Next: L${course.level} session ${next} · ${left} left`;
   }
 }
