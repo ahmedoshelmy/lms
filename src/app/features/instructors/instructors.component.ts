@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
 import { User } from '../../core/interfaces/User';
+import { InstructorWorkload } from '../../core/interfaces/InstructorWorkload';
 
 @Component({
   selector: 'app-instructors',
@@ -37,6 +38,65 @@ export class InstructorsComponent implements OnInit {
   formName = signal('');
   formEmail = signal('');
   formPassword = signal('');
+
+  /**
+   * The most they should teach in a week, in hours, as typed. Empty means no
+   * ceiling — which is what every instructor had until now, because the field
+   * existed on the record with nowhere to set it.
+   */
+  formWeeklyHours = signal<string>('');
+
+  /** Booked, offered and capped, for the whole team. */
+  workload = signal<InstructorWorkload[]>([]);
+
+  /** Keyed by instructor, so a table row can find its own figures. */
+  readonly workloadById = computed(() => {
+    const map = new Map<number, InstructorWorkload>();
+    for (const row of this.workload()) map.set(row.instructorId, row);
+    return map;
+  });
+
+  /** Anyone booked beyond the ceiling somebody set for them. */
+  readonly overCapacity = computed(() =>
+    this.workload().filter((w) => w.capacityHours != null && w.scheduledHours > w.capacityHours)
+  );
+
+  /** Booked past what they said they could teach — a different problem. */
+  readonly overAvailability = computed(() =>
+    this.workload().filter((w) => w.hasAvailability && w.scheduledHours > w.availableHours)
+  );
+
+  /** Nobody has asked them when they can teach. */
+  readonly withoutAvailability = computed(() =>
+    this.workload().filter((w) => !w.hasAvailability)
+  );
+
+  readonly teamScheduledHours = computed(() =>
+    Math.round(this.workload().reduce((sum, w) => sum + w.scheduledHours, 0) * 10) / 10
+  );
+
+  readonly teamAvailableHours = computed(() =>
+    Math.round(this.workload().reduce((sum, w) => sum + w.availableHours, 0) * 10) / 10
+  );
+
+  /**
+   * How full their week is, as a percentage.
+   *
+   * Measured against the limit where somebody set one, and against what they
+   * offered otherwise — a bar with no denominator says nothing. Capped at 100
+   * so a bar cannot run past its track, though the figure beside it still
+   * shows the real overrun.
+   */
+  loadPercent(row: InstructorWorkload): number {
+    const ceiling = row.capacityHours ?? (row.hasAvailability ? row.availableHours : 0);
+    if (!ceiling) return 0;
+    return Math.min(100, Math.round((row.scheduledHours / ceiling) * 100));
+  }
+
+  /** Hours they offered that nothing has been booked into yet. */
+  freeHours(row: InstructorWorkload): number {
+    return Math.round((row.availableHours - row.scheduledHours) * 10) / 10;
+  }
 
   // Sorting state
   sortColumn = signal<string>('name');
@@ -110,6 +170,14 @@ export class InstructorsComponent implements OnInit {
         this.loading.set(false);
       },
     });
+
+    // Separate call, and deliberately not blocking the list: the roster is
+    // what the page is for, and the week's figures are worth waiting for
+    // separately rather than holding the names back.
+    this.lms.getInstructorWorkload().subscribe({
+      next: (data) => this.workload.set(data || []),
+      error: () => this.workload.set([]),
+    });
   }
 
   openCreateModal(): void {
@@ -117,6 +185,8 @@ export class InstructorsComponent implements OnInit {
     this.formName.set('');
     this.formEmail.set('');
     this.formPassword.set('');
+
+    this.formWeeklyHours.set('');
     this.showInstructorModal.set(true);
   }
 
@@ -125,6 +195,12 @@ export class InstructorsComponent implements OnInit {
     this.formName.set(instructor.name);
     this.formEmail.set(instructor.email || '');
     this.formPassword.set('');
+
+    this.formWeeklyHours.set(
+
+      instructor.weeklyCapacityMinutes ? String(instructor.weeklyCapacityMinutes / 60) : ''
+
+    );
     this.showInstructorModal.set(true);
   }
 
@@ -148,6 +224,15 @@ export class InstructorsComponent implements OnInit {
       return;
     }
 
+    // Typed in hours because that is how the school talks about a teaching
+    // week; stored in minutes because a session is not always a whole hour.
+    const hours = Number(this.formWeeklyHours());
+    if (this.formWeeklyHours().trim() && (!Number.isFinite(hours) || hours < 0 || hours > 168)) {
+      this.notify.showWarn('A weekly limit must be a number of hours between 0 and 168.');
+      return;
+    }
+    const weeklyCapacityMinutes = this.formWeeklyHours().trim() ? Math.round(hours * 60) : null;
+
     this.saving.set(true);
 
     if (this.editingInstructor()) {
@@ -158,6 +243,7 @@ export class InstructorsComponent implements OnInit {
           email,
           role: Role.Instructor,
           password: password || undefined,
+          weeklyCapacityMinutes,
         })
         .subscribe({
           next: () => {
@@ -177,6 +263,7 @@ export class InstructorsComponent implements OnInit {
           email,
           password,
           role: Role.Instructor,
+          weeklyCapacityMinutes,
         })
         .subscribe({
           next: () => {
@@ -221,7 +308,7 @@ export class InstructorsComponent implements OnInit {
   }
 
   formatDate(iso?: string): string {
-    if (!iso) return '—';
+    if (!iso) return 'â€”';
     return new Date(iso).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

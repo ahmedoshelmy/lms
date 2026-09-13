@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
@@ -33,6 +33,7 @@ import {
   CancelUpcomingSessionsResult,
 } from '../interfaces/Group';
 import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
+import { InstructorWorkload } from '../interfaces/InstructorWorkload';
 import {
   ScheduleSession,
   UpdateSessionPayload,
@@ -118,7 +119,7 @@ export class LmsService {
     this.apiUrlSubject.next(this.defaultApiUrl);
   }
 
-  // ─── Auth ────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.getApiUrl()}/auth/login`, payload, {
@@ -136,7 +137,7 @@ export class LmsService {
     );
   }
 
-  // ─── Users ───────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getStudents(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/students`);
@@ -190,11 +191,19 @@ export class LmsService {
     );
   }
 
+  /**
+   * Booked, offered and capped for every instructor, in one read. A stats
+   * call per row would be a request per instructor.
+   */
+  getInstructorWorkload(): Observable<InstructorWorkload[]> {
+    return this.http.get<InstructorWorkload[]>(`${this.getApiUrl()}/instructors/workload`);
+  }
+
   getInstructorStats(id: number): Observable<InstructorStats> {
     return this.http.get<InstructorStats>(`${this.getApiUrl()}/instructors/${id}/stats`);
   }
 
-  // ─── Topics & Course Levels ────────────────────────────────────────────────
+  // â”€â”€â”€ Topics & Course Levels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getTopics(): Observable<Topic[]> {
     return this.http.get<Topic[]>(`${this.getApiUrl()}/topics`);
@@ -247,7 +256,7 @@ export class LmsService {
     return this.http.get<Course[]>(`${this.getApiUrl()}/topics`);
   }
 
-  // ─── Groups ──────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Groups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.getApiUrl()}/groups`);
@@ -258,7 +267,7 @@ export class LmsService {
   }
 
   /**
-   * What the next group on this course would be called. A suggestion only —
+   * What the next group on this course would be called. A suggestion only â€”
    * the name is settled again on the server when the group is saved.
    */
   suggestGroupName(courseLevelId: number): Observable<{ name: string }> {
@@ -364,7 +373,7 @@ export class LmsService {
     );
   }
 
-  // ─── Schedule & Sessions ──────────────────────────────────────────────────
+  // â”€â”€â”€ Schedule & Sessions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getSchedule(from?: Date, to?: Date): Observable<ScheduleSession[]> {
     let url = `${this.getApiUrl()}/schedule`;
@@ -412,7 +421,7 @@ export class LmsService {
     );
   }
 
-  // ─── Session syllabus ─────────────────────────────────────────────────────
+  // â”€â”€â”€ Session syllabus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * The curriculum entry for a scheduled session, resolved by the API through
@@ -466,7 +475,7 @@ export class LmsService {
     );
   }
 
-  // ─── Attendance ───────────────────────────────────────────────────────────
+  // â”€â”€â”€ Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getSessionAttendance(sessionId: number): Observable<AttendanceResponseDto[]> {
     return this.http.get<AttendanceResponseDto[]>(
@@ -528,7 +537,7 @@ export class LmsService {
     return this.http.get<AttendanceSummaryDto>(`${this.getApiUrl()}/Attendance/summary`);
   }
 
-  // ─── Group Promotion & History ─────────────────────────────────────────────
+  // â”€â”€â”€ Group Promotion & History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   promoteGroupNextLevel(groupId: number, payload: PromoteGroupNextLevelPayload): Observable<Group> {
     return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/promote`, payload);
@@ -568,7 +577,7 @@ export class LmsService {
     return this.http.get<ScheduleSession[]>(url);
   }
 
-  // ── Availability ──────────────────────────────────────────────────────────
+  // â”€â”€ Availability â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getRooms(includeInactive = false): Observable<Room[]> {
     return this.http.get<Room[]>(
@@ -590,7 +599,7 @@ export class LmsService {
     );
   }
 
-  /** Admin only — everyone else asks for a change instead. */
+  /** Admin only â€” everyone else asks for a change instead. */
   replaceWeeklyAvailability(
     instructorId: number,
     windows: AvailabilityWindowInput[],
@@ -634,7 +643,7 @@ export class LmsService {
     return this.http.get<InstructorTimeOff[]>(`${this.getApiUrl()}/Availability/time-off${query}`);
   }
 
-  // ── Availability requests ─────────────────────────────────────────────────
+  // â”€â”€ Availability requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getAvailabilityRequests(status?: string, type?: string): Observable<AvailabilityRequest[]> {
     const params: string[] = [];
@@ -702,7 +711,7 @@ export class LmsService {
     );
   }
 
-  // ── Slot finder ───────────────────────────────────────────────────────────
+  // â”€â”€ Slot finder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
    * The weekly hours a new group could go into. The one answer to "is this hour
@@ -725,7 +734,7 @@ export class LmsService {
     return this.http.get<AvailableSlot[]>(`${this.getApiUrl()}/Availability/slots${query}`);
   }
 
-  // ── Holds ─────────────────────────────────────────────────────────────────
+  // â”€â”€ Holds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getSlotHolds(
     options: {
@@ -774,7 +783,7 @@ export class LmsService {
     });
   }
 
-  // ── Candidates ────────────────────────────────────────────────────────────
+  // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   getCandidates(
     options: {

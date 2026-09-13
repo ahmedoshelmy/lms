@@ -1,4 +1,4 @@
-import { Role } from './Role';
+﻿import { Role } from './Role';
 
 export interface User {
   id: number;
@@ -40,6 +40,8 @@ export interface CreateUserPayload {
   password: string;
   role: Role;
   groupId?: number;
+  /** Instructors only: the most they should teach in a week, in minutes. */
+  weeklyCapacityMinutes?: number | null;
 }
 
 export interface UpdateUserPayload {
@@ -49,4 +51,6 @@ export interface UpdateUserPayload {
   password?: string;
   role: Role;
   groupId?: number;
+  /** Instructors only: the most they should teach in a week, in minutes. */
+  weeklyCapacityMinutes?: number | null;
 }
