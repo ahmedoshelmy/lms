@@ -17,6 +17,12 @@ export interface User {
   /** Instructors only: the most they should teach in a week, in minutes. */
   weeklyCapacityMinutes?: number | null;
 
+  /**
+   * When the account was switched off, or null while in use. A deactivated
+   * account cannot sign in and is left out of every picker, but keeps its history.
+   */
+  deactivatedAt?: string | null;
+
   /** Students only: classes left on the course they are taking. */
   sessionsRemaining?: number | null;
 

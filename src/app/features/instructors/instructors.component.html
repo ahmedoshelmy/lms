@@ -49,7 +49,9 @@
       class="mb-6 sm:mb-8 p-4 sm:p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xs"
     >
       <div class="flex flex-wrap items-baseline justify-between gap-2 mb-4">
-        <h2 class="text-sm font-black text-[var(--color-text-primary)]">This week's teaching load</h2>
+        <h2 class="text-sm font-black text-[var(--color-text-primary)]">
+          This week's teaching load
+        </h2>
         <p class="text-[11px] text-[var(--color-text-muted)]">
           {{ teamScheduledHours() }}h booked of {{ teamAvailableHours() }}h offered, Saturday to
           Saturday
@@ -106,7 +108,9 @@
             <div class="flex items-baseline gap-1.5 mb-2">
               <span
                 class="text-xl font-black leading-none"
-                [class.text-rose-600]="row.capacityHours != null && row.scheduledHours > row.capacityHours"
+                [class.text-rose-600]="
+                  row.capacityHours != null && row.scheduledHours > row.capacityHours
+                "
                 [class.text-[var(--color-text-primary)]]="
                   !(row.capacityHours != null && row.scheduledHours > row.capacityHours)
                 "
@@ -199,6 +203,7 @@
       @for (instructor of filteredInstructors(); track instructor.id) {
         <div
           class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm flex flex-col justify-between gap-3"
+          [class.opacity-60]="isDeactivated(instructor)"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
@@ -215,6 +220,12 @@
                 >
                   {{ instructor.name }}
                 </button>
+                @if (isDeactivated(instructor)) {
+                  <span
+                    class="ml-1.5 align-middle px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-[var(--color-background-alt)] text-[var(--color-text-muted)] border border-[var(--color-border)]"
+                    >Deactivated</span
+                  >
+                }
                 <p class="text-xs text-[var(--color-text-muted)] truncate">
                   {{ instructor.email }}
                 </p>
@@ -252,14 +263,26 @@
               >
                 <i class="pi pi-pencil text-xs"></i>
               </button>
-              <button
-                type="button"
-                (click)="openDeleteModal(instructor)"
-                class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                title="Delete Instructor"
-              >
-                <i class="pi pi-trash text-xs"></i>
-              </button>
+              @if (isDeactivated(instructor)) {
+                <button
+                  type="button"
+                  (click)="reactivate(instructor)"
+                  [disabled]="saving()"
+                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-success)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer disabled:opacity-40"
+                  title="Reactivate — let them sign in again"
+                >
+                  <i class="pi pi-replay text-xs"></i>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  (click)="openDeleteModal(instructor)"
+                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  title="Remove — deactivate or delete"
+                >
+                  <i class="pi pi-trash text-xs"></i>
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -316,7 +339,10 @@
         </thead>
         <tbody class="divide-y divide-[var(--color-border)] text-sm">
           @for (instructor of filteredInstructors(); track instructor.id) {
-            <tr class="hover:bg-[var(--color-surface-hover)] transition-colors">
+            <tr
+              class="hover:bg-[var(--color-surface-hover)] transition-colors"
+              [class.opacity-60]="isDeactivated(instructor)"
+            >
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <button
@@ -331,6 +357,12 @@
                   >
                     {{ instructor.name }}
                   </button>
+                  @if (isDeactivated(instructor)) {
+                    <span
+                      class="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-[var(--color-background-alt)] text-[var(--color-text-muted)] border border-[var(--color-border)]"
+                      >Deactivated</span
+                    >
+                  }
                 </div>
               </td>
               <td class="px-6 py-4 text-[var(--color-text-muted)]">{{ instructor.email }}</td>
@@ -362,14 +394,26 @@
                   >
                     <i class="pi pi-pencil"></i>
                   </button>
-                  <button
-                    type="button"
-                    (click)="openDeleteModal(instructor)"
-                    class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                    title="Delete Instructor"
-                  >
-                    <i class="pi pi-trash"></i>
-                  </button>
+                  @if (isDeactivated(instructor)) {
+                    <button
+                      type="button"
+                      (click)="reactivate(instructor)"
+                      [disabled]="saving()"
+                      class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-success)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer disabled:opacity-40"
+                      title="Reactivate — let them sign in again"
+                    >
+                      <i class="pi pi-replay"></i>
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="openDeleteModal(instructor)"
+                      class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      title="Remove — deactivate or delete"
+                    >
+                      <i class="pi pi-trash"></i>
+                    </button>
+                  }
                 </div>
               </td>
             </tr>
@@ -474,25 +518,48 @@
     </ng-template>
   </p-dialog>
 
-  <!-- Delete Modal -->
+  <!-- Remove Modal
+       Deleting somebody who has taught would erase who took their classes and
+       marked their registers, so the ordinary way out is to deactivate. -->
   <p-dialog
     [(visible)]="showDeleteModal"
-    header="Confirm Delete"
+    header="Remove instructor"
     [modal]="true"
-    [style]="{ width: '100%', maxWidth: '440px' }"
+    [style]="{ width: '100%', maxWidth: '460px' }"
     [draggable]="false"
     [resizable]="false"
   >
-    <div class="py-2">
-      <p class="text-sm text-[var(--color-text-primary)]">
-        Are you sure you want to delete
-        <strong class="text-[var(--color-primary)]">{{ deletingInstructor()?.name }}</strong
-        >? This action cannot be undone.
-      </p>
+    <div class="py-2 space-y-4">
+      <div
+        class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-background-alt)]"
+      >
+        <p class="text-sm font-bold text-[var(--color-text-primary)] mb-1">
+          Deactivate {{ deletingInstructor()?.name }}
+        </p>
+        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+          The usual choice for somebody who has left. They can no longer sign in and disappear from
+          every picker, schedule and the teaching-load figures. Every class they took and register
+          they marked stays on record, and you can switch the account back on at any time.
+        </p>
+        <p class="text-[11px] text-[var(--color-text-muted)] mt-2">
+          Hand their running groups and upcoming classes to someone else first. Deactivation is
+          refused while they still have teaching ahead of them.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-xl border border-red-500/20 bg-red-500/5">
+        <p class="text-sm font-bold text-red-600 mb-1">Delete permanently</p>
+        <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+          Only for an account that has never taught — a mistaken entry or a duplicate. It cannot be
+          undone, and it is refused for anybody with classes on record.
+        </p>
+      </div>
     </div>
 
     <ng-template pTemplate="footer">
-      <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
+      <div
+        class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-[var(--color-border)]"
+      >
         <button
           type="button"
           (click)="showDeleteModal.set(false)"
@@ -504,12 +571,20 @@
           type="button"
           (click)="confirmDelete()"
           [disabled]="saving()"
-          class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+          class="px-4 py-2 text-sm font-semibold text-red-600 border border-red-500/30 hover:bg-red-500/10 rounded-xl cursor-pointer disabled:opacity-50"
+        >
+          Delete permanently
+        </button>
+        <button
+          type="button"
+          (click)="confirmDeactivate()"
+          [disabled]="saving()"
+          class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-[var(--color-primary)] hover:opacity-90 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
         >
           @if (saving()) {
             <i class="pi pi-spinner pi-spin"></i>
           }
-          Delete Instructor
+          Deactivate
         </button>
       </div>
     </ng-template>

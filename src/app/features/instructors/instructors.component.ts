@@ -67,16 +67,14 @@ export class InstructorsComponent implements OnInit {
   );
 
   /** Nobody has asked them when they can teach. */
-  readonly withoutAvailability = computed(() =>
-    this.workload().filter((w) => !w.hasAvailability)
+  readonly withoutAvailability = computed(() => this.workload().filter((w) => !w.hasAvailability));
+
+  readonly teamScheduledHours = computed(
+    () => Math.round(this.workload().reduce((sum, w) => sum + w.scheduledHours, 0) * 10) / 10
   );
 
-  readonly teamScheduledHours = computed(() =>
-    Math.round(this.workload().reduce((sum, w) => sum + w.scheduledHours, 0) * 10) / 10
-  );
-
-  readonly teamAvailableHours = computed(() =>
-    Math.round(this.workload().reduce((sum, w) => sum + w.availableHours, 0) * 10) / 10
+  readonly teamAvailableHours = computed(
+    () => Math.round(this.workload().reduce((sum, w) => sum + w.availableHours, 0) * 10) / 10
   );
 
   /**
@@ -161,7 +159,9 @@ export class InstructorsComponent implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
-    this.lms.getInstructors().subscribe({
+    // Everyone, including those who have left, so an account switched off by
+    // mistake can be switched back on from here.
+    this.lms.getAllInstructorAccounts().subscribe({
       next: (data) => {
         this.instructors.set(data || []);
         this.loading.set(false);
@@ -197,9 +197,7 @@ export class InstructorsComponent implements OnInit {
     this.formPassword.set('');
 
     this.formWeeklyHours.set(
-
       instructor.weeklyCapacityMinutes ? String(instructor.weeklyCapacityMinutes / 60) : ''
-
     );
     this.showInstructorModal.set(true);
   }
@@ -279,6 +277,36 @@ export class InstructorsComponent implements OnInit {
     }
   }
 
+  /**
+   * The usual way to remove somebody who has left. They can no longer sign in
+   * and vanish from every picker and schedule, while every class they took
+   * and register they marked stays true.
+   *
+   * Refused while they still have teaching ahead of them; the server names the
+   * running groups, and the error interceptor puts that in front of the admin.
+   */
+  confirmDeactivate(): void {
+    const instructor = this.deletingInstructor();
+    if (!instructor) return;
+
+    this.saving.set(true);
+    this.lms.deactivateUser(instructor.id).subscribe({
+      next: () => {
+        this.notify.showSuccess(
+          `${instructor.name} is deactivated. They can no longer sign in, and their classes and registers are kept.`
+        );
+        this.closeRemoveDialog();
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
+  /**
+   * Removes the account outright. Only possible for one with nothing on
+   * record — a mistaken entry or a duplicate. For anybody who has taught, the
+   * server refuses and says to deactivate instead; the page cannot see enough
+   * history to decide that itself, so it does not try.
+   */
   confirmDelete(): void {
     const instructor = this.deletingInstructor();
     if (!instructor) return;
@@ -286,16 +314,34 @@ export class InstructorsComponent implements OnInit {
     this.saving.set(true);
     this.lms.deleteUser(instructor.id).subscribe({
       next: () => {
-        this.notify.showSuccess(`Instructor ${instructor.name} deleted.`);
+        this.notify.showSuccess(`${instructor.name} deleted.`);
+        this.closeRemoveDialog();
+      },
+      error: () => this.saving.set(false),
+    });
+  }
+
+  private closeRemoveDialog(): void {
+    this.saving.set(false);
+    this.showDeleteModal.set(false);
+    this.deletingInstructor.set(null);
+    this.loadData();
+  }
+
+  reactivate(instructor: User): void {
+    this.saving.set(true);
+    this.lms.reactivateUser(instructor.id).subscribe({
+      next: () => {
+        this.notify.showSuccess(`${instructor.name} can sign in again.`);
         this.saving.set(false);
-        this.showDeleteModal.set(false);
-        this.deletingInstructor.set(null);
         this.loadData();
       },
-      error: () => {
-        this.saving.set(false);
-      },
+      error: () => this.saving.set(false),
     });
+  }
+
+  isDeactivated(instructor: User): boolean {
+    return !!instructor.deactivatedAt;
   }
 
   initials(name: string): string {

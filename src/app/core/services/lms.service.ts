@@ -164,6 +164,28 @@ export class LmsService {
   }
 
   /**
+   * Instructors including those who have left, for the page that manages
+   * accounts. Everything else uses {@link getInstructors}, which leaves them out.
+   */
+  getAllInstructorAccounts(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.getApiUrl()}/instructors`, {
+      params: { includeDeactivated: 'true' },
+    });
+  }
+
+  /**
+   * Switch an account off without erasing what it did. For anybody who has
+   * taught, since deleting them would erase who took their classes.
+   */
+  deactivateUser(id: number): Observable<void> {
+    return this.http.post<void>(`${this.getApiUrl()}/users/${id}/deactivate`, {});
+  }
+
+  reactivateUser(id: number): Observable<void> {
+    return this.http.post<void>(`${this.getApiUrl()}/users/${id}/reactivate`, {});
+  }
+
+  /**
    * The signed-in student's own record. Addressed by the token rather than by
    * an id, so it cannot be pointed at somebody else.
    */
