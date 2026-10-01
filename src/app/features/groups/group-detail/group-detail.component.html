@@ -1,4 +1,4 @@
-﻿<div class="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
+<div class="p-4 md:p-8 max-w-7xl mx-auto min-h-screen">
   <!-- Top Compact Header & Breadcrumbs -->
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-2 text-xs font-semibold">
@@ -1102,7 +1102,7 @@
   </ng-template>
 </p-dialog>
 
-<!-- Add / Move Student Modal -->
+<!-- Add Student Modal -->
 <p-dialog
   [(visible)]="showAddStudentModal"
   [header]="'Add Student to ' + (group()?.name || 'Group')"
@@ -1113,9 +1113,9 @@
 >
   <div class="space-y-4 py-2">
     <p class="text-xs text-[var(--color-text-muted)]">
-      Search for an existing student in the system to assign or move them into
+      Search for a student already on the system and add them to
       <strong class="text-[var(--color-text-primary)]">{{ group()?.name }}</strong
-      >.
+      >. Any other group they are in stays as it is, so a child can learn two things at once.
     </p>
 
     <!-- Search Input -->
@@ -1142,12 +1142,12 @@
       } @else {
         @for (st of filteredCandidateStudents(); track st.id) {
           <div
-            (click)="selectStudentToMove(st)"
+            (click)="selectStudentToAdd(st)"
             class="p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
-            [class.border-[var(--color-secondary)]]="selectedStudentToMove()?.id === st.id"
-            [class.bg-[var(--color-secondary)]/5]="selectedStudentToMove()?.id === st.id"
-            [class.border-[var(--color-border)]]="selectedStudentToMove()?.id !== st.id"
-            [class.hover:bg-[var(--color-surface-hover)]]="selectedStudentToMove()?.id !== st.id"
+            [class.border-[var(--color-secondary)]]="selectedStudentToAdd()?.id === st.id"
+            [class.bg-[var(--color-secondary)]/5]="selectedStudentToAdd()?.id === st.id"
+            [class.border-[var(--color-border)]]="selectedStudentToAdd()?.id !== st.id"
+            [class.hover:bg-[var(--color-surface-hover)]]="selectedStudentToAdd()?.id !== st.id"
           >
             <div class="flex items-center gap-3 min-w-0">
               <span
@@ -1164,21 +1164,23 @@
             </div>
 
             <div class="shrink-0 flex items-center gap-2">
-              @if (st.groupName) {
-                <span
-                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
-                >
-                  {{ st.groupName }}
-                </span>
+              @if (st.groups?.length) {
+                @for (place of st.groups; track place.groupId) {
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                  >
+                    {{ place.groupName }}
+                  </span>
+                }
               } @else {
                 <span
                   class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-500/10 text-gray-600 border border-gray-500/20"
                 >
-                  Unassigned
+                  In no group
                 </span>
               }
 
-              @if (selectedStudentToMove()?.id === st.id) {
+              @if (selectedStudentToAdd()?.id === st.id) {
                 <i class="pi pi-check-circle text-base text-[var(--color-secondary)]"></i>
               }
             </div>
@@ -1188,16 +1190,15 @@
     </div>
 
     <!-- Selected Info Banner -->
-    @if (selectedStudentToMove()) {
+    @if (selectedStudentToAdd()) {
       <div
         class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 flex items-center gap-2"
       >
         <i class="pi pi-info-circle text-sm shrink-0"></i>
         <span>
-          Will move <strong>{{ selectedStudentToMove()?.name }}</strong> from
-          <strong>{{ selectedStudentToMove()?.groupName || 'Unassigned' }}</strong> to
+          <strong>{{ selectedStudentToAdd()?.name }}</strong> joins
           <strong>{{ group()?.name }}</strong
-          >.
+          >. Any other group they are in stays as it is.
         </span>
       </div>
     }
@@ -1212,14 +1213,14 @@
         Cancel
       </button>
       <button
-        (click)="confirmMoveStudent()"
-        [disabled]="!selectedStudentToMove() || movingStudent()"
+        (click)="confirmAddStudent()"
+        [disabled]="!selectedStudentToAdd() || addingStudent()"
         class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
       >
-        @if (movingStudent()) {
+        @if (addingStudent()) {
           <i class="pi pi-spinner pi-spin"></i>
         }
-        Move Student to {{ group()?.name }}
+        Add to {{ group()?.name }}
       </button>
     </div>
   </ng-template>
@@ -1441,10 +1442,10 @@
       <button
         type="button"
         (click)="confirmRemoveStudent()"
-        [disabled]="removingStudent()"
+        [disabled]="readdingStudent()"
         class="inline-flex items-center gap-2 px-5 py-2 bg-[var(--color-warning)] hover:opacity-90 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 shadow"
       >
-        @if (removingStudent()) {
+        @if (readdingStudent()) {
           <i class="pi pi-spinner pi-spin"></i>
         }
         Remove from Group

@@ -3,6 +3,8 @@
     <app-sales-overview />
   } @else if (isStudent()) {
     <app-student-home />
+  } @else if (isAdmin()) {
+    <app-school-overview />
   } @else {
     <!-- View Toggle -->
     <div class="view-toggle-bar mb-6">
@@ -80,7 +82,7 @@
             <span class="section-label__dot section-label__dot--blue"></span>
             Overview
           </h2>
-          <div class="stat-grid" [class.stat-grid--4]="isAdmin()" [class.stat-grid--3]="!isAdmin()">
+          <div class="stat-grid stat-grid--3">
             @for (card of overviewStatCards(); track card.label) {
               <a
                 [routerLink]="card.action ? null : (card.link ?? null)"
@@ -106,194 +108,6 @@
           </div>
         </section>
 
-        <!-- Charts Section (Admin only) -->
-        @if (isAdmin()) {
-          <div class="charts-row">
-            <!-- Sessions per Instructor -->
-            @if (sessionsPerInstructor().length > 0) {
-              <section class="chart-card">
-                <div class="chart-card__header">
-                  <h3 class="chart-card__title">
-                    <i class="pi pi-users"></i> Sessions per Instructor
-                  </h3>
-                  <span class="chart-card__badge">{{ viewLabel() }}</span>
-                </div>
-                <div class="chart-card__body">
-                  @for (bar of sessionsPerInstructor(); track bar.label) {
-                    <div class="hbar-row">
-                      <span class="hbar-label" [title]="bar.label">{{ bar.label }}</span>
-                      <div class="hbar-track">
-                        <div
-                          class="hbar-fill"
-                          [style.width.%]="bar.percent"
-                          [style.background]="bar.color"
-                        ></div>
-                      </div>
-                      <span class="hbar-value">{{ bar.value }}</span>
-                    </div>
-                  }
-                </div>
-              </section>
-            }
-
-            <!-- Sessions per Course -->
-            @if (sessionsPerCourse().length > 0) {
-              <section class="chart-card">
-                <div class="chart-card__header">
-                  <h3 class="chart-card__title"><i class="pi pi-book"></i> Sessions per Course</h3>
-                  <span class="chart-card__badge">{{ viewLabel() }}</span>
-                </div>
-                <div class="chart-card__body">
-                  @for (bar of sessionsPerCourse(); track bar.label) {
-                    <div class="hbar-row">
-                      <span class="hbar-label" [title]="bar.label">{{ bar.label }}</span>
-                      <div class="hbar-track">
-                        <div
-                          class="hbar-fill"
-                          [style.width.%]="bar.percent"
-                          [style.background]="bar.color"
-                        ></div>
-                      </div>
-                      <span class="hbar-value">{{ bar.value }}</span>
-                    </div>
-                  }
-                </div>
-              </section>
-            }
-          </div>
-        }
-
-        <!-- Status Distribution + Daily Breakdown (Admin) -->
-        @if (isAdmin() && totalSessionsCount() > 0) {
-          <div class="charts-row">
-            <!-- Status Distribution Donut -->
-            <section class="chart-card chart-card--donut">
-              <div class="chart-card__header">
-                <h3 class="chart-card__title">
-                  <i class="pi pi-chart-pie"></i> Status Distribution
-                </h3>
-                <span class="chart-card__badge">{{ totalSessionsCount() }} total</span>
-              </div>
-              <div class="chart-card__body chart-card__body--donut">
-                <div class="donut-wrap">
-                  <svg viewBox="0 0 36 36" class="donut-chart">
-                    <!-- Scheduled segment -->
-                    @if (statusDistribution().scheduledPercent > 0) {
-                      <circle
-                        class="donut-ring"
-                        cx="18"
-                        cy="18"
-                        r="15.91549"
-                        fill="transparent"
-                        stroke="var(--color-info)"
-                        stroke-width="3"
-                        [attr.stroke-dasharray]="
-                          statusDistribution().scheduledPercent +
-                          ' ' +
-                          (100 - statusDistribution().scheduledPercent)
-                        "
-                        stroke-dashoffset="25"
-                      />
-                    }
-                    <!-- Completed segment -->
-                    @if (statusDistribution().completedPercent > 0) {
-                      <circle
-                        class="donut-ring"
-                        cx="18"
-                        cy="18"
-                        r="15.91549"
-                        fill="transparent"
-                        stroke="var(--color-success)"
-                        stroke-width="3"
-                        [attr.stroke-dasharray]="
-                          statusDistribution().completedPercent +
-                          ' ' +
-                          (100 - statusDistribution().completedPercent)
-                        "
-                        [attr.stroke-dashoffset]="25 - statusDistribution().scheduledPercent"
-                      />
-                    }
-                    <!-- Cancelled segment -->
-                    @if (statusDistribution().cancelledPercent > 0) {
-                      <circle
-                        class="donut-ring"
-                        cx="18"
-                        cy="18"
-                        r="15.91549"
-                        fill="transparent"
-                        stroke="var(--color-danger)"
-                        stroke-width="3"
-                        [attr.stroke-dasharray]="
-                          statusDistribution().cancelledPercent +
-                          ' ' +
-                          (100 - statusDistribution().cancelledPercent)
-                        "
-                        [attr.stroke-dashoffset]="
-                          25 -
-                          statusDistribution().scheduledPercent -
-                          statusDistribution().completedPercent
-                        "
-                      />
-                    }
-                  </svg>
-                  <div class="donut-center">
-                    <span class="donut-center__value">{{ totalSessionsCount() }}</span>
-                    <span class="donut-center__label">sessions</span>
-                  </div>
-                </div>
-                <div class="donut-legend">
-                  <div class="donut-legend__item">
-                    <span class="donut-legend__dot" style="background: var(--color-info)"></span>
-                    <span class="donut-legend__text">Scheduled</span>
-                    <span class="donut-legend__count">{{ allScheduledCount() }}</span>
-                    <span class="donut-legend__pct"
-                      >{{ statusDistribution().scheduledPercent }}%</span
-                    >
-                  </div>
-                  <div class="donut-legend__item">
-                    <span class="donut-legend__dot" style="background: var(--color-success)"></span>
-                    <span class="donut-legend__text">Completed</span>
-                    <span class="donut-legend__count">{{ allCompletedCount() }}</span>
-                    <span class="donut-legend__pct"
-                      >{{ statusDistribution().completedPercent }}%</span
-                    >
-                  </div>
-                  <div class="donut-legend__item">
-                    <span class="donut-legend__dot" style="background: var(--color-danger)"></span>
-                    <span class="donut-legend__text">Cancelled</span>
-                    <span class="donut-legend__count">{{ allCancelledCount() }}</span>
-                    <span class="donut-legend__pct"
-                      >{{ statusDistribution().cancelledPercent }}%</span
-                    >
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Daily Session Breakdown -->
-            @if (dailySessionCounts().length > 0) {
-              <section class="chart-card chart-card--daily">
-                <div class="chart-card__header">
-                  <h3 class="chart-card__title"><i class="pi pi-chart-bar"></i> Daily Sessions</h3>
-                  <span class="chart-card__badge">{{ viewLabel() }}</span>
-                </div>
-                <div class="chart-card__body chart-card__body--daily">
-                  @for (day of dailySessionCounts(); track day.date) {
-                    <div class="vbar-col">
-                      <div class="vbar-value">{{ day.count }}</div>
-                      <div class="vbar-track">
-                        <div class="vbar-fill" [style.height.%]="day.percent"></div>
-                      </div>
-                      <div class="vbar-label">{{ day.label }}</div>
-                    </div>
-                  }
-                </div>
-              </section>
-            }
-          </div>
-        }
-
-        <!-- Sessions List -->
         <section>
           <div class="section-header">
             <div>

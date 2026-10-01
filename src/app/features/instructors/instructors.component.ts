@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -354,7 +354,7 @@ export class InstructorsComponent implements OnInit {
   }
 
   formatDate(iso?: string): string {
-    if (!iso) return 'â€”';
+    if (!iso) return '—';
     return new Date(iso).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

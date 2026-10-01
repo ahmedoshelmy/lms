@@ -251,62 +251,54 @@
               class="flex items-center justify-between pt-2 border-t border-[var(--color-border)]/60 text-xs"
             >
               <div>
-                @if (student.groupName) {
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20"
-                  >
-                    <i class="pi pi-sitemap text-[10px]"></i>
-                    {{ student.groupName }}
+                @if (student.groups?.length) {
+                  <span class="inline-flex flex-wrap items-center gap-1.5">
+                    @for (place of student.groups; track place.groupId) {
+                      <span
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
+                        [class]="
+                          place.renewalDue && !place.renewalHandled
+                            ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                            : 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border-[var(--color-secondary)]/20'
+                        "
+                        [title]="placeLabel(place)"
+                      >
+                        <i class="pi pi-sitemap text-[10px]"></i>
+                        {{ place.groupName }}
+                        @if (place.renewalDue && !place.renewalHandled) {
+                          <i class="pi pi-bell text-[10px]"></i>
+                        } @else if (place.renewalDue) {
+                          <i class="pi pi-check text-[10px] text-[var(--color-success)]"></i>
+                        }
+                      </span>
+                    }
                   </span>
                 } @else {
                   <span
                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
                   >
-                    Unassigned
-                  </span>
-                }
-
-                <!-- Their course is nearly out. Worked out from the course
-                     itself, so it clears when the group moves up a level. -->
-                @if (needsRenewal(student)) {
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20"
-                    [title]="'Renewal needed — ' + renewalLabel(student)"
-                  >
-                    <i class="pi pi-bell text-[10px]"></i>
-                    {{ renewalLabel(student) }}
-                  </span>
-                } @else if (student.renewalDue && student.renewalHandled) {
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20"
-                    [title]="
-                      'Renewal handled' +
-                      (student.renewalHandledByName ? ' by ' + student.renewalHandledByName : '')
-                    "
-                  >
-                    <i class="pi pi-check text-[10px]"></i>
-                    Renewal handled
+                    In no group
                   </span>
                 }
               </div>
 
               <div class="flex items-center gap-1">
-                @if (student.renewalDue && student.groupId) {
+                @for (place of renewalPlaces(student); track place.groupId) {
                   <button
                     type="button"
-                    (click)="toggleRenewalHandled(student)"
+                    (click)="toggleRenewalHandled(student, place)"
                     [disabled]="savingRenewalFor() === student.id"
                     class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer disabled:opacity-40"
                     [title]="
-                      student.renewalHandled
-                        ? 'Put back on the renewal list'
-                        : 'Mark this renewal as handled'
+                      (place.renewalHandled
+                        ? 'Put the renewal back on the list for '
+                        : 'Mark the renewal handled for ') + place.groupName
                     "
                   >
                     <i
                       class="pi text-sm"
-                      [class.pi-undo]="student.renewalHandled"
-                      [class.pi-check-circle]="!student.renewalHandled"
+                      [class.pi-undo]="place.renewalHandled"
+                      [class.pi-check-circle]="!place.renewalHandled"
                     ></i>
                   </button>
                 }
@@ -434,41 +426,33 @@
                 {{ student.email }}
               </td>
               <td class="px-4 py-3.5">
-                @if (student.groupName) {
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20"
-                  >
-                    <i class="pi pi-sitemap text-[10px]"></i>
-                    {{ student.groupName }}
+                @if (student.groups?.length) {
+                  <span class="inline-flex flex-wrap items-center gap-1.5">
+                    @for (place of student.groups; track place.groupId) {
+                      <span
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
+                        [class]="
+                          place.renewalDue && !place.renewalHandled
+                            ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                            : 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border-[var(--color-secondary)]/20'
+                        "
+                        [title]="placeLabel(place)"
+                      >
+                        <i class="pi pi-sitemap text-[10px]"></i>
+                        {{ place.groupName }}
+                        @if (place.renewalDue && !place.renewalHandled) {
+                          <i class="pi pi-bell text-[10px]"></i>
+                        } @else if (place.renewalDue) {
+                          <i class="pi pi-check text-[10px] text-[var(--color-success)]"></i>
+                        }
+                      </span>
+                    }
                   </span>
                 } @else {
                   <span
                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
                   >
-                    Unassigned
-                  </span>
-                }
-
-                <!-- Their course is nearly out. The same badge the card layout
-                     carries; this table had the filter but nothing to show for it. -->
-                @if (needsRenewal(student)) {
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20"
-                    [title]="'Renewal needed — ' + renewalLabel(student)"
-                  >
-                    <i class="pi pi-bell text-[10px]"></i>
-                    {{ renewalLabel(student) }}
-                  </span>
-                } @else if (student.renewalDue && student.renewalHandled) {
-                  <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 ml-1.5 rounded-full text-[11px] font-bold bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20"
-                    [title]="
-                      'Renewal handled' +
-                      (student.renewalHandledByName ? ' by ' + student.renewalHandledByName : '')
-                    "
-                  >
-                    <i class="pi pi-check text-[10px]"></i>
-                    Handled
+                    In no group
                   </span>
                 }
               </td>
@@ -477,22 +461,22 @@
               </td>
               <td class="px-4 py-3.5 text-right">
                 <div class="flex items-center justify-end gap-1">
-                  @if (student.renewalDue && student.groupId) {
+                  @for (place of renewalPlaces(student); track place.groupId) {
                     <button
                       type="button"
-                      (click)="toggleRenewalHandled(student)"
+                      (click)="toggleRenewalHandled(student, place)"
                       [disabled]="savingRenewalFor() === student.id"
                       class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer disabled:opacity-40"
                       [title]="
-                        student.renewalHandled
-                          ? 'Put back on the renewal list'
-                          : 'Mark this renewal as handled'
+                        (place.renewalHandled
+                          ? 'Put the renewal back on the list for '
+                          : 'Mark the renewal handled for ') + place.groupName
                       "
                     >
                       <i
                         class="pi text-xs"
-                        [class.pi-undo]="student.renewalHandled"
-                        [class.pi-check-circle]="!student.renewalHandled"
+                        [class.pi-undo]="place.renewalHandled"
+                        [class.pi-check-circle]="!place.renewalHandled"
                       ></i>
                     </button>
                   }
@@ -654,9 +638,23 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
-          >Assigned Group</label
-        >
+        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          @if (editingStudent()) {
+            Add to a group
+          } @else {
+            Group
+          }
+        </label>
+        @if (editingStudent(); as editing) {
+          <p class="mb-1.5 text-[11px] text-[var(--color-text-muted)]">
+            @if (editing.groups?.length) {
+              Already in {{ groupNames(editing) }}. Picking another adds a second class rather than
+              moving them; to take them out of one, open that group and remove them there.
+            } @else {
+              They are in no group yet.
+            }
+          </p>
+        }
         <p-select
           [options]="groupOptions()"
           [ngModel]="formGroupId()"

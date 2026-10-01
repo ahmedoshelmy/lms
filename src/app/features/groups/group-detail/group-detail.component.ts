@@ -203,12 +203,12 @@ export class GroupDetailComponent implements OnInit {
 
   statusOptions = GROUP_STATUS_OPTIONS;
 
-  // Add / Move Student Modal Signals
+  // Add Student Modal Signals
   showAddStudentModal = signal<boolean>(false);
   allSystemStudents = signal<User[]>([]);
   addStudentSearchQuery = signal<string>('');
-  selectedStudentToMove = signal<User | null>(null);
-  movingStudent = signal<boolean>(false);
+  selectedStudentToAdd = signal<User | null>(null);
+  addingStudent = signal<boolean>(false);
 
   // Admin Student Management Modal Signals
   showStudentDetailsModal = signal<boolean>(false);
@@ -222,7 +222,7 @@ export class GroupDetailComponent implements OnInit {
   editFormGroupId = signal<number>(0);
   savingStudent = signal<boolean>(false);
   deletingStudent = signal<boolean>(false);
-  removingStudent = signal<boolean>(false);
+  readdingStudent = signal<boolean>(false);
 
   // Edit Total Sessions Modal
   showEditSessionsModal = signal<boolean>(false);
@@ -280,7 +280,7 @@ export class GroupDetailComponent implements OnInit {
       if (currentStudentIds.has(st.id)) return false;
       const matchesName = st.name.toLowerCase().includes(q);
       const matchesEmail = (st.email || '').toLowerCase().includes(q);
-      const matchesGroup = (st.groupName || '').toLowerCase().includes(q);
+      const matchesGroup = (st.groups ?? []).some((g) => g.groupName.toLowerCase().includes(q));
       return !q || matchesName || matchesEmail || matchesGroup;
     });
   });
@@ -870,7 +870,7 @@ export class GroupDetailComponent implements OnInit {
 
   openAddStudentModal(): void {
     this.addStudentSearchQuery.set('');
-    this.selectedStudentToMove.set(null);
+    this.selectedStudentToAdd.set(null);
     this.lmsService.getStudents().subscribe({
       next: (users) => {
         const studentsOnly = (users || []).filter(
@@ -885,16 +885,16 @@ export class GroupDetailComponent implements OnInit {
     });
   }
 
-  selectStudentToMove(student: User): void {
-    this.selectedStudentToMove.set(student);
+  selectStudentToAdd(student: User): void {
+    this.selectedStudentToAdd.set(student);
   }
 
-  confirmMoveStudent(): void {
-    const student = this.selectedStudentToMove();
+  confirmAddStudent(): void {
+    const student = this.selectedStudentToAdd();
     const grp = this.group();
     if (!student || !grp) return;
 
-    this.movingStudent.set(true);
+    this.addingStudent.set(true);
     this.lmsService
       .updateUser(student.id, {
         name: student.name,
@@ -905,13 +905,13 @@ export class GroupDetailComponent implements OnInit {
       .subscribe({
         next: () => {
           this.notify.showSuccess(`Added ${student.name} to ${grp.name}`);
-          this.movingStudent.set(false);
+          this.addingStudent.set(false);
           this.showAddStudentModal.set(false);
-          this.selectedStudentToMove.set(null);
+          this.selectedStudentToAdd.set(null);
           this.loadGroupDetail(grp.id);
         },
         error: () => {
-          this.movingStudent.set(false);
+          this.addingStudent.set(false);
         },
       });
   }
@@ -1005,17 +1005,17 @@ export class GroupDetailComponent implements OnInit {
     const s = this.selectedGroupStudent();
     if (!s) return;
 
-    this.removingStudent.set(true);
+    this.readdingStudent.set(true);
     this.lmsService.removeStudentFromGroup(this.groupId(), s.studentId).subscribe({
       next: () => {
         this.notify.showSuccess(`${s.studentName} has been removed from ${this.group()?.name}.`);
-        this.removingStudent.set(false);
+        this.readdingStudent.set(false);
         this.showRemoveStudentModal.set(false);
         this.selectedGroupStudent.set(null);
         this.loadGroupDetail(this.groupId());
       },
       error: () => {
-        this.removingStudent.set(false);
+        this.readdingStudent.set(false);
       },
     });
   }
@@ -1349,7 +1349,7 @@ export class GroupDetailComponent implements OnInit {
         this.notify.showSuccess(
           indefinite
             ? `${groupData.name} is stopped. ${res.cancelledCount} class(es) called off — ` +
-              `set the group Running again to put it back on the schedule.`
+                `set the group Running again to put it back on the schedule.`
             : `Group held successfully: ${res.cancelledCount} session(s) paused, ${res.substitutesCreated} substitute(s) scheduled, and ${res.shiftedCount} future session(s) shifted forward.`
         );
 

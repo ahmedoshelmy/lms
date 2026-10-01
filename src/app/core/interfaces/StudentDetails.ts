@@ -4,7 +4,11 @@ export interface StudentDetails {
   email?: string;
   phone?: string;
   createdAt: string;
-  currentGroup: StudentGroup | null;
+  /**
+   * Every group they have been in, newest first. The ones they are in now are
+   * those with no `leftAt` -- there may be more than one, since a child can be
+   * learning two things at once.
+   */
   groupHistory: StudentGroup[];
   attendanceHistory: StudentAttendanceRecord[];
   upcomingSessions: StudentUpcomingSession[];

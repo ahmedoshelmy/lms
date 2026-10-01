@@ -1,4 +1,4 @@
-﻿import { Role } from './Role';
+import { Role } from './Role';
 
 export interface User {
   id: number;
@@ -11,8 +11,13 @@ export interface User {
   avatarUrl?: string;
   location?: string;
   title?: string;
-  groupName?: string;
-  groupId?: number;
+
+  /**
+   * Students only: every group they are in now. A child may be learning two
+   * things at once, so each place carries its own progress and its own renewal
+   * question -- one course can be finishing while the other has just begun.
+   */
+  groups?: StudentMembership[];
   createdAt?: string;
   /** Instructors only: the most they should teach in a week, in minutes. */
   weeklyCapacityMinutes?: number | null;
@@ -23,18 +28,29 @@ export interface User {
    */
   deactivatedAt?: string | null;
 
-  /** Students only: classes left on the course they are taking. */
+  /** Students only: classes left on whichever of their courses ends soonest. */
   sessionsRemaining?: number | null;
 
   /**
-   * Students only: their course is within two classes of its end, so somebody
-   * should ask whether they are carrying on. Worked out from the course, so it
-   * appears and clears itself as classes are taught.
+   * Students only: one of their courses is within two classes of its end, so
+   * somebody should ask whether they are carrying on. Worked out from the
+   * course, so it appears and clears itself as classes are taught.
    */
   renewalDue?: boolean;
 
-  /** Students only: a colleague has already had that conversation. */
+  /** Students only: every renewal now due has been dealt with by a colleague. */
   renewalHandled?: boolean;
+}
+
+/** One place a student holds in a group. */
+export interface StudentMembership {
+  groupId: number;
+  groupName: string;
+  /** Running, Completed, Stopped or Archived. */
+  groupStatus: string;
+  sessionsRemaining?: number | null;
+  renewalDue: boolean;
+  renewalHandled: boolean;
   renewalHandledAt?: string | null;
   renewalHandledByName?: string | null;
 }
@@ -45,6 +61,7 @@ export interface CreateUserPayload {
   phone?: string;
   password: string;
   role: Role;
+  /** Students only: a group to put them in. */
   groupId?: number;
   /** Instructors only: the most they should teach in a week, in minutes. */
   weeklyCapacityMinutes?: number | null;
@@ -56,6 +73,7 @@ export interface UpdateUserPayload {
   phone?: string;
   password?: string;
   role: Role;
+  /** Students only: a group to add them to. Leaving one is its own action. */
   groupId?: number;
   /** Instructors only: the most they should teach in a week, in minutes. */
   weeklyCapacityMinutes?: number | null;

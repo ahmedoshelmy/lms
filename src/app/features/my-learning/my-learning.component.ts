@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../core/services/lms.service';
@@ -63,9 +63,13 @@ export class MyLearningComponent implements OnInit {
   readonly record = signal<StudentDetails | null>(null);
   readonly summaries = signal<StudentSessionSummary[]>([]);
 
-  readonly group = computed(() => this.record()?.currentGroup ?? null);
+  /** The groups they are in now: a child may be learning two things at once. */
+  readonly groups = computed(() => (this.record()?.groupHistory ?? []).filter((g) => !g.leftAt));
 
-  // â”€â”€ Progress â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  /** The one the progress tab leads with. */
+  readonly group = computed(() => this.groups()[0] ?? null);
+
+  // ── Progress ─────────────────────────────────────────────────────────────
 
   /**
    * Every course the group has been assigned, finished or not, judged by the
@@ -104,7 +108,7 @@ export class MyLearningComponent implements OnInit {
     });
   });
 
-  // â”€â”€ Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Attendance ───────────────────────────────────────────────────────────
 
   /** Cancelled classes are nobody's absence, so they are shown but not counted. */
   readonly attendance = computed(() =>
@@ -134,7 +138,7 @@ export class MyLearningComponent implements OnInit {
     () => this.counted().filter((a) => a.attendanceStatus === 'Late').length
   );
 
-  // â”€â”€ Classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Classes ──────────────────────────────────────────────────────────────
 
   readonly writtenUp = computed(() =>
     this.summaries()

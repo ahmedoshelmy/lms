@@ -33,4 +33,12 @@ export interface InstructorStats {
   totalSessions: number;
   totalGroups: number;
   totalStudents: number;
+
+  /**
+   * Classes called off because this instructor could not teach them, and what
+   * share of everything they were given that comes to. Only counted where
+   * somebody recorded the reason when cancelling.
+   */
+  cancelledByThem: number;
+  cancelledByThemPercent: number;
 }

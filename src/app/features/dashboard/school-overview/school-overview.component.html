@@ -1,0 +1,165 @@
+@if (loading()) {
+  <div class="overview-loading">
+    <i class="pi pi-spinner pi-spin"></i>
+    <span>Counting the school&hellip;</span>
+  </div>
+} @else if (overview(); as o) {
+  <div class="overview">
+    <header class="overview__header">
+      <h1 class="overview__title">The school today</h1>
+      <p class="overview__subtitle">
+        Everything here is counted once, on the server, so every screen quoting it agrees.
+      </p>
+    </header>
+
+    <!-- ── The six counts ─────────────────────────────────────────────────── -->
+    <section class="tiles">
+      <a routerLink="/groups" class="tile">
+        <span class="tile__label">Running groups</span>
+        <span class="tile__value">{{ o.runningGroups }}</span>
+        <span class="tile__note">Teaching now, not finished or stopped</span>
+      </a>
+
+      <a routerLink="/groups" class="tile">
+        <span class="tile__label">Students in those groups</span>
+        <span class="tile__value">{{ o.studentsInRunningGroups }}</span>
+        <span class="tile__note">By head, so a child in two groups counts once</span>
+      </a>
+
+      <a routerLink="/students" class="tile">
+        <span class="tile__label">Students on the books</span>
+        <span class="tile__value">{{ o.totalStudents }}</span>
+        <span class="tile__note">
+          {{ o.totalStudents - o.studentsInRunningGroups }} of them in no running group
+        </span>
+      </a>
+
+      <div class="tile tile--plain">
+        <span class="tile__label">Hours a week of class</span>
+        <span class="tile__value">{{ o.runningGroupHoursPerWeek }}h</span>
+        <span class="tile__note">What the running groups come to every week</span>
+      </div>
+
+      <a routerLink="/instructors" class="tile">
+        <span class="tile__label">Hours the staff may teach</span>
+        <span class="tile__value">{{ o.instructorCapacityHoursPerWeek }}h</span>
+        <span class="tile__note">
+          @if (o.instructorsWithoutLimit > 0) {
+            {{ o.instructorsWithoutLimit }} with no limit set, adding nothing here
+          } @else {
+            The weekly limits on every account, added up
+          }
+        </span>
+      </a>
+
+      <a routerLink="/instructors" class="tile">
+        <span class="tile__label">Active instructors</span>
+        <span class="tile__value">{{ o.activeInstructors }}</span>
+        <span class="tile__note">Accounts still in use; deactivated ones are left out</span>
+      </a>
+    </section>
+
+    <!-- ── Asked against allowed ──────────────────────────────────────────── -->
+    <section class="panel load">
+      <div class="panel__head">
+        <h2 class="panel__title">This week's teaching against the limits</h2>
+        <span class="load__figure" [class.load__figure--over]="overCapacity()">
+          {{ loadPercent() }}%
+        </span>
+      </div>
+
+      @if (o.instructorCapacityHoursPerWeek > 0) {
+        <div class="load__track">
+          <div
+            class="load__fill"
+            [class.load__fill--over]="overCapacity()"
+            [style.width.%]="loadPercent() > 100 ? 100 : loadPercent()"
+          ></div>
+        </div>
+        <p class="load__note">
+          {{ o.runningGroupHoursPerWeek }}h of class against {{ o.instructorCapacityHoursPerWeek }}h
+          allowed.
+          @if (overCapacity()) {
+            <strong class="load__warn"> {{ -spareHours() }}h more than the limits permit. </strong>
+          } @else {
+            {{ spareHours() }}h spare.
+          }
+        </p>
+      } @else {
+        <p class="load__note">
+          No weekly limits are set on any instructor, so there is nothing to measure this against.
+          Set one on each instructor and this fills in.
+        </p>
+      }
+    </section>
+
+    <div class="panels">
+      <!-- ── Groups per subject ───────────────────────────────────────────── -->
+      <section class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">Running groups by subject</h2>
+        </div>
+
+        @if (o.groupsByTopic.length === 0) {
+          <p class="panel__empty">No groups are running.</p>
+        } @else {
+          <ul class="topics">
+            @for (topic of o.groupsByTopic; track topic.topicCode) {
+              <li class="topic">
+                <span class="topic__name" [title]="topic.topicName">{{ topic.topicName }}</span>
+                <span class="topic__bar">
+                  <span
+                    class="topic__fill"
+                    [style.width.%]="(topic.groups / busiestTopic()) * 100"
+                  ></span>
+                </span>
+                <span class="topic__count">{{ topic.groups }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!-- ── What the month lost ──────────────────────────────────────────── -->
+      <section class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">Classes cancelled this month</h2>
+          <span class="panel__figure">{{ o.cancelledThisMonth }}</span>
+        </div>
+
+        @if (o.cancelledThisMonth === 0) {
+          <p class="panel__empty">Not one class lost this month.</p>
+        } @else {
+          <div class="causes__bar">
+            @for (slice of causes(); track slice.cause) {
+              <span
+                class="causes__segment"
+                [style.width.%]="slice.percent"
+                [style.background]="slice.colour"
+                [title]="slice.cause + ': ' + slice.count"
+              ></span>
+            }
+          </div>
+
+          <ul class="causes">
+            @for (slice of causes(); track slice.cause) {
+              <li class="cause">
+                <span class="cause__dot" [style.background]="slice.colour"></span>
+                <span class="cause__name">{{ slice.cause }}</span>
+                <span class="cause__count">{{ slice.count }}</span>
+                <span class="cause__percent">{{ slice.percent }}%</span>
+              </li>
+            }
+          </ul>
+
+          <p class="panel__foot">
+            Only classes cancelled since the school started recording a reason carry one. The rest
+            are counted as not given.
+          </p>
+        }
+      </section>
+    </div>
+  </div>
+} @else {
+  <p class="panel__empty">The figures could not be loaded.</p>
+}

@@ -998,17 +998,11 @@
   border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent);
 }
 
-.cancel-confirm-check {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+.cancel-confirm-note {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  input[type='checkbox'] {
-    accent-color: var(--color-danger);
-  }
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 .cancel-confirm-actions {

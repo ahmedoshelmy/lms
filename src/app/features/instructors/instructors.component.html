@@ -152,6 +152,20 @@
                 No availability recorded
               }
             </p>
+
+            <!-- Classes called off because they could not teach, against every
+                 class they were given. Counted only where somebody recorded the
+                 reason, so it starts at nought for everybody. -->
+            <p class="text-[11px] text-[var(--color-text-muted)] mt-1">
+              @if (row.cancelledByThem > 0) {
+                <span class="font-bold text-amber-600">
+                  {{ row.cancelledByThemPercent }}% called off
+                </span>
+                · {{ row.cancelledByThem }} of {{ row.totalSessions }} classes
+              } @else {
+                No classes called off by them
+              }
+            </p>
           </div>
         }
       </div>

@@ -129,6 +129,11 @@ export class StudentDetailComponent implements OnInit {
     });
   }
 
+  /** The groups they are in now. A child may be learning two things at once. */
+  readonly currentGroups = computed(() =>
+    (this.student()?.groupHistory ?? []).filter((g) => !g.leftAt)
+  );
+
   goBack(): void {
     this.router.navigate(['/students']);
   }
@@ -140,7 +145,8 @@ export class StudentDetailComponent implements OnInit {
     this.formEmail.set(s.email || '');
     this.formPhone.set(s.phone || '');
     this.formPassword.set('');
-    this.formGroupId.set(s.currentGroup?.groupId || 0);
+    // Blank: picking a group here adds a place rather than replacing one.
+    this.formGroupId.set(0);
     this.showEditModal.set(true);
   }
 

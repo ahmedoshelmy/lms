@@ -60,11 +60,11 @@
                 <i class="pi pi-calendar text-[var(--color-text-muted)]"></i>
                 <span>Joined {{ formatDate(student()!.createdAt) }}</span>
               </div>
-              @if (student()!.currentGroup) {
+              @for (place of currentGroups(); track place.groupId) {
                 <div class="flex items-center gap-1.5">
                   <i class="pi pi-sitemap text-[var(--color-primary)]"></i>
                   <span class="font-semibold text-[var(--color-primary)]">
-                    {{ student()!.currentGroup!.groupName }}
+                    {{ place.groupName }}
                   </span>
                 </div>
               }

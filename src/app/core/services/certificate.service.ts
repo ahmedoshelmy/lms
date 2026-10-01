@@ -229,10 +229,9 @@ export class CertificateService {
   }
 
   private distinctStudentGroups(student: StudentDetails): { groupId: number; groupName: string }[] {
+    // Their current places are in the history too, so there is nothing to
+    // prepend; a child in two groups now contributes both.
     const all = [...(student.groupHistory || [])];
-    if (student.currentGroup) {
-      all.unshift(student.currentGroup);
-    }
 
     const seen = new Set<number>();
     return all

@@ -1,0 +1,123 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visible.set($event); onVisibleChange($event)"
+  header="Cancel this class"
+  [modal]="true"
+  [style]="{ width: '100%', maxWidth: '480px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="py-1 space-y-4">
+    <p class="text-sm text-[var(--color-text-primary)]">
+      {{ sessionLabel() }} will be marked cancelled. Everyone it concerns is told.
+    </p>
+
+    <div>
+      <label class="block text-xs font-bold text-[var(--color-text-muted)] mb-2">
+        Why is it not going ahead?
+      </label>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        @for (choice of choices; track choice.value) {
+          <button
+            type="button"
+            (click)="choose(choice.value)"
+            class="p-3 rounded-xl border text-left transition-colors cursor-pointer"
+            [class.border-[var(--color-primary)]]="cause() === choice.value"
+            [class.bg-[var(--color-primary)]/5]="cause() === choice.value"
+            [class.border-[var(--color-border)]]="cause() !== choice.value"
+            [class.hover:bg-[var(--color-surface-hover)]]="cause() !== choice.value"
+          >
+            <i [class]="choice.icon + ' text-sm text-[var(--color-secondary)]'"></i>
+            <span class="block text-xs font-bold text-[var(--color-text-primary)] mt-1.5">
+              {{ choice.label }}
+            </span>
+            <span class="block text-[11px] text-[var(--color-text-muted)] leading-snug">
+              {{ choice.hint }}
+            </span>
+          </button>
+        }
+      </div>
+
+      @if (showErrors() && !cause()) {
+        <p class="text-[11px] font-semibold text-red-600 mt-2">
+          Pick one of the three, so the school can count what it is losing classes to.
+        </p>
+      }
+    </div>
+
+    @if (needsDetail()) {
+      <div>
+        <label
+          for="cancel-detail"
+          class="block text-xs font-bold text-[var(--color-text-muted)] mb-1.5"
+        >
+          {{ detailLabel() }}
+        </label>
+        <textarea
+          id="cancel-detail"
+          rows="3"
+          [ngModel]="detail()"
+          (ngModelChange)="detail.set($event)"
+          placeholder="A line is enough. Parents and the office both see this."
+          class="w-full px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-secondary)] resize-y"
+        ></textarea>
+        @if (showErrors() && missingDetail()) {
+          <p class="text-[11px] font-semibold text-red-600 mt-1">
+            Say what happened. A cancellation counted against somebody with no reason beside it is
+            one nobody can answer for later.
+          </p>
+        }
+      </div>
+    }
+
+    @if (cause() === 'Holiday') {
+      <p class="text-[11px] text-[var(--color-text-muted)]">
+        Recorded as a holiday, with nothing else to write. It counts against nobody.
+      </p>
+    }
+
+    @if (canShift()) {
+      <label
+        class="flex items-start gap-2 p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-background-alt)] cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          [ngModel]="shift()"
+          (ngModelChange)="shift.set($event)"
+          class="mt-0.5 rounded border-[var(--color-border)]"
+        />
+        <span class="text-xs text-[var(--color-text-secondary)] leading-snug">
+          <span class="font-bold text-[var(--color-text-primary)]">Move the rest back a week.</span>
+          The class is taught on the next free date instead, and the ones after it shift with it, so
+          the course still covers everything.
+        </span>
+      </label>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div
+      class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-[var(--color-border)]"
+    >
+      <button
+        type="button"
+        (click)="close()"
+        class="px-4 py-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-xl cursor-pointer"
+      >
+        Keep the class
+      </button>
+      <button
+        type="button"
+        (click)="submit()"
+        [disabled]="saving()"
+        class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+      >
+        @if (saving()) {
+          <i class="pi pi-spinner pi-spin"></i>
+        }
+        Cancel the class
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

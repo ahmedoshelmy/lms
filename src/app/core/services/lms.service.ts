@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
@@ -33,6 +33,7 @@ import {
   CancelUpcomingSessionsResult,
 } from '../interfaces/Group';
 import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
+import { DashboardOverview } from '../interfaces/DashboardOverview';
 import { InstructorWorkload } from '../interfaces/InstructorWorkload';
 import {
   ScheduleSession,
@@ -211,6 +212,14 @@ export class LmsService {
       `${this.getApiUrl()}/groups/${groupId}/students/${studentId}/renewal`,
       { handled }
     );
+  }
+
+  /**
+   * The front page's figures, counted on the server so that every screen
+   * quoting them quotes the same number.
+   */
+  getDashboardOverview(): Observable<DashboardOverview> {
+    return this.http.get<DashboardOverview>(`${this.getApiUrl()}/dashboard/overview`);
   }
 
   /**

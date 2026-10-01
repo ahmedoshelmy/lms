@@ -13,6 +13,8 @@ import { Role, parseRole } from '../../../core/interfaces/Role';
 import { User } from '../../../core/interfaces/User';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
+import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
+import { CancelSessionPayload } from '../../../core/interfaces/History';
 
 function sessionStatusToApiEnum(statusStr: string): number {
   const norm = (statusStr || '').toLowerCase();
@@ -37,7 +39,15 @@ function isSameWeek(d1: Date, d2: Date): boolean {
 @Component({
   selector: 'app-session-detail-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, DialogModule, ButtonModule, SelectModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    DialogModule,
+    ButtonModule,
+    SelectModule,
+    CancelSessionDialogComponent,
+  ],
   templateUrl: `./session-detail-panel.component.html`,
   styleUrl: './session-detail-panel.component.scss',
 })
@@ -60,15 +70,29 @@ export class SessionDetailPanelComponent {
   editStartTime = signal<string>('');
   editEndTime = signal<string>('');
   editDate = signal<string>('');
-  shiftUpcomingSchedule = signal<boolean>(true);
   saving = signal(false);
   deleting = signal(false);
 
+  showCancelDialog = signal<boolean>(false);
   showFutureWeekConfirmModal = signal<boolean>(false);
   showDeleteConfirmModal = signal<boolean>(false);
 
   /** True when the pending status is Cancelled */
   readonly isCancelled = computed(() => (this.editStatus() ?? '').toLowerCase().includes('cancel'));
+
+  /** Names the class in the cancellation dialog, so nobody cancels the wrong one. */
+  readonly cancelLabel = computed(() => {
+    const s = this.session();
+    if (!s) return 'This class';
+    const when = s.startsAt
+      ? new Date(s.startsAt).toLocaleDateString('en-GB', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        })
+      : '';
+    return `${s.groupName ?? 'This class'} on ${when}`.trim();
+  });
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
@@ -178,7 +202,7 @@ export class SessionDetailPanelComponent {
 
   confirmFutureWeekShift(): void {
     this.showFutureWeekConfirmModal.set(false);
-    this.cancelSessionWithShift();
+    this.showCancelDialog.set(true);
   }
 
   executeSave(): void {
@@ -258,26 +282,28 @@ export class SessionDetailPanelComponent {
     });
   }
 
-  cancelSessionWithShift(): void {
+  /**
+   * Cancelling asks why first. The dialog collects the cause and the words to
+   * go with it; this only sends what it was given.
+   */
+  cancelSession(payload: CancelSessionPayload): void {
     const s = this.session();
     if (!s) return;
     this.saving.set(true);
 
-    this.lms
-      .cancelAndShiftSession(s.id, {
-        shiftUpcomingSchedule: this.shiftUpcomingSchedule(),
-      })
-      .subscribe({
-        next: (updated) => {
-          this.saving.set(false);
-          this.notify.showSuccess('Session cancelled & upcoming schedule shifted (+1 week)!');
-          this.sessionUpdated.emit({ ...s, ...updated, status: 'Cancelled' });
-        },
-        error: (err) => {
-          this.saving.set(false);
-          this.notify.showError('Failed to cancel session: ' + (err.error?.message || 'Error'));
-        },
-      });
+    this.lms.cancelAndShiftSession(s.id, payload).subscribe({
+      next: (updated) => {
+        this.saving.set(false);
+        this.showCancelDialog.set(false);
+        this.notify.showSuccess(
+          payload.shiftUpcomingSchedule
+            ? 'Class cancelled, and the rest of the course moved back a week.'
+            : 'Class cancelled.'
+        );
+        this.sessionUpdated.emit({ ...s, ...updated, status: 'Cancelled' });
+      },
+      error: () => this.saving.set(false),
+    });
   }
 
   confirmDelete(): void {

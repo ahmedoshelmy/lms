@@ -29,6 +29,9 @@ export interface ScheduleSession {
   totalSessions: number;
   type: string;
   cancellationReason?: string;
+
+  /** Whose doing it was: Instructor, Parents or Holiday. */
+  cancellationCause?: string | null;
   attendances?: SessionAttendanceItem[];
 }
 

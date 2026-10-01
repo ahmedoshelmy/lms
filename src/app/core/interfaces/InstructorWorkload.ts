@@ -29,4 +29,17 @@ export interface InstructorWorkload {
 
   /** Whether they have set any availability windows at all. */
   hasAvailability: boolean;
+
+  /** Every class ever put in their hands, cancelled ones included. */
+  totalSessions: number;
+
+  /**
+   * Of those, the ones called off because they could not teach. Counted only
+   * where somebody said so when cancelling, so it starts at nought for
+   * everybody and grows from the day the reason was first asked for.
+   */
+  cancelledByThem: number;
+
+  /** Those cancellations as a share of everything they were given. */
+  cancelledByThemPercent: number;
 }

@@ -1,15 +1,15 @@
-﻿import { Component, inject, computed, signal, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LmsService } from '../../core/services/lms.service';
 import { Role } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
-import { Group } from '../../core/interfaces/Group';
 import { PendingAttendanceSessionDto } from '../../core/interfaces/Attendance';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { SalesOverviewComponent } from './sales-overview/sales-overview.component';
 import { StudentHomeComponent } from './student-home/student-home.component';
+import { SchoolOverviewComponent } from './school-overview/school-overview.component';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 
 interface StatCard {
@@ -26,17 +26,16 @@ interface StatCard {
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DashboardView = 'today' | 'week' | 'month';
 
-export interface ChartBar {
-  label: string;
-  value: number;
-  percent: number;
-  color: string;
-}
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SalesOverviewComponent, StudentHomeComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    SalesOverviewComponent,
+    StudentHomeComponent,
+    SchoolOverviewComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -54,15 +53,11 @@ export class DashboardComponent implements OnInit {
   loadingAttendanceSummary = signal(false);
   upcomingSessions = signal<ScheduleSession[]>([]);
   allSessions = signal<ScheduleSession[]>([]);
-  courseCount = signal<number | 'â€”'>('â€”');
-  instructorCount = signal<number | 'â€”'>('â€”');
-  studentCount = signal<number | 'â€”'>('â€”');
-  groupCount = signal<number | 'â€”'>('â€”');
-  groups = signal<Group[]>([]);
-  attendedToday = signal<number | 'â€”'>('â€”');
-  attendedThisWeek = signal<number | 'â€”'>('â€”');
-  sessionsUpdatedTodayCount = signal<number | 'â€”'>('â€”');
-  pendingAttendanceCount = signal<number | 'â€”'>('â€”');
+  courseCount = signal<number | '—'>('—');
+  attendedToday = signal<number | '—'>('—');
+  attendedThisWeek = signal<number | '—'>('—');
+  sessionsUpdatedTodayCount = signal<number | '—'>('—');
+  pendingAttendanceCount = signal<number | '—'>('—');
   updatedSessionsList = signal<PendingAttendanceSessionDto[]>([]);
   pendingSessionsList = signal<PendingAttendanceSessionDto[]>([]);
 
@@ -176,7 +171,7 @@ export class DashboardComponent implements OnInit {
     return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   });
 
-  // â”€â”€â”€ Interval Sessions (the sessions for the selected view) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Interval Sessions (the sessions for the selected view) ──────────
   readonly intervalSessions = computed(() => {
     const view = this.activeView();
     const now = new Date();
@@ -196,94 +191,6 @@ export class DashboardComponent implements OnInit {
     }
 
     return this.allSessions();
-  });
-
-  // â”€â”€â”€ Sessions per Instructor (chart data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly sessionsPerInstructor = computed<ChartBar[]>(() => {
-    const sessions = this.intervalSessions();
-    const map = new Map<string, number>();
-    sessions.forEach((s) => {
-      const name = s.instructorName || 'Unassigned';
-      map.set(name, (map.get(name) || 0) + 1);
-    });
-    const max = Math.max(...Array.from(map.values()), 1);
-    const colors = [
-      'var(--color-secondary)',
-      'var(--color-success)',
-      'var(--color-warning)',
-      'var(--color-primary)',
-      'var(--color-danger)',
-      'var(--color-info)',
-    ];
-    return Array.from(map.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([label, value], i) => ({
-        label,
-        value,
-        percent: Math.round((value / max) * 100),
-        color: colors[i % colors.length],
-      }));
-  });
-
-  // â”€â”€â”€ Sessions per Course (chart data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly sessionsPerCourse = computed<ChartBar[]>(() => {
-    const sessions = this.intervalSessions();
-    const map = new Map<string, number>();
-    sessions.forEach((s) => {
-      const name = s.courseTitle || 'Unknown';
-      map.set(name, (map.get(name) || 0) + 1);
-    });
-    const max = Math.max(...Array.from(map.values()), 1);
-    const colors = [
-      'var(--color-info)',
-      'var(--color-success)',
-      'var(--color-warning)',
-      'var(--color-secondary)',
-      'var(--color-primary)',
-      'var(--color-danger)',
-    ];
-    return Array.from(map.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 8)
-      .map(([label, value], i) => ({
-        label,
-        value,
-        percent: Math.round((value / max) * 100),
-        color: colors[i % colors.length],
-      }));
-  });
-
-  // â”€â”€â”€ Status Distribution (for donut chart) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly statusDistribution = computed(() => {
-    const total = this.totalSessionsCount();
-    return {
-      scheduled: this.allScheduledCount(),
-      completed: this.allCompletedCount(),
-      cancelled: this.allCancelledCount(),
-      total,
-      scheduledPercent: total ? Math.round((this.allScheduledCount() / total) * 100) : 0,
-      completedPercent: total ? Math.round((this.allCompletedCount() / total) * 100) : 0,
-      cancelledPercent: total ? Math.round((this.allCancelledCount() / total) * 100) : 0,
-    };
-  });
-
-  // â”€â”€â”€ Daily Session Count (for bar chart) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  readonly dailySessionCounts = computed(() => {
-    const sessions = this.intervalSessions();
-    const map = new Map<string, number>();
-    sessions.forEach((s) => {
-      const date = s.startsAt.split('T')[0];
-      map.set(date, (map.get(date) || 0) + 1);
-    });
-    const sorted = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-    const max = Math.max(...sorted.map(([, v]) => v), 1);
-    return sorted.map(([date, count]) => ({
-      date,
-      label: this.formatDayLabel(date),
-      count,
-      percent: Math.round((count / max) * 100),
-    }));
   });
 
   readonly attendanceStatCards = computed<StatCard[]>(() => {
@@ -340,9 +247,6 @@ export class DashboardComponent implements OnInit {
     ];
   });
 
-  /** Groups actually teaching, as opposed to finished, stopped or archived. */
-  readonly runningGroups = computed(() => this.groups().filter((g) => g.status === 'Running'));
-
   /**
    * Classes in the view that are still classes.
    *
@@ -359,28 +263,6 @@ export class DashboardComponent implements OnInit {
   readonly taughtIntervalCount = computed(
     () => this.liveIntervalSessions().filter((s) => new Date(s.startsAt) < new Date()).length
   );
-
-  /**
-   * Children currently in class, counted by head rather than by adding the
-   * groups up: three of them attend more than one running group, so the sum of
-   * group sizes is 144 where the number of children is 140. The roster comes
-   * down with the group list, so this costs nothing; where it has not, the
-   * group's own count stands in.
-   */
-  readonly studentsInRunningGroups = computed(() => {
-    const seen = new Set<number>();
-    let withoutRoster = 0;
-
-    for (const group of this.runningGroups()) {
-      if (group.students?.length) {
-        for (const student of group.students) seen.add(student.studentId);
-      } else {
-        withoutRoster += group.studentCount || 0;
-      }
-    }
-
-    return seen.size + withoutRoster;
-  });
 
   readonly overviewStatCards = computed<StatCard[]>(() => {
     const sessions = this.liveIntervalSessions().length;
@@ -416,47 +298,6 @@ export class DashboardComponent implements OnInit {
         subtitle: 'Active curriculum',
       },
     ];
-
-    if (this.isAdmin()) {
-      cards.push(
-        {
-          label: 'Instructors',
-          value: this.instructorCount(),
-          icon: 'pi pi-user',
-          color: 'var(--color-warning)',
-          link: '/instructors',
-          loading: this.loadingCounts(),
-          subtitle: 'Active educators',
-        },
-        {
-          label: 'Students',
-          value: this.studentCount(),
-          icon: 'pi pi-users',
-          color: 'var(--color-info)',
-          link: '/students',
-          loading: this.loadingCounts(),
-          subtitle: 'Enrolled learners',
-        },
-        {
-          label: 'Running Groups',
-          value: this.runningGroups().length,
-          icon: 'pi pi-sitemap',
-          color: 'var(--color-primary)',
-          link: '/groups',
-          loading: this.loadingCounts(),
-          subtitle: `${this.groupCount()} on the books`,
-        },
-        {
-          label: 'Students in Class',
-          value: this.studentsInRunningGroups(),
-          icon: 'pi pi-user-plus',
-          color: 'var(--color-accent)',
-          link: '/groups',
-          loading: this.loadingCounts(),
-          subtitle: 'Across the running groups',
-        }
-      );
-    }
 
     return cards;
   });
@@ -620,24 +461,6 @@ export class DashboardComponent implements OnInit {
       },
       error: () => this.loadingCounts.set(false),
     });
-
-    if (this.isAdmin()) {
-      this.lms.getInstructors().subscribe({
-        next: (instructors) => this.instructorCount.set(instructors?.length ?? 0),
-        error: () => {},
-      });
-      this.lms.getStudents().subscribe({
-        next: (students) => this.studentCount.set(students?.length ?? 0),
-        error: () => {},
-      });
-      this.lms.getGroups().subscribe({
-        next: (groups) => {
-          this.groups.set(groups ?? []);
-          this.groupCount.set(groups?.length ?? 0);
-        },
-        error: () => {},
-      });
-    }
   }
 
   private loadAllSessions(): void {
@@ -666,14 +489,6 @@ export class DashboardComponent implements OnInit {
     return (s.status ?? '').toLowerCase().includes('completed');
   }
 
-  isSessionFutureDay(s: ScheduleSession): boolean {
-    if (!s.startsAt) return false;
-    const start = new Date(s.startsAt);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
-    return start.getTime() > todayEnd.getTime();
-  }
-
   formatTime(iso: string): string {
     return this.clock.time(iso);
   }
@@ -693,17 +508,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  formatDayLabel(dateStr: string): string {
-    const d = new Date(dateStr + 'T12:00:00');
-    const now = new Date();
-    const isToday =
-      d.getFullYear() === now.getFullYear() &&
-      d.getMonth() === now.getMonth() &&
-      d.getDate() === now.getDate();
-    if (isToday) return 'Today';
-    return d.toLocaleDateString('en-US', { weekday: 'short' });
-  }
-
   getStatusBadgeClass(status: string): string {
     const norm = (status ?? '').toLowerCase();
     if (norm.includes('completed')) return 'status-badge--completed';
@@ -711,4 +515,3 @@ export class DashboardComponent implements OnInit {
     return 'status-badge--scheduled';
   }
 }
-

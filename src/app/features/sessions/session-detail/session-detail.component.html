@@ -169,23 +169,18 @@
             <label class="edit-label">Session Status</label>
             @if (isEditCancelled()) {
               <div class="cancel-confirm-box">
-                <label class="cancel-confirm-check">
-                  <input
-                    type="checkbox"
-                    [ngModel]="shiftUpcomingSchedule()"
-                    (ngModelChange)="shiftUpcomingSchedule.set($event)"
-                  />
-                  Shift upcoming sessions forward by +1 week
-                </label>
+                <p class="cancel-confirm-note">
+                  Cancelling asks why, so the school can see what it is losing classes to.
+                </p>
                 <div class="cancel-confirm-actions">
                   <button
                     type="button"
-                    (click)="cancelSessionWithShift()"
+                    (click)="showCancelDialog.set(true)"
                     [disabled]="saving()"
                     class="cancel-confirm-btn"
                   >
                     <i class="pi pi-ban"></i>
-                    Confirm Cancel &amp; Shift
+                    Cancel this class
                   </button>
                   <button type="button" (click)="toggleEditCancelStatus()" class="cancel-undo-btn">
                     Undo
@@ -766,3 +761,10 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<app-cancel-session-dialog
+  [(visible)]="showCancelDialog"
+  [sessionLabel]="cancelLabel()"
+  [saving]="saving()"
+  (confirmed)="cancelSession($event)"
+/>

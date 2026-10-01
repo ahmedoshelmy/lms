@@ -1,0 +1,279 @@
+.overview-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+
+  i {
+    font-size: 20px;
+    color: var(--color-secondary);
+  }
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+}
+
+/* ── The counts ─────────────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover:not(.tile--plain) {
+    border-color: var(--color-secondary);
+    transform: translateY(-1px);
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+
+  &__value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__note {
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+}
+
+/* ── Panels ─────────────────────────────────────────────────────────────── */
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+  }
+
+  &__figure {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+
+  &__foot {
+    margin: 12px 0 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+}
+
+/* ── Asked against allowed ──────────────────────────────────────────────── */
+.load {
+  &__figure {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+
+    &--over {
+      color: var(--color-danger);
+    }
+  }
+
+  &__track {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--color-background-alt);
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-secondary);
+    transition: width 0.5s ease;
+
+    &--over {
+      background: var(--color-danger);
+    }
+  }
+
+  &__note {
+    margin: 10px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+
+  &__warn {
+    color: var(--color-danger);
+  }
+}
+
+/* ── Groups per subject ─────────────────────────────────────────────────── */
+.topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topic {
+  display: grid;
+  grid-template-columns: minmax(90px, 32%) 1fr auto;
+  align-items: center;
+  gap: 10px;
+
+  &__name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-background-alt);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-secondary);
+  }
+
+  &__count {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+    min-width: 20px;
+    text-align: right;
+  }
+}
+
+/* ── Cancellations ──────────────────────────────────────────────────────── */
+.causes__bar {
+  display: flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-background-alt);
+}
+
+.causes__segment {
+  display: block;
+  height: 100%;
+}
+
+.causes {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cause {
+  display: grid;
+  grid-template-columns: 10px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  &__name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  &__count,
+  &__percent {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__percent {
+    min-width: 38px;
+    text-align: right;
+    color: var(--color-text-muted);
+  }
+}

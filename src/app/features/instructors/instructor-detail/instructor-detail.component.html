@@ -80,7 +80,7 @@
 
       <!-- Quick Stats Grid -->
       <div
-        class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--color-border)]"
+        class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-4 mt-6 pt-6 border-t border-[var(--color-border)]"
       >
         <div
           class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
@@ -145,6 +145,28 @@
             <i class="pi pi-users text-lg text-[var(--color-secondary)]"></i>
             <span class="text-xl font-black text-[var(--color-text-primary)]">
               {{ stats()?.totalStudents ?? 0 }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Classes called off because they could not teach them. Only those
+             recorded with a reason count, so this starts at nought and grows
+             from the day the reason was first asked for. -->
+        <div
+          class="p-3.5 rounded-2xl bg-[var(--color-background)] border border-[var(--color-border)]"
+        >
+          <span
+            class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider block mb-1"
+          >
+            Called Off By Them
+          </span>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-ban text-lg text-[var(--color-warning)]"></i>
+            <span class="text-xl font-black text-[var(--color-text-primary)]">
+              {{ stats()?.cancelledByThemPercent ?? 0 }}%
+            </span>
+            <span class="text-[10px] text-[var(--color-text-muted)]">
+              ({{ stats()?.cancelledByThem ?? 0 }} classes)
             </span>
           </div>
         </div>

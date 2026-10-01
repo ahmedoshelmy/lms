@@ -9,7 +9,7 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
 import { Group, seatsOverBy, toGroupOptions } from '../../core/interfaces/Group';
-import { User } from '../../core/interfaces/User';
+import { StudentMembership, User } from '../../core/interfaces/User';
 import { SelectModule } from 'primeng/select';
 
 @Component({
@@ -90,33 +90,29 @@ export class StudentsComponent implements OnInit {
   }
 
   /**
-   * Say the renewal is dealt with, or put it back on the list. Only the mark
-   * is stored: whether the renewal is due is read from the course, so this
-   * lapses by itself when the group starts its next one.
+   * Say a renewal is dealt with, or put it back on the list. Only the mark is
+   * stored: whether the renewal is due is read from the course, so this lapses
+   * by itself when the group starts its next one.
+   *
+   * A child in two groups has a renewal question per group, so the mark is
+   * made against the place it was asked about.
    */
-  toggleRenewalHandled(student: User): void {
-    if (!student.groupId) {
-      this.notify.showError('That student is not in a group, so there is no course to renew.');
-      return;
-    }
-
-    const handled = !student.renewalHandled;
+  toggleRenewalHandled(student: User, place: StudentMembership): void {
+    const handled = !place.renewalHandled;
     this.savingRenewalFor.set(student.id);
 
-    this.lms.setRenewalHandled(student.groupId, student.id, handled).subscribe({
+    this.lms.setRenewalHandled(place.groupId, student.id, handled).subscribe({
       next: () => {
         this.students.update((list) =>
           list.map((s) =>
-            s.id === student.id
-              ? { ...s, renewalHandled: handled, renewalHandledAt: new Date().toISOString() }
-              : s
+            s.id === student.id ? this.withRenewalMark(s, place.groupId, handled) : s
           )
         );
         this.savingRenewalFor.set(null);
         this.notify.showSuccess(
           handled
-            ? `${student.name}'s renewal marked as handled.`
-            : `${student.name} is back on the renewal list.`
+            ? `${student.name}'s renewal in ${place.groupName} is marked as handled.`
+            : `${student.name} is back on the renewal list for ${place.groupName}.`
         );
       },
       error: () => {
@@ -126,8 +122,34 @@ export class StudentsComponent implements OnInit {
     });
   }
 
+  /**
+   * The account's own renewal flag follows its places: it is due while any one
+   * of them is, and handled only once every one of them has been.
+   */
+  private withRenewalMark(student: User, groupId: number, handled: boolean): User {
+    const groups = (student.groups ?? []).map((g) =>
+      g.groupId === groupId
+        ? { ...g, renewalHandled: handled, renewalHandledAt: new Date().toISOString() }
+        : g
+    );
+
+    const due = groups.filter((g) => g.renewalDue);
+
+    return {
+      ...student,
+      groups,
+      renewalHandled: due.length > 0 && due.every((g) => g.renewalHandled),
+    };
+  }
+
+  /** The places that still need somebody to ask about carrying on. */
+  renewalPlaces(student: User): StudentMembership[] {
+    return (student.groups ?? []).filter((g) => g.renewalDue);
+  }
+
+  /** Nobody has put them in a group, so nothing is being taught to them. */
   isStudentAtRisk(s: User): boolean {
-    return !s.groupId && !s.groupName;
+    return (s.groups ?? []).length === 0;
   }
 
   readonly atRiskCount = computed(() => {
@@ -151,10 +173,19 @@ export class StudentsComponent implements OnInit {
     () => this.students().filter((s) => s.renewalDue && s.renewalHandled).length
   );
 
-  /** "Last class" reads better than "0 left" on a course that has run out. */
-  renewalLabel(s: User): string {
-    const left = s.sessionsRemaining;
-    if (left === null || left === undefined) return 'Renewal';
+  /** What a group chip says on hover: where they are in that group's course. */
+  placeLabel(place: StudentMembership): string {
+    const where = `${place.groupName} — ${this.classesLeft(place.sessionsRemaining)}`;
+    if (!place.renewalDue) return where;
+    return place.renewalHandled
+      ? `${where}. Renewal handled${
+          place.renewalHandledByName ? ' by ' + place.renewalHandledByName : ''
+        }.`
+      : `${where}. Somebody should ask about carrying on.`;
+  }
+
+  private classesLeft(left: number | null | undefined): string {
+    if (left === null || left === undefined) return 'No course running';
     if (left <= 0) return 'Course finished';
     return left === 1 ? 'Last class' : `${left} classes left`;
   }
@@ -166,11 +197,15 @@ export class StudentsComponent implements OnInit {
     const renewal = this.renewalFilter();
 
     const list = this.students().filter((s) => {
+      const places = s.groups ?? [];
+
       let matchesGroup = true;
       if (gFilter === 'Unassigned') {
-        matchesGroup = !s.groupId && !s.groupName;
+        matchesGroup = places.length === 0;
       } else if (gFilter !== 'All') {
-        matchesGroup = s.groupName === gFilter || (!!s.groupId && s.groupId.toString() === gFilter);
+        matchesGroup = places.some(
+          (g) => g.groupName === gFilter || g.groupId.toString() === gFilter
+        );
       }
 
       let matchesRisk = true;
@@ -184,7 +219,7 @@ export class StudentsComponent implements OnInit {
         !q ||
         s.name.toLowerCase().includes(q) ||
         (s.email && s.email.toLowerCase().includes(q)) ||
-        (s.groupName && s.groupName.toLowerCase().includes(q));
+        places.some((g) => g.groupName.toLowerCase().includes(q));
 
       let matchesRenewal = true;
       if (renewal === 'Needed') {
@@ -210,8 +245,8 @@ export class StudentsComponent implements OnInit {
         valA = a.email || '';
         valB = b.email || '';
       } else if (col === 'group') {
-        valA = a.groupName || '';
-        valB = b.groupName || '';
+        valA = this.groupNames(a);
+        valB = this.groupNames(b);
       } else if (col === 'joined') {
         valA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         valB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -228,8 +263,13 @@ export class StudentsComponent implements OnInit {
   });
 
   unassignedCount = computed(
-    () => this.students().filter((s) => !s.groupId && !s.groupName).length
+    () => this.students().filter((s) => (s.groups ?? []).length === 0).length
   );
+
+  /** Their groups as one string, for sorting and for a tooltip. */
+  groupNames(s: User): string {
+    return (s.groups ?? []).map((g) => g.groupName).join(', ');
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -375,7 +415,9 @@ export class StudentsComponent implements OnInit {
     this.formEmail.set(student.email || '');
     this.formPhone.set(student.phone || '');
     this.formPassword.set('');
-    this.formGroupId.set(student.groupId || 0);
+    // Blank, because picking one here adds a place rather than replacing
+    // whatever they already hold. Leaving a group is its own action.
+    this.formGroupId.set(0);
     this.showStudentModal.set(true);
   }
 

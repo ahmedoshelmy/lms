@@ -22,6 +22,7 @@ import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
 import { Candidate } from '../../../core/interfaces/Sales';
 import { SessionSyllabusComponent } from '../../../shared/components/session-syllabus/session-syllabus.component';
+import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 
 export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
@@ -98,6 +99,7 @@ function normalizeAttendanceStatus(raw: any): StudentStatus {
     ButtonModule,
     DialogModule,
     SessionSyllabusComponent,
+    CancelSessionDialogComponent,
   ],
   templateUrl: './session-detail.component.html',
   styleUrl: './session-detail.component.scss',
@@ -137,9 +139,23 @@ export class SessionDetailComponent implements OnInit {
   editStartTime = signal<string>('');
   editEndTime = signal<string>('');
   editDate = signal<string>('');
-  shiftUpcomingSchedule = signal<boolean>(true);
+  showCancelDialog = signal<boolean>(false);
   deleting = signal(false);
   showFutureWeekConfirmModal = signal<boolean>(false);
+
+  /** Names the class in the cancellation dialog, so nobody cancels the wrong one. */
+  readonly cancelLabel = computed(() => {
+    const s = this.session();
+    if (!s) return 'This class';
+    const when = s.startsAt
+      ? new Date(s.startsAt).toLocaleDateString('en-GB', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        })
+      : '';
+    return `${s.groupName ?? 'This class'} on ${when}`.trim();
+  });
   showDeleteModal = signal<boolean>(false);
 
   readonly isAdmin = computed(
@@ -554,7 +570,7 @@ export class SessionDetailComponent implements OnInit {
 
   confirmFutureWeekShift(): void {
     this.showFutureWeekConfirmModal.set(false);
-    this.cancelSessionWithShift();
+    this.showCancelDialog.set(true);
   }
 
   applyForwardToRemaining = signal<boolean>(false);
@@ -665,28 +681,30 @@ export class SessionDetailComponent implements OnInit {
     }
   }
 
-  cancelSessionWithShift(): void {
+  /**
+   * Cancelling asks why first. The dialog collects the cause and the words to
+   * go with it; this only sends what it was given.
+   */
+  cancelSession(payload: CancelSessionPayload): void {
     const s = this.session();
     if (!s) return;
     this.saving.set(true);
 
-    this.lms
-      .cancelAndShiftSession(s.id, {
-        shiftUpcomingSchedule: this.shiftUpcomingSchedule(),
-      })
-      .subscribe({
-        next: (updated) => {
-          this.saving.set(false);
-          this.notify.showSuccess('Session cancelled & upcoming schedule shifted (+1 week)!');
-          this.session.set({ ...s, ...updated, status: 'Cancelled' });
-          this.editStatus.set('Cancelled');
-          this.isEditing.set(false);
-        },
-        error: (err) => {
-          this.saving.set(false);
-          this.notify.showError('Failed to cancel session: ' + (err.error?.message || 'Error'));
-        },
-      });
+    this.lms.cancelAndShiftSession(s.id, payload).subscribe({
+      next: (updated) => {
+        this.saving.set(false);
+        this.showCancelDialog.set(false);
+        this.notify.showSuccess(
+          payload.shiftUpcomingSchedule
+            ? 'Class cancelled, and the rest of the course moved back a week.'
+            : 'Class cancelled.'
+        );
+        this.session.set({ ...s, ...updated, status: 'Cancelled' });
+        this.editStatus.set('Cancelled');
+        this.isEditing.set(false);
+      },
+      error: () => this.saving.set(false),
+    });
   }
 
   confirmDeleteSession(): void {
