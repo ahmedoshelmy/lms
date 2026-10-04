@@ -52,6 +52,7 @@ export class EvaluationDetailComponent implements OnInit {
 
   // What the instructor has in front of them, kept apart from what was loaded
   // so "counted" and "typed over" stay distinguishable.
+  protected studentName = signal('');
   protected overview = signal('');
   protected attendanceRate = signal(0);
   protected tasksRate = signal(0);
@@ -98,6 +99,7 @@ export class EvaluationDetailComponent implements OnInit {
 
     return {
       ...loaded,
+      studentName: this.printedName(),
       technicalOverview: this.overview(),
       attendanceRate: this.attendanceRate(),
       tasksRate: this.tasksRate(),
@@ -127,6 +129,7 @@ export class EvaluationDetailComponent implements OnInit {
     if (!loaded || !current) return false;
 
     return (
+      loaded.studentName !== current.studentName ||
       (loaded.technicalOverview ?? '') !== (current.technicalOverview ?? '') ||
       (loaded.recommendations ?? '') !== (current.recommendations ?? '') ||
       loaded.attendanceRate !== current.attendanceRate ||
@@ -137,6 +140,21 @@ export class EvaluationDetailComponent implements OnInit {
         (session, index) => session.included !== current.sessions[index]?.included
       )
     );
+  });
+
+  /**
+   * The name to print: what has been typed, or the record's name where the
+   * field has been emptied. A report with no name on it is worse than one
+   * carrying the name the school has.
+   */
+  protected readonly printedName = computed(
+    () => this.studentName().trim() || this.report()?.registeredStudentName || ''
+  );
+
+  /** Whether the report prints a name other than the one on the record. */
+  protected readonly renamed = computed(() => {
+    const report = this.report();
+    return !!report && this.printedName() !== report.registeredStudentName;
   });
 
   protected readonly ratedCount = computed(
@@ -184,6 +202,7 @@ export class EvaluationDetailComponent implements OnInit {
 
   private apply(report: MonthlyEvaluation): void {
     this.report.set(report);
+    this.studentName.set(report.studentName);
     this.overview.set(report.technicalOverview ?? '');
     this.attendanceRate.set(report.attendanceRate);
     this.tasksRate.set(report.tasksRate);
@@ -301,6 +320,13 @@ export class EvaluationDetailComponent implements OnInit {
     this.overview.set(text);
   }
 
+  /** Puts the record's name back, for a change made by mistake. */
+  protected useRegisteredName(): void {
+    const report = this.report();
+    if (!report || this.locked()) return;
+    this.studentName.set(report.registeredStudentName);
+  }
+
   protected addSuggestion(line: string): void {
     if (this.locked()) return;
     const current = this.recommendations().trim();
@@ -323,6 +349,7 @@ export class EvaluationDetailComponent implements OnInit {
         studentId: report.studentId,
         groupId: report.groupId,
         month: report.month,
+        studentName: this.printedName(),
         technicalOverview: this.overview().trim() || null,
         attendanceRate: this.attendanceRate(),
         tasksRate: this.tasksRate(),

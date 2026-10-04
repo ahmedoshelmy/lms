@@ -11,7 +11,13 @@ export interface MonthlyEvaluation {
   id?: number | null;
 
   studentId: number;
+
+  /** The name the report prints, which the instructor may change. */
   studentName: string;
+
+  /** The name on the child's record, to show what a changed name departs from. */
+  registeredStudentName: string;
+
   groupId: number;
   groupName: string;
   courseName: string;
@@ -108,6 +114,8 @@ export interface SaveMonthlyEvaluation {
   studentId: number;
   groupId: number;
   month: string;
+  /** Blank, or the name already on the record, follows the record. */
+  studentName?: string | null;
   technicalOverview?: string | null;
   attendanceRate: number;
   tasksRate: number;

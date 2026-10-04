@@ -13,8 +13,28 @@
       </button>
 
       <div class="head__main">
-        <div>
-          <h1 class="head__title">{{ report.studentName }}</h1>
+        <div class="head__who">
+          <!-- The printed name. Parents know a child by the name they use. -->
+          <input
+            type="text"
+            class="head__title head__title--input"
+            maxlength="200"
+            aria-label="The name this report prints"
+            [ngModel]="studentName()"
+            (ngModelChange)="studentName.set($event)"
+            [disabled]="locked()"
+          />
+          @if (renamed()) {
+            <p class="head__renamed">
+              <i class="pi pi-user-edit"></i>
+              On the record: {{ report.registeredStudentName }}.
+              @if (!locked()) {
+                <button type="button" class="head__revert" (click)="useRegisteredName()">
+                  Use that
+                </button>
+              }
+            </p>
+          }
           <p class="head__facts">
             {{ report.groupName }} · {{ report.courseName }} · {{ report.courseLevel }} ·
             {{ report.instructorName }} · {{ monthLabel() }}

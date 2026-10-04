@@ -507,8 +507,15 @@ function stampPages(doc: jsPDF, report: MonthlyEvaluation): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(...MUTED);
+    // Trimmed rather than allowed to run into the middle of the line: the
+    // printed name is typed in, so it can be longer than the record's.
     doc.text(
-      `${report.studentName} · ${report.groupName} · ${monthName(report.month)}`,
+      fit(
+        doc,
+        `${report.studentName} · ${report.groupName} · ${monthName(report.month)}`,
+        PAGE_WIDTH / 2 - MARGIN - 80,
+        7.5
+      ),
       MARGIN,
       FOOTER_TOP + 26
     );
