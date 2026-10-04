@@ -393,11 +393,25 @@ export class WeeklyScheduleComponent {
     return 'badge-scheduled';
   }
 
-  getAttendanceBadge(s: ScheduleSession): { label: string; css: string; icon: string } {
+  /**
+   * How the register stands, as a pill.
+   *
+   * A week column is about a hundred pixels wide, so the same state is
+   * offered twice: the sentence for a card with room, and a word for one
+   * without, which is the difference between a tidy card and a pill that
+   * pushes its neighbours out past the edge.
+   */
+  getAttendanceBadge(s: ScheduleSession): {
+    label: string;
+    short: string;
+    css: string;
+    icon: string;
+  } {
     const status = (s.status || '').toLowerCase();
     if (status.includes('cancel')) {
       return {
         label: 'Cancelled',
+        short: 'Cancelled',
         css: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
         icon: 'pi-times-circle',
       };
@@ -405,6 +419,7 @@ export class WeeklyScheduleComponent {
     if (status.includes('completed')) {
       return {
         label: 'Attendance Marked',
+        short: 'Marked',
         css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
         icon: 'pi-check-circle',
       };
@@ -415,6 +430,7 @@ export class WeeklyScheduleComponent {
     if (sessionTime <= now) {
       return {
         label: 'Attendance Pending',
+        short: 'Pending',
         css: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
         icon: 'pi-exclamation-triangle',
       };
@@ -422,6 +438,7 @@ export class WeeklyScheduleComponent {
 
     return {
       label: 'Upcoming',
+      short: 'Upcoming',
       css: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
       icon: 'pi-clock',
     };

@@ -134,16 +134,18 @@
                     <!-- Top Row: Time Hero + Session Progress -->
                     <div class="flex items-center justify-between gap-1 mb-1.5">
                       <div
-                        class="flex items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]"
+                        class="flex min-w-0 items-center gap-1 text-[11px] font-black text-[var(--color-text-primary)]"
                       >
-                        <i class="pi pi-clock text-[10px] text-[var(--color-secondary)]"></i>
-                        <span>{{ formatTime(session.startsAt) }}</span>
+                        <i
+                          class="pi pi-clock shrink-0 text-[10px] text-[var(--color-secondary)]"
+                        ></i>
+                        <span class="truncate">{{ formatTime(session.startsAt) }}</span>
                       </div>
 
                       @let seq = getSessionSequence(session);
                       @if (seq) {
                         <span
-                          class="px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)] whitespace-nowrap"
+                          class="shrink-0 px-1.5 py-0.5 rounded-md text-[9px] font-extrabold bg-[var(--color-background-alt)] text-[var(--color-text-secondary)] whitespace-nowrap"
                           [title]="getSessionSequenceLabel(session)"
                         >
                           {{ seq }}
@@ -187,16 +189,20 @@
                     class="mt-2.5 pt-2 border-t border-[var(--color-border)] flex items-center justify-between gap-1"
                   >
                     @let att = getAttendanceBadge(session);
+                    <!-- min-w-0 so the pill gives way: without it nothing in
+                         this row can shrink and the arrow is pushed out past
+                         the card's own edge on a narrow column. -->
                     <span
-                      class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border"
+                      class="min-w-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border"
                       [ngClass]="att.css"
+                      [title]="att.label"
                     >
-                      <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
-                      {{ att.label }}
+                      <i [ngClass]="'pi ' + att.icon" class="text-[9px] shrink-0"></i>
+                      <span class="truncate">{{ att.short }}</span>
                     </span>
 
                     <i
-                      class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"
+                      class="pi pi-arrow-right text-xs text-[var(--color-secondary)] shrink-0 opacity-0 group-hover/session:opacity-100 transition-opacity"
                     ></i>
                   </div>
                 </div>
@@ -390,15 +396,16 @@
               >
                 @let att = getAttendanceBadge(session);
                 <span
-                  class="px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border"
+                  class="min-w-0 px-2 py-0.5 rounded-full text-[10px] font-extrabold flex items-center gap-1 border"
                   [ngClass]="att.css"
+                  [title]="att.label"
                 >
-                  <i [ngClass]="'pi ' + att.icon" class="text-[9px]"></i>
-                  {{ att.label }}
+                  <i [ngClass]="'pi ' + att.icon" class="text-[9px] shrink-0"></i>
+                  <span class="truncate">{{ att.label }}</span>
                 </span>
 
                 <i
-                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/session:opacity-100 transition-opacity"
+                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] shrink-0 opacity-0 group-hover/session:opacity-100 transition-opacity"
                 ></i>
               </div>
             </div>

@@ -12,12 +12,28 @@
   }
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/*
+ * The view tabs scroll sideways on a narrow screen, and a hidden scrollbar
+ * left no sign that there was anything past the edge. A thin rail says so,
+ * and browsers show it only while there is something to scroll to.
+ */
+.tab-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  overscroll-behavior-x: contain;
 }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+.tab-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tab-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tab-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
 }
 
 .density-btn {

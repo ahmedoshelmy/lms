@@ -276,11 +276,16 @@
 }
 
 /*
- * Medium screens: seven columns cannot share 768px and stay legible — each
- * would land around 80px, narrower than the card padding plus a time label.
- * The grid therefore holds a floor of ~120px per column and scrolls sideways
- * inside .schedule-grid-scroll until the viewport can fit all seven, which
- * happens around 1024px.
+ * Seven columns cannot share a narrow page and stay legible: a card holds a
+ * time, a group code and a status pill, and below about 130px those start
+ * fighting each other for the width. The grid therefore holds a floor of
+ * 130px a column and scrolls sideways inside .schedule-grid-scroll until the
+ * page can give it the full 1008px.
+ *
+ * The floor used to be lifted at 1024px, which is where the sidebar still
+ * takes 250px of it: seven columns then shared under 700px and landed at
+ * 84px each, which is narrower than the content they hold. Scrolling a week
+ * is a smaller cost than a card that cannot hold its own contents.
  */
 .schedule-grid-scroll {
   overflow-x: auto;
@@ -288,11 +293,5 @@
 }
 
 .schedule-grid.grid-cols-7 {
-  min-width: 912px;
-}
-
-@media (min-width: 1024px) {
-  .schedule-grid.grid-cols-7 {
-    min-width: 0;
-  }
+  min-width: 1008px;
 }
