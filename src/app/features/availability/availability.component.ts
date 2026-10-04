@@ -26,10 +26,16 @@ import {
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 
-/** Half-hour marks from 08:00 to 21:00 — the range the schedule board covers. */
+/**
+ * Half-hour marks from 08:00 to 22:30.
+ *
+ * The list stopped at 21:00, which is where the schedule board's grid ends,
+ * not where the school's evening does: a class starting at nine runs to half
+ * past ten, and there was no way to say so.
+ */
 function buildTimeOptions(): string[] {
   const out: string[] = [];
-  for (let minutes = 8 * 60; minutes <= 21 * 60; minutes += 30) {
+  for (let minutes = 8 * 60; minutes <= 22 * 60 + 30; minutes += 30) {
     out.push(
       `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
     );

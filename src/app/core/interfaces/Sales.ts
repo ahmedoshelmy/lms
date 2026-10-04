@@ -55,6 +55,8 @@ export interface SlotSearch {
   dayOfWeek?: number;
   roomId?: number;
   maxBlockedWeeks?: number;
+  /** Only slots starting at this time, as "HH:mm". For the family that can only do six. */
+  startTime?: string;
   /** Every half-hour start, rather than slots packed back to back. */
   allStartTimes?: boolean;
 }

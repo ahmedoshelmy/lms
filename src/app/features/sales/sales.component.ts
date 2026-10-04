@@ -78,8 +78,18 @@ export class SalesComponent implements OnInit {
     instructorId: 0,
     dayOfWeek: -1,
     roomId: 0,
+    startTime: '',
     perfectOnly: true,
     allStartTimes: false,
+  });
+
+  /**
+   * Half-hour marks across the teaching day, for the customer who can only
+   * make one of them. Blank means any time, which is the usual search.
+   */
+  readonly startTimes = Array.from({ length: (22 - 8) * 2 + 1 }, (_, i) => {
+    const minutes = 8 * 60 + i * 30;
+    return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
   });
 
   // ── Dialogs ──────────────────────────────────────────────────────────────
@@ -211,7 +221,10 @@ export class SalesComponent implements OnInit {
         dayOfWeek: form.dayOfWeek >= 0 ? form.dayOfWeek : undefined,
         roomId: form.roomId || undefined,
         maxBlockedWeeks: form.perfectOnly ? 0 : undefined,
-        allStartTimes: form.allStartTimes,
+        // A named start time answers "who is free at six" outright, so the
+        // half-hour stepping it would otherwise need does not apply.
+        startTime: form.startTime || undefined,
+        allStartTimes: form.startTime ? false : form.allStartTimes,
       })
       .subscribe({
         next: (slots) => {
