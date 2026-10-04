@@ -277,7 +277,12 @@
 
     <!-- ── Finishing ──────────────────────────────────────────────────────── -->
     <footer class="actions">
-      <span class="actions__progress"> {{ ratedCount() }} of 15 rated </span>
+      <span class="actions__progress">
+        {{ ratedCount() }} of 15 rated
+        @if (unsaved()) {
+          <span class="actions__unsaved">· unsaved changes</span>
+        }
+      </span>
 
       <div class="actions__buttons">
         <button
@@ -293,6 +298,9 @@
           }
           Download PDF
         </button>
+        @if (unsaved()) {
+          <span class="actions__hint">The PDF includes what is on screen now.</span>
+        }
 
         @if (!locked()) {
           <button type="button" class="btn btn--ghost" (click)="save(false)" [disabled]="saving()">

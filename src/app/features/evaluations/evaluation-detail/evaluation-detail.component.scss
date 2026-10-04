@@ -414,6 +414,17 @@
     font-variant-numeric: tabular-nums;
   }
 
+  &__unsaved {
+    margin-left: 6px;
+    color: var(--color-warning-foreground);
+  }
+
+  &__hint {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    align-self: center;
+  }
+
   &__buttons {
     display: flex;
     flex-wrap: wrap;

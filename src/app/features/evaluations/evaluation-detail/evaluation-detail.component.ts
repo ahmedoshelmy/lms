@@ -73,6 +73,60 @@ export class EvaluationDetailComponent implements OnInit {
     () => this.report()?.status === 'Released' && !this.isAdmin()
   );
 
+  /**
+   * The report as it stands on screen, edits and all.
+   *
+   * The PDF used to be drawn from the last thing the server sent back, so
+   * ratings and rates typed in but not yet saved came out empty -- which reads
+   * as a broken document rather than as unsaved work.
+   */
+  protected readonly edited = computed<MonthlyEvaluation | null>(() => {
+    const loaded = this.report();
+    if (!loaded) return null;
+
+    return {
+      ...loaded,
+      technicalOverview: this.overview(),
+      attendanceRate: this.attendanceRate(),
+      tasksRate: this.tasksRate(),
+      assignmentsRate: this.assignmentsRate(),
+      recommendations: this.recommendations(),
+      ratings: loaded.ratings.map((rating) => ({
+        ...rating,
+        stars: this.ratings()[rating.metric] ?? 0,
+      })),
+      sessions: loaded.sessions.map((session) => ({
+        ...session,
+        included: this.included()[session.sessionId] ?? false,
+      })),
+
+      // A rate typed over the counted one is an edit whether or not it has
+      // been saved yet, and the PDF decides what to print from these.
+      tasksRateEdited: this.tasksRate() !== (this.counted()?.tasks ?? 0),
+      assignmentsRateEdited: this.assignmentsRate() !== (this.counted()?.assignments ?? 0),
+      attendanceRateEdited: this.attendanceRate() !== (this.counted()?.attendance ?? 0),
+    };
+  });
+
+  /** Whether anything on screen differs from what the server last stored. */
+  protected readonly unsaved = computed(() => {
+    const loaded = this.report();
+    const current = this.edited();
+    if (!loaded || !current) return false;
+
+    return (
+      (loaded.technicalOverview ?? '') !== (current.technicalOverview ?? '') ||
+      (loaded.recommendations ?? '') !== (current.recommendations ?? '') ||
+      loaded.attendanceRate !== current.attendanceRate ||
+      loaded.tasksRate !== current.tasksRate ||
+      loaded.assignmentsRate !== current.assignmentsRate ||
+      loaded.ratings.some((rating, index) => rating.stars !== current.ratings[index]?.stars) ||
+      loaded.sessions.some(
+        (session, index) => session.included !== current.sessions[index]?.included
+      )
+    );
+  });
+
   protected readonly ratedCount = computed(
     () => Object.values(this.ratings()).filter((stars) => stars >= 1).length
   );
@@ -231,7 +285,7 @@ export class EvaluationDetailComponent implements OnInit {
   }
 
   protected async download(): Promise<void> {
-    const report = this.report();
+    const report = this.edited();
     if (!report) return;
 
     this.downloading.set(true);
