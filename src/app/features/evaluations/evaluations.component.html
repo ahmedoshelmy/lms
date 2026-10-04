@@ -1,0 +1,134 @@
+<div class="page">
+  <header class="page__head">
+    <div>
+      <h1 class="page__title">Monthly reports</h1>
+      <p class="page__subtitle">
+        One per child per group. Instructors write them, operations releases them.
+      </p>
+    </div>
+
+    <div class="page__controls">
+      <label class="field">
+        <span class="field__label">Month</span>
+        <select
+          class="input"
+          [ngModel]="month()"
+          (ngModelChange)="setMonth($event)"
+          aria-label="Month to report on"
+        >
+          @for (option of monthOptions(); track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Search</span>
+        <input
+          type="search"
+          class="input"
+          placeholder="Child, group or instructor"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+      </label>
+    </div>
+  </header>
+
+  <!-- ── Where the month stands ──────────────────────────────────────────── -->
+  <div class="tallies">
+    @for (
+      tally of [
+        { key: 'All', label: 'All', value: counts().total },
+        { key: 'NotStarted', label: 'Not started', value: counts().notStarted },
+        { key: 'Draft', label: 'In progress', value: counts().draft },
+        { key: 'Submitted', label: 'Waiting on operations', value: counts().submitted },
+        { key: 'Released', label: 'Released', value: counts().released },
+      ];
+      track tally.key
+    ) {
+      <button
+        type="button"
+        class="tally"
+        [class.tally--on]="statusFilter() === tally.key"
+        (click)="statusFilter.set($any(tally.key))"
+      >
+        <span class="tally__value">{{ tally.value }}</span>
+        <span class="tally__label">{{ tally.label }}</span>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="state">
+      <i class="pi pi-spinner pi-spin"></i>
+      <span>Reading {{ monthLabel() }}&hellip;</span>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="state">
+      <i class="pi pi-inbox"></i>
+      <span>Nothing to report on for {{ monthLabel() }}.</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Child</th>
+            <th>Group</th>
+            <th>Instructor</th>
+            <th class="num">Classes</th>
+            <th class="num">Attendance</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of filtered(); track row.studentId + '-' + row.groupId) {
+            <tr (click)="open(row)" class="row">
+              <td class="row__name">{{ row.studentName }}</td>
+              <td>{{ row.groupName }}</td>
+              <td>{{ row.instructorName }}</td>
+              <td class="num">{{ row.classesHeld }}</td>
+              <td class="num">
+                @if (row.status === 'NotStarted') {
+                  <span class="muted">—</span>
+                } @else {
+                  {{ row.attendanceRate }}%
+                }
+              </td>
+              <td>
+                <span class="chip" [class]="'chip--' + row.status.toLowerCase()">
+                  {{ statusLabel(row.status) }}
+                </span>
+              </td>
+              <td class="actions">
+                @if (isAdmin() && row.status === 'Submitted') {
+                  <button
+                    type="button"
+                    class="btn btn--primary"
+                    [disabled]="releasing() === row.id"
+                    (click)="release(row, $event)"
+                  >
+                    Release
+                  </button>
+                } @else if (isAdmin() && row.status === 'Released') {
+                  <button
+                    type="button"
+                    class="btn btn--ghost"
+                    [disabled]="releasing() === row.id"
+                    (click)="withdraw(row, $event)"
+                    title="Take it back to correct something"
+                  >
+                    Withdraw
+                  </button>
+                }
+                <i class="pi pi-angle-right row__go"></i>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

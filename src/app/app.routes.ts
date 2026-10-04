@@ -104,6 +104,24 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'evaluations',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('evaluations') },
+        loadComponent: () =>
+          import('./features/evaluations/evaluations.component').then(
+            (c) => c.EvaluationsComponent
+          ),
+      },
+      {
+        path: 'evaluations/:studentId/:groupId',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('evaluations') },
+        loadComponent: () =>
+          import('./features/evaluations/evaluation-detail/evaluation-detail.component').then(
+            (c) => c.EvaluationDetailComponent
+          ),
+      },
+      {
         path: 'instructors',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('instructors') },

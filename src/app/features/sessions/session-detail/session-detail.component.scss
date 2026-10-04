@@ -1241,3 +1241,48 @@
   font-weight: 700;
   white-space: nowrap;
 }
+
+/* ── Task and assignment marks ─────────────────────────────────────────────
+   Three states rather than a tick box: done, not done, and nobody asked. The
+   third is the common one and has to read as a shrug, not as a failure. */
+.roster-th--mark,
+.roster-td--mark {
+  text-align: center;
+  width: 88px;
+}
+
+.mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-secondary);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  &--yes {
+    background: var(--color-success-background);
+    border-color: color-mix(in srgb, var(--color-success) 35%, transparent);
+    color: var(--color-success-foreground);
+  }
+
+  &--no {
+    background: var(--color-error-background);
+    border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+    color: var(--color-error-foreground);
+  }
+}

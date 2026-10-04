@@ -34,6 +34,15 @@ export interface StudentAttendanceRecord {
   status: StudentStatus;
   recordId?: number;
   isSaved?: boolean;
+
+  /**
+   * Whether they did the task and handed in the assignment. Null means nobody
+   * was asked -- a session with no task set, or one marked before the register
+   * carried the question -- which the monthly report treats differently from
+   * not having done it.
+   */
+  taskDone?: boolean | null;
+  assignmentDone?: boolean | null;
 }
 
 function statusToApiEnum(status: StudentStatus): AttendanceStatus {
@@ -312,6 +321,8 @@ export class SessionDetailComponent implements OnInit {
       status: normalizeAttendanceStatus(a.status),
       recordId: a.id,
       isSaved: true,
+      taskDone: a.taskDone ?? null,
+      assignmentDone: a.assignmentDone ?? null,
     }));
 
     if (isPlatformBrowser(this.platformId)) {
@@ -352,6 +363,34 @@ export class SessionDetailComponent implements OnInit {
     this.isDirty.set(true);
   }
 
+  /**
+   * Cycles a task or assignment mark between done, not done, and not asked.
+   *
+   * Three states rather than a checkbox, because a session with no task set is
+   * not a room full of children who failed to do it, and the monthly report
+   * counts only the classes where somebody answered.
+   */
+  cycleTask(record: StudentAttendanceRecord, which: 'task' | 'assignment'): void {
+    if (this.isAttendanceDisabled()) return;
+
+    const key = which === 'task' ? 'taskDone' : 'assignmentDone';
+    const next = record[key] === true ? false : record[key] === false ? null : true;
+
+    this.records.update((list) =>
+      list.map((r) => (r.studentId === record.studentId ? { ...r, [key]: next } : r))
+    );
+    this.isDirty.set(true);
+  }
+
+  /** Marks the whole class done for a task or an assignment, in one press. */
+  bulkSetTask(which: 'task' | 'assignment', done: boolean | null): void {
+    if (this.isAttendanceDisabled()) return;
+
+    const key = which === 'task' ? 'taskDone' : 'assignmentDone';
+    this.records.update((list) => list.map((r) => ({ ...r, [key]: done })));
+    this.isDirty.set(true);
+  }
+
   bulkSetStatus(status: StudentStatus): void {
     if (this.isAttendanceDisabled()) return;
     this.records.update((list) => list.map((r) => ({ ...r, status })));
@@ -379,6 +418,8 @@ export class SessionDetailComponent implements OnInit {
     const bulkPayload = recs.map((r) => ({
       studentId: r.studentId,
       status: statusToApiEnum(r.status),
+      taskDone: r.taskDone ?? null,
+      assignmentDone: r.assignmentDone ?? null,
     }));
 
     this.lms.saveBulkAttendance(s.id, bulkPayload).subscribe({

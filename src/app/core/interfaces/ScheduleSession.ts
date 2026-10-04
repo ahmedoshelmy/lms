@@ -4,6 +4,9 @@ export interface SessionAttendanceItem {
   studentName: string;
   studentEmail: string;
   status: string;
+  /** Did the session's task, handed in the assignment, or was not asked. */
+  taskDone?: boolean | null;
+  assignmentDone?: boolean | null;
 }
 
 export interface ScheduleSession {

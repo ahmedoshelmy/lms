@@ -34,6 +34,11 @@ import {
 } from '../interfaces/Group';
 import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
 import { DashboardOverview } from '../interfaces/DashboardOverview';
+import {
+  MonthlyEvaluation,
+  MonthlyEvaluationSummary,
+  SaveMonthlyEvaluation,
+} from '../interfaces/MonthlyEvaluation';
 import { InstructorWorkload } from '../interfaces/InstructorWorkload';
 import {
   ScheduleSession,
@@ -82,6 +87,10 @@ import {
 export interface BulkAttendanceItem {
   studentId: number;
   status: AttendanceStatus;
+  /** Did the task set in class. Null where there was nothing to ask. */
+  taskDone?: boolean | null;
+  /** Handed in the assignment. Null where there was nothing to ask. */
+  assignmentDone?: boolean | null;
 }
 
 @Injectable({
@@ -212,6 +221,44 @@ export class LmsService {
       `${this.getApiUrl()}/groups/${groupId}/students/${studentId}/renewal`,
       { handled }
     );
+  }
+
+  // ── Monthly reports ──────────────────────────────────────────────────────
+
+  /** Every report a month should have, written or not. */
+  getEvaluations(
+    month: string,
+    filter?: { instructorId?: number; groupId?: number }
+  ): Observable<MonthlyEvaluationSummary[]> {
+    const params = [`month=${month}`];
+    if (filter?.instructorId) params.push(`instructorId=${filter.instructorId}`);
+    if (filter?.groupId) params.push(`groupId=${filter.groupId}`);
+
+    return this.http.get<MonthlyEvaluationSummary[]>(
+      `${this.getApiUrl()}/evaluations?${params.join('&')}`
+    );
+  }
+
+  /**
+   * One child's month. A report nobody has opened yet comes back in the same
+   * shape, with everything the school knows already filled in.
+   */
+  getEvaluation(studentId: number, groupId: number, month: string): Observable<MonthlyEvaluation> {
+    return this.http.get<MonthlyEvaluation>(
+      `${this.getApiUrl()}/evaluations/student/${studentId}/group/${groupId}?month=${month}`
+    );
+  }
+
+  saveEvaluation(payload: SaveMonthlyEvaluation): Observable<MonthlyEvaluation> {
+    return this.http.post<MonthlyEvaluation>(`${this.getApiUrl()}/evaluations`, payload);
+  }
+
+  releaseEvaluation(id: number): Observable<MonthlyEvaluation> {
+    return this.http.post<MonthlyEvaluation>(`${this.getApiUrl()}/evaluations/${id}/release`, {});
+  }
+
+  withdrawEvaluation(id: number): Observable<MonthlyEvaluation> {
+    return this.http.post<MonthlyEvaluation>(`${this.getApiUrl()}/evaluations/${id}/withdraw`, {});
   }
 
   /**

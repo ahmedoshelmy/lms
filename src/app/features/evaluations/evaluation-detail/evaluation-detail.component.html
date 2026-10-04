@@ -1,0 +1,325 @@
+@if (loading()) {
+  <div class="state">
+    <i class="pi pi-spinner pi-spin"></i>
+    <span>Reading the month&hellip;</span>
+  </div>
+} @else if (report(); as report) {
+  <div class="page">
+    <!-- ── Who, and which month ───────────────────────────────────────────── -->
+    <header class="head">
+      <button type="button" class="back" (click)="back()">
+        <i class="pi pi-arrow-left"></i>
+        All reports
+      </button>
+
+      <div class="head__main">
+        <div>
+          <h1 class="head__title">{{ report.studentName }}</h1>
+          <p class="head__facts">
+            {{ report.groupName }} · {{ report.courseName }} · {{ report.courseLevel }} ·
+            {{ report.instructorName }} · {{ monthLabel() }}
+          </p>
+        </div>
+
+        <div class="head__right">
+          <span class="chip" [class]="'chip--' + report.status.toLowerCase()">
+            {{ report.status }}
+          </span>
+          @if (report.releasedAt) {
+            <span class="head__note">
+              Released{{ report.releasedByName ? ' by ' + report.releasedByName : '' }}
+            </span>
+          }
+        </div>
+      </div>
+    </header>
+
+    @if (locked()) {
+      <p class="banner">
+        This report has gone to the parents. Operations can withdraw it if something needs changing.
+      </p>
+    }
+
+    <!-- ── The month as the registers have it ─────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">The month</h2>
+      <div class="facts">
+        <div class="fact">
+          <span class="fact__value">{{ report.attendance.classesHeld }}</span>
+          <span class="fact__label">classes held</span>
+        </div>
+        <div class="fact">
+          <span class="fact__value">{{ report.attendance.present }}</span>
+          <span class="fact__label">present</span>
+        </div>
+        <div class="fact">
+          <span class="fact__value">{{ report.attendance.late }}</span>
+          <span class="fact__label">late</span>
+        </div>
+        <div class="fact">
+          <span class="fact__value">{{ report.attendance.absent }}</span>
+          <span class="fact__label">absent</span>
+        </div>
+        <div class="fact">
+          <span class="fact__value">{{ report.attendance.excused }}</span>
+          <span class="fact__label">excused</span>
+        </div>
+        @if (report.attendance.notMarked > 0) {
+          <div class="fact fact--warn">
+            <span class="fact__value">{{ report.attendance.notMarked }}</span>
+            <span class="fact__label">no register taken</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ── The three rates ────────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Rates</h2>
+      <p class="card__blurb">
+        Counted from the registers. Type over any of them where the register is not the whole story;
+        the report records which ones you changed.
+      </p>
+
+      <div class="rates">
+        <label class="rate">
+          <span class="rate__label">Attendance</span>
+          <span class="rate__input">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              [ngModel]="attendanceRate()"
+              (ngModelChange)="attendanceRate.set(+$event)"
+              [disabled]="locked()"
+            />
+            <span>%</span>
+          </span>
+          <span
+            class="rate__note"
+            [class.rate__note--edited]="attendanceRate() !== counted()?.attendance"
+          >
+            {{ counted()?.attendanceNote }}
+            @if (attendanceRate() !== counted()?.attendance) {
+              · counted {{ counted()?.attendance }}%
+            }
+          </span>
+        </label>
+
+        <label class="rate">
+          <span class="rate__label">Session tasks</span>
+          <span class="rate__input">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              [ngModel]="tasksRate()"
+              (ngModelChange)="tasksRate.set(+$event)"
+              [disabled]="locked()"
+            />
+            <span>%</span>
+          </span>
+          <span class="rate__note" [class.rate__note--edited]="tasksRate() !== counted()?.tasks">
+            {{ counted()?.tasksNote }}
+            @if (tasksRate() !== counted()?.tasks) {
+              · counted {{ counted()?.tasks }}%
+            }
+          </span>
+        </label>
+
+        <label class="rate">
+          <span class="rate__label">Assignments</span>
+          <span class="rate__input">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              [ngModel]="assignmentsRate()"
+              (ngModelChange)="assignmentsRate.set(+$event)"
+              [disabled]="locked()"
+            />
+            <span>%</span>
+          </span>
+          <span
+            class="rate__note"
+            [class.rate__note--edited]="assignmentsRate() !== counted()?.assignments"
+          >
+            {{ counted()?.assignmentsNote }}
+            @if (assignmentsRate() !== counted()?.assignments) {
+              · counted {{ counted()?.assignments }}%
+            }
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ── What was taught ────────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">What was covered</h2>
+      <p class="card__blurb">
+        Tick the classes this child was taught. Classes they missed start unticked.
+      </p>
+
+      @if (report.sessions.length === 0) {
+        <p class="empty">No classes ran for this group in {{ monthLabel() }}.</p>
+      } @else {
+        <ul class="sessions">
+          @for (session of report.sessions; track session.sessionId) {
+            <li class="session">
+              <label class="session__pick">
+                <input
+                  type="checkbox"
+                  [checked]="included()[session.sessionId]"
+                  (change)="toggleSession(session.sessionId)"
+                  [disabled]="locked()"
+                />
+                <span>
+                  <strong>Session {{ session.sessionNumber }} — {{ session.title }}</strong>
+                  <span class="session__meta">
+                    {{ session.date }}
+                    @if (session.attendanceStatus) {
+                      · {{ session.attendanceStatus }}
+                    } @else {
+                      · no register
+                    }
+                  </span>
+                </span>
+              </label>
+            </li>
+          }
+        </ul>
+
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="rewriteOverview()"
+          [disabled]="locked()"
+        >
+          <i class="pi pi-refresh"></i>
+          Rewrite the summary from the ticked classes
+        </button>
+      }
+
+      <label class="field">
+        <span class="field__label">Technical topics covered and projects</span>
+        <textarea
+          rows="8"
+          [ngModel]="overview()"
+          (ngModelChange)="overview.set($event)"
+          [disabled]="locked()"
+          placeholder="What the parents are told was taught this month."
+        ></textarea>
+      </label>
+    </section>
+
+    <!-- ── The fourteen ───────────────────────────────────────────────────── -->
+    @for (section of sections; track section.title) {
+      <section class="card">
+        <h2 class="card__title">{{ section.title }}</h2>
+        <p class="card__blurb">{{ section.blurb }}</p>
+
+        <ul class="metrics">
+          @for (row of section.metrics; track row.metric) {
+            <li class="metric">
+              <span class="metric__label">{{ row.label }}</span>
+              <span class="metric__stars">
+                @for (star of stars; track star) {
+                  <button
+                    type="button"
+                    class="star"
+                    [class.star--on]="starsFor(row.metric) >= star"
+                    [disabled]="locked()"
+                    (click)="setStars(row.metric, star)"
+                    [attr.aria-label]="star + ' of 5 for ' + row.label"
+                  >
+                    <i
+                      class="pi"
+                      [class.pi-star-fill]="starsFor(row.metric) >= star"
+                      [class.pi-star]="starsFor(row.metric) < star"
+                    ></i>
+                  </button>
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- ── What next ──────────────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Recommendation for next month</h2>
+
+      <div class="suggestions">
+        @for (line of suggestions; track line) {
+          <button
+            type="button"
+            class="suggestion"
+            (click)="addSuggestion(line)"
+            [disabled]="locked()"
+          >
+            + {{ line }}
+          </button>
+        }
+      </div>
+
+      <label class="field">
+        <span class="field__label">In your words</span>
+        <textarea
+          rows="5"
+          [ngModel]="recommendations()"
+          (ngModelChange)="recommendations.set($event)"
+          [disabled]="locked()"
+          placeholder="One recommendation per line."
+        ></textarea>
+      </label>
+    </section>
+
+    <!-- ── Finishing ──────────────────────────────────────────────────────── -->
+    <footer class="actions">
+      <span class="actions__progress"> {{ ratedCount() }} of 15 rated </span>
+
+      <div class="actions__buttons">
+        <button
+          type="button"
+          class="btn btn--ghost"
+          (click)="download()"
+          [disabled]="downloading()"
+        >
+          @if (downloading()) {
+            <i class="pi pi-spinner pi-spin"></i>
+          } @else {
+            <i class="pi pi-download"></i>
+          }
+          Download PDF
+        </button>
+
+        @if (!locked()) {
+          <button type="button" class="btn btn--ghost" (click)="save(false)" [disabled]="saving()">
+            Save draft
+          </button>
+          <button
+            type="button"
+            class="btn btn--primary"
+            (click)="save(true)"
+            [disabled]="saving() || !allRated()"
+            [title]="allRated() ? '' : 'Every rating needs a score first'"
+          >
+            Send to operations
+          </button>
+        }
+
+        @if (isAdmin() && report.status === 'Submitted') {
+          <button type="button" class="btn btn--go" (click)="release()" [disabled]="saving()">
+            Release to parents
+          </button>
+        }
+      </div>
+    </footer>
+  </div>
+} @else {
+  <div class="state">
+    <i class="pi pi-exclamation-circle"></i>
+    <span>That report could not be opened.</span>
+  </div>
+}

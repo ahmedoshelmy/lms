@@ -99,6 +99,15 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'evaluations',
+    label: 'Monthly Reports',
+    icon: 'pi pi-file-edit',
+    // Instructors write their own groups' reports; operations checks and
+    // releases them, so both need the page and nobody else does.
+    roles: [Role.Admin, Role.Instructor],
+    showInMenu: true,
+  },
+  {
     path: 'history',
     label: 'History & Events',
     icon: 'pi pi-history',

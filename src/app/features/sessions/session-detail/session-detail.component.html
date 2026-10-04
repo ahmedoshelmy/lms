@@ -479,6 +479,10 @@
                 <th class="roster-th">#</th>
                 <th class="roster-th">Student</th>
                 <th class="roster-th">Status</th>
+                <th class="roster-th roster-th--mark" title="Did the task set in class">Task</th>
+                <th class="roster-th roster-th--mark" title="Handed in the assignment">
+                  Assignment
+                </th>
                 @if (!isAttendanceDisabled()) {
                   <th class="roster-th roster-th--actions">Actions</th>
                 }
@@ -503,6 +507,56 @@
                     <span class="record-badge" [ngClass]="getRecordStatusClass(rec.status)">{{
                       rec.status
                     }}</span>
+                  </td>
+                  <td class="roster-td roster-td--mark">
+                    <button
+                      type="button"
+                      class="mark"
+                      [class.mark--yes]="rec.taskDone === true"
+                      [class.mark--no]="rec.taskDone === false"
+                      [disabled]="isAttendanceDisabled()"
+                      (click)="cycleTask(rec, 'task')"
+                      [title]="
+                        rec.taskDone === true
+                          ? 'Did the task'
+                          : rec.taskDone === false
+                            ? 'Did not do the task'
+                            : 'Not asked'
+                      "
+                    >
+                      <i
+                        class="pi"
+                        [class.pi-check]="rec.taskDone === true"
+                        [class.pi-times]="rec.taskDone === false"
+                        [class.pi-minus]="rec.taskDone === null || rec.taskDone === undefined"
+                      ></i>
+                    </button>
+                  </td>
+                  <td class="roster-td roster-td--mark">
+                    <button
+                      type="button"
+                      class="mark"
+                      [class.mark--yes]="rec.assignmentDone === true"
+                      [class.mark--no]="rec.assignmentDone === false"
+                      [disabled]="isAttendanceDisabled()"
+                      (click)="cycleTask(rec, 'assignment')"
+                      [title]="
+                        rec.assignmentDone === true
+                          ? 'Handed it in'
+                          : rec.assignmentDone === false
+                            ? 'Did not hand it in'
+                            : 'Not asked'
+                      "
+                    >
+                      <i
+                        class="pi"
+                        [class.pi-check]="rec.assignmentDone === true"
+                        [class.pi-times]="rec.assignmentDone === false"
+                        [class.pi-minus]="
+                          rec.assignmentDone === null || rec.assignmentDone === undefined
+                        "
+                      ></i>
+                    </button>
                   </td>
                   @if (!isAttendanceDisabled()) {
                     <td class="roster-td roster-td--actions">

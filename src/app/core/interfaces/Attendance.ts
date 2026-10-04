@@ -43,6 +43,10 @@ export interface AttendanceRecord {
 export interface BulkAttendanceItem {
   studentId: number;
   status: number;
+  /** Did the task set in class. Null where there was nothing to ask. */
+  taskDone?: boolean | null;
+  /** Handed in the assignment. Null where there was nothing to ask. */
+  assignmentDone?: boolean | null;
 }
 
 export interface PendingAttendanceSessionDto {
