@@ -7,6 +7,8 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { MonthlyReportPdfService } from '../../../core/services/monthly-report-pdf.service';
+import { CourseLevel } from '../../../core/interfaces/CourseLevel';
+import { SessionSyllabus } from '../../../core/interfaces/SessionSyllabus';
 import {
   EVALUATION_SECTIONS,
   EvaluationMetric,
@@ -57,6 +59,16 @@ export class EvaluationDetailComponent implements OnInit {
   protected recommendations = signal('');
   protected ratings = signal<Record<string, number>>({});
   protected included = signal<Record<number, boolean>>({});
+
+  // ── Borrowing from the syllabus ──────────────────────────────────────────
+  // A month can straddle the end of one level and the start of the next, and
+  // a class can cover something out of order. The classes the group actually
+  // had are the starting point, not the limit.
+  protected showSyllabus = signal(false);
+  protected levels = signal<CourseLevel[]>([]);
+  protected pickedLevelId = signal<number | null>(null);
+  protected syllabus = signal<SessionSyllabus[]>([]);
+  protected loadingSyllabus = signal(false);
 
   protected readonly monthLabel = computed(() => {
     const month = this.report()?.month;
@@ -179,6 +191,76 @@ export class EvaluationDetailComponent implements OnInit {
     this.recommendations.set(report.recommendations ?? '');
     this.ratings.set(Object.fromEntries(report.ratings.map((r) => [r.metric, r.stars])));
     this.included.set(Object.fromEntries(report.sessions.map((s) => [s.sessionId, s.included])));
+  }
+
+  /**
+   * Opens the syllabus picker, loading the levels of this group's subject.
+   *
+   * Only the subject it is taking: a Python report has no business offering
+   * robotics sessions, and a list of every level in the school would be sixty
+   * entries deep.
+   */
+  protected openSyllabus(): void {
+    this.showSyllabus.set(!this.showSyllabus());
+
+    const topicId = this.report()?.topicId;
+    if (!this.showSyllabus() || !topicId || this.levels().length > 0) return;
+
+    this.lms.getCourseLevels(topicId).subscribe({
+      next: (levels) => {
+        this.levels.set(levels ?? []);
+        const current = this.report()?.courseLevelId ?? levels?.[0]?.id ?? null;
+        if (current) this.pickLevel(current);
+      },
+      error: () => this.levels.set([]),
+    });
+  }
+
+  protected pickLevel(levelId: number): void {
+    const topicId = this.report()?.topicId;
+    this.pickedLevelId.set(levelId);
+    if (!topicId) return;
+
+    this.loadingSyllabus.set(true);
+    this.lms.getCourseLevelSyllabus(topicId, levelId).subscribe({
+      next: (sessions) => {
+        this.syllabus.set((sessions ?? []).sort((a, b) => a.sessionNumber - b.sessionNumber));
+        this.loadingSyllabus.set(false);
+      },
+      error: () => {
+        this.syllabus.set([]);
+        this.loadingSyllabus.set(false);
+      },
+    });
+  }
+
+  /** The level being browsed, for the heading on each borrowed paragraph. */
+  protected readonly pickedLevel = computed(
+    () => this.levels().find((level) => level.id === this.pickedLevelId()) ?? null
+  );
+
+  /**
+   * Adds a syllabus session's write-up to the overview.
+   *
+   * Appended rather than replacing, and named with its level, so a month that
+   * covered the last of one level and the first of the next reads as what it
+   * was. Adding the same one twice does nothing.
+   */
+  protected addFromSyllabus(session: SessionSyllabus): void {
+    if (this.locked()) return;
+
+    const level = this.pickedLevel();
+    const label = level
+      ? `Session ${session.sessionNumber} (Level ${level.level}) — ${session.title}`
+      : `Session ${session.sessionNumber} — ${session.title}`;
+
+    if (this.overview().includes(label)) return;
+
+    const body = session.parentSummary?.trim() || session.content?.trim();
+    const paragraph = body ? `${label}: ${body}` : `${label}.`;
+    const current = this.overview().trim();
+
+    this.overview.set(current ? `${current}\n\n${paragraph}` : paragraph);
   }
 
   protected starsFor(metric: EvaluationMetric): number {

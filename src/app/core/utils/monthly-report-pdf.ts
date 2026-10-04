@@ -13,10 +13,10 @@ import {
  * sections, then the recommendation. Parents have been reading that shape for
  * a year and the report should not feel like a different school's.
  *
- * The rule running through the layout is that nothing unanswered may look like
- * an answer. A rating nobody gave prints "Not rated", not five empty stars; a
- * rate nobody recorded prints "Not recorded", not 0%. The first draft of this
- * printed both as zeros and read, fairly, as a broken document.
+ * A rating nobody gave prints "Not rated" rather than five empty stars, which
+ * read as a score of zero. The three rates do print as figures even when the
+ * register holds nothing behind them -- the school asked for that: a parent
+ * reads a percentage, and the line under it says what it was counted from.
  */
 
 export const PAGE_WIDTH = 595;
@@ -203,30 +203,27 @@ function drawRates(cursor: Cursor, report: MonthlyEvaluation): void {
   const { doc } = cursor;
   const attendance = report.attendance;
 
-  const cards: { label: string; value: number; note: string; recorded: boolean }[] = [
+  const cards: { label: string; value: number; note: string }[] = [
     {
       label: 'Attendance',
       value: report.attendanceRate,
       note: attendance.classesHeld
         ? `${attendance.present + attendance.late} of ${attendance.classesHeld} classes`
         : 'No classes this month',
-      recorded: attendance.classesHeld > 0,
     },
     {
       label: 'Session tasks',
       value: report.tasksRate,
       note: attendance.tasksAsked
         ? `${attendance.tasksDone} of ${attendance.tasksAsked} set`
-        : 'Not recorded',
-      recorded: attendance.tasksAsked > 0 || report.tasksRateEdited,
+        : 'Nothing recorded in the register',
     },
     {
       label: 'Assignments',
       value: report.assignmentsRate,
       note: attendance.assignmentsAsked
         ? `${attendance.assignmentsDone} of ${attendance.assignmentsAsked} set`
-        : 'Not recorded',
-      recorded: attendance.assignmentsAsked > 0 || report.assignmentsRateEdited,
+        : 'Nothing recorded in the register',
     },
   ];
 
@@ -246,35 +243,26 @@ function drawRates(cursor: Cursor, report: MonthlyEvaluation): void {
     doc.setTextColor(...MUTED);
     doc.text(card.label.toUpperCase(), x + 12, cursor.y + 18, { charSpace: 0.6 });
 
-    if (card.recorded) {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(23);
-      doc.setTextColor(...BRAND);
-      doc.text(`${card.value}%`, x + 12, cursor.y + 44);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(23);
+    doc.setTextColor(...BRAND);
+    doc.text(`${card.value}%`, x + 12, cursor.y + 44);
 
-      const barWidth = boxWidth - 24;
-      doc.setFillColor(...RULE);
-      doc.roundedRect(x + 12, cursor.y + 52, barWidth, 5, 2.5, 2.5, 'F');
+    const barWidth = boxWidth - 24;
+    doc.setFillColor(...RULE);
+    doc.roundedRect(x + 12, cursor.y + 52, barWidth, 5, 2.5, 2.5, 'F');
 
-      if (card.value > 0) {
-        doc.setFillColor(...ACCENT);
-        doc.roundedRect(
-          x + 12,
-          cursor.y + 52,
-          (barWidth * Math.min(card.value, 100)) / 100,
-          5,
-          2.5,
-          2.5,
-          'F'
-        );
-      }
-    } else {
-      // A rate nobody recorded is not nought percent. Saying so is the whole
-      // difference between an empty month and a bad one.
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.setTextColor(...MUTED);
-      doc.text('Not recorded', x + 12, cursor.y + 42);
+    if (card.value > 0) {
+      doc.setFillColor(...ACCENT);
+      doc.roundedRect(
+        x + 12,
+        cursor.y + 52,
+        (barWidth * Math.min(card.value, 100)) / 100,
+        5,
+        2.5,
+        2.5,
+        'F'
+      );
     }
 
     doc.setFont('helvetica', 'normal');

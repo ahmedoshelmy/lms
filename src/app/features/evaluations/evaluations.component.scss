@@ -132,6 +132,11 @@
 
 .table {
   width: 100%;
+  /* Fixed, so every group's columns line up with every other group's: with
+     automatic widths each card measured its own rows and the headings sat in
+     a different place on each one. */
+  table-layout: fixed;
+  min-width: 620px;
   border-collapse: collapse;
   font-size: 13px;
 
@@ -162,6 +167,23 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+
+  td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.col--num {
+  width: 96px;
+}
+
+.col--status {
+  width: 130px;
+}
+
+.col--actions {
+  width: 210px;
 }
 
 .row {
@@ -182,12 +204,17 @@
   }
 }
 
+/* The cell stays a cell: making it a flex container took it out of the row's
+   layout, and the buttons floated over the rows beneath. */
 .actions {
   text-align: right;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
 }
 
 .muted {

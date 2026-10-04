@@ -16,6 +16,10 @@ export interface MonthlyEvaluation {
   groupName: string;
   courseName: string;
   courseLevel: string;
+
+  /** The subject and level, for borrowing syllabus from another level. */
+  topicId?: number | null;
+  courseLevelId?: number | null;
   instructorId: number;
   instructorName: string;
 

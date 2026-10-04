@@ -200,6 +200,62 @@
         </button>
       }
 
+      <!-- ── Borrowing from the syllabus ───────────────────────────────────
+           A month can straddle two levels, and a class can cover something
+           out of order. The classes the group had are the starting point. -->
+      <button type="button" class="btn btn--ghost" (click)="openSyllabus()" [disabled]="locked()">
+        <i class="pi" [class.pi-plus]="!showSyllabus()" [class.pi-minus]="showSyllabus()"></i>
+        Add a topic from another level
+      </button>
+
+      @if (showSyllabus()) {
+        <div class="syllabus">
+          @if (levels().length === 0) {
+            <p class="empty">No syllabus is published for this subject.</p>
+          } @else {
+            <div class="syllabus__levels">
+              @for (level of levels(); track level.id) {
+                <button
+                  type="button"
+                  class="syllabus__level"
+                  [class.syllabus__level--on]="pickedLevelId() === level.id"
+                  (click)="pickLevel(level.id)"
+                >
+                  Level {{ level.level }}
+                </button>
+              }
+            </div>
+
+            @if (loadingSyllabus()) {
+              <p class="empty">
+                <i class="pi pi-spinner pi-spin"></i> Reading the syllabus&hellip;
+              </p>
+            } @else {
+              <ul class="syllabus__sessions">
+                @for (session of syllabus(); track session.id) {
+                  <li class="syllabus__session">
+                    <div class="syllabus__text">
+                      <strong>Session {{ session.sessionNumber }} — {{ session.title }}</strong>
+                      @if (session.parentSummary) {
+                        <span>{{ session.parentSummary }}</span>
+                      }
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn--ghost"
+                      (click)="addFromSyllabus(session)"
+                      [disabled]="locked()"
+                    >
+                      Add
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        </div>
+      }
+
       <label class="field">
         <span class="field__label">Technical topics covered and projects</span>
         <textarea

@@ -464,3 +464,75 @@
     color: var(--color-text-secondary);
   }
 }
+
+/* ── Borrowing from the syllabus ──────────────────────────────────────────
+   A month can straddle two levels, so the picker offers every level of the
+   group's own subject rather than only the one it is on. */
+.syllabus {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--color-border);
+  background: var(--color-background-alt);
+
+  &__levels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__level {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+
+    &--on {
+      border-color: var(--color-secondary);
+      background: color-mix(in srgb, var(--color-secondary) 10%, var(--color-surface));
+      color: var(--color-secondary);
+    }
+  }
+
+  &__sessions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__session {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+
+    strong {
+      font-size: 12px;
+      color: var(--color-text-primary);
+    }
+  }
+}

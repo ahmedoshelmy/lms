@@ -102,7 +102,10 @@
             <span class="group__who">{{ group.instructorName }}</span>
 
             <span class="group__counts">
-              <span class="pill pill--total">{{ group.students.length }} children</span>
+              <span class="pill pill--total"
+                >{{ group.students.length }}
+                {{ group.students.length === 1 ? 'child' : 'children' }}</span
+              >
               @if (group.missing > 0) {
                 <span class="pill pill--missing">{{ group.missing }} not started</span>
               }
@@ -118,6 +121,15 @@
           @if (!isCollapsed(group.groupName)) {
             <div class="table-wrap">
               <table class="table">
+                <!-- Fixed widths, so one group's columns sit under the next
+                     group's rather than each table measuring its own rows. -->
+                <colgroup>
+                  <col />
+                  <col class="col--num" />
+                  <col class="col--num" />
+                  <col class="col--status" />
+                  <col class="col--actions" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th>Child</th>
@@ -145,45 +157,47 @@
                         </span>
                       </td>
                       <td class="actions">
-                        @if (row.id) {
-                          <button
-                            type="button"
-                            class="btn btn--ghost"
-                            [disabled]="saving() === rowKey(row) || bulk()"
-                            (click)="save(row, $event)"
-                            title="Save this report as a PDF"
-                          >
-                            @if (saving() === rowKey(row)) {
-                              <i class="pi pi-spinner pi-spin"></i>
-                            } @else {
-                              <i class="pi pi-download"></i>
-                            }
-                            PDF
-                          </button>
-                        }
+                        <div class="actions__row">
+                          @if (row.id) {
+                            <button
+                              type="button"
+                              class="btn btn--ghost"
+                              [disabled]="saving() === rowKey(row) || bulk()"
+                              (click)="save(row, $event)"
+                              title="Save this report as a PDF"
+                            >
+                              @if (saving() === rowKey(row)) {
+                                <i class="pi pi-spinner pi-spin"></i>
+                              } @else {
+                                <i class="pi pi-download"></i>
+                              }
+                              PDF
+                            </button>
+                          }
 
-                        @if (isAdmin() && row.status === 'Submitted') {
-                          <button
-                            type="button"
-                            class="btn btn--primary"
-                            [disabled]="releasing() === row.id"
-                            (click)="release(row, $event)"
-                          >
-                            Release
-                          </button>
-                        } @else if (isAdmin() && row.status === 'Released') {
-                          <button
-                            type="button"
-                            class="btn btn--ghost"
-                            [disabled]="releasing() === row.id"
-                            (click)="withdraw(row, $event)"
-                            title="Take it back to correct something"
-                          >
-                            Withdraw
-                          </button>
-                        }
+                          @if (isAdmin() && row.status === 'Submitted') {
+                            <button
+                              type="button"
+                              class="btn btn--primary"
+                              [disabled]="releasing() === row.id"
+                              (click)="release(row, $event)"
+                            >
+                              Release
+                            </button>
+                          } @else if (isAdmin() && row.status === 'Released') {
+                            <button
+                              type="button"
+                              class="btn btn--ghost"
+                              [disabled]="releasing() === row.id"
+                              (click)="withdraw(row, $event)"
+                              title="Take it back to correct something"
+                            >
+                              Withdraw
+                            </button>
+                          }
 
-                        <i class="pi pi-angle-right row__go"></i>
+                          <i class="pi pi-angle-right row__go"></i>
+                        </div>
                       </td>
                     </tr>
                   }
