@@ -7,6 +7,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
 import { MonthlyEvaluationSummary } from '../../core/interfaces/MonthlyEvaluation';
+import { MonthlyReportPdfService } from '../../core/services/monthly-report-pdf.service';
 
 type StatusFilter = 'All' | 'NotStarted' | 'Draft' | 'Submitted' | 'Released';
 
@@ -29,6 +30,7 @@ export class EvaluationsComponent implements OnInit {
   private auth = inject(AuthService);
   private notify = inject(NotificationService);
   private router = inject(Router);
+  private pdf = inject(MonthlyReportPdfService);
 
   protected readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
@@ -37,6 +39,15 @@ export class EvaluationsComponent implements OnInit {
   protected search = signal('');
   protected statusFilter = signal<StatusFilter>('All');
   protected releasing = signal<number | null>(null);
+
+  /** Which row is fetching its report to save, keyed by child and group. */
+  protected saving = signal<string | null>(null);
+
+  /** How far a "save them all" run has got, so a long one shows progress. */
+  protected bulk = signal<{ done: number; total: number } | null>(null);
+
+  /** Groups folded away, so a month of forty groups is still a page. */
+  protected collapsed = signal<Set<string>>(new Set());
 
   /**
    * The month being reported on, as "YYYY-MM".
@@ -81,6 +92,41 @@ export class EvaluationsComponent implements OnInit {
       return matchesStatus && matchesQuery;
     });
   });
+
+  /**
+   * The month's reports gathered under their group.
+   *
+   * One flat list of every child in the school is not a thing anybody reads;
+   * the work is done group by group, by the person who teaches it.
+   */
+  protected readonly byGroup = computed(() => {
+    const groups = new Map<string, MonthlyEvaluationSummary[]>();
+
+    for (const row of this.filtered()) {
+      const existing = groups.get(row.groupName);
+      if (existing) {
+        existing.push(row);
+      } else {
+        groups.set(row.groupName, [row]);
+      }
+    }
+
+    return [...groups.entries()]
+      .map(([groupName, students]) => ({
+        groupName,
+        groupId: students[0].groupId,
+        instructorName: students[0].instructorName,
+        students,
+        released: students.filter((s) => s.status === 'Released').length,
+        waiting: students.filter((s) => s.status === 'Submitted').length,
+        missing: students.filter((s) => s.status === 'NotStarted').length,
+        saveable: students.filter((s) => s.id).length,
+      }))
+      .sort((a, b) => a.groupName.localeCompare(b.groupName));
+  });
+
+  /** Every report in the month that has been written at all. */
+  protected readonly saveable = computed(() => this.filtered().filter((row) => row.id));
 
   protected readonly counts = computed(() => {
     const rows = this.rows();
@@ -148,6 +194,88 @@ export class EvaluationsComponent implements OnInit {
       },
       error: () => this.releasing.set(null),
     });
+  }
+
+  protected toggleGroup(groupName: string): void {
+    this.collapsed.update((set) => {
+      const next = new Set(set);
+      next.has(groupName) ? next.delete(groupName) : next.add(groupName);
+      return next;
+    });
+  }
+
+  protected isCollapsed(groupName: string): boolean {
+    return this.collapsed().has(groupName);
+  }
+
+  protected rowKey(row: MonthlyEvaluationSummary): string {
+    return `${row.studentId}-${row.groupId}`;
+  }
+
+  /**
+   * Saves one report as a PDF without opening it.
+   *
+   * The list holds only a summary, so the full report is fetched first; it is
+   * the same call the detail page makes, and the same drawing.
+   */
+  protected async save(row: MonthlyEvaluationSummary, event?: Event): Promise<void> {
+    event?.stopPropagation();
+    if (!row.id) return;
+
+    this.saving.set(this.rowKey(row));
+    try {
+      await this.saveOne(row);
+    } catch {
+      this.notify.showError(`Could not build ${row.studentName}'s report.`);
+    } finally {
+      this.saving.set(null);
+    }
+  }
+
+  /**
+   * Saves every written report in view, one file each.
+   *
+   * Spaced out, because browsers drop downloads fired back to back, and
+   * Chrome asks once per site before allowing more than one.
+   */
+  protected async saveAll(): Promise<void> {
+    const rows = this.saveable();
+    if (rows.length === 0) return;
+
+    this.bulk.set({ done: 0, total: rows.length });
+
+    let failed = 0;
+    for (const [index, row] of rows.entries()) {
+      this.bulk.set({ done: index + 1, total: rows.length });
+
+      try {
+        await this.saveOne(row);
+      } catch {
+        failed++;
+      }
+
+      if (index < rows.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 400));
+      }
+    }
+
+    this.bulk.set(null);
+    if (failed > 0) {
+      this.notify.showWarn(`${rows.length - failed} saved, ${failed} could not be built.`);
+    } else {
+      this.notify.showSuccess(`${rows.length} reports saved.`);
+    }
+  }
+
+  private async saveOne(row: MonthlyEvaluationSummary): Promise<void> {
+    const report = await new Promise<Parameters<MonthlyReportPdfService['save']>[0]>(
+      (resolve, reject) =>
+        this.lms
+          .getEvaluation(row.studentId, row.groupId, `${this.month()}-01`)
+          .subscribe({ next: resolve, error: reject })
+    );
+
+    await this.pdf.save(report);
   }
 
   protected statusLabel(status: MonthlyEvaluationSummary['status']): string {

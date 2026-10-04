@@ -251,3 +251,102 @@
     color: var(--color-text-secondary);
   }
 }
+
+/* ── A card per group ─────────────────────────────────────────────────────
+   Forty groups in one list is not a thing anybody reads; the work is done
+   group by group, by the person who teaches it. */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  overflow: hidden;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--color-background-alt);
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    text-align: left;
+
+    i {
+      color: var(--color-text-muted);
+      font-size: 12px;
+    }
+
+    &:hover {
+      background: var(--color-surface-hover);
+    }
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+  }
+
+  &__who {
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  &__counts {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .table-wrap {
+    border: none;
+    border-radius: 0;
+  }
+}
+
+.pill {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &--total {
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+  }
+
+  &--missing {
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    color: var(--color-error-foreground);
+    border-color: color-mix(in srgb, var(--color-danger) 28%, transparent);
+  }
+
+  &--waiting {
+    background: color-mix(in srgb, var(--color-secondary) 12%, transparent);
+    color: var(--color-secondary);
+    border-color: color-mix(in srgb, var(--color-secondary) 30%, transparent);
+  }
+
+  &--released {
+    background: var(--color-success-background);
+    color: var(--color-success-foreground);
+    border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+  }
+}
+
+.btn--tall {
+  align-self: flex-end;
+  padding: 9px 16px;
+}

@@ -32,6 +32,23 @@
           (ngModelChange)="search.set($event)"
         />
       </label>
+
+      @if (saveable().length > 0) {
+        <button
+          type="button"
+          class="btn btn--primary btn--tall"
+          (click)="saveAll()"
+          [disabled]="bulk()"
+        >
+          @if (bulk(); as progress) {
+            <i class="pi pi-spinner pi-spin"></i>
+            Saving {{ progress.done }} of {{ progress.total }}
+          } @else {
+            <i class="pi pi-download"></i>
+            Save all {{ saveable().length }} as PDF
+          }
+        </button>
+      }
     </div>
   </header>
 
@@ -64,71 +81,118 @@
       <i class="pi pi-spinner pi-spin"></i>
       <span>Reading {{ monthLabel() }}&hellip;</span>
     </div>
-  } @else if (filtered().length === 0) {
+  } @else if (byGroup().length === 0) {
     <div class="state">
       <i class="pi pi-inbox"></i>
       <span>Nothing to report on for {{ monthLabel() }}.</span>
     </div>
   } @else {
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Child</th>
-            <th>Group</th>
-            <th>Instructor</th>
-            <th class="num">Classes</th>
-            <th class="num">Attendance</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of filtered(); track row.studentId + '-' + row.groupId) {
-            <tr (click)="open(row)" class="row">
-              <td class="row__name">{{ row.studentName }}</td>
-              <td>{{ row.groupName }}</td>
-              <td>{{ row.instructorName }}</td>
-              <td class="num">{{ row.classesHeld }}</td>
-              <td class="num">
-                @if (row.status === 'NotStarted') {
-                  <span class="muted">—</span>
-                } @else {
-                  {{ row.attendanceRate }}%
-                }
-              </td>
-              <td>
-                <span class="chip" [class]="'chip--' + row.status.toLowerCase()">
-                  {{ statusLabel(row.status) }}
-                </span>
-              </td>
-              <td class="actions">
-                @if (isAdmin() && row.status === 'Submitted') {
-                  <button
-                    type="button"
-                    class="btn btn--primary"
-                    [disabled]="releasing() === row.id"
-                    (click)="release(row, $event)"
-                  >
-                    Release
-                  </button>
-                } @else if (isAdmin() && row.status === 'Released') {
-                  <button
-                    type="button"
-                    class="btn btn--ghost"
-                    [disabled]="releasing() === row.id"
-                    (click)="withdraw(row, $event)"
-                    title="Take it back to correct something"
-                  >
-                    Withdraw
-                  </button>
-                }
-                <i class="pi pi-angle-right row__go"></i>
-              </td>
-            </tr>
+    <!-- ── A card per group: the work is done group by group ─────────────── -->
+    <div class="groups">
+      @for (group of byGroup(); track group.groupName) {
+        <section class="group">
+          <button type="button" class="group__head" (click)="toggleGroup(group.groupName)">
+            <i
+              class="pi"
+              [class.pi-angle-down]="!isCollapsed(group.groupName)"
+              [class.pi-angle-right]="isCollapsed(group.groupName)"
+            ></i>
+
+            <span class="group__name">{{ group.groupName }}</span>
+            <span class="group__who">{{ group.instructorName }}</span>
+
+            <span class="group__counts">
+              <span class="pill pill--total">{{ group.students.length }} children</span>
+              @if (group.missing > 0) {
+                <span class="pill pill--missing">{{ group.missing }} not started</span>
+              }
+              @if (group.waiting > 0) {
+                <span class="pill pill--waiting">{{ group.waiting }} to check</span>
+              }
+              @if (group.released > 0) {
+                <span class="pill pill--released">{{ group.released }} released</span>
+              }
+            </span>
+          </button>
+
+          @if (!isCollapsed(group.groupName)) {
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Child</th>
+                    <th class="num">Classes</th>
+                    <th class="num">Attendance</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of group.students; track row.studentId) {
+                    <tr (click)="open(row)" class="row">
+                      <td class="row__name">{{ row.studentName }}</td>
+                      <td class="num">{{ row.classesHeld }}</td>
+                      <td class="num">
+                        @if (row.status === 'NotStarted') {
+                          <span class="muted">—</span>
+                        } @else {
+                          {{ row.attendanceRate }}%
+                        }
+                      </td>
+                      <td>
+                        <span class="chip" [class]="'chip--' + row.status.toLowerCase()">
+                          {{ statusLabel(row.status) }}
+                        </span>
+                      </td>
+                      <td class="actions">
+                        @if (row.id) {
+                          <button
+                            type="button"
+                            class="btn btn--ghost"
+                            [disabled]="saving() === rowKey(row) || bulk()"
+                            (click)="save(row, $event)"
+                            title="Save this report as a PDF"
+                          >
+                            @if (saving() === rowKey(row)) {
+                              <i class="pi pi-spinner pi-spin"></i>
+                            } @else {
+                              <i class="pi pi-download"></i>
+                            }
+                            PDF
+                          </button>
+                        }
+
+                        @if (isAdmin() && row.status === 'Submitted') {
+                          <button
+                            type="button"
+                            class="btn btn--primary"
+                            [disabled]="releasing() === row.id"
+                            (click)="release(row, $event)"
+                          >
+                            Release
+                          </button>
+                        } @else if (isAdmin() && row.status === 'Released') {
+                          <button
+                            type="button"
+                            class="btn btn--ghost"
+                            [disabled]="releasing() === row.id"
+                            (click)="withdraw(row, $event)"
+                            title="Take it back to correct something"
+                          >
+                            Withdraw
+                          </button>
+                        }
+
+                        <i class="pi pi-angle-right row__go"></i>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           }
-        </tbody>
-      </table>
+        </section>
+      }
     </div>
   }
 </div>
