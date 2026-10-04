@@ -54,10 +54,20 @@ export function monthlyReportFileName(report: MonthlyEvaluation): string {
   return `${safe}-${report.groupName}-${month}.pdf`;
 }
 
-export function drawMonthlyReport(doc: jsPDF, report: MonthlyEvaluation): void {
+/** The school's own artwork, loaded at save time rather than bundled. */
+export interface MonthlyReportAssets {
+  /** The MindValley mark as a data URL, and its proportions. */
+  logo?: { dataUrl: string; width: number; height: number };
+}
+
+export function drawMonthlyReport(
+  doc: jsPDF,
+  report: MonthlyEvaluation,
+  assets: MonthlyReportAssets = {}
+): void {
   const cursor: Cursor = { doc, y: 0 };
 
-  drawMasthead(cursor, report);
+  drawMasthead(cursor, report, assets);
   drawIdentity(cursor, report);
   drawRates(cursor, report);
   drawOverview(cursor, report);
@@ -72,7 +82,11 @@ export function drawMonthlyReport(doc: jsPDF, report: MonthlyEvaluation): void {
 
 // ── The top of page one ─────────────────────────────────────────────────────
 
-function drawMasthead(cursor: Cursor, report: MonthlyEvaluation): void {
+function drawMasthead(
+  cursor: Cursor,
+  report: MonthlyEvaluation,
+  assets: MonthlyReportAssets
+): void {
   const { doc } = cursor;
 
   doc.setFillColor(...BRAND);
@@ -82,6 +96,18 @@ function drawMasthead(cursor: Cursor, report: MonthlyEvaluation): void {
   // of the school's artwork that survives being redrawn rather than embedded.
   doc.setFillColor(...ACCENT);
   doc.rect(0, 108, PAGE_WIDTH, 4, 'F');
+
+  // The mark on a white chip: it is a green and purple drawing with dark
+  // lettering, and neither reads on the navy band behind it.
+  if (assets.logo) {
+    const height = 58;
+    const width = (assets.logo.width / assets.logo.height) * height;
+    const x = PAGE_WIDTH - MARGIN - width - 12;
+
+    doc.setFillColor(...PAPER);
+    doc.roundedRect(x - 6, 22, width + 12, height + 12, 6, 6, 'F');
+    doc.addImage(assets.logo.dataUrl, 'PNG', x, 28, width, height, undefined, 'FAST');
+  }
 
   doc.setTextColor(...PAPER);
   doc.setFont('helvetica', 'bold');
@@ -94,7 +120,10 @@ function drawMasthead(cursor: Cursor, report: MonthlyEvaluation): void {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.text('Empowering Future Engineers', MARGIN, 90);
-  doc.text(monthName(report.month), PAGE_WIDTH - MARGIN, 90, { align: 'right' });
+
+  if (!assets.logo) {
+    doc.text(monthName(report.month), PAGE_WIDTH - MARGIN, 90, { align: 'right' });
+  }
 
   cursor.y = 140;
 
