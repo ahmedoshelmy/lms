@@ -83,6 +83,7 @@ import {
   TrialSession,
   UpsertCandidate,
 } from '../interfaces/Sales';
+import { slotSearchQuery } from '../utils/slot-search.utils';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -796,20 +797,9 @@ export class LmsService {
    * free", shared by the sales search and operations.
    */
   findAvailableSlots(search: SlotSearch): Observable<AvailableSlot[]> {
-    const params: string[] = [];
-    if (search.fromDate) params.push(`fromDate=${search.fromDate}`);
-    if (search.weeks) params.push(`weeks=${search.weeks}`);
-    if (search.instructorId) params.push(`instructorId=${search.instructorId}`);
-    if (search.dayOfWeek !== undefined && search.dayOfWeek !== null) {
-      params.push(`dayOfWeek=${search.dayOfWeek}`);
-    }
-    if (search.roomId) params.push(`roomId=${search.roomId}`);
-    if (search.maxBlockedWeeks !== undefined && search.maxBlockedWeeks !== null) {
-      params.push(`maxBlockedWeeks=${search.maxBlockedWeeks}`);
-    }
-    if (search.allStartTimes) params.push('allStartTimes=true');
-    const query = params.length ? `?${params.join('&')}` : '';
-    return this.http.get<AvailableSlot[]>(`${this.getApiUrl()}/Availability/slots${query}`);
+    return this.http.get<AvailableSlot[]>(
+      `${this.getApiUrl()}/Availability/slots${slotSearchQuery(search)}`
+    );
   }
 
   // â”€â”€ Holds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
