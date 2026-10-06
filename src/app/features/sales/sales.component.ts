@@ -44,6 +44,16 @@ export class SalesComponent implements OnInit {
   private readonly notify = inject(NotificationService);
 
   readonly weekdays = WEEKDAYS;
+
+  /**
+   * The teaching week, Saturday first, as the timetable reads it. The value
+   * is the weekday number the API speaks, where Sunday is nought.
+   */
+  readonly dayChips = [6, 0, 1, 2, 3, 4, 5].map((value) => ({
+    value,
+    short: WEEKDAYS[value].slice(0, 3),
+    name: WEEKDAYS[value],
+  }));
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
   protected readonly clockFormat = inject(ClockFormatService);
 
@@ -76,7 +86,7 @@ export class SalesComponent implements OnInit {
     courseLevelId: 0,
     fromDate: new Date().toISOString().slice(0, 10),
     instructorId: 0,
-    dayOfWeek: -1,
+    days: [] as number[],
     roomId: 0,
     startTime: '',
     perfectOnly: true,
@@ -218,7 +228,7 @@ export class SalesComponent implements OnInit {
         // is not offered for a twelve week course.
         weeks: level?.sessionCount || 12,
         instructorId: form.instructorId || undefined,
-        dayOfWeek: form.dayOfWeek >= 0 ? form.dayOfWeek : undefined,
+        daysOfWeek: form.days.length ? form.days : undefined,
         roomId: form.roomId || undefined,
         maxBlockedWeeks: form.perfectOnly ? 0 : undefined,
         // A named start time answers "who is free at six" outright, so the
@@ -233,6 +243,28 @@ export class SalesComponent implements OnInit {
         },
         error: () => this.searching.set(false),
       });
+  }
+
+  /**
+   * Adds or drops a day. Nothing picked is the usual search, so the days are
+   * a narrowing rather than a thing that has to be set before asking.
+   */
+  toggleDay(value: number): void {
+    const chosen = this.search().days;
+    this.search.set({
+      ...this.search(),
+      days: chosen.includes(value)
+        ? chosen.filter((day) => day !== value)
+        : [...chosen, value].sort((a, b) => a - b),
+    });
+  }
+
+  isDayOn(value: number): boolean {
+    return this.search().days.includes(value);
+  }
+
+  clearDays(): void {
+    this.search.set({ ...this.search(), days: [] });
   }
 
   clearSearch(): void {

@@ -117,19 +117,32 @@
           />
         </label>
 
-        <label class="field">
-          <span class="field__label">Day</span>
-          <select
-            class="input"
-            [ngModel]="search().dayOfWeek"
-            (ngModelChange)="search.set({ ...search(), dayOfWeek: +$event })"
-          >
-            <option [value]="-1">Any day</option>
-            @for (name of weekdays; track $index) {
-              <option [value]="$index">{{ name }}</option>
+        <!-- A family who can do Saturday or Monday but nothing in between
+             asks one question, not two searches. -->
+        <div class="field field--days" role="group" aria-label="Days to search">
+          <span class="field__label">
+            Days
+            @if (search().days.length) {
+              <button type="button" class="field__clear" (click)="clearDays()">any day</button>
+            } @else {
+              <span class="field__hint">any day</span>
             }
-          </select>
-        </label>
+          </span>
+          <div class="days">
+            @for (day of dayChips; track day.value) {
+              <button
+                type="button"
+                class="day"
+                [class.day--on]="isDayOn(day.value)"
+                [attr.aria-pressed]="isDayOn(day.value)"
+                [attr.aria-label]="day.name"
+                (click)="toggleDay(day.value)"
+              >
+                {{ day.short }}
+              </button>
+            }
+          </div>
+        </div>
 
         <label class="field">
           <span class="field__label">Instructor</span>

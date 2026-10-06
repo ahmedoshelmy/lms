@@ -24,6 +24,11 @@ export function slotSearchQuery(search: SlotSearch): string {
     add('dayOfWeek', search.dayOfWeek);
   }
 
+  // Repeated rather than joined: that is how the API binds a list.
+  for (const day of search.daysOfWeek ?? []) {
+    add('daysOfWeek', day);
+  }
+
   if (search.roomId) add('roomId', search.roomId);
 
   if (search.maxBlockedWeeks !== undefined && search.maxBlockedWeeks !== null) {

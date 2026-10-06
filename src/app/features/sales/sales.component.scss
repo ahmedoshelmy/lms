@@ -728,6 +728,73 @@
   color: var(--color-text-muted);
 }
 
+/* ── Days, as seven chips rather than one dropdown ──────────────────────── */
+.field--days {
+  /* Seven chips want more room than a 160px column gives them. */
+  @media (min-width: 900px) {
+    grid-column: span 2;
+  }
+
+  .field__label {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+}
+
+.field__hint {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.field__clear {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--color-secondary);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.day {
+  flex: 1 1 auto;
+  min-width: 40px;
+  padding: 7px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-secondary);
+  }
+
+  &--on {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-secondary-content);
+  }
+}
+
 .check {
   display: inline-flex;
   align-items: center;

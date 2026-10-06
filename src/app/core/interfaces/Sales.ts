@@ -53,6 +53,8 @@ export interface SlotSearch {
   weeks?: number;
   instructorId?: number;
   dayOfWeek?: number;
+  /** Several weekdays at once. Empty means any day. */
+  daysOfWeek?: number[];
   roomId?: number;
   maxBlockedWeeks?: number;
   /** Only slots starting at this time, as "HH:mm". For the family that can only do six. */

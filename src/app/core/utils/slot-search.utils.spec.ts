@@ -28,6 +28,16 @@ describe('slotSearchQuery', () => {
     );
   });
 
+  it('sends each chosen day on its own', () => {
+    expect(slotSearchQuery({ daysOfWeek: [6, 1] })).toBe('?daysOfWeek=6&daysOfWeek=1');
+  });
+
+  it('asks for no day in particular when none were chosen', () => {
+    expect(slotSearchQuery({ daysOfWeek: [], fromDate: '2026-10-04' })).toBe(
+      '?fromDate=2026-10-04'
+    );
+  });
+
   it('keeps Sunday, which is nought', () => {
     expect(slotSearchQuery({ dayOfWeek: 0 })).toBe('?dayOfWeek=0');
   });
