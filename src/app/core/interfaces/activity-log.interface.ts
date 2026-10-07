@@ -7,6 +7,14 @@ export interface ActivityLog {
   method: string;
   path: string;
   statusCode: number;
+
+  /** What happened, in words. Missing on rows written before the log kept it. */
+  summary?: string | null;
+
+  /** What it was about — Group, Session, Person, Topic — and which one. */
+  entityType?: string | null;
+  entityId?: number | null;
+
   details?: string;
   createdAt: string;
 }
@@ -19,6 +27,19 @@ export interface ActivityLogQuery {
   search?: string;
   startDate?: string;
   endDate?: string;
+  role?: string;
+  method?: string;
+  entityType?: string;
+  entityId?: number;
+  failedOnly?: boolean;
+}
+
+/** What there is to filter by, counted from the log itself. */
+export interface ActivityFilterOptions {
+  actions: string[];
+  methods: string[];
+  roles: string[];
+  people: { id: number; name: string; role?: string | null }[];
 }
 
 export interface PagedResult<T> {

@@ -2,52 +2,294 @@
   display: block;
 
   ::ng-deep {
-    .p-datatable {
-      background: var(--color-surface);
+    .p-paginator {
+      background: transparent;
       color: var(--color-text-primary);
+      border: none;
+      padding-top: 1rem;
 
-      .p-datatable-header {
-        background: transparent;
-        border: none;
-        padding: 0;
-      }
-
-      .p-datatable-thead > tr > th {
-        background-color: var(--color-background-alt);
-        color: var(--color-text-secondary);
-        font-weight: 600;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--color-border);
-      }
-
-      .p-datatable-tbody > tr {
-        background-color: var(--color-surface);
+      .p-paginator-page,
+      .p-paginator-first,
+      .p-paginator-prev,
+      .p-paginator-next,
+      .p-paginator-last {
         color: var(--color-text-primary);
-        border-bottom: 1px solid var(--color-border);
-
-        > td {
-          padding: 0.75rem 1rem;
-          color: var(--color-text-primary);
-        }
-      }
-
-      .p-paginator {
-        background: transparent;
-        color: var(--color-text-primary);
-        border: none;
-        padding-top: 1rem;
-
-        .p-paginator-page,
-        .p-paginator-first,
-        .p-paginator-prev,
-        .p-paginator-next,
-        .p-paginator-last {
-          color: var(--color-text-primary);
-        }
       }
     }
+  }
+}
+
+/* ── Asking for a narrower view ─────────────────────────────────────────── */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  &--wide {
+    grid-column: span 2;
+  }
+}
+
+.field__label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.input {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-secondary);
+  }
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+
+  input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--color-secondary);
+  }
+}
+
+.filters__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── What is being narrowed to ──────────────────────────────────────────── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chips__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-background-alt);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+
+  i {
+    font-size: 9px;
+    color: var(--color-text-muted);
+  }
+
+  &:hover {
+    border-color: var(--color-secondary);
+  }
+}
+
+.chips__clear {
+  background: none;
+  border: none;
+  padding: 0 4px;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* ── The feed ───────────────────────────────────────────────────────────── */
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+
+  &--bad {
+    color: var(--color-warning-foreground);
+  }
+}
+
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 4px;
+  border-top: 1px solid var(--color-border);
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &--failed {
+    background: color-mix(in srgb, var(--color-warning) 7%, transparent);
+    border-radius: 10px;
+  }
+}
+
+.entry__main {
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.entry__what {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+}
+
+.entry__refused {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--color-warning-background);
+  color: var(--color-warning-foreground);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.entry__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+}
+
+.entry__dot {
+  opacity: 0.6;
+}
+
+.entry__link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-secondary);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+}
+
+.entry__side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.entry__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  i {
+    font-size: 9px;
+  }
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.entry__detail {
+  flex-basis: 100%;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 4px 12px;
+  margin: 8px 0 2px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--color-background-alt);
+  font-size: 11.5px;
+
+  dt {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-text-primary);
+    overflow-wrap: anywhere;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 }
