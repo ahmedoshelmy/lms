@@ -1,7 +1,7 @@
 import { DOCUMENT, Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { catchError, of } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 import { AppNotification, NotificationFeed } from '../interfaces/Notification';
 import { AuthService } from './auth.service';
 import { LmsService } from './lms.service';
@@ -77,9 +77,18 @@ export class NotificationCenterService {
     this.inFlight = true;
     this.http
       .get<NotificationFeed>(`${this.apiUrl()}/notifications`)
-      .pipe(catchError(() => of(null)))
+      .pipe(
+        catchError(() => of(null)),
+
+        // Cleared here rather than on the way past, because a request can end
+        // without an answer -- an expired session used to end this way -- and
+        // a flag left set means the bell never asks again for as long as the
+        // tab is open.
+        finalize(() => {
+          this.inFlight = false;
+        })
+      )
       .subscribe((feed) => {
-        this.inFlight = false;
         if (feed) {
           this.feed.set(feed);
         }
@@ -109,9 +118,11 @@ export class NotificationCenterService {
     this.loading.set(true);
     this.http
       .post<NotificationFeed>(`${this.apiUrl()}/notifications/read-all`, {})
-      .pipe(catchError(() => of(null)))
+      .pipe(
+        catchError(() => of(null)),
+        finalize(() => this.loading.set(false))
+      )
       .subscribe((feed) => {
-        this.loading.set(false);
         if (feed) {
           this.feed.set(feed);
         }
