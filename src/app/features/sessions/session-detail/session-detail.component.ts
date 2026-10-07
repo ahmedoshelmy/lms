@@ -463,6 +463,15 @@ export class SessionDetailComponent implements OnInit {
     });
   }
 
+  /**
+   * Closes a save, honestly.
+   *
+   * A refused save used to be announced as "saved locally (server sync
+   * pending)", and nothing ever synced: the register read as filed while the
+   * school had no record of it. What was typed is still kept, but the page
+   * stays dirty and says nothing was saved -- the error itself has already
+   * been shown by the interceptor.
+   */
   private finishSave(
     cacheMap: Record<string, { status: string; recordId?: number }>,
     hasError: boolean
@@ -472,10 +481,9 @@ export class SessionDetailComponent implements OnInit {
       localStorage.setItem(`lms_attendance_${s.id}`, JSON.stringify(cacheMap));
     }
     this.saving.set(false);
-    this.isDirty.set(false);
-    if (hasError) {
-      this.notify.showSuccess('Attendance saved locally (server sync pending)');
-    } else {
+    this.isDirty.set(hasError);
+
+    if (!hasError) {
       this.notify.showSuccess('Attendance saved successfully!');
     }
   }
