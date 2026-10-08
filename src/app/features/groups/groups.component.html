@@ -671,13 +671,22 @@
         <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Location</label
         >
+        <!-- A list rather than a box: typed by hand, the place drifted
+             ("ESpaces" against "ESPACES") and the room it names was never
+             found, so the class was booked nowhere. -->
         <input
           type="text"
           [(ngModel)]="formLocation"
           name="location"
-          placeholder="e.g. MOA Room 1"
+          list="group-locations"
+          placeholder="Where does this group meet?"
           class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] text-sm"
         />
+        <datalist id="group-locations">
+          @for (room of rooms(); track room.id) {
+            <option [value]="room.name"></option>
+          }
+        </datalist>
       </div>
     </div>
 

@@ -31,6 +31,7 @@ import {
   sessionsRemaining,
 } from '../../core/utils/course-progress.utils';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { Room } from '../../core/interfaces/Availability';
 import { catchError, of } from 'rxjs';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
@@ -91,9 +92,17 @@ export class GroupsComponent implements OnInit {
   formInitialSessionNumber = signal<number>(0);
   formAutoGenerateSessions = signal<boolean>(true);
 
+  /**
+   * Where the school teaches. The location used to be typed, and the form
+   * filled it in with "MOA" before anybody looked: a group at ESpaces or
+   * online was recorded at MOA unless somebody noticed and overwrote it, and
+   * the timetable then showed the wrong place for every one of its classes.
+   */
+  readonly rooms = signal<Room[]>([]);
+
   // Schedule slot form array
   scheduleSlots = signal<GroupScheduleSlot[]>([
-    { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: 'MOA' },
+    { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: '' },
   ]);
 
   // Delete modal signals
@@ -373,7 +382,16 @@ export class GroupsComponent implements OnInit {
     if (this.isAdmin()) {
       this.loadInstructors();
       this.loadTopics();
+      this.loadRooms();
     }
+  }
+
+  /** The places the school teaches, so where a group meets is picked. */
+  loadRooms(): void {
+    this.lmsService
+      .getRooms()
+      .pipe(catchError(() => of([] as Room[])))
+      .subscribe((rooms) => this.rooms.set(rooms ?? []));
   }
 
   loadGroups(): void {
@@ -461,7 +479,7 @@ export class GroupsComponent implements OnInit {
 
     this.formInstructorId = this.instructors().length > 0 ? this.instructors()[0].id : 0;
     this.formStatus = 0;
-    this.formLocation = 'MOA';
+    this.formLocation = '';
     this.formInitialSessionNumber.set(0);
     this.formAutoGenerateSessions.set(true);
 
@@ -470,7 +488,7 @@ export class GroupsComponent implements OnInit {
     this.suggestName();
 
     this.scheduleSlots.set([
-      { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: 'MOA' },
+      { dayOfWeek: 'Saturday', startTime: '13:30', endTime: '15:00', location: '' },
     ]);
 
     this.showModal.set(true);
@@ -497,7 +515,7 @@ export class GroupsComponent implements OnInit {
         dayOfWeek: 'Sunday',
         startTime: '15:00',
         endTime: '16:30',
-        location: this.formLocation || 'MOA',
+        location: this.formLocation,
       },
     ]);
   }
@@ -583,9 +601,16 @@ export class GroupsComponent implements OnInit {
 
       this.lmsService.createGroup(payload).subscribe({
         next: (createdGroup) => {
-          this.notify.showSuccess(
-            `Group "${createdGroup.name}" created with schedule and sessions generated in one step!`
-          );
+          // What actually happened, rather than what was asked for: a group
+          // whose classes could not be written used to be announced as though
+          // its timetable were on the board.
+          if (createdGroup.warning) {
+            this.notify.showWarn(createdGroup.warning);
+          } else {
+            this.notify.showSuccess(
+              `Group "${createdGroup.name}" created, with its classes on the timetable.`
+            );
+          }
           this.saving.set(false);
           this.showModal.set(false);
           this.router.navigate(['/groups', createdGroup.id]);
@@ -684,8 +709,7 @@ export class GroupsComponent implements OnInit {
   nextUp(group: Group): string {
     const courses = group.courses || [];
     const course =
-      courses.find((c) => c.status === 'Active') ??
-      courses.find((c) => sessionsRemaining(c) > 0);
+      courses.find((c) => c.status === 'Active') ?? courses.find((c) => sessionsRemaining(c) > 0);
 
     if (!course) return 'Nothing left to teach';
 

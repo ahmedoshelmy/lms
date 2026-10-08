@@ -75,6 +75,10 @@ export const STALLED_COPY: Record<StalledReason, { title: string; fix: string }>
 };
 
 export interface Group {
+  /** Something worth saying that is not a failure, such as a group created
+   *  without the classes it asked for. */
+  warning?: string | null;
+
   id: number;
   name: string;
   startDate: string;
