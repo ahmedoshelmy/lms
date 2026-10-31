@@ -272,6 +272,9 @@
 
                 <span class="stalled__fix">
                   {{ stalledCopy[group.stalledReason!].fix }}
+                  @if (group.stalledReason === 'Gap' && group.nextSessionAt) {
+                    Its next class is {{ group.nextSessionAt | date: 'EEEE d MMMM' }}.
+                  }
                 </span>
 
                 @if (group.stalledReason === 'Overdue') {

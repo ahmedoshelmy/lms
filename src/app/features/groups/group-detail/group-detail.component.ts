@@ -765,6 +765,10 @@ export class GroupDetailComponent implements OnInit {
       endDate: grp.endDate ? grp.endDate.split('T')[0] : '',
       defaultInstructorId: grp.defaultInstructorId,
       status: GROUP_STATUS[grp.status] ?? 0,
+      // Sent even though this dialog cannot change it: a group posted without
+      // one used to read as a group that had moved to nowhere, and the server
+      // dutifully emptied the room out of every class still to come.
+      location: grp.location || undefined,
       courses: [
         {
           groupCourseId: course.id,

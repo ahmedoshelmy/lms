@@ -46,10 +46,10 @@ export interface GroupSchedule {
 /**
  * Why a running group has nothing on the schedule. Null when it has.
  *
- * Three causes wanting three different answers, which is why the group says
- * which one rather than leaving operations to work it out.
+ * Each cause wants a different answer, which is why the group says which one
+ * it is rather than leaving operations to work it out.
  */
-export type StalledReason = 'Overdue' | 'Finished' | 'NoCourse' | 'NoSchedule' | 'Owed';
+export type StalledReason = 'Overdue' | 'Finished' | 'NoCourse' | 'NoSchedule' | 'Owed' | 'Gap';
 
 export const STALLED_COPY: Record<StalledReason, { title: string; fix: string }> = {
   Overdue: {
@@ -71,6 +71,10 @@ export const STALLED_COPY: Record<StalledReason, { title: string; fix: string }>
   Owed: {
     title: 'Sessions missing',
     fix: 'Its progress says sessions remain but they were never created.',
+  },
+  Gap: {
+    title: 'Weeks with nothing',
+    fix: 'The group is running but has no class for a fortnight or more, usually because dates freed by an edit were never taken back.',
   },
 };
 
