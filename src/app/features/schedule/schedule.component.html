@@ -60,6 +60,20 @@
         aria-label="Jump to today"
       ></button>
 
+      <!-- Twice a year Egypt moves its clocks. Pressing this says whether the
+           timetable followed, and offers to put back whatever did not. -->
+      @if (isAdmin) {
+        <button
+          pButton
+          type="button"
+          label="Clocks changed"
+          icon="pi pi-clock"
+          class="p-button-outlined p-button-sm cursor-pointer grow sm:grow-0 shrink-0 rounded-2xl"
+          (click)="openClockDialog()"
+          aria-label="Check the timetable against the hour each group meets at"
+        ></button>
+      }
+
       @if (isAdmin) {
         <button
           pButton
@@ -515,6 +529,122 @@
   (close)="showStandaloneSessionModal.set(false)"
   (sessionCreated)="loadSchedule()"
 />
+
+<!-- The clocks moved: did the timetable? -->
+<p-dialog
+  [visible]="showClockDialog()"
+  (visibleChange)="showClockDialog.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '100%', maxWidth: '44rem' }"
+  header="The clocks changed"
+>
+  <div class="flex flex-col gap-4">
+    @if (clockChecking()) {
+      <div class="flex items-center gap-3 py-6 justify-center">
+        <p-progressSpinner [style]="{ width: '28px', height: '28px' }" strokeWidth="4" />
+        <span class="text-xs text-[var(--color-text-muted)]">
+          Reading every class still to come…
+        </span>
+      </div>
+    } @else if (clockCheck(); as check) {
+      <p class="text-xs text-[var(--color-text-muted)] leading-relaxed">
+        Egypt is on
+        <strong>{{ check.summerTime ? 'summer time' : 'winter time' }}</strong>
+        @if (check.nextChange) {
+          until <strong>{{ check.nextChange }}</strong>
+        }
+        . Each class is measured against the hour its group meets at, which is kept on the group's
+        weekly slot and so cannot be moved by a clock change.
+      </p>
+
+      @if (!check.outOfStep.length) {
+        <div
+          class="flex items-start gap-3 p-4 rounded-2xl bg-[var(--color-success-background)] text-[var(--color-success-foreground)]"
+        >
+          <i class="pi pi-check-circle mt-0.5"></i>
+          <div>
+            <p class="text-sm font-extrabold">Nothing to put right</p>
+            <p class="text-xs opacity-90">
+              All {{ check.checked }} classes still to come are at the hour their group meets at.
+            </p>
+          </div>
+        </div>
+      } @else {
+        <p class="text-xs text-[var(--color-text-secondary)]">
+          <strong>{{ check.outOfStep.length }}</strong> of {{ check.checked }} classes read an hour
+          their group does not meet at. Untick anything you would rather leave.
+        </p>
+
+        <div class="flex flex-col gap-1.5 max-h-80 overflow-y-auto pr-1">
+          @for (item of check.outOfStep; track item.sessionId) {
+            <label class="clock-row" [class.clock-row--suspect]="item.slotLooksWrong">
+              <input
+                type="checkbox"
+                class="shrink-0 cursor-pointer accent-[var(--color-primary)]"
+                [checked]="clockChosen().has(item.sessionId)"
+                (change)="toggleClockChoice(item.sessionId)"
+              />
+
+              <span class="text-xs font-extrabold text-[var(--color-text-primary)] w-20 shrink-0">
+                {{ item.groupName }}
+              </span>
+
+              <span class="text-xs text-[var(--color-text-muted)] w-14 shrink-0">
+                #{{ item.sessionNumber }}
+              </span>
+
+              <span class="text-xs text-[var(--color-text-secondary)] w-24 shrink-0">
+                {{ item.day }}
+              </span>
+
+              <span class="text-xs font-semibold text-[var(--color-text-primary)] shrink-0">
+                {{ item.reads }} → {{ item.should }}
+              </span>
+
+              @if (item.slotLooksWrong) {
+                <span
+                  class="text-[10.5px] font-bold text-[var(--color-warning-foreground)] ml-auto"
+                >
+                  whole group — check its slot first
+                </span>
+              }
+            </label>
+          }
+        </div>
+
+        <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+          Where every class in a group disagrees with its slot, it is usually the slot that is wrong
+          rather than the classes — ticking those would move the whole group. Those rows are left
+          unticked.
+        </p>
+      }
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-[var(--color-border)]">
+      <button
+        type="button"
+        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+        (click)="showClockDialog.set(false)"
+      >
+        Close
+      </button>
+      @if (clockCheck()?.outOfStep?.length) {
+        <button
+          pButton
+          type="button"
+          [label]="clockFixing() ? 'Putting them back…' : 'Put ' + clockChosen().size + ' back'"
+          icon="pi pi-clock"
+          class="p-button-primary p-button-sm rounded-xl"
+          [disabled]="clockFixing() || !clockChosen().size"
+          (click)="applyClockFix()"
+        ></button>
+      }
+    </div>
+  </ng-template>
+</p-dialog>
 
 <!-- Telling instructors now, rather than waiting for Thursday's message. -->
 <p-dialog

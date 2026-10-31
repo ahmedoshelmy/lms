@@ -103,3 +103,30 @@
     color: var(--color-text-muted);
   }
 }
+
+/* One class in the clock check. A row whose whole group disagrees with its own
+   slot is warned about rather than offered: ticking it moves the group. */
+.clock-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.clock-row--suspect {
+  border-color: var(--color-warning);
+  background: var(--color-warning-background);
+
+  &:hover {
+    background: var(--color-warning-background);
+  }
+}

@@ -16,6 +16,7 @@ import {
   RegisterComplianceReport,
 } from '../interfaces/Attendance';
 
+import { ClockCheck } from '../interfaces/ClockCheck';
 import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
 import { Topic, CreateTopicPayload, UpdateTopicPayload } from '../interfaces/Topic';
 import {
@@ -610,6 +611,19 @@ export class LmsService {
       `${this.getApiUrl()}/schedule/notify-instructors`,
       payload
     );
+  }
+
+  /**
+   * Measures every class still to come against the hour its group meets at.
+   * For the morning the clocks change. Changes nothing.
+   */
+  checkClocks(): Observable<ClockCheck> {
+    return this.http.get<ClockCheck>(`${this.getApiUrl()}/schedule/clock-check`);
+  }
+
+  /** Puts the chosen classes back to the hour their group meets at. */
+  alignClocks(sessionIds: number[]): Observable<string[]> {
+    return this.http.post<string[]>(`${this.getApiUrl()}/schedule/clock-align`, { sessionIds });
   }
 
   getAttendanceSummary(): Observable<AttendanceSummaryDto> {

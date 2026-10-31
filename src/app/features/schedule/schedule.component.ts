@@ -18,6 +18,7 @@ import { HttpClient } from '@angular/common/http';
 import { Role, parseRole } from '../../core/interfaces/Role';
 import { InstructorAvailability, InstructorTimeOff } from '../../core/interfaces/Availability';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
+import { ClockCheck } from '../../core/interfaces/ClockCheck';
 import { User } from '../../core/interfaces/User';
 
 import { DialogModule } from 'primeng/dialog';
@@ -67,6 +68,69 @@ export class ScheduleComponent implements OnInit {
   showStandaloneSessionModal = signal<boolean>(false);
 
   // ── Telling instructors now, rather than waiting for Thursday ─────────────
+
+  // ── The clocks changed ──────────────────────────────────────────────────
+  //
+  // Twice a year, and the only thing anybody should have to do about it is
+  // press this and read what it says.
+  readonly showClockDialog = signal(false);
+  readonly clockCheck = signal<ClockCheck | null>(null);
+  readonly clockChecking = signal(false);
+  readonly clockFixing = signal(false);
+  readonly clockChosen = signal<Set<number>>(new Set());
+
+  openClockDialog(): void {
+    this.showClockDialog.set(true);
+    this.clockCheck.set(null);
+    this.clockChecking.set(true);
+
+    this.lmsService.checkClocks().subscribe({
+      next: (check) => {
+        this.clockCheck.set(check);
+        this.clockChecking.set(false);
+
+        // Ticked by default where the slot is believable. Where a whole group
+        // disagrees with its own slot it is usually the slot that is wrong, and
+        // waving that through would move the entire group.
+        this.clockChosen.set(
+          new Set(
+            check.outOfStep.filter((item) => !item.slotLooksWrong).map((item) => item.sessionId)
+          )
+        );
+      },
+      error: () => this.clockChecking.set(false),
+    });
+  }
+
+  toggleClockChoice(sessionId: number): void {
+    this.clockChosen.update((chosen) => {
+      const next = new Set(chosen);
+      next.has(sessionId) ? next.delete(sessionId) : next.add(sessionId);
+      return next;
+    });
+  }
+
+  applyClockFix(): void {
+    const ids = [...this.clockChosen()];
+    if (!ids.length) return;
+
+    this.clockFixing.set(true);
+
+    this.lmsService.alignClocks(ids).subscribe({
+      next: (moved) => {
+        this.clockFixing.set(false);
+        this.showClockDialog.set(false);
+        this.loadSchedule();
+
+        this.notify.showSuccess(
+          moved.length === 1
+            ? 'One class put back to its usual hour.'
+            : `${moved.length} classes put back to their usual hour.`
+        );
+      },
+      error: () => this.clockFixing.set(false),
+    });
+  }
 
   readonly showNotifyDialog = signal(false);
   readonly notifying = signal(false);
