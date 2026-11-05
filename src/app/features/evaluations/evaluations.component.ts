@@ -120,7 +120,10 @@ export class EvaluationsComponent implements OnInit {
         // A group that has finished still owes the reports for the month it
         // finished in, which is the month with its last class in it. Saying
         // so is cheaper than the question it saves.
-        running: students[0].groupRunning,
+        //
+        // Only a plain no counts as ended: a server that does not send this
+        // at all would otherwise brand every group on the page.
+        running: students[0].groupRunning !== false,
         students,
         released: students.filter((s) => s.status === 'Released').length,
         waiting: students.filter((s) => s.status === 'Submitted').length,

@@ -154,8 +154,11 @@ export interface MonthlyEvaluationSummary {
    * Whether the group is still running. False where the month being reported
    * on is one the group has since finished, so its last month does not look
    * like a mistake.
+   *
+   * Optional because a server older than this field does not send it, and a
+   * group is not to be called ended on a silence.
    */
-  groupRunning: boolean;
+  groupRunning?: boolean;
 }
 
 /** The four sections the report prints, and what belongs in each. */
