@@ -102,6 +102,13 @@
             <span class="group__who">{{ group.instructorName }}</span>
 
             <span class="group__counts">
+              @if (!group.running) {
+                <span
+                  class="pill pill--ended"
+                  title="This group is no longer running. The month it finished in still needs its reports."
+                  >ended</span
+                >
+              }
               <span class="pill pill--total"
                 >{{ group.students.length }}
                 {{ group.students.length === 1 ? 'child' : 'children' }}</span
@@ -142,7 +149,14 @@
                 <tbody>
                   @for (row of group.students; track row.studentId) {
                     <tr (click)="open(row)" class="row">
-                      <td class="row__name">{{ row.studentName }}</td>
+                      <td class="row__name">
+                        {{ row.studentName }}
+                        @if (row.leftAt) {
+                          <span class="row__left" title="Left the group on this date"
+                            >left {{ row.leftAt | date: 'd MMM' }}</span
+                          >
+                        }
+                      </td>
                       <td class="num">{{ row.classesHeld }}</td>
                       <td class="num">
                         @if (row.status === 'NotStarted') {

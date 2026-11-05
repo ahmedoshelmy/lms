@@ -142,6 +142,20 @@ export interface MonthlyEvaluationSummary {
   attendanceRate: number;
   submittedAt?: string | null;
   releasedAt?: string | null;
+
+  /**
+   * When the child left the group, where they have. They are still owed a
+   * report for the classes they were there for, and the date answers the
+   * question a name nobody expected on the list raises.
+   */
+  leftAt?: string | null;
+
+  /**
+   * Whether the group is still running. False where the month being reported
+   * on is one the group has since finished, so its last month does not look
+   * like a mistake.
+   */
+  groupRunning: boolean;
 }
 
 /** The four sections the report prints, and what belongs in each. */

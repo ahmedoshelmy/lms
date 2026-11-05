@@ -116,6 +116,11 @@ export class EvaluationsComponent implements OnInit {
         groupName,
         groupId: students[0].groupId,
         instructorName: students[0].instructorName,
+
+        // A group that has finished still owes the reports for the month it
+        // finished in, which is the month with its last class in it. Saying
+        // so is cheaper than the question it saves.
+        running: students[0].groupRunning,
         students,
         released: students.filter((s) => s.status === 'Released').length,
         waiting: students.filter((s) => s.status === 'Submitted').length,
