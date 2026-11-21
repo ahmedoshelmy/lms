@@ -1697,8 +1697,15 @@
       >
         <p class="text-xs text-red-700 dark:text-red-300 font-semibold">
           <i class="pi pi-exclamation-triangle mr-1"></i>
-          This course has {{ removingCourseSessionCount() }} scheduled sessions. Removing it will
-          also delete all associated sessions.
+          This course has {{ removingCourseSessionCount() }}
+          {{ removingCourseSessionCount() === 1 ? 'class' : 'classes' }} on the timetable, cancelled
+          ones included. Removing it deletes them.
+          @if (removingCourseTaughtCount() > 0) {
+            {{ removingCourseTaughtCount() }} of them
+            {{ removingCourseTaughtCount() === 1 ? 'has' : 'have' }} been taught, so the
+            {{ removingCourseTaughtCount() === 1 ? 'register' : 'registers' }} taken
+            {{ removingCourseTaughtCount() === 1 ? 'for it goes' : 'for them go' }} too.
+          }
         </p>
       </div>
     }

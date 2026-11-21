@@ -236,6 +236,7 @@ export class GroupDetailComponent implements OnInit {
   removingCourseId = signal<number>(0);
   removingCourseTitle = signal<string>('');
   removingCourseSessionCount = signal<number>(0);
+  removingCourseTaughtCount = signal<number>(0);
   removingCourse = signal<boolean>(false);
 
   protected readonly Math = Math;
@@ -1075,7 +1076,16 @@ export class GroupDetailComponent implements OnInit {
 
     this.removingCourseId.set(courseId);
     this.removingCourseTitle.set(course.title);
-    this.removingCourseSessionCount.set(course.scheduledSessionCount);
+
+    // Every class the removal deletes, not only the ones still to come. A
+    // course whose classes have all been cancelled has none still to come, and
+    // counting only those was how WEB-011 came to show the button that cannot
+    // work: the server refused all fourteen, eight times over.
+    this.removingCourseSessionCount.set(
+      course.timetabledSessionCount ?? course.scheduledSessionCount
+    );
+    this.removingCourseTaughtCount.set(course.taughtSessionCount ?? 0);
+
     this.showRemoveCourseModal.set(true);
   }
 
