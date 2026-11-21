@@ -42,6 +42,20 @@
         </span>
       </div>
 
+      @if (cancellation(); as note) {
+        <div class="cancelled-note">
+          <p class="cancelled-note__label">Why it was cancelled</p>
+          <p class="cancelled-note__body">
+            @if (note.cause) {
+              <span class="cancelled-note__cause">{{ note.cause }}</span>
+            }
+            @if (note.reason) {
+              <span class="cancelled-note__text">{{ note.reason }}</span>
+            }
+          </p>
+        </div>
+      }
+
       <!-- Topic -->
       <div class="detail-section">
         <p class="detail-label">Topic</p>

@@ -15,6 +15,7 @@ import { SessionStatus } from '../../../core/enums/SessionStatus';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
+import { cancellationNote } from '../../../core/utils/cancellation.utils';
 
 function sessionStatusToApiEnum(statusStr: string): number {
   const norm = (statusStr || '').toLowerCase();
@@ -79,6 +80,20 @@ export class SessionDetailPanelComponent {
 
   /** True when the pending status is Cancelled */
   readonly isCancelled = computed(() => (this.editStatus() ?? '').toLowerCase().includes('cancel'));
+
+  /**
+   * Why this class was called off, where it was. Read off the class rather
+   * than off the edit form, so toggling the form does not put words in
+   * anybody's mouth before they are saved.
+   */
+  readonly cancellation = computed(() => {
+    const s = this.session();
+    if (!s || !(s.status ?? '').toLowerCase().includes('cancel')) {
+      return null;
+    }
+
+    return cancellationNote(s.cancellationCause, s.cancellationReason);
+  });
 
   /** Names the class in the cancellation dialog, so nobody cancels the wrong one. */
   readonly cancelLabel = computed(() => {

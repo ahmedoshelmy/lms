@@ -17,6 +17,7 @@ import {
   UpdateSessionPayload,
 } from '../../../core/interfaces/ScheduleSession';
 import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
+import { cancellationNote } from '../../../core/utils/cancellation.utils';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
 import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
@@ -180,6 +181,14 @@ export class SessionDetailComponent implements OnInit {
   readonly isCancelled = computed(() => {
     const s = this.session();
     return s ? (s.status ?? '').toLowerCase().includes('cancel') : false;
+  });
+
+  /** Why this class was called off, where it was. */
+  readonly cancellation = computed(() => {
+    const s = this.session();
+    return this.isCancelled() && s
+      ? cancellationNote(s.cancellationCause, s.cancellationReason)
+      : null;
   });
 
   readonly isUpcoming = computed(() => {
