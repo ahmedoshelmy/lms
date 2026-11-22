@@ -4,6 +4,9 @@ import { RouterModule } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { DashboardOverview } from '../../../core/interfaces/DashboardOverview';
 
+/** Which stretch of time the cancellation panel is showing. */
+type CancellationPeriod = 'week' | 'month';
+
 /** One cause of cancellation, with the colour it keeps across the page. */
 interface CauseSlice {
   cause: string;
@@ -74,12 +77,43 @@ export class SchoolOverviewComponent implements OnInit {
     Holiday: 'var(--color-success)',
   };
 
-  protected readonly causes = computed<CauseSlice[]>(() =>
-    (this.overview()?.cancellationCauses ?? []).map((slice) => ({
+  /**
+   * The week to begin with. A month's figure is the one that gets reported, but
+   * by the time it is wrong there is nothing to be done about it; the week is
+   * the one somebody can still act on, so it is the one on screen.
+   */
+  protected period = signal<CancellationPeriod>('week');
+
+  /**
+   * Whether the server sent a week at all. An older API sends only the month,
+   * and a week of nought would read as a quiet week rather than as a field
+   * that never arrived -- so the choice is simply not offered.
+   */
+  protected readonly hasWeek = computed(() => this.overview()?.cancelledThisWeek !== undefined);
+
+  protected readonly showingWeek = computed(() => this.hasWeek() && this.period() === 'week');
+
+  protected readonly periodLabel = computed(() =>
+    this.showingWeek() ? 'this week' : 'this month'
+  );
+
+  protected readonly cancelledInPeriod = computed(() => {
+    const o = this.overview();
+    if (!o) return 0;
+    return this.showingWeek() ? (o.cancelledThisWeek ?? 0) : o.cancelledThisMonth;
+  });
+
+  protected readonly causes = computed<CauseSlice[]>(() => {
+    const o = this.overview();
+    const slices = this.showingWeek()
+      ? (o?.cancellationCausesThisWeek ?? [])
+      : (o?.cancellationCauses ?? []);
+
+    return slices.map((slice) => ({
       ...slice,
       colour: this.causeColours[slice.cause] ?? 'var(--color-text-muted)',
-    }))
-  );
+    }));
+  });
 
   ngOnInit(): void {
     this.lms.getDashboardOverview().subscribe({

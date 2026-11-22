@@ -31,6 +31,18 @@ export interface DashboardOverview {
   cancelledThisMonth: number;
 
   cancellationCauses: CancellationCauseShare[];
+
+  /**
+   * Classes called off this week, the school's week running Saturday to
+   * Saturday.
+   *
+   * Optional because a browser can be newer than the server it is talking to,
+   * and a week of nought reads as good news rather than as a missing field.
+   */
+  cancelledThisWeek?: number;
+
+  /** This week's cancellations split by whose doing it was. */
+  cancellationCausesThisWeek?: CancellationCauseShare[];
 }
 
 export interface TopicGroupCount {

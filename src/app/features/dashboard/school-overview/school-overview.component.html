@@ -120,15 +120,36 @@
         }
       </section>
 
-      <!-- ── What the month lost ──────────────────────────────────────────── -->
+      <!-- ── What the week, and the month, lost ───────────────────────────── -->
       <section class="panel">
         <div class="panel__head">
-          <h2 class="panel__title">Classes cancelled this month</h2>
-          <span class="panel__figure">{{ o.cancelledThisMonth }}</span>
+          <h2 class="panel__title">Classes cancelled {{ periodLabel() }}</h2>
+          <span class="panel__figure">{{ cancelledInPeriod() }}</span>
         </div>
 
-        @if (o.cancelledThisMonth === 0) {
-          <p class="panel__empty">Not one class lost this month.</p>
+        @if (hasWeek()) {
+          <div class="period" role="group" aria-label="Period to count cancellations over">
+            <button
+              type="button"
+              class="period__btn"
+              [class.period__btn--on]="period() === 'week'"
+              (click)="period.set('week')"
+            >
+              This week
+            </button>
+            <button
+              type="button"
+              class="period__btn"
+              [class.period__btn--on]="period() === 'month'"
+              (click)="period.set('month')"
+            >
+              This month
+            </button>
+          </div>
+        }
+
+        @if (cancelledInPeriod() === 0) {
+          <p class="panel__empty">Not one class lost {{ periodLabel() }}.</p>
         } @else {
           <div class="causes__bar">
             @for (slice of causes(); track slice.cause) {

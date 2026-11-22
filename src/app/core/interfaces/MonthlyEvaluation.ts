@@ -151,6 +151,15 @@ export interface MonthlyEvaluationSummary {
   leftAt?: string | null;
 
   /**
+   * How many of the month's classes this child appears in a register for.
+   *
+   * Nought is the usual reason an instructor wrote nothing: there was nothing
+   * to write a report from. Optional, because a browser older than the server
+   * must not read a missing field as nought and brand every child with it.
+   */
+  registersMarked?: number;
+
+  /**
    * Whether the group is still running. False where the month being reported
    * on is one the group has since finished, so its last month does not look
    * like a mistake.

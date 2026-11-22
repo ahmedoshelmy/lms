@@ -396,3 +396,21 @@
   align-self: flex-end;
   padding: 9px 16px;
 }
+
+/* Why a child is not going to get a report. Operations asks it of a few names
+   every month, and the answer was only ever found by opening each one. */
+.row__gap {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  vertical-align: middle;
+  background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+  color: var(--color-warning-foreground);
+  cursor: help;
+}

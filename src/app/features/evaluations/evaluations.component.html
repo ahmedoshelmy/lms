@@ -23,6 +23,21 @@
       </label>
 
       <label class="field">
+        <span class="field__label">Instructor</span>
+        <select
+          class="input"
+          [ngModel]="instructorFilter()"
+          (ngModelChange)="instructorFilter.set($event)"
+          aria-label="Instructor whose children to show"
+        >
+          <option value="All">Every instructor</option>
+          @for (name of instructorOptions(); track name) {
+            <option [value]="name">{{ name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
         <span class="field__label">Search</span>
         <input
           type="search"
@@ -152,9 +167,12 @@
                       <td class="row__name">
                         {{ row.studentName }}
                         @if (row.leftAt) {
-                          <span class="row__left" title="Left the group on this date"
+                          <span class="row__left" [title]="reportGap(row)"
                             >left {{ row.leftAt | date: 'd MMM' }}</span
                           >
+                        }
+                        @if (hasNoRegister(row)) {
+                          <span class="row__gap" [title]="reportGap(row)">no register</span>
                         }
                       </td>
                       <td class="num">{{ row.classesHeld }}</td>

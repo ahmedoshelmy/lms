@@ -38,6 +38,10 @@ export class EvaluationsComponent implements OnInit {
   protected rows = signal<MonthlyEvaluationSummary[]>([]);
   protected search = signal('');
   protected statusFilter = signal<StatusFilter>('All');
+
+  /** One instructor's children, or everybody's. Held by name, which is what
+      the row carries and what the person choosing is reading. */
+  protected instructorFilter = signal<string>('All');
   protected releasing = signal<number | null>(null);
 
   /** Which row is fetching its report to save, keyed by child and group. */
@@ -77,21 +81,66 @@ export class EvaluationsComponent implements OnInit {
     });
   });
 
+  /**
+   * The instructors with a child on this month's list.
+   *
+   * Taken from the month on screen rather than from every instructor the
+   * school has, so the list does not offer names that would filter to nothing.
+   */
+  protected readonly instructorOptions = computed(() =>
+    [...new Set(this.rows().map((row) => row.instructorName))].sort((a, b) => a.localeCompare(b))
+  );
+
   protected readonly filtered = computed(() => {
     const query = this.search().toLowerCase().trim();
     const status = this.statusFilter();
+    const instructor = this.instructorFilter();
 
     return this.rows().filter((row) => {
       const matchesStatus = status === 'All' || row.status === status;
+      const matchesInstructor = instructor === 'All' || row.instructorName === instructor;
       const matchesQuery =
         !query ||
         row.studentName.toLowerCase().includes(query) ||
         row.groupName.toLowerCase().includes(query) ||
         row.instructorName.toLowerCase().includes(query);
 
-      return matchesStatus && matchesQuery;
+      return matchesStatus && matchesInstructor && matchesQuery;
     });
   });
+
+  /**
+   * Why this child is not going to get a report, where they are not.
+   *
+   * Operations asks it of a handful of names every month, and answering it
+   * meant opening each child in turn. A child who left part-way through is
+   * still owed one for the classes they were there for, so the two reasons are
+   * not the same and the row says which it is -- or both.
+   */
+  protected reportGap(row: MonthlyEvaluationSummary): string | null {
+    // Undefined means a server that does not send it yet. Nought classes means
+    // the group taught nothing that month, which is a fact about the group and
+    // not about the child.
+    const noRegister = row.registersMarked === 0 && row.classesHeld > 0;
+
+    if (row.leftAt && noRegister) {
+      return 'Left the group, and no register this month names them, so an instructor has nothing to report on.';
+    }
+
+    if (noRegister) {
+      return `No register names this child in any of the month's ${row.classesHeld} classes, so an instructor has nothing to report on.`;
+    }
+
+    if (row.leftAt) {
+      return 'Left the group part-way through, and is still owed a report for the classes they were there for.';
+    }
+
+    return null;
+  }
+
+  protected hasNoRegister(row: MonthlyEvaluationSummary): boolean {
+    return row.registersMarked === 0 && row.classesHeld > 0;
+  }
 
   /**
    * The month's reports gathered under their group.
@@ -162,6 +211,14 @@ export class EvaluationsComponent implements OnInit {
       next: (rows) => {
         this.rows.set(rows || []);
         this.loading.set(false);
+
+        // A month the chosen instructor has no children in would otherwise
+        // show an empty page with their name still in the box, reading as
+        // "none written" rather than "none to write".
+        const instructor = this.instructorFilter();
+        if (instructor !== 'All' && !this.instructorOptions().includes(instructor)) {
+          this.instructorFilter.set('All');
+        }
       },
       error: () => this.loading.set(false),
     });

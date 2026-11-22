@@ -277,3 +277,38 @@
     color: var(--color-text-muted);
   }
 }
+
+/* Week or month, on the one panel. Two panels showing the same thing over
+   different stretches invites reading one figure as the other. */
+.period {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  background: var(--color-background-alt);
+}
+
+.period__btn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.period__btn:hover {
+  color: var(--color-text-primary);
+}
+
+.period__btn--on {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+}
