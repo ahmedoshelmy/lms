@@ -103,6 +103,22 @@ export class SchoolOverviewComponent implements OnInit {
     return this.showingWeek() ? (o.cancelledThisWeek ?? 0) : o.cancelledThisMonth;
   });
 
+  /**
+   * Classes that came off the timetable with nobody named as the cause.
+   *
+   * Reported beside the figure rather than inside it. Nearly all of them come
+   * off in a batch when a group stops or goes on hold -- three such groups
+   * accounted for twenty-eight of one week's thirty-eight -- so counting them
+   * as cancellations describes three decisions taken in an office rather than
+   * teaching that was lost. Saying nothing at all would be worse: they are
+   * real classes that did not happen.
+   */
+  protected readonly unattributedInPeriod = computed(() => {
+    const o = this.overview();
+    if (!o) return 0;
+    return (this.showingWeek() ? o.unattributedThisWeek : o.unattributedThisMonth) ?? 0;
+  });
+
   protected readonly causes = computed<CauseSlice[]>(() => {
     const o = this.overview();
     const slices = this.showingWeek()

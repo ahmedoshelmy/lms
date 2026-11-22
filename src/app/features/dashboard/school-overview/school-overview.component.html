@@ -149,7 +149,7 @@
         }
 
         @if (cancelledInPeriod() === 0) {
-          <p class="panel__empty">Not one class lost {{ periodLabel() }}.</p>
+          <p class="panel__empty">Nobody called off a class {{ periodLabel() }}.</p>
         } @else {
           <div class="causes__bar">
             @for (slice of causes(); track slice.cause) {
@@ -172,10 +172,13 @@
               </li>
             }
           </ul>
+        }
 
+        @if (unattributedInPeriod(); as held) {
           <p class="panel__foot">
-            Only classes cancelled since the school started recording a reason carry one. The rest
-            are counted as not given.
+            {{ held }} more {{ held === 1 ? 'class' : 'classes' }} came off the timetable
+            {{ periodLabel() }} when a group stopped or went on hold, and are not counted above.
+            Those come off in batches rather than one class at a time.
           </p>
         }
       </section>

@@ -28,9 +28,19 @@ export interface DashboardOverview {
 
   groupsByTopic: TopicGroupCount[];
 
+  /**
+   * Classes called off this month for a reason somebody gave. Classes nobody
+   * attributed are counted in `unattributedThisMonth` instead.
+   */
   cancelledThisMonth: number;
 
   cancellationCauses: CancellationCauseShare[];
+
+  /**
+   * Classes that came off this month's timetable with nobody named as the
+   * cause -- in practice a group stopping or being put on hold.
+   */
+  unattributedThisMonth?: number;
 
   /**
    * Classes called off this week, the school's week running Saturday to
@@ -43,6 +53,9 @@ export interface DashboardOverview {
 
   /** This week's cancellations split by whose doing it was. */
   cancellationCausesThisWeek?: CancellationCauseShare[];
+
+  /** This week's classes that came off with nobody named. */
+  unattributedThisWeek?: number;
 }
 
 export interface TopicGroupCount {
