@@ -3,11 +3,18 @@ import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { ToastModule } from 'primeng/toast';
 import { CommandPaletteComponent } from '../../components/command-palette/command-palette.component';
+import { OutstandingWorkComponent } from '../../components/outstanding-work/outstanding-work.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, ToastModule, CommandPaletteComponent],
+  imports: [
+    RouterOutlet,
+    SidebarComponent,
+    ToastModule,
+    CommandPaletteComponent,
+    OutstandingWorkComponent,
+  ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',
 })

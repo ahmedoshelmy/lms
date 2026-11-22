@@ -147,6 +147,15 @@ export const routes: Routes = [
           import('./features/history/history.component').then((c) => c.HistoryComponent),
       },
       {
+        path: 'operations-rota',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('operations-rota') },
+        loadComponent: () =>
+          import('./features/operations/operations-rota/operations-rota.component').then(
+            (c) => c.OperationsRotaComponent
+          ),
+      },
+      {
         path: 'activity-logs',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('activity-logs') },

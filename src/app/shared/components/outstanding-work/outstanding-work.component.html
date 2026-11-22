@@ -1,0 +1,211 @@
+@if (showing()) {
+  <!-- No backdrop click and no escape: this is the one window in the
+       application that is meant to be in the way. -->
+  <div class="scrim">
+    <section class="panel" role="dialog" aria-modal="true" aria-labelledby="outstanding-heading">
+      <header class="panel__head">
+        <h2 class="panel__title" id="outstanding-heading">{{ heading() }}</h2>
+        <p class="panel__lead">
+          The month's report for every child in a class is written from its register. Without one
+          there is nothing for an instructor to write from, and nothing to tell a family.
+        </p>
+      </header>
+
+      <div class="panel__body">
+        <!-- ── Classes this person taught ──────────────────────────────── -->
+        @if (mine().length > 0) {
+          <ul class="list">
+            @for (session of mine(); track session.sessionId) {
+              <li class="item">
+                <div class="item__head">
+                  <div>
+                    <p class="item__title">
+                      {{ session.groupName || session.topic }}
+                      <span class="item__number">#{{ session.sessionNumber }}</span>
+                    </p>
+                    <p class="item__when">
+                      {{ session.startsAt | date: 'EEEE d MMMM, HH:mm' }} ·
+                      {{ session.studentsOnRoll }}
+                      {{ session.studentsOnRoll === 1 ? 'child' : 'children' }}
+                    </p>
+                  </div>
+
+                  @if (session.late) {
+                    <span class="flag" title="Past the 24-hour window, so it will be recorded late"
+                      >late</span
+                    >
+                  }
+                </div>
+
+                @if (claiming()?.sessionId === session.sessionId) {
+                  <div class="say">
+                    <label class="say__label" [attr.for]="'reason-' + session.sessionId">
+                      What happened? Operations will read this and decide.
+                    </label>
+                    <textarea
+                      class="say__box"
+                      [id]="'reason-' + session.sessionId"
+                      rows="2"
+                      placeholder="The family called it off the night before."
+                      [ngModel]="claimReason()"
+                      (ngModelChange)="claimReason.set($event)"
+                    ></textarea>
+
+                    <div class="say__actions">
+                      <button type="button" class="btn btn--quiet" (click)="cancelClaim()">
+                        Never mind
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--primary"
+                        [disabled]="claimTooShort || busy()"
+                        (click)="submitClaim()"
+                      >
+                        Send to operations
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="item__actions">
+                    <button type="button" class="btn btn--primary" (click)="markRegister(session)">
+                      Mark the register
+                    </button>
+                    <button type="button" class="btn btn--quiet" (click)="startClaim(session)">
+                      It didn't happen
+                    </button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        <!-- ── Claims waiting on operations ────────────────────────────── -->
+        @if (claims().length > 0) {
+          @if (mine().length > 0) {
+            <h3 class="section">Waiting on you</h3>
+          }
+
+          <ul class="list">
+            @for (claim of claims(); track claim.id) {
+              <li class="item">
+                <div class="item__head">
+                  <div>
+                    <p class="item__title">
+                      {{ claim.groupName || claim.topic }}
+                      <span class="item__number">#{{ claim.sessionNumber }}</span>
+                    </p>
+                    <p class="item__when">
+                      {{ claim.startsAt | date: 'EEEE d MMMM, HH:mm' }} · {{ claim.raisedByName }}
+                    </p>
+                  </div>
+                </div>
+
+                <blockquote class="said">{{ claim.reason }}</blockquote>
+
+                @if (answering()?.id === claim.id) {
+                  <div class="say">
+                    @if (rejecting()) {
+                      <label class="say__label" [attr.for]="'note-' + claim.id">
+                        Why is it going back? The instructor sees this, and still owes the register.
+                      </label>
+                      <textarea
+                        class="say__box"
+                        [id]="'note-' + claim.id"
+                        rows="2"
+                        placeholder="The group confirmed they were there."
+                        [ngModel]="rejectNote()"
+                        (ngModelChange)="rejectNote.set($event)"
+                      ></textarea>
+                    } @else {
+                      <label class="say__label" [attr.for]="'cause-' + claim.id">
+                        Whose doing was it? The class is cancelled with this against it.
+                      </label>
+                      <select
+                        class="say__select"
+                        [id]="'cause-' + claim.id"
+                        [ngModel]="answerCause()"
+                        (ngModelChange)="answerCause.set($event)"
+                      >
+                        @for (cause of causes; track cause) {
+                          <option [value]="cause">{{ cause }}</option>
+                        }
+                      </select>
+                    }
+
+                    <div class="say__actions">
+                      <button type="button" class="btn btn--quiet" (click)="cancelAnswer()">
+                        Never mind
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--primary"
+                        [disabled]="busy() || (rejecting() && noteTooShort)"
+                        (click)="submitAnswer()"
+                      >
+                        {{ rejecting() ? 'Send it back' : 'Cancel the class' }}
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="item__actions">
+                    <button
+                      type="button"
+                      class="btn btn--primary"
+                      (click)="startAnswer(claim, false)"
+                    >
+                      It didn't happen
+                    </button>
+                    <button type="button" class="btn btn--quiet" (click)="startAnswer(claim, true)">
+                      It did happen
+                    </button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        <!-- ── Registers on this person's days ─────────────────────────── -->
+        @if (onMyDays().length > 0) {
+          <h3 class="section">Past the window on your days, so they fall to you as well</h3>
+
+          <ul class="list">
+            @for (session of onMyDays(); track session.sessionId) {
+              <li class="item">
+                <div class="item__head">
+                  <div>
+                    <p class="item__title">
+                      {{ session.groupName || session.topic }}
+                      <span class="item__number">#{{ session.sessionNumber }}</span>
+                    </p>
+                    <p class="item__when">
+                      {{ session.startsAt | date: 'EEEE d MMMM, HH:mm' }} ·
+                      {{ session.instructorName }}
+                    </p>
+                  </div>
+                  <span class="flag">late</span>
+                </div>
+
+                <div class="item__actions">
+                  <button
+                    type="button"
+                    class="btn btn--primary"
+                    (click)="openSession(session.sessionId)"
+                  >
+                    Open the class
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <footer class="panel__foot">
+        The instructor who taught a class can still take its register however late it is. Taken
+        after a day it is recorded as late, which is better than never taken at all.
+      </footer>
+    </section>
+  </div>
+}

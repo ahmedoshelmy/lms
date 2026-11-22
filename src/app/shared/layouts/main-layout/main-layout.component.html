@@ -1,5 +1,10 @@
 <p-toast />
 <app-command-palette />
+
+<!-- Sits above everything, because the whole point is that it cannot be
+     walked past. It shows nothing at all unless there is something the
+     person signed in can actually do. -->
+<app-outstanding-work />
 <div
   class="layout"
   [class.sidebar-closed]="!isSidebarOpen()"

@@ -1,0 +1,101 @@
+<div class="page">
+  <header class="page__head">
+    <div>
+      <h1 class="page__title">Operations rota</h1>
+      <p class="page__subtitle">
+        Who answers for which day. An instructor reporting that a class did not happen, and a
+        register nobody has taken, go to whoever holds the day the class was on.
+      </p>
+    </div>
+
+    <div class="page__controls">
+      @if (dirty()) {
+        <button type="button" class="btn btn--quiet" (click)="revert()" [disabled]="saving()">
+          Undo changes
+        </button>
+      }
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="save()"
+        [disabled]="!dirty() || saving()"
+      >
+        @if (saving()) {
+          <i class="pi pi-spinner pi-spin"></i>
+          Saving
+        } @else {
+          Save the rota
+        }
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="muted">Loading…</p>
+  } @else if (admins().length === 0) {
+    <p class="muted">There are no admin accounts to put on the rota.</p>
+  } @else {
+    @if (unowned().length > 0) {
+      <div class="warn">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        <div>
+          <p class="warn__title">
+            Nobody holds
+            {{ unowned().length === 1 ? unowned()[0] : unowned().join(', ') }}
+          </p>
+          <p class="warn__body">
+            Work from
+            {{ unowned().length === 1 ? 'that day' : 'those days' }}
+            goes to every admin instead. Nothing is lost, but nobody in particular is answerable for
+            it, which is the arrangement this page exists to end.
+          </p>
+        </div>
+      </div>
+    }
+
+    <div class="grid-wrap">
+      <table class="grid">
+        <thead>
+          <tr>
+            <th class="grid__who">Admin</th>
+            @for (day of week; track day) {
+              <th class="grid__day" [class.grid__day--empty]="unowned().includes(day)">
+                <span class="grid__day-long">{{ day }}</span>
+                <span class="grid__day-short">{{ short(day) }}</span>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (admin of admins(); track admin.userId) {
+            <tr>
+              <th scope="row" class="grid__who">{{ admin.name }}</th>
+              @for (day of week; track day) {
+                <td class="grid__cell">
+                  <label class="tick">
+                    <input
+                      type="checkbox"
+                      [checked]="holds(admin.userId, day)"
+                      (change)="toggle(admin.userId, day)"
+                      [attr.aria-label]="admin.name + ' answers for ' + day"
+                    />
+                    <span class="tick__box" aria-hidden="true"></span>
+                  </label>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (notOnOperations().length > 0) {
+      <p class="aside">
+        Not on operations:
+        <strong>{{ notOnOperationsNames() }}</strong
+        >. They hold no day, so they are told about none of this — which is what being off
+        operations means. There is no separate switch to forget.
+      </p>
+    }
+  }
+</div>

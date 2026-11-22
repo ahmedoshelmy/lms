@@ -1,0 +1,234 @@
+/* The one window in the application meant to be in the way. It looks serious
+   without looking like a failure: nobody here has done anything wrong, they
+   have forgotten something the school needs. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 55%);
+  backdrop-filter: blur(2px);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--color-surface);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 35%);
+}
+
+.panel__head {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+.panel__lead {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 22px;
+}
+
+.panel__foot {
+  padding: 12px 22px 16px;
+  border-top: 1px solid var(--color-border);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.section {
+  margin: 18px 0 10px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--color-text-muted);
+}
+
+.section:first-child {
+  margin-top: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-background);
+}
+
+.item__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.item__title {
+  margin: 0 0 3px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.item__number {
+  margin-left: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.item__when {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.item__actions,
+.say__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.flag {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+  color: var(--color-warning-foreground);
+}
+
+/* What an instructor said, kept in their words where operations decides. */
+.said {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--color-border);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.say {
+  margin-top: 10px;
+}
+
+.say__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.say__box,
+.say__select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.say__box:focus,
+.say__select:focus {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 1px;
+}
+
+.btn {
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn--quiet {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.btn--quiet:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 560px) {
+  .panel__head,
+  .panel__body,
+  .panel__foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .item__actions .btn,
+  .say__actions .btn {
+    flex: 1 1 auto;
+  }
+}

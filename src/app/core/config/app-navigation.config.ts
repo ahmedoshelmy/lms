@@ -141,6 +141,13 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'operations-rota',
+    label: 'Operations Rota',
+    icon: 'pi pi-users',
+    roles: [Role.Admin],
+    showInMenu: true,
+  },
+  {
     path: 'activity-logs',
     label: 'Activity Analytics',
     icon: 'pi pi-chart-line',

@@ -1,0 +1,230 @@
+.page {
+  padding: 24px;
+  max-width: 1000px;
+}
+
+.page__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page__title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.page__subtitle {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.page__controls {
+  display: flex;
+  gap: 8px;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+/* A hole in the week is safe but not intended, so it is said out loud rather
+   than left for somebody to notice when a message goes to five people. */
+.warn {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 28%, transparent);
+  color: var(--color-warning-foreground);
+}
+
+.warn i {
+  margin-top: 2px;
+  font-size: 15px;
+}
+
+.warn__title {
+  margin: 0 0 3px;
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.warn__body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-text-primary);
+}
+
+.grid-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grid th,
+.grid td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.grid tbody tr:last-child th,
+.grid tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.grid__who {
+  text-align: left;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.grid__day {
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.grid__day--empty {
+  color: var(--color-warning-foreground);
+}
+
+.grid__day-short {
+  display: none;
+}
+
+.grid__cell {
+  width: 64px;
+}
+
+/* A plain checkbox, drawn so a ticked day reads at a glance across a row. */
+.tick {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.tick input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.tick__box {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.tick:hover .tick__box {
+  border-color: var(--color-secondary);
+}
+
+.tick input:focus-visible + .tick__box {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+.tick input:checked + .tick__box {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.tick input:checked + .tick__box::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 10px;
+  margin: 2px auto 0;
+  border: solid var(--color-primary-content);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.aside {
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.btn {
+  padding: 8px 15px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn--quiet {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.btn--quiet:hover:not(:disabled) {
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 16px;
+  }
+
+  .grid__day-long {
+    display: none;
+  }
+
+  .grid__day-short {
+    display: inline;
+  }
+
+  .grid__cell {
+    width: auto;
+  }
+}
