@@ -1,8 +1,9 @@
-import { inject, Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+import { inject, Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
 import { ClockFormatService } from '../../../../core/services/clock-format.service';
 import { indexSessionsBySlot, slotKey } from '../../../../core/utils/session-slots.utils';
+import { RouterLink } from '@angular/router';
 
 export interface TimeSlot {
   label: string; // e.g., "08:00"
@@ -13,7 +14,7 @@ export interface TimeSlot {
   selector: 'app-daily-schedule-matrix',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   template: `
     <div
       class="matrix-container overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"
@@ -94,8 +95,8 @@ export interface TimeSlot {
                     @let entry = slotAt(instructor.id, slot.hour);
                     @let session = entry && (entry.starts || $first) ? entry.session : null;
                     @if (session) {
-                      <div
-                        (click)="sessionSelected.emit(session)"
+                      <a
+                        [routerLink]="['/sessions', session.id]"
                         class="group cursor-pointer rounded-lg border border-[var(--color-secondary)] bg-[var(--color-info-background)] p-1.5 text-left shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md h-full flex flex-col justify-between"
                       >
                         <div>
@@ -118,19 +119,18 @@ export interface TimeSlot {
                             {{ formatTime(session.startsAt) }}
                           </span>
                         </div>
-                      </div>
+                      </a>
                     } @else if (entry) {
                       <!-- The class above runs on into this hour: taken, not free. -->
-                      <button
-                        type="button"
-                        (click)="sessionSelected.emit(entry.session)"
+                      <a
+                        [routerLink]="['/sessions', entry.session.id]"
                         class="h-full w-full cursor-pointer rounded-lg border border-dashed border-[var(--color-secondary)] bg-[var(--color-info-background)] opacity-70 flex items-center justify-center text-[10px] text-[var(--color-text-muted)]"
                         [title]="
                           (entry.session.groupName || entry.session.courseTitle) + ', continued'
                         "
                       >
                         continues
-                      </button>
+                      </a>
                     } @else {
                       <div
                         class="h-full w-full rounded border border-dashed border-[var(--color-border)] opacity-40 hover:opacity-100 flex items-center justify-center text-[10px] text-[var(--color-text-muted)]"
@@ -171,8 +171,6 @@ export class DailyScheduleMatrixComponent {
   sessions = input<ScheduleSession[]>([]);
   instructors = input<User[]>([]);
   selectedDate = input<Date>(new Date());
-
-  sessionSelected = output<ScheduleSession>();
 
   readonly timeSlots: TimeSlot[] = [
     { label: '08:00', hour: 8 },

@@ -74,10 +74,14 @@
             class="topic-header w-full flex items-center justify-between gap-4 px-6 py-4 transition-all duration-200 hover:bg-[var(--color-surface-hover)] border-b border-transparent"
             [class.border-[var(--color-border)]]="!isCollapsed(topic.id)"
           >
+            <!-- A click on the title is a shortcut; the chevron button is the toggle
+                 for keyboards and screen readers. -->
+            <!-- eslint-disable @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
             <div
               class="flex items-center gap-4 cursor-pointer flex-1"
               (click)="toggleTopicCollapse(topic.id)"
             >
+              <!-- eslint-enable @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
               <span
                 class="inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
                 [ngClass]="getTopicBadgeClass(topic.code)"
@@ -137,10 +141,15 @@
               }
 
               <button
+                type="button"
                 (click)="toggleTopicCollapse(topic.id)"
                 class="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
+                [attr.aria-expanded]="!isCollapsed(topic.id)"
+                [attr.aria-controls]="isCollapsed(topic.id) ? null : 'topic-levels-' + topic.id"
+                [attr.aria-label]="'Levels of ' + topic.name"
               >
                 <i
+                  aria-hidden="true"
                   class="pi transition-transform duration-300"
                   [class.pi-chevron-down]="isCollapsed(topic.id)"
                   [class.pi-chevron-up]="!isCollapsed(topic.id)"
@@ -152,6 +161,7 @@
           <!-- Collapsible Levels Grid -->
           @if (!isCollapsed(topic.id)) {
             <div
+              [id]="'topic-levels-' + topic.id"
               class="px-6 py-5 bg-[var(--color-background-alt)]/30 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
             >
               @for (level of topic.levels; track level.id) {

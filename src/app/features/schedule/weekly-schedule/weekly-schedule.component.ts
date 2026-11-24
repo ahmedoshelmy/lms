@@ -1,12 +1,4 @@
-import {
-  inject,
-  Component,
-  input,
-  computed,
-  output,
-  signal,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { inject, Component, input, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import {
@@ -18,6 +10,7 @@ import {
 } from '../../../core/utils/session-code.utils';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { progressPercent } from '../../../core/utils/course-progress.utils';
+import { RouterLink } from '@angular/router';
 
 export type DensityMode = 'compact' | 'comfortable' | 'timeline';
 export type ViewMode = 'weekly' | 'daily';
@@ -131,7 +124,7 @@ function overlaps(a: ScheduleSession, b: ScheduleSession): boolean {
   selector: 'app-weekly-schedule',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './weekly-schedule.component.html',
   styleUrl: './weekly-schedule.component.scss',
 })
@@ -156,8 +149,6 @@ export class WeeklyScheduleComponent {
    * than one of them — an instructor looking at their own week already knows.
    */
   showsInstructorName = input<boolean>(false);
-
-  sessionSelected = output<ScheduleSession>();
 
   readonly categories = CATEGORIES;
   activeCategory = signal<string>('all');
@@ -390,10 +381,6 @@ export class WeeklyScheduleComponent {
     } else {
       this.activeCategory.set(key);
     }
-  }
-
-  onSessionClick(session: ScheduleSession): void {
-    this.sessionSelected.emit(session);
   }
 
   getStatusBadgeClass(status: string): string {

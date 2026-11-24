@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { runBulk } from '../../core/utils/bulk.utils';
@@ -19,6 +19,7 @@ import { Group, seatsOverBy, toGroupOptions } from '../../core/interfaces/Group'
 import { StudentMembership, User } from '../../core/interfaces/User';
 import { SelectModule } from 'primeng/select';
 import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
+import { ariaSortFor } from '../../core/utils/sort.utils';
 
 @Component({
   selector: 'app-students',
@@ -31,6 +32,7 @@ import { LoadErrorComponent } from '../../shared/components/load-error/load-erro
     DialogModule,
     ButtonModule,
     SelectModule,
+    RouterLink,
   ],
   templateUrl: './students.component.html',
   styleUrl: './students.component.scss',
@@ -96,6 +98,10 @@ export class StudentsComponent implements OnInit {
       this.sortColumn.set(col);
       this.sortDirection.set('asc');
     }
+  }
+
+  ariaSort(col: string) {
+    return ariaSortFor(col, this.sortColumn(), this.sortDirection());
   }
 
   getSortIcon(col: string): string {

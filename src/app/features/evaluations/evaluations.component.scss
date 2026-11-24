@@ -197,6 +197,15 @@
 
   &:hover {
     background: var(--color-surface-hover);
+
+    .row__link {
+      text-decoration: underline;
+    }
+  }
+
+  &__link {
+    color: inherit;
+    text-decoration: none;
   }
 
   &__name {

@@ -280,8 +280,8 @@
           <!-- Cards Grid -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
             @for (session of group.sessions; track session.id) {
-              <div
-                (click)="openSession(session)"
+              <a
+                [routerLink]="['/sessions', session.id]"
                 class="p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
                 [style.border-left-color]="getLeftAccentColor(session)"
                 [style.border-left-width]="'4px'"
@@ -356,7 +356,7 @@
                     <i class="pi pi-arrow-right text-xs"></i>
                   </div>
                 </div>
-              </div>
+              </a>
             }
           </div>
         </div>

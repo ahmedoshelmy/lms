@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LmsService } from '../../core/services/lms.service';
@@ -58,7 +58,6 @@ export class AttendanceComponent implements OnInit {
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
@@ -262,10 +261,6 @@ export class AttendanceComponent implements OnInit {
         this.loadFailed.set(true);
       },
     });
-  }
-
-  openSession(session: ScheduleSession): void {
-    this.router.navigate(['/sessions', session.id]);
   }
 
   getSessionCode(s: any): string {

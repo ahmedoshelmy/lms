@@ -270,7 +270,9 @@ export class EvaluationsComponent implements OnInit {
       });
   }
 
-  protected open(row: MonthlyEvaluationSummary): void {
+  protected open(row: MonthlyEvaluationSummary, event?: Event): void {
+    // The name's own link, or a button in the row, has handled it.
+    if ((event?.target as Element | null)?.closest('a, button')) return;
     this.router.navigate(['/evaluations', row.studentId, row.groupId], {
       queryParams: { month: `${this.month()}-01` },
     });

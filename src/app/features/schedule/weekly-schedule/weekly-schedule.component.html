@@ -114,8 +114,8 @@
               [class.gap-3]="densityMode() === 'comfortable'"
             >
               @for (session of col.sessions; track session.id) {
-                <div
-                  (click)="onSessionClick(session)"
+                <a
+                  [routerLink]="['/sessions', session.id]"
                   class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
                   [style.border-left-color]="getLeftAccentColor(session)"
                   [style.border-left-width]="'4px'"
@@ -205,7 +205,7 @@
                       class="pi pi-arrow-right text-xs text-[var(--color-secondary)] shrink-0 opacity-0 group-hover/session:opacity-100 group-focus-visible/session:opacity-100 pointer-coarse:opacity-100 transition-opacity"
                     ></i>
                   </div>
-                </div>
+                </a>
               } @empty {
                 <div
                   class="flex flex-col items-center justify-center flex-grow py-8 text-center text-[var(--color-text-muted)]"
@@ -262,13 +262,13 @@
                 <td class="p-1 align-top">
                   @for (session of getTimelineSessionsForHour(col, hour); track session.id) {
                     @let cat = getCategory(session);
-                    <div
+                    <a
+                      [routerLink]="['/sessions', session.id]"
                       class="timeline-card rounded-lg p-2 mb-1 cursor-pointer border border-transparent hover:border-[var(--color-secondary)] transition-colors"
                       [style.border-left-color]="cat.color"
                       [style.border-left-width]="'3px'"
                       [style.background]="cat.bg"
                       [class.timeline-card--conflict]="isConflict(session)"
-                      (click)="onSessionClick(session)"
                     >
                       <p
                         class="text-[11px] font-bold text-[var(--color-text-primary)] line-clamp-1"
@@ -283,7 +283,7 @@
                           {{ session.instructorName }}
                         </p>
                       }
-                    </div>
+                    </a>
                   }
                 </td>
               }
@@ -328,8 +328,8 @@
 
         <div class="flex flex-col gap-3">
           @for (session of col.sessions; track session.id) {
-            <div
-              (click)="onSessionClick(session)"
+            <a
+              [routerLink]="['/sessions', session.id]"
               class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-secondary)] hover:shadow-md transition-all duration-200 cursor-pointer relative group/session flex flex-col justify-between"
               [style.border-left-color]="getLeftAccentColor(session)"
               [style.border-left-width]="'4px'"
@@ -408,7 +408,7 @@
                   class="pi pi-arrow-right text-xs text-[var(--color-secondary)] shrink-0 opacity-0 group-hover/session:opacity-100 group-focus-visible/session:opacity-100 pointer-coarse:opacity-100 transition-opacity"
                 ></i>
               </div>
-            </div>
+            </a>
           } @empty {
             <div class="text-center py-4 text-[var(--color-text-muted)] text-xs font-semibold">
               No sessions scheduled for this day.

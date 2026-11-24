@@ -166,9 +166,15 @@
                 </thead>
                 <tbody>
                   @for (row of group.students; track row.studentId) {
-                    <tr (click)="open(row)" class="row">
+                    <!-- The name is the link; a click elsewhere on the row is a shortcut to it. -->
+                    <tr (click)="open(row, $event)" class="row">
                       <td class="row__name">
-                        {{ row.studentName }}
+                        <a
+                          class="row__link"
+                          [routerLink]="['/evaluations', row.studentId, row.groupId]"
+                          [queryParams]="{ month: month() + '-01' }"
+                          >{{ row.studentName }}</a
+                        >
                         @if (row.leftAt) {
                           <span class="row__left" [title]="reportGap(row)"
                             >left {{ row.leftAt | date: 'd MMM' }}</span
@@ -231,7 +237,7 @@
                             </button>
                           }
 
-                          <i class="pi pi-angle-right row__go"></i>
+                          <i class="pi pi-angle-right row__go" aria-hidden="true"></i>
                         </div>
                       </td>
                     </tr>

@@ -124,11 +124,12 @@
           >
             <div>
               <div class="flex items-center gap-3">
-                <h2
-                  (click)="viewGroup(g.groupId)"
-                  class="text-lg font-bold text-[var(--color-primary)] hover:underline cursor-pointer"
-                >
-                  {{ g.groupName }}
+                <h2 class="text-lg font-bold">
+                  <a
+                    [routerLink]="['/groups', g.groupId]"
+                    class="text-[var(--color-brand-text)] hover:underline"
+                    >{{ g.groupName }}</a
+                  >
                 </h2>
                 <span
                   class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-info-background text-info-foreground"

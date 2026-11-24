@@ -466,8 +466,9 @@
     <!-- Group Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       @for (group of filteredGroups(); track group.id) {
+        <!-- The group's name is the link; it is stretched over the card, so a
+             click anywhere on it opens the group. -->
         <div
-          (click)="viewGroupDetails(group)"
           class="p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-secondary)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer relative group/card flex flex-col justify-between"
         >
           <!-- Card Header & Status -->
@@ -483,7 +484,11 @@
                   <h3
                     class="text-sm font-black text-[var(--color-text-primary)] group-hover/card:text-[var(--color-secondary)] transition-colors"
                   >
-                    {{ group.name }}
+                    <a
+                      [routerLink]="['/groups', group.id]"
+                      class="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-[var(--color-secondary)]"
+                      >{{ group.name }}</a
+                    >
                   </h3>
                   <p class="text-[11px] text-[var(--color-text-muted)] font-medium">
                     {{ group.defaultInstructorName }}
@@ -503,24 +508,29 @@
                 </span>
 
                 <i
-                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/card:opacity-100 group-focus-visible/card:opacity-100 pointer-coarse:opacity-100 transition-opacity"
+                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/card:opacity-100 group-focus-within/card:opacity-100 pointer-coarse:opacity-100 transition-opacity"
                 ></i>
 
                 @if (isAdmin()) {
-                  <div class="flex items-center gap-1 ml-1" (click)="$event.stopPropagation()">
+                  <!-- Above the card's link, so they are pressed rather than the card. -->
+                  <div class="relative z-10 flex items-center gap-1 ml-1">
                     <button
+                      type="button"
                       (click)="openEditModal(group)"
                       class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer"
                       title="Edit Group"
+                      [attr.aria-label]="'Edit ' + group.name"
                     >
-                      <i class="pi pi-pencil text-xs"></i>
+                      <i class="pi pi-pencil text-xs" aria-hidden="true"></i>
                     </button>
                     <button
+                      type="button"
                       (click)="confirmDelete(group)"
                       class="p-1 rounded text-[var(--color-text-muted)] hover:text-error-foreground transition-colors cursor-pointer"
                       title="Delete Group"
+                      [attr.aria-label]="'Delete ' + group.name"
                     >
-                      <i class="pi pi-trash text-xs"></i>
+                      <i class="pi pi-trash text-xs" aria-hidden="true"></i>
                     </button>
                   </div>
                 }

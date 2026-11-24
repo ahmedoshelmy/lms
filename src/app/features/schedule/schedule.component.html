@@ -416,14 +416,12 @@
         [statusFilter]="statusFilter()"
         [densityMode]="densityMode()"
         [showsInstructorName]="viewsAllInstructors"
-        (sessionSelected)="onSessionSelected($event)"
       />
     } @else if (viewMode() === 'daily-schedule' && isStaff) {
       <app-daily-schedule-matrix
         [sessions]="sessions()"
         [instructors]="instructors()"
         [selectedDate]="currentDate()"
-        (sessionSelected)="onSessionSelected($event)"
       />
     } @else if (viewMode() === 'daily-availability' && isStaff) {
       <app-daily-availability-matrix
@@ -441,7 +439,6 @@
         [instructors]="instructors()"
         [currentWeekStart]="currentWeekStart()"
         [canPickInstructor]="viewsAllInstructors"
-        (sessionSelected)="onSessionSelected($event)"
       />
     } @else if (viewMode() === 'analytics' && isStaff) {
       <app-schedule-analytics [sessions]="sessions()" [currentWeekStart]="currentWeekStart()" />

@@ -1243,3 +1243,57 @@ Everything below was checked as unused before deletion.
   Browsers act on that once per page load, when nothing has the focus. So an error toast
   during the first load, before any click or key press, takes the focus. It is narrow, and
   the error gets read out, so it is not patched around.
+
+## A-03 — Clickable boxes become links and buttons; sortable headers say how they sort
+
+- **Cards that open a page are links now** (`routerLink`), not `div`s with a click handler.
+  - Before, Tab passed them by, and Enter, middle-click and "open in new tab" did
+    nothing.
+  - **Schedule:** the weekly cards (all three densities), the daily grid's card and its
+    "continues" hour, and the week matrix's cells. Every one led to
+    `/sessions/:id` through the parent anyway, so the three `sessionSelected` outputs
+    and the parent's handler are gone.
+  - **Attendance:** session cards.
+  - **History:** the group name, a link inside the heading (and in `--color-brand-text`,
+    readable in dark mode).
+  - **Students:** the name, in both the cards and the table. The avatar is the same link,
+    kept out of the Tab order and hidden from screen readers, so nothing is said twice.
+- **Groups cards** have Edit and Delete inside, and a link cannot hold buttons.
+  - The group's name is the link. Its `::after` is stretched over the card, so a click
+    anywhere still opens the group.
+  - The buttons sit above it, and have names ("Edit Blue Whales").
+  - The focus ring is drawn round the card.
+  - The `stopPropagation` wrapper is gone.
+- **Monthly Reports rows:** the student's name is the link. A click elsewhere on the row is
+  still a shortcut, and ignores clicks on the link or a button, so nothing navigates
+  twice.
+- **Pick-one lists** in the group page (student to add, course to add) are
+  `<button aria-pressed>`. Their inner `div`/`p` became `span` so the markup is valid
+  inside a button.
+- **Courses' topic header:**
+  - The chevron is the toggle. It now has a name ("Levels of Python"), `aria-expanded`,
+    and `aria-controls` while the levels are shown.
+  - A click on the title stays a mouse shortcut, with the lint exception scoped and
+    explained.
+- **Sortable headers** (Students, Instructors, group page students):
+  - **Before:** clickable `<th>`s, sorted by mouse only; the arrow icon was the only sign
+    of the order.
+  - **Now:** a button fills each header, and the `<th>` has `aria-sort`
+    (`core/utils/sort.utils.ts`).
+  - The group page's sort icons lacked the `pi` class and never showed. They show now.
+- **Focus rings:** checked every place that turns the outline off. No button or link loses
+  its ring. The text fields show focus with a border instead, except the palette's search
+  box, where the caret shows and it is the only field.
+- **Lint:** the 32 keyboard warnings are gone (167 → 127; the rest are labels for A-04 and
+  `any`).
+- **Validation:** 5 new tests:
+  - `ariaSortFor`;
+  - Students headers: `aria-sort`, and sorting from their button; the name is a link;
+  - the weekly card is a link;
+  - the daily grid links both the class and its "continues" hour.
+
+  In the browser:
+  - **Groups:** a click at the bottom of a card lands on its link, and the Edit button
+    stays on top.
+  - **Students:** the Email header sorts.
+  - **Schedule:** the card renders as before, as a link.

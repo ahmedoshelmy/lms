@@ -89,3 +89,40 @@ describe('StudentsComponent creating a student', () => {
     expect(notify.showWarn).toHaveBeenCalled();
   });
 });
+
+describe('StudentsComponent table headers', () => {
+  it('say which column is sorted and which way, and sort from the keyboard', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        {
+          provide: LmsService,
+          useValue: {
+            getStudents: () => of([{ id: 4, name: 'Sara Ahmed', email: 's@example.test' }]),
+            getGroups: () => of([]),
+          },
+        },
+        { provide: NotificationService, useValue: { showWarn: vi.fn(), showSuccess: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(StudentsComponent);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    const header = (label: string) =>
+      [...el.querySelectorAll('th')].find((th) => th.textContent?.trim() === label)!;
+
+    expect(header('Student').getAttribute('aria-sort')).toBe('ascending');
+    expect(header('Email').hasAttribute('aria-sort')).toBe(false);
+
+    // A real button: reachable by Tab, pressed with Enter or Space.
+    const sortByName = header('Student').querySelector('button')!;
+    expect(sortByName.type).toBe('button');
+    sortByName.click();
+    await fixture.whenStable();
+    expect(header('Student').getAttribute('aria-sort')).toBe('descending');
+
+    // The student's name is a link to their page.
+    const link = el.querySelector<HTMLAnchorElement>('td a[href="/students/4"]:not([tabindex])');
+    expect(link?.textContent?.trim()).toBe('Sara Ahmed');
+  });
+});

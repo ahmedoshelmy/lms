@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -34,6 +34,7 @@ import { LoadErrorComponent } from '../../shared/components/load-error/load-erro
     DialogModule,
     ButtonModule,
     LoadErrorComponent,
+    RouterLink,
   ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
@@ -42,8 +43,6 @@ export class HistoryComponent implements OnInit {
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
   protected readonly clock = inject(ClockFormatService);
   private readonly historyRequest = latestRequest();
-
-  private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
@@ -193,10 +192,6 @@ export class HistoryComponent implements OnInit {
           this.promoting.set(false);
         },
       });
-  }
-
-  viewGroup(groupId: number): void {
-    this.router.navigate(['/groups', groupId]);
   }
 
   getStatusBadge(status: string): string {

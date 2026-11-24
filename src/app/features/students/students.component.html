@@ -233,20 +233,21 @@
                   (change)="toggleSelection(student.id)"
                   class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-0 cursor-pointer shrink-0 mt-0.5"
                 />
-                <span
-                  class="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0 cursor-pointer"
-                  (click)="viewStudent(student)"
-                  title="View Student Details"
+                <a
+                  [routerLink]="['/students', student.id]"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  class="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
                 >
                   {{ initials(student.name) }}
-                </span>
+                </a>
                 <div class="min-w-0">
-                  <p
-                    class="font-bold text-sm text-[var(--color-text-primary)] truncate cursor-pointer hover:text-[var(--color-secondary)] transition-colors"
-                    (click)="viewStudent(student)"
+                  <a
+                    [routerLink]="['/students', student.id]"
+                    class="block font-bold text-sm text-[var(--color-text-primary)] truncate hover:text-[var(--color-secondary)] transition-colors"
                   >
                     {{ student.name }}
-                  </p>
+                  </a>
                   <p class="text-xs text-[var(--color-text-muted)] truncate">
                     {{ student.email }}
                   </p>
@@ -358,41 +359,45 @@
                 title="Select/Deselect All Visible"
               />
             </th>
-            <th
-              (click)="toggleSort('name')"
-              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center gap-1.5">
+            <th class="p-0 select-none" [attr.aria-sort]="ariaSort('name')">
+              <button
+                type="button"
+                class="w-full flex items-center gap-1.5 px-4 py-3.5 cursor-pointer [text-transform:inherit] hover:bg-[var(--color-surface-hover)]"
+                (click)="toggleSort('name')"
+              >
                 <span>Student</span>
-                <i class="pi text-xs" [ngClass]="getSortIcon('name')"></i>
-              </div>
+                <i class="pi text-xs" aria-hidden="true" [ngClass]="getSortIcon('name')"></i>
+              </button>
             </th>
-            <th
-              (click)="toggleSort('email')"
-              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center gap-1.5">
+            <th class="p-0 select-none" [attr.aria-sort]="ariaSort('email')">
+              <button
+                type="button"
+                class="w-full flex items-center gap-1.5 px-4 py-3.5 cursor-pointer [text-transform:inherit] hover:bg-[var(--color-surface-hover)]"
+                (click)="toggleSort('email')"
+              >
                 <span>Email</span>
-                <i class="pi text-xs" [ngClass]="getSortIcon('email')"></i>
-              </div>
+                <i class="pi text-xs" aria-hidden="true" [ngClass]="getSortIcon('email')"></i>
+              </button>
             </th>
-            <th
-              (click)="toggleSort('group')"
-              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center gap-1.5">
+            <th class="p-0 select-none" [attr.aria-sort]="ariaSort('group')">
+              <button
+                type="button"
+                class="w-full flex items-center gap-1.5 px-4 py-3.5 cursor-pointer [text-transform:inherit] hover:bg-[var(--color-surface-hover)]"
+                (click)="toggleSort('group')"
+              >
                 <span>Assigned Group</span>
-                <i class="pi text-xs" [ngClass]="getSortIcon('group')"></i>
-              </div>
+                <i class="pi text-xs" aria-hidden="true" [ngClass]="getSortIcon('group')"></i>
+              </button>
             </th>
-            <th
-              (click)="toggleSort('joined')"
-              class="px-4 py-3.5 cursor-pointer hover:bg-[var(--color-surface-hover)] select-none"
-            >
-              <div class="flex items-center gap-1.5">
+            <th class="p-0 select-none" [attr.aria-sort]="ariaSort('joined')">
+              <button
+                type="button"
+                class="w-full flex items-center gap-1.5 px-4 py-3.5 cursor-pointer [text-transform:inherit] hover:bg-[var(--color-surface-hover)]"
+                (click)="toggleSort('joined')"
+              >
                 <span>Joined</span>
-                <i class="pi text-xs" [ngClass]="getSortIcon('joined')"></i>
-              </div>
+                <i class="pi text-xs" aria-hidden="true" [ngClass]="getSortIcon('joined')"></i>
+              </button>
             </th>
             <th class="px-4 py-3.5 text-right">Actions</th>
           </tr>
@@ -415,18 +420,20 @@
               </td>
               <td class="px-4 py-3.5">
                 <div class="flex items-center gap-3">
-                  <span
-                    class="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0 cursor-pointer"
-                    (click)="viewStudent(student)"
+                  <a
+                    [routerLink]="['/students', student.id]"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    class="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
                   >
                     {{ initials(student.name) }}
-                  </span>
-                  <span
-                    class="font-bold text-[var(--color-text-primary)] cursor-pointer hover:text-[var(--color-secondary)] transition-colors"
-                    (click)="viewStudent(student)"
+                  </a>
+                  <a
+                    [routerLink]="['/students', student.id]"
+                    class="font-bold text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors"
                   >
                     {{ student.name }}
-                  </span>
+                  </a>
                 </div>
               </td>
               <td class="px-4 py-3.5 text-[var(--color-text-muted)] font-medium">

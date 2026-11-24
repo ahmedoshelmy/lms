@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -74,7 +74,6 @@ export class ScheduleComponent implements OnInit {
   private auth = inject(AuthService);
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
   showStandaloneSessionModal = signal<boolean>(false);
@@ -622,10 +621,6 @@ export class ScheduleComponent implements OnInit {
       !!this.locationFilter() ||
       !!this.statusFilter()
     );
-  }
-
-  onSessionSelected(session: ScheduleSession): void {
-    this.router.navigate(['/sessions', session.id]);
   }
 
   onPanelClosed(): void {

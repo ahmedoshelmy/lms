@@ -1,12 +1,4 @@
-import {
-  Component,
-  input,
-  signal,
-  computed,
-  output,
-  inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, input, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
@@ -18,6 +10,7 @@ import {
 import { isDeclaredAvailable, isOnLeave } from '../../../../core/utils/availability.utils';
 import { AuthService } from '../../../../core/services/auth.service';
 import { indexSessionsBySlot, slotKey } from '../../../../core/utils/session-slots.utils';
+import { RouterLink } from '@angular/router';
 
 export interface DayColumnMeta {
   dayName: string;
@@ -34,7 +27,7 @@ export interface TimeSlot {
   selector: 'app-instructor-availability-matrix',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [FormsModule, SelectModule],
+  imports: [FormsModule, SelectModule, RouterLink],
   template: `
     <div
       class="matrix-container rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"
@@ -191,8 +184,8 @@ export interface TimeSlot {
                     class="h-14 border-r border-[var(--color-border)] p-1 text-center align-middle"
                   >
                     @if (cell.session) {
-                      <div
-                        (click)="sessionSelected.emit(cell.session)"
+                      <a
+                        [routerLink]="['/sessions', cell.session.id]"
                         class="h-full rounded-md border border-[var(--color-secondary)] bg-[var(--color-info-background)] p-1.5 text-left cursor-pointer hover:shadow-xs transition-all flex flex-col justify-between"
                       >
                         <div class="font-bold text-[10px] text-[var(--color-primary)] truncate">
@@ -201,7 +194,7 @@ export interface TimeSlot {
                         <div class="text-[9px] text-[var(--color-text-muted)] truncate">
                           📍 {{ cell.session.location || 'Room' }}
                         </div>
-                      </div>
+                      </a>
                     } @else if (cell.onLeave) {
                       <div
                         class="h-full rounded-md border border-[var(--color-warning-foreground)] bg-[var(--color-warning-background)] flex items-center justify-center font-semibold text-[10px] text-[var(--color-warning-foreground)]"
@@ -254,8 +247,6 @@ export class InstructorAvailabilityMatrixComponent {
   /** What each instructor has actually declared, rather than an assumed 9-to-6. */
   availability = input<InstructorAvailability[]>([]);
   timeOff = input<InstructorTimeOff[]>([]);
-
-  sessionSelected = output<ScheduleSession>();
 
   selectedInstructorId = signal<number>(0);
 

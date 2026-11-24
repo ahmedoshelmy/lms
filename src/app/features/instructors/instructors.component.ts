@@ -18,6 +18,7 @@ import { Role } from '../../core/interfaces/Role';
 import { User } from '../../core/interfaces/User';
 import { InstructorWorkload } from '../../core/interfaces/InstructorWorkload';
 import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
+import { ariaSortFor } from '../../core/utils/sort.utils';
 
 @Component({
   selector: 'app-instructors',
@@ -123,6 +124,10 @@ export class InstructorsComponent implements OnInit {
       this.sortColumn.set(col);
       this.sortDirection.set('asc');
     }
+  }
+
+  ariaSort(col: string) {
+    return ariaSortFor(col, this.sortColumn(), this.sortDirection());
   }
 
   getSortIcon(col: string): string {

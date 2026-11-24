@@ -49,6 +49,7 @@ import {
 import { toIsoDate, todayIsoDate } from '../../../core/utils/date.utils';
 import { latestRequest } from '../../../core/utils/latest-request';
 import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
+import { ariaSortFor } from '../../../core/utils/sort.utils';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -301,6 +302,10 @@ export class GroupDetailComponent implements OnInit {
       this.studentSortColumn.set(col);
       this.studentSortDirection.set('asc');
     }
+  }
+
+  studentAriaSort(col: string) {
+    return ariaSortFor(col, this.studentSortColumn(), this.studentSortDirection());
   }
 
   getStudentSortIcon(col: string): string {

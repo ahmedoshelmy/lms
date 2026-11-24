@@ -554,16 +554,38 @@
                 <tr
                   class="border-b border-[var(--color-border)] text-[10px] font-extrabold text-[var(--color-text-muted)] uppercase tracking-wider"
                 >
-                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('studentName')">
-                    Student <i [ngClass]="getStudentSortIcon('studentName')"></i>
+                  <th class="py-3 px-3" [attr.aria-sort]="studentAriaSort('studentName')">
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 cursor-pointer [text-transform:inherit]"
+                      (click)="toggleStudentSort('studentName')"
+                    >
+                      Student
+                      <i
+                        class="pi text-[10px]"
+                        aria-hidden="true"
+                        [ngClass]="getStudentSortIcon('studentName')"
+                      ></i>
+                    </button>
                   </th>
                   <th class="py-3 px-3">Email</th>
                   <!-- Attendance and Progress columns used to sit here, printing
                                       "Enrolled" and "Active" for every child whatever was true:
                                       the group's student list carries neither figure. Each
                                       child's real record is on their own page. -->
-                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('joinedAt')">
-                    Enrolled <i [ngClass]="getStudentSortIcon('joinedAt')"></i>
+                  <th class="py-3 px-3" [attr.aria-sort]="studentAriaSort('joinedAt')">
+                    <button
+                      type="button"
+                      class="inline-flex items-center gap-1 cursor-pointer [text-transform:inherit]"
+                      (click)="toggleStudentSort('joinedAt')"
+                    >
+                      Enrolled
+                      <i
+                        class="pi text-[10px]"
+                        aria-hidden="true"
+                        [ngClass]="getStudentSortIcon('joinedAt')"
+                      ></i>
+                    </button>
                   </th>
                   <th class="py-3 px-3 text-right">Actions</th>
                 </tr>
@@ -1149,29 +1171,33 @@
         </div>
       } @else {
         @for (st of filteredCandidateStudents(); track st.id) {
-          <div
+          <button
+            type="button"
+            [attr.aria-pressed]="selectedStudentToAdd()?.id === st.id"
             (click)="selectStudentToAdd(st)"
-            class="p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
+            class="w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
             [class.border-[var(--color-secondary)]]="selectedStudentToAdd()?.id === st.id"
             [class.bg-[var(--color-secondary)]/5]="selectedStudentToAdd()?.id === st.id"
             [class.border-[var(--color-border)]]="selectedStudentToAdd()?.id !== st.id"
             [class.hover:bg-[var(--color-surface-hover)]]="selectedStudentToAdd()?.id !== st.id"
           >
-            <div class="flex items-center gap-3 min-w-0">
+            <span class="flex items-center gap-3 min-w-0">
               <span
                 class="w-8 h-8 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold text-xs flex items-center justify-center shrink-0"
               >
                 {{ st.name.slice(0, 2).toUpperCase() }}
               </span>
-              <div class="min-w-0">
-                <p class="text-xs font-bold text-[var(--color-text-primary)] truncate">
+              <span class="block min-w-0">
+                <span class="block text-xs font-bold text-[var(--color-text-primary)] truncate">
                   {{ st.name }}
-                </p>
-                <p class="text-[11px] text-[var(--color-text-muted)] truncate">{{ st.email }}</p>
-              </div>
-            </div>
+                </span>
+                <span class="block text-[11px] text-[var(--color-text-muted)] truncate">{{
+                  st.email
+                }}</span>
+              </span>
+            </span>
 
-            <div class="shrink-0 flex items-center gap-2">
+            <span class="shrink-0 flex items-center gap-2">
               @if (st.groups?.length) {
                 @for (place of st.groups; track place.groupId) {
                   <span
@@ -1191,8 +1217,8 @@
               @if (selectedStudentToAdd()?.id === st.id) {
                 <i class="pi pi-check-circle text-base text-[var(--color-secondary)]"></i>
               }
-            </div>
-          </div>
+            </span>
+          </button>
         }
       }
     </div>
@@ -1447,25 +1473,27 @@
     } @else {
       <div class="max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
         @for (c of availableCourses(); track c.id) {
-          <div
+          <button
+            type="button"
+            [attr.aria-pressed]="selectedCourseIdToAdd() === c.id"
             (click)="selectedCourseIdToAdd.set(c.id)"
-            class="p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
+            class="w-full text-left p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3"
             [class.border-[var(--color-secondary)]]="selectedCourseIdToAdd() === c.id"
             [class.bg-[var(--color-secondary)]/5]="selectedCourseIdToAdd() === c.id"
             [class.border-[var(--color-border)]]="selectedCourseIdToAdd() !== c.id"
             [class.hover:bg-[var(--color-surface-hover)]]="selectedCourseIdToAdd() !== c.id"
           >
-            <div class="flex items-center gap-3 min-w-0">
-              <div
-                class="p-2 rounded-lg bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)] shrink-0"
+            <span class="flex items-center gap-3 min-w-0">
+              <span
+                class="block p-2 rounded-lg bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)] shrink-0"
               >
                 <i class="pi pi-book text-sm"></i>
-              </div>
-              <div class="min-w-0">
-                <p class="text-xs font-bold text-[var(--color-text-primary)] truncate">
+              </span>
+              <span class="block min-w-0">
+                <span class="block text-xs font-bold text-[var(--color-text-primary)] truncate">
                   {{ c.title }}
-                </p>
-                <div class="flex items-center gap-2 mt-0.5">
+                </span>
+                <span class="flex items-center gap-2 mt-0.5">
                   <span
                     class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase bg-[color-mix(in_srgb,var(--color-secondary)_12%,transparent)] text-[var(--color-secondary)]"
                   >
@@ -1475,13 +1503,13 @@
                   <span class="text-[10px] text-[var(--color-text-muted)]"
                     >· {{ c.sessionCount }} sessions</span
                   >
-                </div>
-              </div>
-            </div>
+                </span>
+              </span>
+            </span>
             @if (selectedCourseIdToAdd() === c.id) {
               <i class="pi pi-check-circle text-base text-[var(--color-secondary)] shrink-0"></i>
             }
-          </div>
+          </button>
         }
       </div>
     }
