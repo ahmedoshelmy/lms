@@ -1,13 +1,23 @@
 @import 'tailwindcss';
 @import 'primeicons/primeicons.css';
 
+/* `dark:` follows the app's own theme switch (ThemeService sets data-theme on
+   <html>), not the operating system's setting. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 /* =========================================
    CENTRALIZED COLOR THEME (light + dark)
    Every color is defined once here as a CSS custom property.
    Dark mode overrides the SAME variable names inside [data-theme="dark"].
    Components must only reference var(--color-*), never hardcode a color.
+
+   Declared as a Tailwind theme, so each token is also a utility class:
+   --color-surface gives bg-surface, --color-text-muted gives text-text-muted,
+   --radius-card gives rounded-card. `static` emits every variable whether or
+   not a template uses it, because component SCSS reads them too. The dark
+   values below are plain CSS outside Tailwind's theme layer, so they win.
    ========================================= */
-:root {
+@theme static {
   /* Brand */
   --color-primary: #1a2b4c;
   --color-primary-hover: #254479;
@@ -76,10 +86,6 @@
   --color-accent-hover: #15a87a;
   --color-accent-glow: rgba(28, 211, 156, 0.3);
 
-  /* Role badge */
-  --color-role-badge-bg: #4338ca;
-  --color-role-badge-text: #ffffff;
-
   /* Avatar */
   --color-avatar-from: #3b82f6;
   --color-avatar-to: #6366f1;
@@ -111,8 +117,14 @@
   --color-certificate-body: #000000;
   --color-certificate-accent: #6b3172;
 
-  /* Fonts */
-  --font-sans: 'Inter', 'Segoe UI', sans-serif;
+  /* Fonts. The system face: 'Inter' used to head this list but was never
+     loaded, so every screen fell back to whatever came next anyway. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Corner radii: controls, cards and dialogs, pills and badges. */
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-pill: 999px;
 }
 
 [data-theme='dark'] {

@@ -593,3 +593,27 @@ Everything below was checked as unused before deletion.
 - **Phase 1 held back, by design:** F-09 (break up large components) waits for Phase 7's
   workflow tests. The token-in-memory part of F-01 waits for the backend's confirmation
   of the refresh cookie.
+
+## D-01 — Colour tokens are Tailwind theme values; `dark:` follows the app's switch
+
+- **What changed (`src/styles.css`):**
+  - **Theme:** the light token block is a Tailwind `@theme static` block. Every token still
+    exists as the same CSS variable, so all existing `var(--color-…)` uses keep working, and
+    each one is now also a utility: `bg-surface`, `text-text-muted`, `border-border`, etc.
+    The dark values stay plain CSS outside Tailwind's layers, so they still win.
+  - **`dark:`:** `@custom-variant dark` ties the 28 `dark:` classes to `data-theme="dark"`.
+    They used to follow the operating system, so an app in light mode on a dark OS showed
+    dark-mode colours in places.
+  - **Radius tokens:** `--radius-control` (10 px), `--radius-card` (16 px) and
+    `--radius-pill`, giving `rounded-card` and friends.
+  - **Font stack:** starts with `system-ui`. The `'Inter'` it used to name was never loaded,
+    so screens already fell back to the system face.
+  - **Cleanup:** removed `--color-role-badge-bg/-text`, which were defined twice in light
+    mode (the second pair won).
+- **Verified in the built CSS:** each token is emitted once for light (theme layer) and once
+  for dark; `dark:` rules compile to `:where([data-theme=dark], [data-theme=dark] *)`.
+- **Cost:** +2.5 kB raw (+0.1 kB compressed). Each `dark:` rule now carries its own
+  `:where(…)` selector instead of sitting in one `@media` block. Initial bundle 599.69 kB,
+  just under the 600 kB warning; D-05 replaces those palette classes and should win it back.
+- **Validation:** format ✔; lint 0 errors; 31 files / 166 tests ✔ (run in batches; this
+  machine is short of memory); build ✔.
