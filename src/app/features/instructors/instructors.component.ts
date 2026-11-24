@@ -10,11 +10,19 @@ import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
 import { User } from '../../core/interfaces/User';
 import { InstructorWorkload } from '../../core/interfaces/InstructorWorkload';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 @Component({
   selector: 'app-instructors',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, RegisterComplianceComponent],
+  imports: [
+    LoadErrorComponent,
+    CommonModule,
+    FormsModule,
+    DialogModule,
+    ButtonModule,
+    RegisterComplianceComponent,
+  ],
   templateUrl: './instructors.component.html',
   styleUrl: './instructors.component.scss',
 })
@@ -157,10 +165,14 @@ export class InstructorsComponent implements OnInit {
     this.loadData();
   }
 
+  /** The list could not be loaded; said, rather than shown as empty. */
+  readonly loadFailed = signal(false);
+
   loadData(): void {
     this.loading.set(true);
     // Everyone, including those who have left, so an account switched off by
     // mistake can be switched back on from here.
+    this.loadFailed.set(false);
     this.lms.getAllInstructorAccounts().subscribe({
       next: (data) => {
         this.instructors.set(data || []);
@@ -168,6 +180,7 @@ export class InstructorsComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.loadFailed.set(true);
       },
     });
 

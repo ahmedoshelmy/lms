@@ -5,12 +5,9 @@
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
-    max-width: 95vw !important;
-
-    @media (max-width: 640px) {
-      width: 95vw !important;
-      margin: 0 auto;
-    }
+    /* Width comes from each dialog's own max-width, and on phones from the
+       sheet rule in styles.css. A blanket 95vw !important here used to stretch
+       every dialog on this page almost edge to edge on desktop. */
 
     .p-dialog-header {
       background: var(--color-surface);

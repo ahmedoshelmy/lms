@@ -43,6 +43,8 @@
     <div class="flex justify-center items-center py-20">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error title="Courses could not be loaded" (retry)="loadTopics()" />
   } @else {
     <!-- Expand / Collapse controls -->
     <div class="flex items-center gap-2 mb-5">

@@ -58,6 +58,8 @@
     <div class="flex justify-center items-center py-24">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error title="Groups could not be loaded" (retry)="loadGroups()" />
   } @else {
     <!-- Compact Collapsible Filter Bar -->
     <div

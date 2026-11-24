@@ -11,11 +11,19 @@ import { Role } from '../../core/interfaces/Role';
 import { Group, seatsOverBy, toGroupOptions } from '../../core/interfaces/Group';
 import { StudentMembership, User } from '../../core/interfaces/User';
 import { SelectModule } from 'primeng/select';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 @Component({
   selector: 'app-students',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, SelectModule],
+  imports: [
+    LoadErrorComponent,
+    CommonModule,
+    FormsModule,
+    DialogModule,
+    ButtonModule,
+    SelectModule,
+  ],
   templateUrl: './students.component.html',
   styleUrl: './students.component.scss',
 })
@@ -274,8 +282,12 @@ export class StudentsComponent implements OnInit {
     this.loadData();
   }
 
+  /** The list could not be loaded; said, rather than shown as empty. */
+  readonly loadFailed = signal(false);
+
   loadData(): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lms.getStudents().subscribe({
       next: (data) => {
         this.students.set(data || []);
@@ -283,6 +295,7 @@ export class StudentsComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.loadFailed.set(true);
       },
     });
 

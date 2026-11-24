@@ -34,6 +34,7 @@ import { Room } from '../../core/interfaces/Availability';
 import { catchError, of } from 'rxjs';
 import { toIsoDate } from '../../core/utils/date.utils';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -47,7 +48,14 @@ const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'T
 @Component({
   selector: 'app-groups',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, ButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ProgressSpinnerModule,
+    DialogModule,
+    ButtonModule,
+    LoadErrorComponent,
+  ],
   templateUrl: './groups.component.html',
   styleUrl: './groups.component.scss',
 })
@@ -426,8 +434,12 @@ export class GroupsComponent implements OnInit {
       .subscribe((rooms) => this.rooms.set(rooms ?? []));
   }
 
+  /** The list could not be loaded; said, rather than shown as "No groups found". */
+  readonly loadFailed = signal(false);
+
   loadGroups(): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lmsService.getGroups().subscribe({
       next: (data) => {
         this.groups.set(data || []);
@@ -435,6 +447,7 @@ export class GroupsComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.loadFailed.set(true);
       },
     });
   }

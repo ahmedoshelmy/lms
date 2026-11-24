@@ -12,11 +12,13 @@ import { CourseLevel } from '../../core/interfaces/CourseLevel';
 import { Role } from '../../core/interfaces/Role';
 import { SessionSyllabus } from '../../core/interfaces/SessionSyllabus';
 import { SessionSyllabusComponent } from '../../shared/components/session-syllabus/session-syllabus.component';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 @Component({
   selector: 'app-courses',
   standalone: true,
   imports: [
+    LoadErrorComponent,
     CommonModule,
     FormsModule,
     ProgressSpinnerModule,
@@ -108,8 +110,12 @@ export class CoursesComponent implements OnInit {
     }
   }
 
+  /** The list could not be loaded; said, rather than shown as empty. */
+  readonly loadFailed = signal(false);
+
   loadTopics(): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lmsService.getTopics().subscribe({
       next: (data) => {
         this.topics.set(data || []);
@@ -117,6 +123,7 @@ export class CoursesComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.loadFailed.set(true);
       },
     });
   }

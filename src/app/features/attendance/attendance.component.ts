@@ -13,6 +13,7 @@ import { User } from '../../core/interfaces/User';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { startOfSchoolWeek } from '../../core/utils/week.utils';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
@@ -29,7 +30,14 @@ export interface DateSessionGroup {
 @Component({
   selector: 'app-attendance',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SelectModule, ProgressSpinnerModule],
+  imports: [
+    LoadErrorComponent,
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    SelectModule,
+    ProgressSpinnerModule,
+  ],
   templateUrl: './attendance.component.html',
   styleUrl: './attendance.component.scss',
 })
@@ -223,8 +231,12 @@ export class AttendanceComponent implements OnInit {
     }
   }
 
+  /** The list could not be loaded; said, rather than shown as empty. */
+  readonly loadFailed = signal(false);
+
   loadData(): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lms.getSchedule().subscribe({
       next: (sessions) => {
         const sorted = (sessions || []).sort(
@@ -233,7 +245,10 @@ export class AttendanceComponent implements OnInit {
         this.sessions.set(sorted);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.loadFailed.set(true);
+      },
     });
   }
 

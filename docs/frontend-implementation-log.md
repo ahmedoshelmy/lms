@@ -694,3 +694,35 @@ Everything below was checked as unused before deletion.
 - **Not verified visually:** colours stay in the same families, but I can't sign in to look
   at the pages. They're checked against a running build in the Phase 2 audit.
 - **Validation:** 32 files / 167 tests ✔; lint 0 errors; format ✔; build ✔.
+
+## Phase 2 audit
+
+- **Checks:** format ✔; lint 0 errors; 32 files / 171 tests ✔ (run in batches; machine short
+  of memory); production build ✔ at 583.49 kB.
+- **Visual check against a running build.**
+  - **Method:** a development build served on localhost by a small static server, driven by
+    headless Chrome over the DevTools protocol with a throwaway profile. The Chrome extension
+    wasn't connected, and two dev servers already held ports 4200/4300 and weren't touched.
+  - **Safety:** to see signed-in screens without signing in, the browser was given a
+    placeholder admin user and pointed at an unreachable API (`http://127.0.0.1:9/api`).
+    No request left the machine, and every load failed fast, which showed the error states.
+  - **Looked at:** login light/dark, groups light/dark, the student dialog on desktop and
+    phone, and the Sales pipeline in dark.
+- **Confirmed working:** tokens in both themes, the brand shell, dark mode across the shell,
+  the phone bottom-sheet dialog, the new password field, and `app-load-error` in dark.
+- **Found and fixed:**
+  1. **Toast storm:** one failed page load stacked ~10 identical "Failed to fetch" toasts.
+     The interceptor now shows an identical message once per 4 s (`RepeatFilter`, tested).
+  2. **Unreachable-server message hidden:** `fetch` failures carry the browser's own
+     "Failed to fetch", and `errorMessage` preferred any message it found. Status 0 is now
+     checked first (tested).
+  3. **Desktop dialogs nearly full-width:** five components (students, student detail,
+     instructors, instructor detail, the session panel) forced `max-width: 95vw !important`
+     on every dialog, overriding each dialog's own `max-width`. This dates from when those
+     pages were added. Removed; the "Add Student" dialog is back to 520 px.
+  4. **Failed loads shown as empty lists** on Groups, Students, Instructors, Courses and
+     Attendance (missed in F-04). They now show `app-load-error` with "Try again".
+  5. **Login:** the logo was invisible in light mode (`bg-linear-to- br` typo), and the
+     login error's colour class had a stray `]`. Both predate this work. Fixed.
+- **Re-checked visually after the fixes:** login logo, groups error state with no toast
+  stack, desktop dialog width.

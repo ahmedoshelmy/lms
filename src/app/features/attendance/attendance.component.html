@@ -197,6 +197,8 @@
     <div class="flex justify-center items-center py-24">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error title="Sessions could not be loaded" (retry)="loadData()" />
   } @else if (groupedSessionsByDate().length === 0) {
     <div
       class="text-center py-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl"

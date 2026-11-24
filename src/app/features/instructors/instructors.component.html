@@ -180,6 +180,8 @@
       <i class="pi pi-spinner pi-spin text-2xl text-[var(--color-secondary)]"></i>
       <span>Loading instructors…</span>
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error title="Instructors could not be loaded" (retry)="loadData()" />
   } @else if (instructors().length === 0) {
     <div
       class="flex flex-col items-center justify-center p-8 sm:p-12 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-center my-8"
