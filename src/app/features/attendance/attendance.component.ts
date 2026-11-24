@@ -1,4 +1,12 @@
-import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -29,6 +37,7 @@ export interface DateSessionGroup {
 
 @Component({
   selector: 'app-attendance',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     LoadErrorComponent,

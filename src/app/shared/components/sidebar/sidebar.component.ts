@@ -1,4 +1,12 @@
-import { Component, computed, inject, input, model, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  model,
+  output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
 import { ROLE_LABELS } from '../../../core/interfaces/Role';
@@ -11,6 +19,7 @@ import { SessionService } from '../../../core/services/session.service';
 
 @Component({
   selector: 'app-sidebar',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [RouterModule, NotificationBellComponent],
   templateUrl: './sidebar.component.html',

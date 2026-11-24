@@ -1,4 +1,12 @@
-import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +30,7 @@ import { LoadErrorComponent } from '../../../shared/components/load-error/load-e
 
 @Component({
   selector: 'app-student-detail',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,

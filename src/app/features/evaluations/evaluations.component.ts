@@ -1,4 +1,12 @@
-import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  DestroyRef,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -22,6 +30,7 @@ type StatusFilter = 'All' | 'NotStarted' | 'Draft' | 'Submitted' | 'Released';
  */
 @Component({
   selector: 'app-evaluations',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, LoadErrorComponent],
   templateUrl: './evaluations.component.html',

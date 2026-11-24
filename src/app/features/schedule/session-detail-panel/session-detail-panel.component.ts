@@ -1,4 +1,13 @@
-import { Component, input, output, computed, inject, effect, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  computed,
+  inject,
+  effect,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -28,6 +37,7 @@ function sessionStatusToApiEnum(statusStr: string): number {
 
 @Component({
   selector: 'app-session-detail-panel',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,

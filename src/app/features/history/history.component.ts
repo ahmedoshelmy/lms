@@ -16,6 +16,8 @@ import { ClockFormatService } from '../../core/services/clock-format.service';
 import { latestRequest } from '../../core/utils/latest-request';
 import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
+// Not OnPush yet: promoting and showPromoteModal are plain fields set in callbacks.
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: 'app-history',
   standalone: true,

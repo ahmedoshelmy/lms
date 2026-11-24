@@ -1,4 +1,12 @@
-import { Component, input, signal, computed, output, inject } from '@angular/core';
+import {
+  Component,
+  input,
+  signal,
+  computed,
+  output,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
@@ -23,6 +31,7 @@ export interface TimeSlot {
 
 @Component({
   selector: 'app-instructor-availability-matrix',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [FormsModule, SelectModule],
   template: `

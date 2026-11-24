@@ -88,6 +88,9 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
 
 - All components, directives, and pipes must be **standalone** (`standalone: true`).
 - Explicitly list all imports (like `CommonModule`, router directives, PrimeNG modules) in the `imports` array of the `@Component` metadata.
+- Components use `changeDetection: ChangeDetectionStrategy.OnPush` (lint enforces it). The app is
+  zoneless, so keep any state that changes later — after a request, a timer, a listener — in
+  signals; a plain field set in a `subscribe` callback will not show under `OnPush`.
 
 ### Dependency Injection
 

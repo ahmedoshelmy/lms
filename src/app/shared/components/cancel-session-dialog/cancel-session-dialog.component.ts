@@ -1,4 +1,12 @@
-import { Component, computed, input, model, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  model,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { CancellationCause, CancelSessionPayload } from '../../../core/interfaces/History';
@@ -23,6 +31,7 @@ interface CauseChoice {
  */
 @Component({
   selector: 'app-cancel-session-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [FormsModule, DialogModule],
   templateUrl: './cancel-session-dialog.component.html',

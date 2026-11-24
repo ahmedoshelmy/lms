@@ -1,4 +1,12 @@
-import { inject, Component, input, computed, output, signal } from '@angular/core';
+import {
+  inject,
+  Component,
+  input,
+  computed,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 import {
@@ -121,6 +129,7 @@ function overlaps(a: ScheduleSession, b: ScheduleSession): boolean {
 
 @Component({
   selector: 'app-weekly-schedule',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule],
   templateUrl: './weekly-schedule.component.html',

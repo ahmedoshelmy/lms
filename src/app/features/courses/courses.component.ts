@@ -1,4 +1,12 @@
-import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -16,6 +24,7 @@ import { LoadErrorComponent } from '../../shared/components/load-error/load-erro
 
 @Component({
   selector: 'app-courses',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     LoadErrorComponent,

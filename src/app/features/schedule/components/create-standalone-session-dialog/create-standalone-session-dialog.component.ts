@@ -1,4 +1,13 @@
-import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  input,
+  output,
+  signal,
+  computed,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +22,7 @@ import { todayIsoDate } from '../../../../core/utils/date.utils';
 
 @Component({
   selector: 'app-create-standalone-session-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [FormsModule, DialogModule, ButtonModule],
   templateUrl: './create-standalone-session-dialog.component.html',

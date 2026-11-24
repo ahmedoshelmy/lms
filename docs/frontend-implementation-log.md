@@ -1043,3 +1043,32 @@ Everything below was checked as unused before deletion.
     included.
   - Attendance's "All time" list needs paging.
 - **Validation:** lint 0 errors; build 585.51 kB initial (unchanged).
+
+## PF-02 — OnPush
+
+- **What changed:** 43 of 46 components use `ChangeDetectionStrategy.OnPush`. The lint
+  rule `prefer-on-push-component-change-detection` is now an error (off in specs), and
+  AGENTS.md states the convention.
+- **Why it is safe here:** the app is zoneless. An `OnPush` component re-renders when a
+  signal it reads changes, an input changes, or one of its own template events fires. The
+  risk is template state changed any other way. Two scans (scripts kept out of the repo):
+  1. **Plain fields written in async callbacks** (`subscribe`, `then`, timers, listeners):
+     found in three components only.
+  2. **Objects changed in place**, in callbacks or handlers: none. State is replaced, not
+     mutated.
+- **Left on Default, each with a comment saying why:** Groups (`formName` set from a
+  server suggestion), History (`promoting`, `showPromoteModal`), Settings (`apiUrl`).
+  Converting those fields to signals brings them in.
+- **Clock-based display** (`new Date()` in 53 places) was not live before either. A
+  zoneless app runs change detection only when something notifies it, so this changes
+  nothing that worked.
+- **Validation:** all batches exit 0 (42 files / 200 tests). Lint 0 errors. Clicked through
+  in a development build with sample data. Each result below appeared on screen:
+  - the register: mark a student, and the badge and button state change;
+  - the group page: "Edit Group" opens with the name filled in;
+  - Sales: Mine/Everyone's switches;
+  - the command palette: Ctrl+K opens it and typing filters;
+  - Monthly reports: tally selection;
+  - Groups: status tabs filter;
+  - Students: selection shows the toolbar;
+  - the phone drawer opens and closes.

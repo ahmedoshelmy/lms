@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LmsService } from '../../../core/services/lms.service';
@@ -15,6 +22,7 @@ import { LoadErrorComponent } from '../../../shared/components/load-error/load-e
  */
 @Component({
   selector: 'app-register-compliance',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, FormsModule, LoadErrorComponent],
   templateUrl: './register-compliance.component.html',

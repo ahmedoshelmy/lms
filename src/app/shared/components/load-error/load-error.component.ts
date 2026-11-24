@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * What a page shows when what it needed could not be loaded.
@@ -11,6 +11,7 @@ import { Component, input, output } from '@angular/core';
  */
 @Component({
   selector: 'app-load-error',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
     <div class="load-error" role="alert">

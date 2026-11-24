@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
@@ -22,6 +29,7 @@ import { sessionsTaught } from '../../../core/utils/course-progress.utils';
  */
 @Component({
   selector: 'app-student-home',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [RouterLink],
   templateUrl: './student-home.component.html',

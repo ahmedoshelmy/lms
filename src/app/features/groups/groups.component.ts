@@ -45,6 +45,8 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
 
 const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
+// Not OnPush yet: formName is set from a server suggestion in a callback.
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: 'app-groups',
   standalone: true,

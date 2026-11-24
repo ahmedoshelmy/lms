@@ -1,4 +1,12 @@
-import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
@@ -26,6 +34,7 @@ import {
  */
 @Component({
   selector: 'app-evaluation-detail',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [FormsModule, RouterModule],
   templateUrl: './evaluation-detail.component.html',

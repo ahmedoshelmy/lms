@@ -28,6 +28,17 @@ module.exports = tseslint.config(
       // on new errors without blocking on what is already there. Each moves to
       // "error" when its task is done.
       '@typescript-eslint/no-explicit-any': 'warn', // F-08
+      // PF-02: new components are OnPush. The app is zoneless, so OnPush is safe
+      // wherever state that changes later is a signal; the few that are not
+      // carry a disable comment saying why.
+      '@angular-eslint/prefer-on-push-component-change-detection': 'error',
+    },
+  },
+  {
+    // Stand-ins in tests are not rendered for real.
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {

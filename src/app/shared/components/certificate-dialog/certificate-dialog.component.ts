@@ -7,6 +7,7 @@ import {
   input,
   model,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -53,6 +54,7 @@ function localDateInputToIso(value: string): string | null {
 
 @Component({
   selector: 'app-certificate-dialog',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, FormsModule, DialogModule, ProgressSpinnerModule],
   templateUrl: './certificate-dialog.component.html',

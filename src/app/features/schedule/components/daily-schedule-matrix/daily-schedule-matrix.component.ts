@@ -1,4 +1,4 @@
-import { inject, Component, input, output, computed } from '@angular/core';
+import { inject, Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
 import { ClockFormatService } from '../../../../core/services/clock-format.service';
@@ -10,6 +10,7 @@ export interface TimeSlot {
 
 @Component({
   selector: 'app-daily-schedule-matrix',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [],
   template: `

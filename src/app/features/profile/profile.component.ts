@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Role, ROLE_LABELS } from '../../core/interfaces/Role';
 
@@ -11,6 +11,7 @@ import { Role, ROLE_LABELS } from '../../core/interfaces/Role';
  */
 @Component({
   selector: 'app-profile',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',

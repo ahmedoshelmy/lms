@@ -1,4 +1,11 @@
-import { Component, effect, inject, signal, untracked } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  signal,
+  untracked,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmService } from '../../../core/services/confirm.service';
 
@@ -10,6 +17,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
  */
 @Component({
   selector: 'app-confirm-host',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [DialogModule],
   template: `

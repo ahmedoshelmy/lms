@@ -1,4 +1,4 @@
-import { Component, input, computed } from '@angular/core';
+import { Component, input, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { busiestAndQuietest, summariseWeek } from '../../../../core/utils/week-summary.utils';
 
@@ -13,6 +13,7 @@ import { busiestAndQuietest, summariseWeek } from '../../../../core/utils/week-s
  */
 @Component({
   selector: 'app-schedule-analytics',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
     <div class="space-y-6">

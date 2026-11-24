@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { DashboardOverview } from '../../../core/interfaces/DashboardOverview';
@@ -24,6 +31,7 @@ interface CauseSlice {
  */
 @Component({
   selector: 'app-school-overview',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [RouterModule],
   templateUrl: './school-overview.component.html',
