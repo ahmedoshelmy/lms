@@ -2,8 +2,10 @@ import { Injectable, inject, PLATFORM_ID, signal, computed } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs';
 import { Role, parseRole } from '../interfaces/Role';
-import { LmsService } from '../services/lms.service';
-import { LoginRequest } from '../interfaces/Login';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { resolveApiUrl } from '../config/api-url';
+import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { User } from '../interfaces/User';
 import { canAccessPath } from '../config/app-navigation.config';
 
@@ -15,7 +17,12 @@ export const AUTH_STORAGE_KEY = 'auth_user';
 })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly lmsService = inject(LmsService);
+  /**
+   * Plain HttpClient rather than LmsService: this service is needed before any
+   * page loads (the route guards use it), and depending on the whole API
+   * client for one request put all of it in the first download.
+   */
+  private readonly http = inject(HttpClient);
   private readonly USER_KEY = AUTH_STORAGE_KEY;
 
   private currentUserSignal = signal<User | null>(this.getStoredUser());
@@ -60,8 +67,10 @@ export class AuthService {
     return canAccessPath(this.currentRole(), path);
   }
 
-  login(payload: LoginRequest): ReturnType<LmsService['login']> {
-    return this.lmsService.login(payload).pipe(tap((user) => this.setStoredUser(user)));
+  login(payload: LoginRequest): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(`${resolveApiUrl()}/auth/login`, payload, { withCredentials: true })
+      .pipe(tap((user) => this.setStoredUser(user)));
   }
 
   logout(): void {

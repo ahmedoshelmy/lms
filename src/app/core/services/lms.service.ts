@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
-import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
 import { StudentDetails } from '../interfaces/StudentDetails';
 import { InstructorDetails, InstructorStats } from '../interfaces/InstructorDetails';
@@ -152,12 +151,6 @@ export class LmsService {
   }
 
   // ─── Auth ────────────────────────────────────────────────────────────────
-
-  login(payload: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.getApiUrl()}/auth/login`, payload, {
-      withCredentials: true,
-    });
-  }
 
   logout(): Observable<void> {
     return this.http.post<void>(

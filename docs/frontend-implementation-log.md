@@ -617,3 +617,16 @@ Everything below was checked as unused before deletion.
   just under the 600 kB warning; D-05 replaces those palette classes and should win it back.
 - **Validation:** format ✔; lint 0 errors; 31 files / 166 tests ✔ (run in batches; this
   machine is short of memory); build ✔.
+
+## PF-05 (moved ahead) — The API client leaves the first download
+
+- **What changed:** `AuthService.login()` now posts to `${resolveApiUrl()}/auth/login`
+  itself, with `HttpClient`, instead of calling `LmsService.login()`, which is removed.
+  `AuthService` is needed at startup by the route guards, so its dependency on `LmsService`
+  put the whole API client (11.4 kB) and the slot-search helper in the initial bundle.
+  Nothing else at startup imports `LmsService`.
+- **Result:** initial bundle 601.59 kB → **589.81 kB**. That was 1.59 kB over the 600 kB
+  budget with D-02's preset in place; it's now about 10 kB under.
+- **Test:** `auth.service.spec.ts` checks login sends the same request (POST, cookies,
+  body) and stores the user.
+- **Validation:** 32 files / 167 tests ✔; lint 0 errors; format ✔; build ✔.
