@@ -254,3 +254,30 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
 - **Backend dependency:** confirm the server refuses attendance writes from students and
   limits what `GET /Schedule/sessions/{id}` returns to them. Hiding it here is presentation
   only.
+
+## P0-11 — The API address is set at build time
+
+- **What changed:**
+  - New `src/environments/environment.ts` (production) and `environment.development.ts`,
+    swapped in through `fileReplacements` in the `development` configuration of
+    `angular.json`. Each holds `apiUrl` and `allowApiUrlOverride`.
+  - New `core/config/api-url.ts` `resolveApiUrl()` is the single source, used by both
+    `LmsService` and the auth interceptor; each used to hard-code the address and read
+    `lms_api_url` separately. In a build that doesn't allow overrides it ignores and removes
+    a saved address.
+  - `LmsService.setApiUrl` does nothing in production. Settings shows the address read-only
+    there and keeps the editor for development builds.
+- **Why:** finding C-11 / S-2. Any role could change the API address at runtime in
+  production, and the sign-in form and every token followed it.
+- **Verified in the built bundle:** the production output contains
+  `{production:!0, apiUrl:"https://mv-api.inite.tech/api", allowApiUrlOverride:!1}`.
+- **Files:** `src/environments/*` (new), `angular.json`, `core/config/api-url.ts` (+ spec),
+  `core/services/lms.service.ts`, `core/interceptors/auth.interceptor.ts`,
+  `features/settings/settings.component.ts`.
+- **Validation:** 21 files / 128 tests pass (4 new); production build passes; initial bundle
+  596.83 kB.
+- **Effect on users:** anyone whose production browser had a saved override now talks to
+  the built-in API. That's the point, but say so if anyone relied on it for testing; they
+  should use a development build.
+- **Later (deployment):** to serve several environments from one Docker image, swap this
+  for a runtime `config.json` served by nginx. Not needed while there is one API.

@@ -23,6 +23,7 @@ import {
 } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoginResponse } from '../interfaces/Login';
+import { resolveApiUrl } from '../config/api-url';
 
 /**
  * The refresh currently in flight, so a screenful of requests that all expire
@@ -161,8 +162,7 @@ function endSession(authService: AuthService, router: Router): void {
   });
 }
 
-/** The base URL is per-browser and changeable from Settings. */
+/** The same address every other request uses; see resolveApiUrl. */
 function apiUrl(): string {
-  const stored = typeof window !== 'undefined' ? localStorage.getItem('lms_api_url') : null;
-  return stored || 'https://mv-api.inite.tech/api';
+  return resolveApiUrl();
 }

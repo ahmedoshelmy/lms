@@ -1,0 +1,18 @@
+/**
+ * Production settings. `environment.development.ts` replaces this file in a
+ * development build (see `fileReplacements` in angular.json).
+ */
+export const environment = {
+  production: true,
+
+  /** The API every request goes to. */
+  apiUrl: 'https://mv-api.inite.tech/api',
+
+  /**
+   * Whether Settings may point this browser at a different API. Never in
+   * production: the sign-in form and every token would follow whatever
+   * address was stored, so anybody talked into typing one in would be sending
+   * their password to it.
+   */
+  allowApiUrlOverride: false,
+};

@@ -28,46 +28,56 @@ import { NotificationService } from '../../core/services/notification.service';
           </div>
           <div>
             <h2 class="settings-card__title">API Endpoint</h2>
-            <p class="settings-card__subtitle">
-              Which server this browser talks to. Stored on this device only.
-            </p>
+            <p class="settings-card__subtitle">Which server this app talks to.</p>
           </div>
         </div>
 
         <div class="settings-card__body">
-          <label for="api-url" class="settings-label">Base URL</label>
-          <div class="input-row">
-            <input
-              id="api-url"
-              type="url"
-              [(ngModel)]="apiUrl"
-              placeholder="https://example.com/api"
-              class="settings-input"
-              [class.input-changed]="apiUrl !== currentSavedUrl()"
-              autocomplete="off"
-              spellcheck="false"
-            />
-          </div>
-
-          @if (apiUrl !== currentSavedUrl()) {
-            <p class="text-xs text-[var(--color-warning)] mt-2 flex items-center gap-1.5">
-              <i class="pi pi-exclamation-triangle"></i> Unsaved changes
+          @if (!canOverride) {
+            <!-- Fixed in a production build. Typing an address here used to send
+                 the sign-in form, and every token, to wherever it pointed. -->
+            <p class="settings-label">Base URL</p>
+            <p class="text-sm font-mono break-all text-[var(--color-text-primary)]">
+              {{ currentSavedUrl() }}
             </p>
-          }
+            <p class="text-xs text-[var(--color-text-muted)] mt-2">
+              Set when the app is built. It can only be changed in a development build.
+            </p>
+          } @else {
+            <label for="api-url" class="settings-label">Base URL</label>
+            <div class="input-row">
+              <input
+                id="api-url"
+                type="url"
+                [(ngModel)]="apiUrl"
+                placeholder="https://example.com/api"
+                class="settings-input"
+                [class.input-changed]="apiUrl !== currentSavedUrl()"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
 
-          <div class="flex gap-3 mt-5">
-            <button
-              type="button"
-              class="btn-primary"
-              (click)="saveUrl()"
-              [disabled]="!apiUrl.trim() || apiUrl === currentSavedUrl()"
-            >
-              <i class="pi pi-check mr-2"></i> Save
-            </button>
-            <button type="button" class="btn-secondary" (click)="resetUrl()">
-              <i class="pi pi-refresh mr-2"></i> Reset to Default
-            </button>
-          </div>
+            @if (apiUrl !== currentSavedUrl()) {
+              <p class="text-xs text-[var(--color-warning)] mt-2 flex items-center gap-1.5">
+                <i class="pi pi-exclamation-triangle"></i> Unsaved changes
+              </p>
+            }
+
+            <div class="flex gap-3 mt-5">
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="saveUrl()"
+                [disabled]="!apiUrl.trim() || apiUrl === currentSavedUrl()"
+              >
+                <i class="pi pi-check mr-2"></i> Save
+              </button>
+              <button type="button" class="btn-secondary" (click)="resetUrl()">
+                <i class="pi pi-refresh mr-2"></i> Reset to Default
+              </button>
+            </div>
+          }
         </div>
       </div>
 
@@ -330,6 +340,9 @@ export class SettingsComponent {
   private lms = inject(LmsService);
   private notify = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
+
+  /** Only a development build may point this browser at a different API. */
+  readonly canOverride = this.lms.canOverrideApiUrl;
 
   currentSavedUrl = signal(this.lms.getApiUrl());
   apiUrl = this.lms.getApiUrl();

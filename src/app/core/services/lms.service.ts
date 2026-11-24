@@ -85,6 +85,8 @@ import {
   UpsertCandidate,
 } from '../interfaces/Sales';
 import { slotSearchQuery } from '../utils/slot-search.utils';
+import { API_URL_STORAGE_KEY, resolveApiUrl } from '../config/api-url';
+import { environment } from '../../../environments/environment';
 
 export interface BulkAttendanceItem {
   studentId: number;
@@ -101,32 +103,37 @@ export interface BulkAttendanceItem {
 export class LmsService {
   private http = inject(HttpClient);
 
-  private defaultApiUrl = 'https://mv-api.inite.tech/api';
-  private apiUrlSubject = new BehaviorSubject<string>(
-    (typeof window !== 'undefined' ? localStorage.getItem('lms_api_url') : null) ||
-      this.defaultApiUrl
-  );
+  /** The address set when the app was built. */
+  private defaultApiUrl = environment.apiUrl;
+  private apiUrlSubject = new BehaviorSubject<string>(resolveApiUrl());
 
   apiUrl$ = this.apiUrlSubject.asObservable();
+
+  /** Whether this build lets Settings point it at a different API. */
+  readonly canOverrideApiUrl = environment.allowApiUrlOverride;
 
   getApiUrl(): string {
     return this.apiUrlSubject.value;
   }
 
+  /** Development builds only; a production build keeps its built-in address. */
   setApiUrl(url: string): void {
+    if (!this.canOverrideApiUrl) {
+      return;
+    }
     let cleanUrl = url.trim();
     if (cleanUrl.endsWith('/')) {
       cleanUrl = cleanUrl.slice(0, -1);
     }
     if (typeof window !== 'undefined') {
-      localStorage.setItem('lms_api_url', cleanUrl);
+      localStorage.setItem(API_URL_STORAGE_KEY, cleanUrl);
     }
     this.apiUrlSubject.next(cleanUrl);
   }
 
   resetApiUrl(): void {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('lms_api_url');
+      localStorage.removeItem(API_URL_STORAGE_KEY);
     }
     this.apiUrlSubject.next(this.defaultApiUrl);
   }
