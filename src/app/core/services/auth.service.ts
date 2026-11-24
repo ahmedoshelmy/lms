@@ -7,13 +7,16 @@ import { LoginRequest } from '../interfaces/Login';
 import { User } from '../interfaces/User';
 import { canAccessPath } from '../config/app-navigation.config';
 
+/** Where the signed-in user is kept between visits. Other tabs watch it. */
+export const AUTH_STORAGE_KEY = 'auth_user';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly lmsService = inject(LmsService);
-  private readonly USER_KEY = 'auth_user';
+  private readonly USER_KEY = AUTH_STORAGE_KEY;
 
   private currentUserSignal = signal<User | null>(this.getStoredUser());
   readonly currentUser$ = this.currentUserSignal.asReadonly();

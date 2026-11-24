@@ -47,9 +47,7 @@ describe('LmsService requests', () => {
 
   it('groups', () => {
     expect(sent(() => lms.suggestGroupName(7))).toBe(`GET ${API}/groups/next-name?courseLevelId=7`);
-    expect(sent(() => lms.removeCourseFromGroup(5, 41))).toBe(
-      `DELETE ${API}/groups/5/courses/41`
-    );
+    expect(sent(() => lms.removeCourseFromGroup(5, 41))).toBe(`DELETE ${API}/groups/5/courses/41`);
     expect(sent(() => lms.removeCourseFromGroup(5, 41, true))).toBe(
       `DELETE ${API}/groups/5/courses/41?confirmDeleteSessions=true`
     );

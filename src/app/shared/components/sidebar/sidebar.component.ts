@@ -1,14 +1,13 @@
 import { Component, computed, inject, model, output } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
-import { Role, ROLE_LABELS } from '../../../core/interfaces/Role';
+import { ROLE_LABELS } from '../../../core/interfaces/Role';
 import { AuthService } from '../../../core/services/auth.service';
-import { LmsService } from '../../../core/services/lms.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
-import { NotificationCenterService } from '../../../core/services/notification-center.service';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
+import { SessionService } from '../../../core/services/session.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,10 +18,8 @@ import { ClockFormatService } from '../../../core/services/clock-format.service'
 })
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
-  private readonly lmsService = inject(LmsService);
+  private readonly session = inject(SessionService);
   private readonly themeService = inject(ThemeService);
-  private readonly notificationCentre = inject(NotificationCenterService);
-
   /** Public: the template toggles it directly. */
   protected readonly clock = inject(ClockFormatService);
   private readonly router = inject(Router);
@@ -53,14 +50,6 @@ export class SidebarComponent {
     return role ? ROLE_LABELS[role] : 'Guest';
   });
 
-  readonly roleIcon = computed(() => {
-    const role = this.currentUser()?.role;
-    if (role === Role.Admin) return 'pi pi-shield';
-    if (role === Role.Instructor) return 'pi pi-user-edit';
-    if (role === Role.Sales) return 'pi pi-briefcase';
-    return 'pi pi-graduation-cap';
-  });
-
   onMenuItemClick(): void {
     this.menuItemClicked.emit();
   }
@@ -74,18 +63,7 @@ export class SidebarComponent {
   }
 
   logout(): void {
-    this.lmsService.logout().subscribe({
-      next: () => this.finishLogout(),
-      error: () => this.finishLogout(),
-    });
-  }
-
-  private finishLogout(): void {
-    // Emptied here rather than left to expire, so the next person to sign in
-    // on this browser does not see somebody else's bell for a minute.
-    this.notificationCentre.clear();
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.session.signOut();
   }
 
   private getUserInitials(name: string): string {

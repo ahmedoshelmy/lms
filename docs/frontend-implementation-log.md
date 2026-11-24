@@ -521,3 +521,31 @@ Everything below was checked as unused before deletion.
   the large components that use it.
 - **Validation:** 29 files / 158 tests pass (7 new); lint 0 errors; build clean at
   597.09 kB.
+
+## F-01 — One sign-out routine; other tabs follow
+
+- **What changed:**
+  - **`SessionService`** (`core/services/session.service.ts`):
+    - `signOut()` tells the server (`POST /auth/logout`), signs out locally and goes to
+      `/login`. The sidebar, the "Access denied" page and the outstanding-work window all use
+      it, replacing three copies.
+    - It **watches the signed-in state**: whenever it turns off, for any reason, it empties
+      the notification bell and the outstanding-work state. That covers the interceptor's
+      session-expiry path, which used to leave both filled in for the next person.
+    - **Cross-tab:** a `storage` listener. Another tab signing out signs this one out too,
+      and another tab signing in as a different user reloads this one rather than mix two
+      people's permissions.
+  - `AUTH_STORAGE_KEY` is exported from `AuthService`. Unused injections and the unused
+    `roleIcon` were removed from the sidebar and the unauthorized page.
+- **Design note:** the first version had the interceptor call `SessionService`. That pulled
+  the bell and operations services into the startup bundle (601.24 kB, over budget) and
+  needed two sign-out paths. Watching the signed-in state instead leaves the interceptor
+  unchanged and starts `SessionService` from the lazily loaded main layout. The bundle is
+  back to 597.10 kB.
+- **Held back (backend):** the access token still lives in `localStorage` (S-4). Moving it
+  into memory relies on the refresh cookie to restore a session after reload, and I can't
+  confirm from here that the cookie is `HttpOnly; Secure; SameSite` and sent cross-site.
+  Confirm that and it's a small change.
+- **Validation:** 30 files / 163 tests pass (5 new for `SessionService`; the window test was
+  updated); lint 0 errors; build clean at 597.10 kB. One run had test workers killed by
+  low machine memory (environmental); the rerun was clean.

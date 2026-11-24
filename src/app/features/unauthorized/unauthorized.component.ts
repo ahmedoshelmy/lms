@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
-import { LmsService } from '../../core/services/lms.service';
+import { SessionService } from '../../core/services/session.service';
 
 @Component({
   selector: 'app-unauthorized',
@@ -112,19 +111,10 @@ import { LmsService } from '../../core/services/lms.service';
   `,
 })
 export class UnauthorizedComponent {
-  private readonly authService = inject(AuthService);
-  private readonly lmsService = inject(LmsService);
+  private readonly session = inject(SessionService);
   private readonly router = inject(Router);
 
   logout(): void {
-    this.lmsService.logout().subscribe({
-      next: () => this.finishLogout(),
-      error: () => this.finishLogout(),
-    });
-  }
-
-  private finishLogout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.session.signOut();
   }
 }

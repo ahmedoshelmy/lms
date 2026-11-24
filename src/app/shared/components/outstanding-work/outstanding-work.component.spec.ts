@@ -134,8 +134,8 @@ describe('OutstandingWorkComponent', () => {
 
     button('Sign out')!.click();
 
+    // Clearing what the session left behind is SessionService's job, tested there.
     expect(auth.logout).toHaveBeenCalled();
-    expect(operations.clear).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(['/login']);
   });
 });

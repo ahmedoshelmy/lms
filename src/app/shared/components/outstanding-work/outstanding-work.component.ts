@@ -7,8 +7,7 @@ import { filter } from 'rxjs';
 import { OperationsService } from '../../../core/services/operations.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { LmsService } from '../../../core/services/lms.service';
-import { NotificationCenterService } from '../../../core/services/notification-center.service';
+import { SessionService } from '../../../core/services/session.service';
 import { Role } from '../../../core/interfaces/Role';
 import {
   CancellationCauseName,
@@ -47,8 +46,7 @@ export class OutstandingWorkComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-  private lms = inject(LmsService);
-  private notificationCentre = inject(NotificationCenterService);
+  private session = inject(SessionService);
 
   protected readonly work = this.operations.work;
 
@@ -117,13 +115,7 @@ export class OutstandingWorkComponent implements OnInit {
    * this is the only way to hand it over.
    */
   protected signOut(): void {
-    const finish = () => {
-      this.notificationCentre.clear();
-      this.operations.clear();
-      this.auth.logout();
-      this.router.navigate(['/login']);
-    };
-    this.lms.logout().subscribe({ next: finish, error: finish });
+    this.session.signOut();
   }
 
   /** What the window is for, in one line, so it does not read as a punishment. */
