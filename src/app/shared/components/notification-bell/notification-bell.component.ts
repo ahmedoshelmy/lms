@@ -85,8 +85,12 @@ export class NotificationBellComponent {
     }
   }
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.open.set(false);
+  /** Claims the key when it closes the panel, so the phone drawer around it stays open. */
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscape(event: Event): void {
+    if (this.open()) {
+      this.open.set(false);
+      event.preventDefault();
+    }
   }
 }

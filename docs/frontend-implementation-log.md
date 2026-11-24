@@ -975,3 +975,46 @@ Everything below was checked as unused before deletion.
   splitting the component (F-09) is the real fix.
 - **Validation:** lint 0 errors, format ✔, production build ✔ (585.23 kB initial, no budget
   warnings). Before/after survey and screenshots as above.
+
+## Phase 4 audit
+
+- **Checks:** format ✔; lint 0 errors (167 warnings, unchanged). Every test batch exits 0:
+  41 files / 199 tests. One run hit the machine's out-of-memory limit and passed when run
+  again. Production build ✔ at 585.51 kB with no budget warnings; production `npm audit` 0.
+- **Visual check on a touch phone** (touch emulation, so `pointer: coarse` applies): the
+  student dialog, Sales, Schedule in dark mode, the dark drawer, toasts.
+  - **Fixed: dark phone header.** "Mindvalley" and the menu icon were the primary navy on
+    near-black. A new token, `--color-brand-text`, is the primary colour in light mode and
+    the ordinary text colour in dark mode; the header uses it.
+  - **Fixed: toasts on phones** sat in the corner over the menu button. They now sit under
+    the header, across the width. `top` needs `!important` because PrimeNG sets it inline.
+  - **For Phase 6 (A-04 contrast):** the primary colour is used as text 101 times, which is
+    unreadable in dark mode. Schedule's outline buttons are one case; the red action buttons
+    noted in the Phase 3 audit are another. Moving these to `--color-brand-text` needs a
+    page-by-page look, so it belongs with the contrast work.
+- **Independent review** of the Phase 4 diff. Fixed:
+  1. **Search icons moved up on touch screens (High).** In Tailwind 4,
+     `-translate-y-1/2` uses the `translate` property. The re-centring rule added a
+     `transform` on top, so icons already centred moved up twice. It now uses `translate`
+     and skips icons already centred. Measured on courses, groups and history: 0 px off
+     centre.
+  2. **Focus lost after choosing a page from the drawer.** The tapped link went inert, and
+     focus dropped to `<body>`. Closing the drawer onto a page now focuses `<main>`
+     (`tabindex="-1"`), including when the item is the page already open. Tested.
+  3. **One Escape closed two things.** The layout now listens on `window`, after
+     `document`. The notifications panel claims the key with `preventDefault()`. The drawer
+     closes only when the focus is in it, so a dialog or the command palette over it keeps
+     its Escape. Tested.
+  4. **The drawer stayed open over a new page** reached from a notification. Any
+     navigation now closes it, with the same focus handling.
+  5. **Resizing to phone width with the focus in the sidebar** dropped it to `<body>`; it
+     now goes to the menu button.
+  6. **The page scrolled behind the open drawer.** `html.drawer-open` stops that. It is
+     removed when the layout is destroyed, so signing out from the drawer cannot leave the
+     login page unscrollable. Tested.
+- **Accepted as designed:** on touch, PrimeNG selects (whose trigger has `role="button"`)
+  and the two 28 px delete buttons on the group page grow to 40 px. That is the point of
+  the rule.
+- **Reviewed, nothing found:** SSR guards, the desktop toggle, schedule `HttpParams` (same
+  parameters as before) and its failure flags, history flags, the register CSS (desktop
+  unchanged), the grids, and spec clean-up.

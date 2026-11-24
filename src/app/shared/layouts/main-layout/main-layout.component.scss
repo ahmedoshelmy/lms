@@ -18,6 +18,10 @@
 
 .content {
   flex: 1;
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .mobile-header {
@@ -46,7 +50,7 @@
   .mobile-header__title {
     font-size: 16px;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-brand-text);
   }
 
   .mobile-menu-btn {
@@ -58,7 +62,7 @@
     border: 1px solid var(--color-border);
     border-radius: 10px;
     background: var(--color-surface);
-    color: var(--color-primary);
+    color: var(--color-brand-text);
     cursor: pointer;
     font-size: 18px;
   }

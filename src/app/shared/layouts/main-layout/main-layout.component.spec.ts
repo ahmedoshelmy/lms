@@ -24,6 +24,16 @@ class BellStub {
   readonly compact = input(false);
 }
 
+/** As a real key press: from the focused element up through document to window. */
+function pressEscape(claim = false) {
+  const claimer = (e: Event) => e.preventDefault();
+  if (claim) document.addEventListener('keydown', claimer);
+  (document.activeElement ?? document.body).dispatchEvent(
+    new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+  );
+  document.removeEventListener('keydown', claimer);
+}
+
 function render(phone: boolean) {
   vi.stubGlobal('matchMedia', (query: string) => ({
     matches: phone,
@@ -91,7 +101,7 @@ describe('MainLayoutComponent on a phone', () => {
     expect(content().hasAttribute('inert')).toBe(true);
     expect(backdrop()).not.toBeNull();
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    pressEscape();
     fixture.detectChanges();
     await fixture.whenStable();
 
@@ -100,6 +110,45 @@ describe('MainLayoutComponent on a phone', () => {
     expect(backdrop()).toBeNull();
     // Focus goes back to the button that opened the drawer.
     expect(document.activeElement?.classList.contains('mobile-menu-btn')).toBe(true);
+  });
+
+  it('leaves Escape alone when a panel inside the drawer claimed it', () => {
+    const { fixture, page } = render(true);
+    page.openSidebar();
+    fixture.detectChanges();
+
+    // The notifications panel closes itself and calls preventDefault().
+    pressEscape(true);
+    fixture.detectChanges();
+
+    expect(page.isSidebarOpen()).toBe(true);
+  });
+
+  it('closes on choosing a page, and gives the page the focus', async () => {
+    const { fixture, page } = render(true);
+    page.openSidebar();
+    fixture.detectChanges();
+
+    page.onMenuItemClicked();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(page.isSidebarOpen()).toBe(false);
+    // Not dropped to <body> with the link that went inert.
+    expect(document.activeElement?.tagName).toBe('MAIN');
+  });
+
+  it('stops the page scrolling behind the open drawer, and never leaves it stopped', () => {
+    const { fixture, page } = render(true);
+    const html = document.documentElement;
+
+    page.openSidebar();
+    fixture.detectChanges();
+    expect(html.classList.contains('drawer-open')).toBe(true);
+
+    // Signing out from the open drawer destroys the layout.
+    fixture.destroy();
+    expect(html.classList.contains('drawer-open')).toBe(false);
   });
 });
 
@@ -118,7 +167,7 @@ describe('MainLayoutComponent on a wide screen', () => {
   it('ignores Escape', () => {
     const { fixture, page } = render(false);
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    pressEscape();
     fixture.detectChanges();
 
     expect(page.isSidebarOpen()).toBe(true);

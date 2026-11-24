@@ -26,6 +26,9 @@
 
   /* Secondary */
   --color-secondary: #3e6db5;
+  /* Brand-coloured text and icons. The primary navy itself is unreadable on the
+     dark theme's surfaces, so dark mode swaps in the ordinary text colour. */
+  --color-brand-text: var(--color-primary);
   --color-secondary-hover: #2d5594;
   --color-secondary-content: #ffffff;
 
@@ -145,6 +148,7 @@
   --color-primary-content: #ffffff;
 
   --color-secondary: #5a8fd6;
+  --color-brand-text: var(--color-text-primary);
   --color-secondary-hover: #6fa0e0;
   --color-secondary-content: #0b1220;
 
@@ -270,6 +274,11 @@
   }
 }
 
+/* The page behind the open phone drawer does not scroll (MainLayoutComponent). */
+html.drawer-open {
+  overflow: hidden;
+}
+
 /* Touch screens: every control a finger can hit. Most buttons, chips and
    inputs here are drawn 24-31 px tall (text-xs with small padding), and a few
    text buttons 16 px. One rule for (pointer: coarse) rather than hundreds of
@@ -293,9 +302,14 @@
     height: 20px;
   }
 
-  :is(main, .p-dialog) .relative:has(> input) > :is(i, button).absolute {
+  /* Those placed with a fixed top (top-2.5 for a 30 px input). Ones already
+     centred (top-1/2 -translate-y-1/2, which uses the `translate` property)
+     are left alone, or they would move up twice. */
+  :is(main, .p-dialog)
+    .relative:has(> input)
+    > :is(i, button).absolute:not([class*='top-1/2'], [class*='translate-y']) {
     top: 50%;
-    transform: translateY(-50%);
+    translate: 0 -50%;
   }
 }
 
@@ -320,5 +334,14 @@
 
   .p-dialog-footer {
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Toasts below the phone header, across the width: in the corner they sat
+     over the menu button, the one way to the rest of the app. */
+  .p-toast.p-toast-top-right {
+    top: calc(4.5rem + env(safe-area-inset-top)) !important; /* over an inline top */
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
   }
 }

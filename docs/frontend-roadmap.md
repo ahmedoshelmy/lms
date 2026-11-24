@@ -22,7 +22,7 @@ Arabic/RTL.
 ## Status (2026-11-24)
 
 Each phase is on its own branch, cut from the one before (`frontend/phase-0` …
-`frontend/phase-3`), one commit per task, and each phase ends with an audit. Details are in
+`frontend/phase-4`), one commit per task, and each phase ends with an audit. Details are in
 the implementation log.
 
 - **Phase 0:** P0-01 to P0-11 and SSR-01, done.
@@ -31,10 +31,12 @@ the implementation log.
 - **Phase 2:** D-01, D-02, D-04 and D-05, done and audited. D-03 (shared page header and
   empty state) is adopted page by page as later phases touch them.
 - **Phase 3:** W-01 to W-06, done and audited. W-07 needs a backend endpoint.
+- **Phase 4:** M-01 to M-03, done and audited. Dark-mode contrast of primary-coloured text
+  (101 uses) is handed to Phase 6 (A-04).
 
-Latest validation (Phase 3 audit): format ✔, lint 0 errors (167 warnings of tracked
-debt), 38 test files and 190 tests passing, production build ✔ with the initial bundle at
-about 584 kB against the 600 kB budget, production `npm audit` 0.
+Latest validation (Phase 4 audit): format ✔, lint 0 errors (167 warnings of tracked
+debt), 41 test files and 199 tests passing, production build ✔ with the initial bundle at
+about 586 kB against the 600 kB budget, production `npm audit` 0.
 
 Backend questions still open:
 
