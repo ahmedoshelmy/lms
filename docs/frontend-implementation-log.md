@@ -310,3 +310,27 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   installed Angular 21.2.x itself, including an i18n XSS and a sanitizer bypass through host
   bindings. The current `^21.2.0` ranges already allow 21.2.26, so a patch update within the
   ranges, with a full test and build pass, should clear most of them.
+
+## R-03 — Angular and tooling patched within 21.2.x (moved ahead of Phase 1)
+
+- **What changed:**
+  - Angular framework packages 21.2.17 → 21.2.26; `@angular/build` / `@angular/cli`
+    21.2.15 → 21.2.31. Patch updates within range for Tailwind 4.3.5, PostCSS 8.5.33,
+    PrimeNG 21.1.10, Vitest 4.1.12 and tslib 2.9.1, plus `npm audit fix` without `--force`.
+  - Removed the unused `@angular/animations` (F-05). It pinned `@angular/core` to exactly
+    21.2.17 and blocked the update.
+  - Angular minimums in `package.json` raised to the patched versions (still `^21.2.x`).
+  - To re-resolve the pinned Angular set, only the `@angular/*` lockfile entries were
+    dropped and resolved again, not the whole lockfile.
+  - Prettier was deliberately left at 3.8: a minor bump can reformat files and bury real
+    changes.
+- **Why:** after SSR-01, the 11 remaining production advisories were against Angular itself
+  (i18n XSS, sanitizer bypass through host bindings, router DoS, HttpTransferCache).
+- **Result:** `npm audit --omit=dev` finds **0 vulnerabilities** (16 at the audit). All
+  dependencies: 17 low/moderate, all in build or dev tooling (esbuild, glob, minimatch;
+  52 at the audit).
+- **Lockfile review:** 113 versions changed, 37 added, 4 removed. Two major jumps
+  (`@hono/node-server`, `content-disposition`) are both inside `@angular/cli`'s MCP SDK,
+  dev-only, and chosen by the CLI.
+- **Validation:** 21 files / 128 tests pass; production build clean; initial bundle
+  596.93 kB.
