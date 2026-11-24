@@ -52,6 +52,7 @@ export const routes: Routes = [
       {
         path: 'sessions/:id',
         canActivate: [roleGuard],
+        canDeactivate: [unsavedChangesGuard],
         data: { roles: getRolesForPath('sessions') },
         loadComponent: () =>
           import('./features/sessions/session-detail/session-detail.component').then(

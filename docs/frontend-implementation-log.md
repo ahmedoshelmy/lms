@@ -748,3 +748,19 @@ Everything below was checked as unused before deletion.
   release dialog's cancel stops; text box returns trimmed text, required gating, and its
   label). Lint 0 errors; build ✔ at 583.65 kB.
 - **Backend to confirm:** that `mineOnly` filters on the server. The frontend can only ask.
+
+## W-02 — Instructors see their own availability; the register asks before it is lost
+
+- **What changed:**
+  - **Availability matrix:** an instructor (who can't pick another instructor) sees their
+    own week. The matrix used to fall through to the first instructor in the list, so an
+    instructor saw a colleague's availability as if it were theirs (audit H5). The test
+    fails against the old code.
+  - **Register guard:** `SessionDetailComponent` implements `HasUnsavedChanges`, and
+    `sessions/:id` has `unsavedChangesGuard`. Leaving with marks typed but not saved asks
+    first, and closing or reloading the tab gets the browser's warning. Same guard as the
+    monthly reports (P0-08).
+- **Deferred to Phase 4 (mobile):** a "Today" view for instructors and taking the register
+  inline from the session list. These are new features best designed with the phone layout
+  in mind.
+- **Validation:** 34 files / 178 tests ✔ (3 new); lint 0 errors; build ✔.

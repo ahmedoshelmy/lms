@@ -1,4 +1,4 @@
-import { Component, input, signal, computed, output } from '@angular/core';
+import { Component, input, signal, computed, output, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
@@ -8,6 +8,7 @@ import {
   InstructorTimeOff,
 } from '../../../../core/interfaces/Availability';
 import { isDeclaredAvailable, isOnLeave } from '../../../../core/utils/availability.utils';
+import { AuthService } from '../../../../core/services/auth.service';
 
 export interface DayColumnMeta {
   dayName: string;
@@ -228,6 +229,8 @@ export interface TimeSlot {
   ],
 })
 export class InstructorAvailabilityMatrixComponent {
+  private readonly auth = inject(AuthService);
+
   sessions = input<ScheduleSession[]>([]);
   instructors = input<User[]>([]);
   currentWeekStart = input<Date>(new Date());
@@ -281,8 +284,18 @@ export class InstructorAvailabilityMatrixComponent {
   });
 
   readonly selectedInstructor = computed(() => {
-    const id = this.selectedInstructorId();
     const list = this.instructorOptions();
+
+    // Somebody who cannot pick sees their own week. This used to fall through
+    // to the first instructor in the list, so an instructor was shown
+    // somebody else's availability as if it were theirs.
+    if (!this.canPickInstructor()) {
+      const me = this.auth.currentUser();
+      if (!me) return null;
+      return list.find((i) => i.id === me.id) ?? me;
+    }
+
+    const id = this.selectedInstructorId();
     if (id !== 0) {
       const match = list.find((i) => i.id === id);
       if (match) return match;

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, HostListener, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +27,7 @@ import { CancelSessionDialogComponent } from '../../../shared/components/cancel-
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { fromIsoDate, toIsoDate } from '../../../core/utils/date.utils';
 import { isSameSchoolWeek } from '../../../core/utils/week.utils';
+import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 
 export type StudentStatus = RegisterMark;
 
@@ -88,7 +89,7 @@ function normalizeAttendanceStatus(raw: any): StudentStatus {
   templateUrl: './session-detail.component.html',
   styleUrl: './session-detail.component.scss',
 })
-export class SessionDetailComponent implements OnInit {
+export class SessionDetailComponent implements OnInit, HasUnsavedChanges {
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
   protected readonly clock = inject(ClockFormatService);
 
@@ -335,6 +336,23 @@ export class SessionDetailComponent implements OnInit {
     // and the next save filed a mark for them.
     this.records.set(recs);
     this.isDirty.set(false);
+  }
+
+  /**
+   * Marks typed into the register and not saved. Read by unsavedChangesGuard
+   * before the route changes; leaving used to drop them without a word.
+   */
+  hasUnsavedChanges(): boolean {
+    return this.isDirty() && !this.isAttendanceDisabled();
+  }
+
+  /** Closing or reloading the tab is outside the router, so the browser asks. */
+  @HostListener('window:beforeunload', ['$event'])
+  protected warnBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
   }
 
   countByStatus(status: StudentStatus): number {

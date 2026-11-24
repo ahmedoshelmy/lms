@@ -94,4 +94,18 @@ describe('SessionDetailComponent for a student', () => {
     expect(text).toContain('Omar Ali');
     expect(text).toContain('Save Attendance');
   });
+
+  it('counts marks typed into the register and not saved as unsaved work', () => {
+    role = Role.Instructor;
+    userId = 3;
+    const fixture = TestBed.createComponent(SessionDetailComponent);
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+
+    expect(page.hasUnsavedChanges()).toBe(false);
+
+    page.setStatus(page.records()[1], 'Late');
+
+    expect(page.hasUnsavedChanges()).toBe(true);
+  });
 });
