@@ -2,8 +2,10 @@
   <button
     type="button"
     class="toggle-btn"
-    [attr.aria-label]="isOpen() ? 'Collapse sidebar' : 'Expand sidebar'"
-    [attr.aria-expanded]="isOpen()"
+    [attr.aria-label]="
+      drawer() ? 'Close navigation menu' : isOpen() ? 'Collapse sidebar' : 'Expand sidebar'
+    "
+    [attr.aria-expanded]="drawer() ? null : isOpen()"
     (click)="toggleSidebar()"
   >
     <i [class]="isOpen() ? 'pi pi-chevron-left' : 'pi pi-chevron-right'" aria-hidden="true"></i>

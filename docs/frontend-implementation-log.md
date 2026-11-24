@@ -873,3 +873,29 @@ Everything below was checked as unused before deletion.
   or a group with no course, evaluations, and the availability matrix.
 - **Unconfirmed, left as is:** bulk assign sends `email: ''` for a student without an email,
   as before this work. Whether the server accepts that is a backend question.
+
+## M-01 — The phone menu behaves like a drawer
+
+- **What changed** (`shared/layouts/main-layout`, `shared/components/sidebar`):
+  - **No flash.** The layout knows it is on a phone before its first render. It used to
+    start open and close after rendering, so every page load on a phone flashed the menu
+    across the screen.
+  - **Out of reach when closed.** A closed drawer is off screen and now `inert`, so Tab no
+    longer walks through a dozen invisible links. Its edge toggle no longer peeks out over
+    the page.
+  - **Modal when open.** The page behind it is `inert`. Focus moves into the drawer (its
+    close button, now labelled "Close navigation menu"). Escape or the backdrop closes it
+    and returns focus to the menu button, which now has `aria-expanded`.
+  - **Crossing the breakpoint** (rotating a tablet, resizing): a column on the wide side, a
+    closed drawer on the narrow side.
+  - **Heights use `100dvh`,** with a `100vh` fallback, in the shell, the sidebar and the
+    "Access denied" page. On phones, `100vh` reaches under the browser's address bar and
+    hid the sidebar's sign-out row.
+  - **Safe areas.** `viewport-fit=cover` is set. The phone header, the drawer and the page
+    content keep clear of the notch and the home indicator. The insets are 0 on devices
+    without them.
+- **Validation:** new `main-layout.component.spec.ts`, 4 tests: starts closed and inert;
+  open makes the page inert; Escape closes and returns focus; nothing inert on wide
+  screens. Checked in headless Chrome at 390 × 844: closed is inert with no toggle showing;
+  opening moves focus to "Close navigation menu" and makes the page inert; Escape returns
+  focus to "Open navigation menu". On desktop nothing is inert.

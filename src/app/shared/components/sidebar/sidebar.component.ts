@@ -1,4 +1,4 @@
-import { Component, computed, inject, model, output } from '@angular/core';
+import { Component, computed, inject, input, model, output } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
 import { ROLE_LABELS } from '../../../core/interfaces/Role';
@@ -27,6 +27,8 @@ export class SidebarComponent {
   readonly isDark = this.themeService.isDark;
 
   isOpen = model(true);
+  /** A drawer over the page (phones) rather than a column that collapses. */
+  readonly drawer = input(false);
   menuItemClicked = output<void>();
 
   private readonly currentUser = this.authService.currentUser;

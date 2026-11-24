@@ -17,6 +17,7 @@ import { SessionService } from '../../core/services/session.service';
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      min-height: 100dvh;
       padding: 24px;
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     }

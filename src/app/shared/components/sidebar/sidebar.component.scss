@@ -1,6 +1,9 @@
 .sidebar {
   width: 250px;
   height: 100vh;
+  /* The visible height: 100vh on a phone includes the part under the browser's
+     address bar, which hid the sign-out row. */
+  height: 100dvh;
   background: linear-gradient(
     180deg,
     var(--color-sidebar-bg-from) 0%,
@@ -289,11 +292,23 @@
     position: fixed;
     left: 0;
     top: 0;
-    width: 250px !important;
+    /* Clear of the notch and the home indicator. */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    width: calc(250px + env(safe-area-inset-left)) !important;
+    overscroll-behavior: contain;
   }
 
   .sidebar.closed {
     transform: translateX(-100%);
+    box-shadow: none;
+  }
+
+  /* The page's menu button opens it; the edge toggle used to peek out of a
+     closed drawer over the page. */
+  .sidebar.closed .toggle-btn {
+    display: none;
   }
 
   .sidebar.closed .logo-text,
