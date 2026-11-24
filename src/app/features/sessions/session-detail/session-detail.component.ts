@@ -19,14 +19,14 @@ import {
 import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
 import { cancellationNote } from '../../../core/utils/cancellation.utils';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
-import { AttendanceStatus } from '../../../core/enums/AttendanceStatus';
+import { RegisterMark, buildRegisterPayload } from '../../../core/utils/attendance.utils';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
 import { Candidate } from '../../../core/interfaces/Sales';
 import { SessionSyllabusComponent } from '../../../shared/components/session-syllabus/session-syllabus.component';
 import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 
-export type StudentStatus = 'Pending' | 'Present' | 'Late' | 'Excused' | 'Absent';
+export type StudentStatus = RegisterMark;
 
 export interface StudentAttendanceRecord {
   studentId: number;
@@ -44,21 +44,6 @@ export interface StudentAttendanceRecord {
    */
   taskDone?: boolean | null;
   assignmentDone?: boolean | null;
-}
-
-function statusToApiEnum(status: StudentStatus): AttendanceStatus {
-  switch (status) {
-    case 'Present':
-      return AttendanceStatus.Present;
-    case 'Absent':
-      return AttendanceStatus.Absent;
-    case 'Late':
-      return AttendanceStatus.Late;
-    case 'Excused':
-      return AttendanceStatus.Excused;
-    default:
-      return AttendanceStatus.Present;
-  }
 }
 
 function sessionStatusToApiEnum(statusStr: string): number {
@@ -416,59 +401,30 @@ export class SessionDetailComponent implements OnInit {
     const s = this.session();
     if (!s) return;
 
-    this.saving.set(true);
     const recs = this.records();
+
+    // Sent whole or not at all. The button is already disabled while anyone is
+    // unmarked; this is the backstop, and it takes them to who is left.
+    const bulkPayload = buildRegisterPayload(recs);
+    if (!bulkPayload) {
+      this.rosterStatusFilter.set('Pending');
+      this.notify.showWarn('Mark everyone before saving the register.');
+      return;
+    }
+
+    this.saving.set(true);
 
     const cacheMap: Record<string, { status: string; recordId?: number }> = {};
     recs.forEach((r) => {
       cacheMap[r.studentId] = { status: r.status, recordId: r.recordId };
     });
 
-    const bulkPayload = recs.map((r) => ({
-      studentId: r.studentId,
-      status: statusToApiEnum(r.status),
-      taskDone: r.taskDone ?? null,
-      assignmentDone: r.assignmentDone ?? null,
-    }));
-
+    // No per-student retry on failure. It used to resend the register one child
+    // at a time after any error -- a refusal included -- which multiplied the
+    // error by the size of the class and dropped the task and assignment marks.
     this.lms.saveBulkAttendance(s.id, bulkPayload).subscribe({
       next: () => this.finishSave(cacheMap, false),
-      error: () => {
-        let completed = 0;
-        let hasError = false;
-        recs.forEach((r) => {
-          const numericStatus = statusToApiEnum(r.status);
-          if (r.recordId) {
-            this.lms.updateAttendance(r.recordId, { status: numericStatus }).subscribe({
-              next: () => {
-                completed++;
-                if (completed === recs.length) this.finishSave(cacheMap, hasError);
-              },
-              error: () => {
-                hasError = true;
-                completed++;
-                if (completed === recs.length) this.finishSave(cacheMap, hasError);
-              },
-            });
-          } else {
-            this.lms
-              .createAttendance({ sessionId: s.id, studentId: r.studentId, status: numericStatus })
-              .subscribe({
-                next: (res: any) => {
-                  if (res && res.id) r.recordId = res.id;
-                  completed++;
-                  if (completed === recs.length) this.finishSave(cacheMap, hasError);
-                },
-                error: () => {
-                  hasError = true;
-                  completed++;
-                  if (completed === recs.length) this.finishSave(cacheMap, hasError);
-                },
-              });
-          }
-        });
-        if (recs.length === 0) this.finishSave(cacheMap, true);
-      },
+      error: () => this.finishSave(cacheMap, true),
     });
   }
 

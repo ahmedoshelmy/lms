@@ -341,6 +341,17 @@
                 Past the window — recorded by operations
               </span>
             }
+            @if (pendingCount() > 0) {
+              <!-- Says who is left rather than just greying the button out. -->
+              <button
+                type="button"
+                class="attendance-unmarked"
+                (click)="rosterStatusFilter.set('Pending')"
+              >
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                {{ pendingCount() }} not marked yet
+              </button>
+            }
             <button
               type="button"
               class="action-btn action-btn--secondary"
@@ -353,7 +364,8 @@
               type="button"
               class="action-btn action-btn--primary"
               (click)="saveAttendance()"
-              [disabled]="saving() || !isDirty()"
+              [disabled]="saving() || !isDirty() || pendingCount() > 0"
+              [attr.title]="pendingCount() > 0 ? 'Mark everyone before saving' : null"
             >
               @if (saving()) {
                 <i class="pi pi-spin pi-spinner"></i> Saving...
@@ -412,6 +424,16 @@
           >
             All ({{ totalCount() }})
           </button>
+          @if (pendingCount() > 0) {
+            <button
+              type="button"
+              class="filter-pill filter-pill--pending"
+              [class.filter-pill--active]="rosterStatusFilter() === 'Pending'"
+              (click)="rosterStatusFilter.set('Pending')"
+            >
+              Not marked ({{ pendingCount() }})
+            </button>
+          }
           @if (presentCount() > 0) {
             <button
               type="button"
