@@ -818,3 +818,16 @@ Everything below was checked as unused before deletion.
 - **Validation:** 37 files / 183 tests ✔. The new test switches month mid-run and expects
   every report from the original month; it fails against the old code. Lint 0 errors;
   build ✔.
+
+## W-06 — The dashboard asks only for what the role sees
+
+- **What changed:** `DashboardComponent.ngOnInit` loads its four instructor-view requests
+  (two schedule fetches, courses, attendance summary) only for the instructor view. Admin,
+  Sales and Students each see their own overview component, which loads its own data.
+  The four requests used to go out for every role and be discarded, and a refused one
+  showed an error on that person's home page.
+- **Validation:** 38 files / 187 tests ✔ (new: an instructor triggers the loads; Admin,
+  Sales and Student send none). Lint 0 errors.
+- **W-07 (certificates issued and recorded on the server):** not done. It needs a backend
+  endpoint to record an issued certificate; the frontend only builds the PDF. Recorded as a
+  backend dependency.

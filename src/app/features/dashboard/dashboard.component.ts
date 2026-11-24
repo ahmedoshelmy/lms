@@ -368,6 +368,13 @@ export class DashboardComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
+    // Sales, students and admin each get their own overview, which loads its
+    // own data. These four requests are for the instructor view; they used to
+    // be sent for every role and thrown away -- and a refused one put an error
+    // on somebody's home page.
+    if (this.isSales() || this.isStudent() || this.isAdmin()) {
+      return;
+    }
     this.loadUpcoming();
     this.loadCounts();
     this.loadAllSessions();
