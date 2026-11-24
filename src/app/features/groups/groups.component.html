@@ -68,15 +68,38 @@
     <div
       class="mb-6 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs"
     >
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
+      <div class="flex items-center justify-between sm:mb-3">
+        <div class="max-sm:hidden flex items-center gap-2">
           <i class="pi pi-filter text-xs text-[var(--color-secondary)]"></i>
           <span class="text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider"
             >Filters</span
           >
         </div>
+        <!-- Phones: folded until asked for. Five dropdowns open filled the first
+             screen before a single group showed. -->
+        <button
+          type="button"
+          class="sm:hidden flex items-center gap-2 text-xs font-black text-[var(--color-text-primary)] uppercase tracking-wider cursor-pointer"
+          aria-controls="group-filters"
+          [attr.aria-expanded]="filtersOpen()"
+          (click)="filtersOpen.set(!filtersOpen())"
+        >
+          <i class="pi pi-filter text-xs text-[var(--color-secondary)]" aria-hidden="true"></i>
+          Filters
+          @if (hasActiveFilters()) {
+            <span class="w-2 h-2 rounded-full bg-[var(--color-secondary)]"></span>
+            <span class="sr-only">(some are on)</span>
+          }
+          <i
+            class="pi text-[10px]"
+            [class.pi-chevron-down]="!filtersOpen()"
+            [class.pi-chevron-up]="filtersOpen()"
+            aria-hidden="true"
+          ></i>
+        </button>
         @if (hasActiveFilters()) {
           <button
+            type="button"
             (click)="clearAllFilters()"
             class="text-xs font-bold text-error-foreground hover:underline cursor-pointer"
           >
@@ -85,7 +108,11 @@
         }
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+      <div
+        id="group-filters"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 max-sm:mt-3"
+        [class.max-sm:hidden]="!filtersOpen()"
+      >
         <div>
           <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
             >Course</label
@@ -476,7 +503,7 @@
                 </span>
 
                 <i
-                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/card:opacity-100 transition-opacity"
+                  class="pi pi-arrow-right text-xs text-[var(--color-secondary)] opacity-0 group-hover/card:opacity-100 group-focus-visible/card:opacity-100 pointer-coarse:opacity-100 transition-opacity"
                 ></i>
 
                 @if (isAdmin()) {

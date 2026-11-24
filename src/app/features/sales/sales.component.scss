@@ -808,6 +808,16 @@
     height: 15px;
     accent-color: var(--color-secondary);
   }
+
+  /* A finger's worth on touch screens: the whole label is the target. */
+  @media (pointer: coarse) {
+    min-height: 40px;
+
+    input {
+      width: 20px;
+      height: 20px;
+    }
+  }
 }
 
 .input {

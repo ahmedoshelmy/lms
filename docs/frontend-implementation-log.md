@@ -946,3 +946,32 @@ Everything below was checked as unused before deletion.
   load is a failure, not "none"). All batches pass, exit 0: 41 files / 196 tests. Lint 0
   errors. Screenshots at 320 and 390 px: no overflow on any page; the register, group page,
   Attendance and Monthly reports checked by eye.
+
+## M-03 — Touch targets, and nothing only on hover
+
+- **Touch sizes** (`src/styles.css`, for `(pointer: coarse)` only; desktop with a mouse is
+  unchanged):
+  - **Buttons, selects and inputs** in the page and in dialogs are at least 40 px. A survey
+    at 390 px with touch emulation found most controls drawn 24–31 px tall (text-xs with
+    small padding) and some under 24 px: the group page's "Groups" breadcrumb and "Edit"
+    at 16 px, the students search at 16 px.
+  - **Checkboxes** are 20 px.
+  - **Exceptions:** buttons placed inside a field (`.absolute`, such as "clear search")
+    keep their size, and `.touch-compact` opts out. Icons inside fields are re-centred for
+    the taller inputs.
+  - **Sales checkbox labels** are 40 px tall on touch, so the whole label is the target.
+  - **After:** no control under 24 px on the eight pages surveyed (register, group page,
+    groups, attendance, sales, students, schedule, monthly reports). The one left at
+    24–31 px is an inline breadcrumb link.
+- **Hover-only:** four "Open →" hints on clickable cards (attendance sessions, groups,
+  weekly schedule ×2) were `opacity-0` until hovered, so touch users never saw them. They
+  now also show on touch screens (`pointer-coarse:`) and on keyboard focus. Nothing was
+  unreachable; the cards are clickable all over.
+- **Groups list on phones:** the five filter dropdowns fold behind "Filters", with a dot
+  when any is on, as on Attendance. The groups now start on the first screen.
+- **Size budget:** the phone register styles moved to `session-register.phone.scss`, a
+  second stylesheet on the same component. With them, `session-detail.component.scss` went
+  653 bytes over the 24 kB per-stylesheet warning budget. The bytes shipped are the same;
+  splitting the component (F-09) is the real fix.
+- **Validation:** lint 0 errors, format ✔, production build ✔ (585.23 kB initial, no budget
+  warnings). Before/after survey and screenshots as above.

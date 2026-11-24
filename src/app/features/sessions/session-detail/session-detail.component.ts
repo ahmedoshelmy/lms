@@ -87,7 +87,7 @@ function normalizeAttendanceStatus(raw: any): StudentStatus {
     CancelSessionDialogComponent,
   ],
   templateUrl: './session-detail.component.html',
-  styleUrl: './session-detail.component.scss',
+  styleUrls: ['./session-detail.component.scss', './session-register.phone.scss'],
 })
 export class SessionDetailComponent implements OnInit, HasUnsavedChanges {
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */

@@ -270,6 +270,35 @@
   }
 }
 
+/* Touch screens: every control a finger can hit. Most buttons, chips and
+   inputs here are drawn 24-31 px tall (text-xs with small padding), and a few
+   text buttons 16 px. One rule for (pointer: coarse) rather than hundreds of
+   class edits; desktop, with a mouse, is unchanged.
+   - A button positioned inside a field (`.absolute`, such as "clear search")
+     keeps its size; `.touch-compact` opts out where a design needs it.
+   - Inputs grew from about 30 px, so icons drawn inside them are re-centred. */
+@media (pointer: coarse) {
+  :is(main, .p-dialog) :is(button, select, [role='button']):not(.absolute, .touch-compact) {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  :is(main, .p-dialog)
+    :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden']), textarea) {
+    min-height: 40px;
+  }
+
+  :is(main, .p-dialog) :is(input[type='checkbox'], input[type='radio']) {
+    width: 20px;
+    height: 20px;
+  }
+
+  :is(main, .p-dialog) .relative:has(> input) > :is(i, button).absolute {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
 /* Dialogs on phones: a full-width sheet along the bottom.
    The app's 51 PrimeNG dialogs each set an inline width (width: 100%, with a
    max-width of 420-780 px), so on a phone they sat centred, edge to edge with

@@ -76,6 +76,8 @@ export class GroupsComponent implements OnInit {
   loading = signal(true);
   searchQuery = signal('');
   statusFilter = signal('All');
+  /** Phones only: whether the filter dropdowns are unfolded. */
+  readonly filtersOpen = signal(false);
   courseFilter = signal('');
   topicFilter = signal('');
   instructorFilter = signal('');

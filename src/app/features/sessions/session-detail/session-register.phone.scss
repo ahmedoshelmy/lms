@@ -1,0 +1,141 @@
+// The register on phones, kept apart from session-detail.component.scss, which
+// is at its size budget. Splitting the component itself is F-09.
+
+/*
+ * Phones: the register as one card per student -- name and status on top, the
+ * two marks under them, and the four status buttons across the bottom at a
+ * thumb's size. As a six-column table it scrolled sideways, and the buttons an
+ * instructor needs most sat off screen to the right.
+ */
+@media (max-width: 639px) {
+  .roster-table-wrap:has(.roster-table--register) {
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .roster-table--register {
+    display: block;
+
+    thead {
+      /* Kept for screen readers, out of sight. */
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .roster-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      /* Both marks share one row across the card, so only the status badge
+         sizes the right-hand column and the name keeps the rest. */
+      grid-template-areas:
+        'student status'
+        'marks marks'
+        'actions actions';
+      align-items: center;
+      gap: 10px 12px;
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      background: var(--color-surface);
+    }
+
+    .roster-td {
+      display: block;
+      padding: 0;
+      border: none;
+      width: auto;
+      text-align: left;
+    }
+
+    .roster-td--index {
+      display: none;
+    }
+
+    .roster-td--student {
+      grid-area: student;
+      min-width: 0;
+    }
+
+    .roster-td--status {
+      grid-area: status;
+      justify-self: end;
+    }
+
+    .roster-td--task {
+      grid-area: marks;
+      justify-self: start;
+    }
+
+    .roster-td--assignment {
+      grid-area: marks;
+      justify-self: end;
+    }
+
+    .roster-td--mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &::before {
+        content: attr(data-label);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+      }
+    }
+
+    .roster-td--actions {
+      grid-area: actions;
+    }
+
+    .student-email {
+      display: none;
+    }
+
+    /* The whole name: on a card there is room to wrap, and "Om..." is nobody. */
+    .student-name {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      overflow-wrap: anywhere;
+    }
+
+    .status-btns {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    /* Words under the icons: there is no hover tooltip on a touch screen, and
+       a shield does not say "Excused" by itself. */
+    .status-btn {
+      flex: 1;
+      flex-direction: column;
+      gap: 2px;
+      height: 48px;
+      font-size: 14px;
+    }
+
+    .status-btn__label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .mark {
+      width: 44px;
+      height: 44px;
+      font-size: 15px;
+    }
+  }
+}
