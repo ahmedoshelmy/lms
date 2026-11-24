@@ -14,11 +14,19 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { Course } from '../../core/interfaces/Course';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { latestRequest } from '../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, ButtonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ProgressSpinnerModule,
+    DialogModule,
+    ButtonModule,
+    LoadErrorComponent,
+  ],
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss',
 })
@@ -36,6 +44,9 @@ export class HistoryComponent implements OnInit {
 
   activeTab = signal<'groups' | 'sessions'>('groups');
   loading = signal(true);
+  /** A failed load, said as such: it used to read "No ... records found". */
+  readonly groupsFailed = signal(false);
+  readonly sessionsFailed = signal(false);
   searchQuery = signal('');
   statusFilter = signal('All');
   groupFilter = signal<number | 'All'>('All');
@@ -56,6 +67,7 @@ export class HistoryComponent implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
+    this.groupsFailed.set(false);
 
     this.lmsService.getCourses().subscribe({
       next: (courses) => this.courses.set(courses),
@@ -68,6 +80,7 @@ export class HistoryComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
+        this.groupsFailed.set(true);
         this.loading.set(false);
       },
     });
@@ -88,8 +101,11 @@ export class HistoryComponent implements OnInit {
       .getSessionHistory(filterObj)
       .pipe(this.historyRequest.latest())
       .subscribe({
-        next: (sessions) => this.sessionsHistory.set(sessions),
-        error: () => {},
+        next: (sessions) => {
+          this.sessionsFailed.set(false);
+          this.sessionsHistory.set(sessions);
+        },
+        error: () => this.sessionsFailed.set(true),
       });
   }
 

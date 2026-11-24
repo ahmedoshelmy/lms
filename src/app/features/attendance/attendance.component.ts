@@ -56,6 +56,9 @@ export class AttendanceComponent implements OnInit {
 
   sessions = signal<ScheduleSession[]>([]);
   loading = signal(false);
+  /** Phones only: whether the filters below the search are unfolded. */
+  readonly filtersOpen = signal(false);
+
   searchQuery = signal('');
   sessionStatusFilter = signal<SessionStatusFilter>('all');
   selectedGroupFilter = signal<string>('all');

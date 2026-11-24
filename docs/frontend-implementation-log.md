@@ -899,3 +899,50 @@ Everything below was checked as unused before deletion.
   screens. Checked in headless Chrome at 390 × 844: closed is inert with no toggle showing;
   opening moves focus to "Close navigation menu" and makes the page inert; Escape returns
   focus to "Open navigation menu". On desktop nothing is inert.
+
+## M-02 — Pages fit a phone
+
+- **Method:** every page loaded at 320 px in headless Chrome. A script listed any element
+  reaching past the screen's edge. The shell clips sideways overflow, so too-wide content is
+  cut off, not scrollable, and the page width alone shows nothing. The session page, the
+  group page and the groups list were also loaded with made-up data: the screenshot script
+  can now answer API calls on a localhost-only path with fixed JSON, so nothing leaves the
+  machine.
+- **Grids:** nine `minmax(Npx, 1fr)` columns of 180 px or more become `minmax(min(Npx,
+100%), 1fr)`. They overflowed a 320 px phone, where the content is about 288 px wide.
+- **Session register on phones:** a card per student instead of a six-column table that
+  scrolled sideways with the status buttons off screen. Name and status sit on top, Task
+  and Assignment under them, and the four status buttons fill the bottom row at 48 px with
+  their words under the icons (a touch screen has no tooltip). CSS only, below 640 px;
+  desktop is unchanged. The buttons gained `aria-label` ("Mark Sara Ahmed late") and
+  `aria-pressed`.
+  - **Bug fixed on every screen size:** the selected status button was never highlighted.
+    `&--active` nested in `&--present` compiled to `.status-btn--present--active`, a class
+    nothing sets.
+- **Group page:** the header (breadcrumb and four actions) stacks and wraps. In one row it
+  squeezed the group's name to a word a line and pushed "Promote" and the rest off screen.
+  The course and student section headers wrap too, and cards use 16 px padding on phones.
+- **Groups list:** the status tabs scroll sideways when they don't fit ("Archived" was cut
+  off at 320 px). They are now `type="button"` with `aria-pressed`.
+- **Filters on phones:**
+  - **Attendance:** the search stays, and the dropdowns and chips fold behind a "Filters and
+    sorting" button with a dot when any is on. The list now starts at 390 px down instead of 577.
+  - **Monthly reports:** the five tallies are one row of chips that scrolls sideways, not
+    three rows of cards. The fields fill the width. The list starts at 468 px, not 676.
+    Tallies have `aria-pressed`.
+- **Failed loads shown as empty** (found by the sweep, missed in F-04):
+  - **History:** said "No group course history records found."
+  - **Schedule:** said "No instructors found — add instructor accounts", and a failed week
+    looked empty.
+
+  Both now show `app-load-error` with a retry. Schedule's request now passes its query
+  through `HttpParams` instead of building the string.
+
+- **Test fix:** the Phase 3 test for deleting a class navigated to `/schedule`, which its
+  router did not know. Vitest reported an unhandled error and exited non-zero, so CI would
+  have failed. My filtered output hid it. The spec now has the route, and test runs are
+  checked by exit code.
+- **Validation:** new `history.component.spec.ts` and `schedule.component.spec.ts` (a failed
+  load is a failure, not "none"). All batches pass, exit 0: 41 files / 196 tests. Lint 0
+  errors. Screenshots at 320 and 390 px: no overflow on any page; the register, group page,
+  Attendance and Monthly reports checked by eye.

@@ -14,7 +14,8 @@ import { ScheduleAnalyticsComponent } from './components/schedule-analytics/sche
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 import { Role, parseRole } from '../../core/interfaces/Role';
 import { InstructorAvailability, InstructorTimeOff } from '../../core/interfaces/Availability';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
@@ -45,6 +46,7 @@ export type ExtendedViewMode =
     SelectModule,
     DialogModule,
     ProgressSpinnerModule,
+    LoadErrorComponent,
     WeeklyScheduleComponent,
     SessionDetailPanelComponent,
     DailyScheduleMatrixComponent,
@@ -192,6 +194,23 @@ export class ScheduleComponent implements OnInit {
   densityMode = signal<DensityMode>('compact');
 
   loading = signal(false);
+  /**
+   * A failed load, said as such. A failed instructor list used to read "No
+   * instructors found -- add instructor accounts", and a failed week an empty one.
+   */
+  readonly instructorsFailed = signal(false);
+  readonly scheduleFailed = signal(false);
+  readonly loadFailed = computed(
+    () => (this.viewsAllInstructors && this.instructorsFailed()) || this.scheduleFailed()
+  );
+
+  retryLoad(): void {
+    if (this.viewsAllInstructors && this.instructorsFailed()) {
+      this.loadInstructors();
+    } else {
+      this.loadSchedule();
+    }
+  }
   selectedSession = signal<ScheduleSession | null>(null);
   cancelledWarningDismissed = signal(false);
 
@@ -411,6 +430,7 @@ export class ScheduleComponent implements OnInit {
 
   loadInstructors(): void {
     this.loading.set(true);
+    this.instructorsFailed.set(false);
     this.lmsService.getScheduleInstructors().subscribe({
       next: (users) => {
         const filtered = (users || []).filter(
@@ -431,6 +451,7 @@ export class ScheduleComponent implements OnInit {
         }
       },
       error: () => {
+        this.instructorsFailed.set(true);
         this.loading.set(false);
       },
     });
@@ -440,19 +461,21 @@ export class ScheduleComponent implements OnInit {
     const userId = this.selectedInstructorId();
 
     this.loading.set(true);
+    this.scheduleFailed.set(false);
     const fromDate = new Date(this.currentWeekStart());
     const toDate = new Date(this.currentWeekStart());
     toDate.setDate(toDate.getDate() + 7);
 
-    let url = `${this.lmsService.getApiUrl()}/schedule?from=${fromDate.toISOString()}&to=${toDate.toISOString()}`;
+    // Instants, not calendar dates, so toISOString is right here.
+    let params = new HttpParams()
+      .set('from', fromDate.toISOString())
+      .set('to', toDate.toISOString());
     if (userId && userId !== 0) {
-      url += `&instructorId=${userId}&userId=${userId}`;
+      params = params.set('instructorId', userId).set('userId', userId);
     }
 
-    const headers: Record<string, string> = {};
-
     this.http
-      .get<ScheduleSession[]>(url, { headers })
+      .get<ScheduleSession[]>(`${this.lmsService.getApiUrl()}/schedule`, { params })
       .pipe(this.scheduleRequest.latest())
       .subscribe({
         next: (res) => {
@@ -494,6 +517,7 @@ export class ScheduleComponent implements OnInit {
           }
         },
         error: () => {
+          this.scheduleFailed.set(true);
           this.loading.set(false);
         },
       });

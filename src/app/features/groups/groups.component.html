@@ -24,16 +24,19 @@
       </div>
 
       <!-- Quick Status Filter Pills -->
+      <!-- Scrolls sideways when it does not fit: on a small phone "Archived" was cut off. -->
       <div
-        class="flex rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5"
+        class="flex max-w-full overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5"
       >
         @for (s of statusFilters; track s) {
           <button
+            type="button"
+            [attr.aria-pressed]="statusFilter() === s"
             (click)="statusFilter.set(s)"
             [class.bg-[var(--color-secondary)]]="statusFilter() === s"
             [class.text-white]="statusFilter() === s"
             [class.text-[var(--color-text-secondary)]]="statusFilter() !== s"
-            class="px-3 py-1 text-xs font-bold transition-all rounded-lg cursor-pointer"
+            class="shrink-0 whitespace-nowrap px-3 py-1 text-xs font-bold transition-all rounded-lg cursor-pointer"
           >
             {{ s }}
           </button>

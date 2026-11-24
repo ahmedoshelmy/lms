@@ -46,6 +46,12 @@
   flex-direction: column;
   gap: 4px;
   min-width: 180px;
+  /* Fills the row on a phone instead of stopping at 180px. */
+  flex: 1 1 180px;
+
+  @media (min-width: 900px) {
+    flex: 0 0 auto;
+  }
 
   &__label {
     font-size: 11px;
@@ -413,4 +419,32 @@
   background: color-mix(in srgb, var(--color-warning) 18%, transparent);
   color: var(--color-warning-foreground);
   cursor: help;
+}
+
+/*
+ * Phones: the five tallies as one row of chips that scrolls sideways. As
+ * cards they took three rows and pushed the list below the first screen.
+ */
+@media (max-width: 639px) {
+  .tallies {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    margin-inline: -16px;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+  }
+
+  .tally {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
+  }
+
+  .tally__value {
+    font-size: 15px;
+  }
 }

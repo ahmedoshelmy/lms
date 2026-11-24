@@ -105,7 +105,9 @@
   }
 
   <!-- TAB 1: GROUP COURSE HISTORY -->
-  @if (!loading() && activeTab() === 'groups') {
+  @if (!loading() && activeTab() === 'groups' && groupsFailed()) {
+    <app-load-error title="Group history could not be loaded" (retry)="loadData()" />
+  } @else if (!loading() && activeTab() === 'groups') {
     <div class="space-y-4">
       @if (filteredGroupsHistory().length === 0) {
         <div class="text-center py-12 text-[var(--color-secondary)]">
@@ -208,7 +210,9 @@
   }
 
   <!-- TAB 2: SESSION & EVENT AUDIT LOG -->
-  @if (!loading() && activeTab() === 'sessions') {
+  @if (!loading() && activeTab() === 'sessions' && sessionsFailed()) {
+    <app-load-error title="The session log could not be loaded" (retry)="loadSessionsHistory()" />
+  } @else if (!loading() && activeTab() === 'sessions') {
     <div
       class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] shadow-xs overflow-hidden"
     >

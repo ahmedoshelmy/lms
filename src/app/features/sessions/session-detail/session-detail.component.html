@@ -516,7 +516,7 @@
           </div>
         } @else {
           <div class="roster-table-wrap">
-            <table class="roster-table">
+            <table class="roster-table roster-table--register">
               <thead>
                 <tr>
                   <th class="roster-th">#</th>
@@ -546,12 +546,12 @@
                         </div>
                       </div>
                     </td>
-                    <td class="roster-td">
+                    <td class="roster-td roster-td--status">
                       <span class="record-badge" [ngClass]="getRecordStatusClass(rec.status)">{{
                         rec.status
                       }}</span>
                     </td>
-                    <td class="roster-td roster-td--mark">
+                    <td class="roster-td roster-td--mark roster-td--task" data-label="Task">
                       <button
                         type="button"
                         class="mark"
@@ -575,7 +575,10 @@
                         ></i>
                       </button>
                     </td>
-                    <td class="roster-td roster-td--mark">
+                    <td
+                      class="roster-td roster-td--mark roster-td--assignment"
+                      data-label="Assignment"
+                    >
                       <button
                         type="button"
                         class="mark"
@@ -610,8 +613,11 @@
                             [class.status-btn--active]="rec.status === 'Present'"
                             (click)="setStatus(rec, 'Present')"
                             title="Mark Present"
+                            [attr.aria-label]="'Mark ' + rec.studentName + ' present'"
+                            [attr.aria-pressed]="rec.status === 'Present'"
                           >
-                            <i class="pi pi-check"></i>
+                            <i class="pi pi-check" aria-hidden="true"></i>
+                            <span class="status-btn__label">Present</span>
                           </button>
                           <button
                             type="button"
@@ -619,8 +625,11 @@
                             [class.status-btn--active]="rec.status === 'Absent'"
                             (click)="setStatus(rec, 'Absent')"
                             title="Mark Absent"
+                            [attr.aria-label]="'Mark ' + rec.studentName + ' absent'"
+                            [attr.aria-pressed]="rec.status === 'Absent'"
                           >
-                            <i class="pi pi-times"></i>
+                            <i class="pi pi-times" aria-hidden="true"></i>
+                            <span class="status-btn__label">Absent</span>
                           </button>
                           <button
                             type="button"
@@ -628,8 +637,11 @@
                             [class.status-btn--active]="rec.status === 'Late'"
                             (click)="setStatus(rec, 'Late')"
                             title="Mark Late"
+                            [attr.aria-label]="'Mark ' + rec.studentName + ' late'"
+                            [attr.aria-pressed]="rec.status === 'Late'"
                           >
-                            <i class="pi pi-clock"></i>
+                            <i class="pi pi-clock" aria-hidden="true"></i>
+                            <span class="status-btn__label">Late</span>
                           </button>
                           <button
                             type="button"
@@ -637,8 +649,11 @@
                             [class.status-btn--active]="rec.status === 'Excused'"
                             (click)="setStatus(rec, 'Excused')"
                             title="Mark Excused"
+                            [attr.aria-label]="'Mark ' + rec.studentName + ' excused'"
+                            [attr.aria-pressed]="rec.status === 'Excused'"
                           >
-                            <i class="pi pi-shield"></i>
+                            <i class="pi pi-shield" aria-hidden="true"></i>
+                            <span class="status-btn__label">Excused</span>
                           </button>
                         </div>
                       </td>

@@ -45,7 +45,8 @@ describe('SessionDetailComponent for a student', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideRouter([]),
+        // Somewhere to go after a delete.
+        provideRouter([{ path: 'schedule', children: [] }]),
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: convertToParamMap({ id: '7' }) } },

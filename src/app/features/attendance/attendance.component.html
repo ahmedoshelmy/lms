@@ -57,15 +57,41 @@
           <button
             type="button"
             class="absolute right-2.5 top-2 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+            aria-label="Clear the search"
             (click)="searchQuery.set('')"
           >
-            <i class="pi pi-times"></i>
+            <i class="pi pi-times" aria-hidden="true"></i>
           </button>
         }
       </div>
 
+      <!-- Phones: the search stays, the rest folds away behind this. Open, the
+           filters filled the first screen before a single class showed. -->
+      <button
+        type="button"
+        class="sm:hidden flex items-center justify-between w-full px-3 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs font-bold text-[var(--color-text-primary)] cursor-pointer"
+        aria-controls="attendance-filters"
+        [attr.aria-expanded]="filtersOpen()"
+        (click)="filtersOpen.set(!filtersOpen())"
+      >
+        <span class="flex items-center gap-2">
+          <i class="pi pi-sliders-h" aria-hidden="true"></i>
+          Filters and sorting
+          @if (hasActiveFilters()) {
+            <span class="w-2 h-2 rounded-full bg-[var(--color-secondary)]"></span>
+            <span class="sr-only">(some are on)</span>
+          }
+        </span>
+        <i
+          class="pi text-[10px]"
+          [class.pi-chevron-down]="!filtersOpen()"
+          [class.pi-chevron-up]="filtersOpen()"
+          aria-hidden="true"
+        ></i>
+      </button>
+
       <!-- Group Filter -->
-      <div>
+      <div [class.max-sm:hidden]="!filtersOpen()">
         <select
           [ngModel]="selectedGroupFilter()"
           (ngModelChange)="setGroupFilter($event)"
@@ -80,7 +106,7 @@
 
       <!-- Instructor Filter (Admin) -->
       @if (isAdmin()) {
-        <div>
+        <div [class.max-sm:hidden]="!filtersOpen()">
           <select
             [ngModel]="selectedInstructorFilter()"
             (ngModelChange)="setInstructorFilter($any($event))"
@@ -94,7 +120,7 @@
       }
 
       <!-- Sort By Dropdown -->
-      <div>
+      <div [class.max-sm:hidden]="!filtersOpen()">
         <select
           [ngModel]="sortBy()"
           (ngModelChange)="sortBy.set($event)"
@@ -110,6 +136,8 @@
 
     <!-- Row 2: Status Pills & Date Range Filter -->
     <div
+      id="attendance-filters"
+      [class.max-sm:hidden]="!filtersOpen()"
       class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-[var(--color-border)]"
     >
       <!-- Status Pills -->

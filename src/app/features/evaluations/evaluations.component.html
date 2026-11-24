@@ -83,6 +83,7 @@
         type="button"
         class="tally"
         [class.tally--on]="statusFilter() === tally.key"
+        [attr.aria-pressed]="statusFilter() === tally.key"
         (click)="statusFilter.set($any(tally.key))"
       >
         <span class="tally__value">{{ tally.value }}</span>

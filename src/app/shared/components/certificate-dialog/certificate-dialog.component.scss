@@ -36,7 +36,7 @@
 /* Per-certificate wording, shown once the row is going to be printed. */
 .cert-row__edit {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
   gap: 10px;
   margin-top: 10px;
   padding-top: 10px;
