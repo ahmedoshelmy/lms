@@ -213,7 +213,7 @@
                             <button
                               type="button"
                               class="btn btn--primary"
-                              [disabled]="releasing() === row.id"
+                              [disabled]="isReleasing(row.id)"
                               (click)="release(row, $event)"
                             >
                               Release
@@ -222,7 +222,7 @@
                             <button
                               type="button"
                               class="btn btn--ghost"
-                              [disabled]="releasing() === row.id"
+                              [disabled]="isReleasing(row.id)"
                               (click)="withdraw(row, $event)"
                               title="Take it back to correct something"
                             >

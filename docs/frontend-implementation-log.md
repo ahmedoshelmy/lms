@@ -804,3 +804,17 @@ Everything below was checked as unused before deletion.
     requesting it for students.)
 - **Validation:** 36 files / 182 tests ✔ (new: a student in two groups, plus one they left,
   sees exactly the two current groups' courses). Lint 0 errors; build ✔.
+
+## W-05 — Monthly reports list: per-row actions; "save them all" holds its month
+
+- **What changed:**
+  - **Release / withdraw:** tracked per report (`releasing` is a set, `isReleasing(id)`).
+    One id used to be shared by every row, so starting a second re-enabled the first
+    row's buttons and allowed a double release.
+  - **"Save them all":** takes the rows and the month once at the start, and stops if the
+    page is left (a `DestroyRef` flag). It used to read the live month for each report, so
+    changing month mid-run fetched the rest from the new month and mixed two months' PDFs.
+    It also kept downloading in the background after the person left.
+- **Validation:** 37 files / 183 tests ✔. The new test switches month mid-run and expects
+  every report from the original month; it fails against the old code. Lint 0 errors;
+  build ✔.

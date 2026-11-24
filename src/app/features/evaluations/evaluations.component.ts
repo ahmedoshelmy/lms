@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -36,6 +36,10 @@ export class EvaluationsComponent implements OnInit {
   private router = inject(Router);
   private pdf = inject(MonthlyReportPdfService);
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => (this.destroyed = true));
+  }
+
   protected readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
   protected loading = signal(false);
@@ -46,7 +50,27 @@ export class EvaluationsComponent implements OnInit {
   /** One instructor's children, or everybody's. Held by name, which is what
       the row carries and what the person choosing is reading. */
   protected instructorFilter = signal<string>('All');
-  protected releasing = signal<number | null>(null);
+  /**
+   * Reports with a release or withdrawal in flight. One id used to be shared by
+   * every row, so starting a second re-enabled the first one's buttons.
+   */
+  protected releasing = signal<ReadonlySet<number>>(new Set());
+
+  protected isReleasing(id: number | null | undefined): boolean {
+    return id != null && this.releasing().has(id);
+  }
+
+  private setReleasing(id: number, on: boolean): void {
+    this.releasing.update((set) => {
+      const next = new Set(set);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  /** Set when the page goes away, to stop a "save them all" run part-way. */
+  private destroyed = false;
 
   /** Which row is fetching its report to save, keyed by child and group. */
   protected saving = signal<string | null>(null);
@@ -248,14 +272,16 @@ export class EvaluationsComponent implements OnInit {
     event.stopPropagation();
     if (!row.id) return;
 
-    this.releasing.set(row.id);
-    this.lms.releaseEvaluation(row.id).subscribe({
+    const id = row.id;
+    if (this.isReleasing(id)) return;
+    this.setReleasing(id, true);
+    this.lms.releaseEvaluation(id).subscribe({
       next: () => {
         this.notify.showSuccess(`${row.studentName}'s report is released.`);
-        this.releasing.set(null);
+        this.setReleasing(id, false);
         this.load();
       },
-      error: () => this.releasing.set(null),
+      error: () => this.setReleasing(id, false),
     });
   }
 
@@ -263,14 +289,16 @@ export class EvaluationsComponent implements OnInit {
     event.stopPropagation();
     if (!row.id) return;
 
-    this.releasing.set(row.id);
-    this.lms.withdrawEvaluation(row.id).subscribe({
+    const id = row.id;
+    if (this.isReleasing(id)) return;
+    this.setReleasing(id, true);
+    this.lms.withdrawEvaluation(id).subscribe({
       next: () => {
         this.notify.showSuccess(`${row.studentName}'s report is back with operations.`);
-        this.releasing.set(null);
+        this.setReleasing(id, false);
         this.load();
       },
-      error: () => this.releasing.set(null),
+      error: () => this.setReleasing(id, false),
     });
   }
 
@@ -306,7 +334,7 @@ export class EvaluationsComponent implements OnInit {
 
     this.saving.set(this.rowKey(row));
     try {
-      await this.saveOne(row);
+      await this.saveOne(row, this.month());
     } catch {
       this.notify.showError(`Could not build ${row.studentName}'s report.`);
     } finally {
@@ -321,17 +349,22 @@ export class EvaluationsComponent implements OnInit {
    * Chrome asks once per site before allowing more than one.
    */
   protected async saveAll(): Promise<void> {
+    // Taken once: the run takes a while, and the month on screen may change
+    // before it ends. Reading it live used to fetch the rest from the new month.
     const rows = this.saveable();
+    const month = this.month();
     if (rows.length === 0) return;
 
     this.bulk.set({ done: 0, total: rows.length });
 
     let failed = 0;
     for (const [index, row] of rows.entries()) {
+      // Left the page: stop rather than keep downloading files in the background.
+      if (this.destroyed) return;
       this.bulk.set({ done: index + 1, total: rows.length });
 
       try {
-        await this.saveOne(row);
+        await this.saveOne(row, month);
       } catch {
         failed++;
       }
@@ -349,11 +382,11 @@ export class EvaluationsComponent implements OnInit {
     }
   }
 
-  private async saveOne(row: MonthlyEvaluationSummary): Promise<void> {
+  private async saveOne(row: MonthlyEvaluationSummary, month: string): Promise<void> {
     const report = await new Promise<Parameters<MonthlyReportPdfService['save']>[0]>(
       (resolve, reject) =>
         this.lms
-          .getEvaluation(row.studentId, row.groupId, `${this.month()}-01`)
+          .getEvaluation(row.studentId, row.groupId, `${month}-01`)
           .subscribe({ next: resolve, error: reject })
     );
 
