@@ -1098,3 +1098,33 @@ Everything below was checked as unused before deletion.
   - 10:00–11:30 shows at 10 and continues at 11;
   - a cancelled 15:00 class leaves 15:00 available;
   - "7 Free · 2 Booked" per instructor.
+
+## PF-04 — Reference-data cache
+
+- **New `core/services/reference-cache.service.ts`:** `ReferenceCache` and
+  `referenceCacheInterceptor`, both tested. Topics (and the courses and levels read from
+  the same `/topics`), the two instructor lists and rooms now go through it. Before, each
+  page fetched them again: `/topics` alone from ten places.
+- **Rules:**
+  - Lists are kept for five minutes.
+  - A failed request is not kept; the next caller asks again.
+  - Each caller gets its own copy of the list, so one page sorting it cannot reorder
+    another's.
+  - Keys include the API address.
+- **Cleared:**
+  - **After any write to the same resource** (topics, users or instructors, rooms), by
+    the interceptor whether the write worked or not. A new write method is covered
+    without a change here.
+  - **On sign-out**, through `SessionService`.
+  - **When the API address changes.**
+- **Validation:** 6 new tests:
+  - one request for several callers;
+  - separate copies;
+  - a failure is not kept;
+  - a list expires after five minutes;
+  - a write clears only what it touches;
+  - the interceptor clears on writes and not on reads.
+
+  All batches exit 0 (44 files / 212 tests). In the browser, five page moves between
+  Groups and Courses fetched `/topics` and `/instructors` once each. Lint 0 errors; build
+  586.46 kB initial.

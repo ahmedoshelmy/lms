@@ -13,6 +13,7 @@ import { AUTH_STORAGE_KEY, AuthService } from './auth.service';
 import { LmsService } from './lms.service';
 import { NotificationCenterService } from './notification-center.service';
 import { OperationsService } from './operations.service';
+import { ReferenceCache } from './reference-cache.service';
 
 /**
  * Ending a session, in one place.
@@ -33,6 +34,7 @@ export class SessionService {
   private readonly lms = inject(LmsService);
   private readonly router = inject(Router);
   private readonly bell = inject(NotificationCenterService);
+  private readonly referenceCache = inject(ReferenceCache);
   private readonly operations = inject(OperationsService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
@@ -66,6 +68,7 @@ export class SessionService {
   /** What a session leaves behind in memory, emptied when it ends. */
   private clearLeftovers(): void {
     this.bell.clear();
+    this.referenceCache.clear();
     this.operations.clear();
   }
 

@@ -13,6 +13,7 @@ import { LmsPreset } from './core/config/prime-preset';
 import { NotificationService } from './core/services/notification.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AppErrorHandler } from './core/errors/app-error-handler';
+import { referenceCacheInterceptor } from './core/services/reference-cache.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,6 +25,9 @@ export const appConfig: ApplicationConfig = {
       // Use data-theme="dark" so PrimeNG and the CSS token system stay in sync
       theme: { preset: LmsPreset, options: { darkModeSelector: '[data-theme="dark"]' } },
     }),
-    provideHttpClient(withFetch(), withInterceptors([errorInterceptor, authInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([errorInterceptor, authInterceptor, referenceCacheInterceptor])
+    ),
   ],
 };

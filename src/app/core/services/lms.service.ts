@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
+import { ReferenceCache } from './reference-cache.service';
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
@@ -114,6 +115,7 @@ function query(values: Record<string, QueryValue>): HttpParams {
 })
 export class LmsService {
   private http = inject(HttpClient);
+  private readonly cache = inject(ReferenceCache);
 
   /** The address set when the app was built. */
   private defaultApiUrl = environment.apiUrl;
@@ -124,12 +126,20 @@ export class LmsService {
   /** Whether this build lets Settings point it at a different API. */
   readonly canOverrideApiUrl = environment.allowApiUrlOverride;
 
+  /** /topics, kept by ReferenceCache: topics, courses and levels all read it. */
+  private topicsList<T>(): Observable<T[]> {
+    return this.cache.get(`topics:${this.getApiUrl()}`, () =>
+      this.http.get<T[]>(`${this.getApiUrl()}/topics`)
+    );
+  }
+
   getApiUrl(): string {
     return this.apiUrlSubject.value;
   }
 
   /** Development builds only; a production build keeps its built-in address. */
   setApiUrl(url: string): void {
+    this.cache.clear();
     if (!this.canOverrideApiUrl) {
       return;
     }
@@ -144,6 +154,7 @@ export class LmsService {
   }
 
   resetApiUrl(): void {
+    this.cache.clear();
     if (typeof window !== 'undefined') {
       localStorage.removeItem(API_URL_STORAGE_KEY);
     }
@@ -169,11 +180,15 @@ export class LmsService {
   }
 
   getInstructors(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.getApiUrl()}/instructors`);
+    return this.cache.get(`instructors:${this.getApiUrl()}`, () =>
+      this.http.get<User[]>(`${this.getApiUrl()}/instructors`)
+    );
   }
 
   getScheduleInstructors(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.getApiUrl()}/schedule/instructors`);
+    return this.cache.get(`instructors:schedule:${this.getApiUrl()}`, () =>
+      this.http.get<User[]>(`${this.getApiUrl()}/schedule/instructors`)
+    );
   }
 
   createUser(payload: CreateUserPayload): Observable<User> {
@@ -300,7 +315,7 @@ export class LmsService {
   // ─── Topics & Course Levels ────────────────────────────────────────────────
 
   getTopics(): Observable<Topic[]> {
-    return this.http.get<Topic[]>(`${this.getApiUrl()}/topics`);
+    return this.topicsList<Topic>();
   }
 
   getTopic(id: number): Observable<Topic> {
@@ -347,7 +362,8 @@ export class LmsService {
 
   // Backwards compatibility helper for existing course components
   getCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(`${this.getApiUrl()}/topics`);
+    // The same /topics list, read as courses: one request serves both.
+    return this.topicsList<Course>();
   }
 
   // ─── Groups ──────────────────────────────────────────────────────────────
@@ -681,9 +697,11 @@ export class LmsService {
   // ── Availability ──────────────────────────────────────────────────────────
 
   getRooms(includeInactive = false): Observable<Room[]> {
-    return this.http.get<Room[]>(`${this.getApiUrl()}/Availability/rooms`, {
-      params: query({ includeInactive }),
-    });
+    return this.cache.get(`rooms:${includeInactive}:${this.getApiUrl()}`, () =>
+      this.http.get<Room[]>(`${this.getApiUrl()}/Availability/rooms`, {
+        params: query({ includeInactive }),
+      })
+    );
   }
 
   /** Omit instructorId for the whole board, which is what the slot finder wants. */
