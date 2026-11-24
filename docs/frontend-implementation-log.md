@@ -764,3 +764,27 @@ Everything below was checked as unused before deletion.
   inline from the session list. These are new features best designed with the phone layout
   in mind.
 - **Validation:** 34 files / 178 tests ✔ (3 new); lint 0 errors; build ✔.
+
+## W-03 — Bulk student actions finish, report, and touch only what is on screen
+
+- **What changed:**
+  - **`runBulk()`** (`core/utils/bulk.utils.ts`, tested): runs one request per item,
+    4 at a time, never stops at the first failure, and answers with `succeeded` and
+    `failed`. It replaces `forkJoin`, which gave up at the first error, left the page
+    unreloaded and said nothing about which students were done.
+  - **Bulk assign and bulk delete:**
+    - always reload the list;
+    - all succeeded → success message and the selection clears;
+    - some failed → "8 of 10 students deleted. Not done: Omar, … — still selected, to try
+      again", with only the failures left selected.
+  - **Only what is visible:** bulk actions and every count in the bulk UI use
+    `selectedVisible`, the selected students the current filters show. A selection kept
+    across filter changes used to let "Delete 3 students" delete students no longer on
+    screen.
+  - **Phone preserved:** bulk assign sends each student's phone back unchanged. It used to
+    leave it out of a replace-style update (audit item; server behaviour unverified).
+- **Not done (backend):**
+  - true bulk endpoints (one request instead of N);
+  - a per-group sessions endpoint, so group pages stop loading the whole timetable.
+- **Validation:** 35 files / 181 tests ✔ (new: `runBulk`; a deletion that acts only on
+  visible rows and keeps the refused one selected). Lint 0 errors; build ✔ at 584.00 kB.

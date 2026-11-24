@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { forkJoin } from 'rxjs';
+import { runBulk } from '../../core/utils/bulk.utils';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Role } from '../../core/interfaces/Role';
@@ -356,6 +356,28 @@ export class StudentsComponent implements OnInit {
     this.selectedStudentIds.set(current);
   }
 
+  /**
+   * The selected students that the current filters show. Bulk actions and the
+   * counts use this: a selection kept while the filters changed used to let
+   * "Delete 3 students" delete students no longer on screen.
+   */
+  readonly selectedVisible = computed(() => {
+    const selected = this.selectedStudentIds();
+    return this.filteredStudents().filter((s) => selected.has(s.id));
+  });
+
+  /** Keeps only these selected, so the ones that failed can be tried again. */
+  private selectOnly(ids: number[]): void {
+    this.selectedStudentIds.set(new Set(ids));
+  }
+
+  private names(ids: number[]): string {
+    const named = ids.map((id) => this.students().find((s) => s.id === id)?.name ?? `#${id}`);
+    return named.length > 3
+      ? `${named.slice(0, 3).join(', ')} and ${named.length - 3} more`
+      : named.join(', ');
+  }
+
   clearSelection(): void {
     this.selectedStudentIds.set(new Set());
   }
@@ -368,7 +390,7 @@ export class StudentsComponent implements OnInit {
 
   // Bulk Assign Modal & Execution
   openBulkAssignModal(): void {
-    if (this.selectedStudentIds().size === 0) {
+    if (this.selectedVisible().length === 0) {
       this.notify.showWarn('Please select at least one student.');
       return;
     }
@@ -377,38 +399,51 @@ export class StudentsComponent implements OnInit {
   }
 
   executeBulkAssign(): void {
-    const selectedIds = Array.from(this.selectedStudentIds());
-    if (selectedIds.length === 0) return;
+    const selected = this.selectedVisible();
+    if (selected.length === 0) return;
 
     const targetGroupId = this.bulkTargetGroupId() || undefined;
+    const groupName = this.groups().find((g) => g.id === targetGroupId)?.name ?? 'no group';
     this.bulkAssigning.set(true);
 
-    const requests = selectedIds.map((id) => {
-      const student = this.students().find((s) => s.id === id);
-      return this.lms.updateUser(id, {
-        name: student?.name || '',
-        email: student?.email || '',
+    runBulk(selected, (student) =>
+      this.lms.updateUser(student.id, {
+        name: student.name || '',
+        email: student.email || '',
+        // Sent back unchanged: the update replaces the record, and leaving the
+        // phone out may clear it.
+        phone: student.phone || undefined,
         role: Role.Student,
         groupId: targetGroupId,
-      });
+      })
+    ).subscribe(({ succeeded, failed }) => {
+      this.bulkAssigning.set(false);
+      this.reportBulk(
+        'assigned to ' + groupName,
+        succeeded.length,
+        failed.map((s) => s.id)
+      );
+      if (!failed.length) this.showBulkModal.set(false);
+      this.loadData();
     });
+  }
 
-    forkJoin(requests).subscribe({
-      next: () => {
-        const targetGroupObj = this.groups().find((g) => g.id === targetGroupId);
-        const groupNameStr = targetGroupObj ? targetGroupObj.name : 'Unassigned';
-        this.notify.showSuccess(
-          `Successfully assigned ${selectedIds.length} student${selectedIds.length !== 1 ? 's' : ''} to ${groupNameStr}.`
-        );
-        this.bulkAssigning.set(false);
-        this.showBulkModal.set(false);
-        this.clearSelection();
-        this.loadData();
-      },
-      error: () => {
-        this.bulkAssigning.set(false);
-      },
-    });
+  /**
+   * Says how a bulk action went. Everything worked: a success. Some failed:
+   * how many, and which -- they stay selected so they can be tried again.
+   */
+  private reportBulk(done: string, ok: number, failedIds: number[]): void {
+    const total = ok + failedIds.length;
+    const plural = (n: number) => `${n} student${n === 1 ? '' : 's'}`;
+    if (!failedIds.length) {
+      this.notify.showSuccess(`${plural(ok)} ${done}.`);
+      this.clearSelection();
+      return;
+    }
+    this.notify.showWarn(
+      `${ok} of ${plural(total)} ${done}. Not done: ${this.names(failedIds)} -- still selected, to try again.`
+    );
+    this.selectOnly(failedIds);
   }
 
   openCreateModal(): void {
@@ -511,30 +546,20 @@ export class StudentsComponent implements OnInit {
   }
 
   openBulkDeleteModal(): void {
-    if (this.selectedStudentIds().size === 0) return;
+    if (this.selectedVisible().length === 0) return;
     this.showBulkDeleteModal.set(true);
   }
 
   confirmBulkDelete(): void {
-    const selectedIds = Array.from(this.selectedStudentIds());
+    const selectedIds = this.selectedVisible().map((s) => s.id);
     if (selectedIds.length === 0) return;
 
     this.bulkDeleting.set(true);
-    const requests = selectedIds.map((id) => this.lms.deleteUser(id));
-
-    forkJoin(requests).subscribe({
-      next: () => {
-        this.notify.showSuccess(
-          `Successfully deleted ${selectedIds.length} student${selectedIds.length !== 1 ? 's' : ''}.`
-        );
-        this.bulkDeleting.set(false);
-        this.showBulkDeleteModal.set(false);
-        this.clearSelection();
-        this.loadData();
-      },
-      error: () => {
-        this.bulkDeleting.set(false);
-      },
+    runBulk(selectedIds, (id) => this.lms.deleteUser(id)).subscribe(({ succeeded, failed }) => {
+      this.bulkDeleting.set(false);
+      this.showBulkDeleteModal.set(false);
+      this.reportBulk('deleted', succeeded.length, failed);
+      this.loadData();
     });
   }
 

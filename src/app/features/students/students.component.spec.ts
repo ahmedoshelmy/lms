@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -60,5 +60,31 @@ describe('StudentsComponent creating a student', () => {
 
     expect(lms.createUser).toHaveBeenCalledTimes(1);
     expect(lms.createUser.mock.calls[0][0].password).toBe('a-real-secret');
+  });
+
+  it('deletes only the selected students the filters show, and keeps failures selected', () => {
+    const component = TestBed.createComponent(StudentsComponent).componentInstance;
+    const deleted: number[] = [];
+    Object.assign(lms, {
+      deleteUser: (id: number) => {
+        deleted.push(id);
+        return id === 2 ? throwError(() => new Error('refused')) : of(null);
+      },
+    });
+    component.students.set([
+      { id: 1, name: 'Sara' },
+      { id: 2, name: 'Omar' },
+      { id: 3, name: 'Laila' },
+    ] as never);
+    component.selectedStudentIds.set(new Set([1, 2, 3]));
+    // "ar" shows Sara and Omar; Laila is selected but out of view.
+    component.searchQuery.set('ar');
+
+    component.confirmBulkDelete();
+
+    expect(deleted.sort()).toEqual([1, 2]);
+    // Omar's deletion was refused: he stays selected to try again; Laila was never touched.
+    expect([...component.selectedStudentIds()]).toEqual([2]);
+    expect(notify.showWarn).toHaveBeenCalled();
   });
 });
