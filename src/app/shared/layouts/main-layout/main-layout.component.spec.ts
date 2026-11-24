@@ -1,6 +1,6 @@
 import { Component, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter, RouterModule, RouterOutlet } from '@angular/router';
+import { provideRouter, Router, RouterModule, RouterOutlet } from '@angular/router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Role } from '../../../core/interfaces/Role';
 import { AuthService } from '../../../core/services/auth.service';
@@ -23,6 +23,8 @@ class OutstandingWorkStub {}
 class BellStub {
   readonly compact = input(false);
 }
+@Component({ template: '<a href="/elsewhere">Open</a>' })
+class PageStub {}
 
 /** As a real key press: from the focused element up through document to window. */
 function pressEscape(claim = false) {
@@ -44,7 +46,10 @@ function render(phone: boolean) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
-      provideRouter([]),
+      provideRouter([
+        { path: 'groups', title: 'Groups', component: PageStub },
+        { path: 'groups/:id', title: 'Group', component: PageStub },
+      ]),
       {
         provide: AuthService,
         useValue: { currentUser: signal({ id: 1, name: 'Mona Adel', role: Role.Instructor }) },
@@ -77,6 +82,8 @@ function render(phone: boolean) {
     sidebar: () => el.querySelector('app-sidebar')!,
     content: () => el.querySelector('.content-wrapper')!,
     backdrop: () => el.querySelector('.sidebar-backdrop'),
+    main: () => el.querySelector('main')!,
+    announced: () => el.querySelector('[aria-live]')!.textContent!.trim(),
   };
 }
 
@@ -171,5 +178,67 @@ describe('MainLayoutComponent on a wide screen', () => {
     fixture.detectChanges();
 
     expect(page.isSidebarOpen()).toBe(true);
+  });
+});
+
+describe('MainLayoutComponent between pages', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function go(fixture: { whenStable(): Promise<unknown> }, url: string) {
+    await TestBed.inject(Router).navigateByUrl(url);
+    await fixture.whenStable();
+  }
+
+  it('says which page opened, but not for the first page or a change of filter', async () => {
+    const { fixture, announced } = render(false);
+
+    await go(fixture, '/groups');
+    // The first page is read out by the browser itself.
+    expect(announced()).toBe('');
+
+    await go(fixture, '/groups/7');
+    expect(announced()).toBe('Group');
+
+    await go(fixture, '/groups');
+    expect(announced()).toBe('Groups');
+
+    // The same page with a filter in the query string.
+    await go(fixture, '/groups?status=active');
+    expect(announced()).toBe('Groups');
+  });
+
+  it('gives the new page the focus when the link that had it went with the old one', async () => {
+    const { fixture, main } = render(false);
+    await go(fixture, '/groups');
+
+    // A link inside the page, removed with it.
+    main().querySelector<HTMLAnchorElement>('a')!.focus();
+    await go(fixture, '/groups/7');
+
+    expect(document.activeElement).toBe(main());
+  });
+
+  it('leaves the focus on a sidebar link that is still there', async () => {
+    const { fixture, sidebar } = render(false);
+    await go(fixture, '/groups');
+
+    const link = sidebar().querySelector<HTMLAnchorElement>('a.menu-item')!;
+    link.focus();
+    await go(fixture, '/groups/7');
+
+    expect(document.activeElement).toBe(link);
+  });
+
+  it('skips past the navigation to the page', () => {
+    const { fixture, main } = render(false);
+    const skip = fixture.nativeElement.querySelector('.skip-link') as HTMLAnchorElement;
+
+    // The first thing Tab reaches.
+    expect(fixture.nativeElement.querySelector('a, button')).toBe(skip);
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    skip.dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(main());
   });
 });

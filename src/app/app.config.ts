@@ -1,5 +1,5 @@
 import { ApplicationConfig, ErrorHandler } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, TitleStrategy } from '@angular/router';
 
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
@@ -14,10 +14,12 @@ import { NotificationService } from './core/services/notification.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AppErrorHandler } from './core/errors/app-error-handler';
 import { referenceCacheInterceptor } from './core/services/reference-cache.service';
+import { PageTitleStrategy } from './core/services/page-title.strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
+    { provide: TitleStrategy, useClass: PageTitleStrategy },
     MessageService,
     NotificationService,
     { provide: ErrorHandler, useClass: AppErrorHandler },

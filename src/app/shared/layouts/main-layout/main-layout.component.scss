@@ -16,6 +16,28 @@
   overflow-x: clip; /* clip so the sidebar toggle bleed doesn't scroll */
 }
 
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2100; /* over everything, the outstanding-work window too */
+  padding: 0.625rem 1rem;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  /* Off screen, and still in the Tab order; on screen once it has the focus. */
+  transform: translateY(calc(-100% - 1rem));
+
+  &:focus {
+    transform: none;
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
+}
+
 .content {
   flex: 1;
 

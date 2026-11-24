@@ -1,3 +1,6 @@
+<!-- First on the page, seen only once focused: one Tab, then Enter, and the
+     navigation is behind you. -->
+<a class="skip-link" href="#main-content" (click)="skipToContent($event)">Skip to main content</a>
 <p-toast />
 <!-- The one confirmation dialog, driven by ConfirmService. -->
 <app-confirm-host />
@@ -7,6 +10,8 @@
      walked past. It shows nothing at all unless there is something the
      person signed in can actually do. -->
 <app-outstanding-work />
+<!-- Outside the part made inert under the drawer, which would silence it. -->
+<div class="sr-only" aria-live="polite" aria-atomic="true">{{ pageAnnouncement() }}</div>
 <div
   class="layout"
   [class.sidebar-closed]="!isSidebarOpen()"
@@ -47,8 +52,9 @@
       <span class="mobile-header__title">Mindvalley</span>
     </header>
 
-    <!-- Focusable by script only: where the focus goes when the drawer closes onto a page. -->
-    <main class="content" #mainContent tabindex="-1">
+    <!-- Focusable by script only: where the skip link goes, and where the focus
+         goes when the drawer closes onto a page. -->
+    <main class="content" id="main-content" #mainContent tabindex="-1">
       <router-outlet />
     </main>
   </div>

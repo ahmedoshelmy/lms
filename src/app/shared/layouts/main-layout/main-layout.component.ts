@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, TitleStrategy } from '@angular/router';
 import { filter } from 'rxjs';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { ToastModule } from 'primeng/toast';
@@ -50,6 +50,8 @@ export class MainLayoutComponent {
   private readonly session = inject(SessionService);
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
+  private readonly router = inject(Router);
+  private readonly titleStrategy = inject(TitleStrategy);
 
   private readonly phoneQuery = isPlatformBrowser(inject(PLATFORM_ID))
     ? window.matchMedia(PHONE_QUERY)
@@ -69,6 +71,15 @@ export class MainLayoutComponent {
 
   /** A closed drawer is off screen, and its links must not be reachable by Tab either. */
   readonly drawerHidden = computed(() => this.isPhone() && !this.isSidebarOpen());
+
+  /**
+   * Read out by screen readers when the page changes. A single-page app changes
+   * page without the browser saying so: the title changed, and nothing told them.
+   */
+  readonly pageAnnouncement = signal('');
+
+  /** The page (path, without query) last shown; null before the first. */
+  private lastPath: string | null = null;
 
   private readonly menuButton = viewChild<ElementRef<HTMLButtonElement>>('menuButton');
   private readonly mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
@@ -99,16 +110,33 @@ export class MainLayoutComponent {
       );
     }
 
-    // Anything that navigates from the drawer -- a notification, the profile
-    // link -- closes it, and the new page gets the focus.
-    inject(Router)
-      .events.pipe(
-        filter((e) => e instanceof NavigationEnd),
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
         takeUntilDestroyed()
       )
-      .subscribe(() => {
+      .subscribe((event) => {
+        const path = event.urlAfterRedirects.split(/[?#]/)[0];
+        // A filter written to the query string is the same page.
+        const pageChanged = this.lastPath !== null && path !== this.lastPath;
+        this.lastPath = path;
+        // Anything that navigates from the drawer -- a notification, the
+        // profile link -- closes it, and the new page gets the focus.
         if (this.drawerOpen()) this.closeDrawerToPage();
+        if (pageChanged) this.announcePage();
       });
+  }
+
+  /** The skip link: past the navigation, straight to the page. */
+  skipToContent(event: Event): void {
+    // Not the browser's own jump to #main-content: the router would take the
+    // changed address for a navigation.
+    event.preventDefault();
+    if (this.drawerOpen()) {
+      this.closeDrawerToPage();
+      return;
+    }
+    this.mainContent()?.nativeElement.focus();
   }
 
   openSidebar(): void {
@@ -154,6 +182,27 @@ export class MainLayoutComponent {
     this.isSidebarOpen.set(false);
     // The link that had it is now inert; left alone, the focus drops to <body>.
     this.focusAfterRender(() => this.mainContent());
+  }
+
+  /**
+   * Names the new page, and gives it the focus if the focus went with the old
+   * one: a link inside a page ("Open", a row) is gone once its page is, and the
+   * focus falls back to <body> -- the next Tab started again from the top.
+   */
+  private announcePage(): void {
+    const page = this.titleStrategy.buildTitle(this.router.routerState.snapshot) ?? '';
+    // Emptied first, so a page with the same name as the last is still read out.
+    this.pageAnnouncement.set('');
+    afterNextRender(
+      () => {
+        this.pageAnnouncement.set(page);
+        const active = this.document.activeElement;
+        if (!active || active === this.document.body) {
+          this.mainContent()?.nativeElement.focus({ preventScroll: true });
+        }
+      },
+      { injector: this.injector }
+    );
   }
 
   private focusIsInSidebar(): boolean {

@@ -9,6 +9,7 @@ export const routes: Routes = [
   // ── Guest-only ────────────────────────────────────────────────────────────
   {
     path: 'login',
+    title: 'Sign in',
     canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component').then((c) => c.LoginComponent),
@@ -28,6 +29,7 @@ export const routes: Routes = [
 
       {
         path: 'schedule',
+        title: 'Schedule',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('schedule') },
         loadComponent: () =>
@@ -36,6 +38,7 @@ export const routes: Routes = [
 
       {
         path: 'dashboard',
+        title: 'Overview',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('dashboard') },
         loadComponent: () =>
@@ -43,6 +46,7 @@ export const routes: Routes = [
       },
       {
         path: 'courses',
+        title: 'Courses',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('courses') },
         loadComponent: () =>
@@ -51,6 +55,7 @@ export const routes: Routes = [
 
       {
         path: 'sessions/:id',
+        title: 'Session',
         canActivate: [roleGuard],
         canDeactivate: [unsavedChangesGuard],
         data: { roles: getRolesForPath('sessions') },
@@ -61,6 +66,7 @@ export const routes: Routes = [
       },
       {
         path: 'attendance',
+        title: 'Sessions',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('attendance') },
         loadComponent: () =>
@@ -68,6 +74,7 @@ export const routes: Routes = [
       },
       {
         path: 'my-learning',
+        title: 'My Learning',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('my-learning') },
         loadComponent: () =>
@@ -75,6 +82,7 @@ export const routes: Routes = [
       },
       {
         path: 'groups',
+        title: 'Groups',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('groups') },
         loadComponent: () =>
@@ -82,6 +90,7 @@ export const routes: Routes = [
       },
       {
         path: 'groups/:id',
+        title: 'Group',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('groups') },
         loadComponent: () =>
@@ -91,6 +100,7 @@ export const routes: Routes = [
       },
       {
         path: 'students',
+        title: 'Students',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('students') },
         loadComponent: () =>
@@ -98,6 +108,7 @@ export const routes: Routes = [
       },
       {
         path: 'students/:id',
+        title: 'Student',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('students') },
         loadComponent: () =>
@@ -107,6 +118,7 @@ export const routes: Routes = [
       },
       {
         path: 'evaluations',
+        title: 'Monthly Reports',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('evaluations') },
         loadComponent: () =>
@@ -116,6 +128,7 @@ export const routes: Routes = [
       },
       {
         path: 'evaluations/:studentId/:groupId',
+        title: 'Monthly Report',
         canActivate: [roleGuard],
         canDeactivate: [unsavedChangesGuard],
         data: { roles: getRolesForPath('evaluations') },
@@ -126,6 +139,7 @@ export const routes: Routes = [
       },
       {
         path: 'instructors',
+        title: 'Instructors',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('instructors') },
         loadComponent: () =>
@@ -135,6 +149,7 @@ export const routes: Routes = [
       },
       {
         path: 'instructors/:id',
+        title: 'Instructor',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('instructors') },
         loadComponent: () =>
@@ -144,6 +159,7 @@ export const routes: Routes = [
       },
       {
         path: 'history',
+        title: 'History & Events',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('history') },
         loadComponent: () =>
@@ -151,6 +167,7 @@ export const routes: Routes = [
       },
       {
         path: 'operations-rota',
+        title: 'Operations Rota',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('operations-rota') },
         loadComponent: () =>
@@ -160,6 +177,7 @@ export const routes: Routes = [
       },
       {
         path: 'activity-logs',
+        title: 'Activity Analytics',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('activity-logs') },
         loadComponent: () =>
@@ -171,6 +189,7 @@ export const routes: Routes = [
 
       {
         path: 'sales',
+        title: 'Sales',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('sales') },
         loadComponent: () =>
@@ -179,6 +198,7 @@ export const routes: Routes = [
 
       {
         path: 'availability',
+        title: 'Availability',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('availability') },
         loadComponent: () =>
@@ -189,6 +209,7 @@ export const routes: Routes = [
 
       {
         path: 'session-summaries',
+        title: 'Session Summaries',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('session-summaries') },
         loadComponent: () =>
@@ -199,6 +220,7 @@ export const routes: Routes = [
 
       {
         path: 'settings',
+        title: 'Settings',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('settings') },
         loadComponent: () =>
@@ -207,6 +229,7 @@ export const routes: Routes = [
 
       {
         path: 'profile',
+        title: 'Profile',
         canActivate: [roleGuard],
         data: { roles: getRolesForPath('profile') },
         loadComponent: () =>
@@ -218,6 +241,7 @@ export const routes: Routes = [
   // ── Unauthorized fallback ─────────────────────────────────────────────────
   {
     path: 'unauthorized',
+    title: 'Access denied',
     loadComponent: () =>
       import('./features/unauthorized/unauthorized.component').then((c) => c.UnauthorizedComponent),
   },

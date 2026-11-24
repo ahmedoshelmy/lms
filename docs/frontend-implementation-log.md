@@ -1168,3 +1168,31 @@ Everything below was checked as unused before deletion.
     08–20.
   - The groups list's `from = now` query assumes the server sets no default end date.
     That is a backend question, recorded with the others.
+
+## A-01 — Page titles, a skip link, the current page marked
+
+- **Page titles.** Every route has a `title`. A `TitleStrategy`
+  (`core/services/page-title.strategy.ts`) adds the app name: "Schedule · Mindvalley".
+  - Every page used to be "LmsPlatform", in the tab, the history list and a screen reader.
+  - `index.html` now says "Mindvalley" until the first route sets its own title.
+  - Detail pages carry a general name ("Student", "Group"), not the record's name.
+- **Skip link.** "Skip to main content" is the first thing Tab reaches. It shows only
+  once focused, and moves the focus to `<main>`.
+  - It handles the click itself rather than jumping to `#main-content`: the router would
+    take the changed address for a navigation.
+  - From the open phone drawer, it closes the drawer first.
+- **The new page is read out.** A polite live region, outside the part made inert under
+  the drawer, names the page after each change of path.
+  - Not for the first page, which the browser reads itself.
+  - Not for a filter written to the query string.
+- **The focus no longer drops to `<body>`.** A link inside a page ("Open", a row) goes
+  with its page, and the next Tab started again from the top. When the focus is lost
+  like that, `<main>` gets it. A sidebar link keeps it.
+- **`aria-current="page"`** on the active sidebar link and the profile link.
+- **Validation:** 7 new tests:
+  - every page route has a title;
+  - the title format;
+  - the title follows the route;
+  - the page is announced, but not the first or a query change;
+  - the focus is rescued, or kept on a sidebar link;
+  - the skip link comes first and moves the focus.
