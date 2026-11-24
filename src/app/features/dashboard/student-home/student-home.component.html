@@ -11,10 +11,7 @@
       } @else if (!group()) {
         You are not in a group yet. Once you are, your classes will show up here.
       } @else {
-        {{ group()!.groupName }}
-        @if (group()!.instructorName) {
-          · taught by {{ group()!.instructorName }}
-        }
+        {{ groupsLine() }}
       }
     </p>
   </header>
@@ -42,23 +39,28 @@
 
   <div class="student-home__cols">
     <!-- How far through the course they are. -->
-    @if (activeCourse(); as course) {
+    @for (item of activeCourses(); track item.groupId) {
+      @let course = item.course;
       <section class="panel">
         <h2 class="panel__title">
           <i class="pi pi-chart-line"></i>
           {{ course.title }}
         </h2>
 
-        <div class="bar" role="img" [attr.aria-label]="progressPercent() + '% of the course done'">
-          <div class="bar__fill" [style.width.%]="progressPercent()"></div>
+        <div
+          class="bar"
+          role="img"
+          [attr.aria-label]="progressPercent(course) + '% of the course done'"
+        >
+          <div class="bar__fill" [style.width.%]="progressPercent(course)"></div>
         </div>
 
         <p class="panel__line">
-          <strong>{{ sessionsDone() }}</strong> of {{ course.totalSessions }} classes done
+          <strong>{{ sessionsDone(course) }}</strong> of {{ course.totalSessions }} classes done
           @if (course.isCompleted) {
             — finished
           } @else {
-            · {{ course.totalSessions - sessionsDone() }} to go
+            · {{ course.totalSessions - sessionsDone(course) }} to go
           }
         </p>
 

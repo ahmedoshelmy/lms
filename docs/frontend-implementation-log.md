@@ -788,3 +788,19 @@ Everything below was checked as unused before deletion.
   - a per-group sessions endpoint, so group pages stop loading the whole timetable.
 - **Validation:** 35 files / 181 tests ✔ (new: `runBulk`; a deletion that acts only on
   visible rows and keeps the refused one selected). Lint 0 errors; build ✔ at 584.00 kB.
+
+## W-04 — Students see every group they are in; staff views stay with staff
+
+- **What changed:**
+  - **My Learning:** progress and certificate rows cover every current group
+    (`courses` flat-maps over `groups()`). It used to take `groups()[0]` only, so a student
+    learning two things saw one, and couldn't reach the second certificate. The header names
+    every group and instructor.
+  - **Student home:** one progress panel per current group (`activeCourses`), plus the same
+    header line.
+  - **Schedule:** the Schedule Matrix, Daily Availability and Instructor Availability views
+    are staff-only, like "Week in numbers". The availability data behind them is refused to
+    students, so they only ever showed students empty grids. (The schedule already avoided
+    requesting it for students.)
+- **Validation:** 36 files / 182 tests ✔ (new: a student in two groups, plus one they left,
+  sees exactly the two current groups' courses). Lint 0 errors; build ✔.

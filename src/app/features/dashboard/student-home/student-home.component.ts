@@ -46,11 +46,28 @@ export class StudentHomeComponent implements OnInit {
   /** The one this page leads with, and the one the progress bar describes. */
   readonly group = computed(() => this.groups()[0] ?? null);
 
-  /** The class they are working through now, rather than one they have finished. */
-  readonly activeCourse = computed<StudentCourse | null>(() => {
-    const courses = this.group()?.courses ?? [];
-    return courses.find((c) => !c.isCompleted) ?? courses[courses.length - 1] ?? null;
-  });
+  /**
+   * The course each group is working through now, rather than one finished.
+   * One per group: a child learning two things used to see only the first.
+   */
+  readonly activeCourses = computed(() =>
+    this.groups()
+      .map((group) => {
+        const courses = group.courses ?? [];
+        const course = courses.find((c) => !c.isCompleted) ?? courses[courses.length - 1] ?? null;
+        return course ? { groupId: group.groupId, course } : null;
+      })
+      .filter((item): item is { groupId: number; course: StudentCourse } => !!item)
+  );
+
+  /** "Python L1 – Sat · taught by Mona and Robotics L2 · taught by Ali". */
+  readonly groupsLine = computed(() =>
+    this.groups()
+      .map((g) =>
+        g.instructorName ? `${g.groupName} · taught by ${g.instructorName}` : g.groupName
+      )
+      .join(' and ')
+  );
 
   readonly nextSession = computed<StudentUpcomingSession | null>(
     () => this.record()?.upcomingSessions?.[0] ?? null
@@ -62,16 +79,14 @@ export class StudentHomeComponent implements OnInit {
    * Sessions behind them, counted from where the course has got to. The
    * progress number is the next session owed, so one fewer has been taught.
    */
-  readonly sessionsDone = computed(() => {
-    const course = this.activeCourse();
-    return course ? sessionsTaught(course) : 0;
-  });
+  sessionsDone(course: StudentCourse): number {
+    return sessionsTaught(course);
+  }
 
-  readonly progressPercent = computed(() => {
-    const course = this.activeCourse();
-    if (!course?.totalSessions) return 0;
-    return Math.min(100, Math.round((this.sessionsDone() / course.totalSessions) * 100));
-  });
+  progressPercent(course: StudentCourse): number {
+    if (!course.totalSessions) return 0;
+    return Math.min(100, Math.round((this.sessionsDone(course) / course.totalSessions) * 100));
+  }
 
   // ── Attendance ───────────────────────────────────────────────────────────
 

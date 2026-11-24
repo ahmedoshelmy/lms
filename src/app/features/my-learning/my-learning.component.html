@@ -9,10 +9,7 @@
       } @else if (!group()) {
         You are not in a group yet, so there is nothing to show here.
       } @else {
-        {{ group()!.groupName }}
-        @if (group()!.instructorName) {
-          · {{ group()!.instructorName }}
-        }
+        {{ groupsLine() }}
       }
     </p>
   </header>

@@ -147,37 +147,44 @@
         <span>Daily</span>
       </button>
 
-      <button
-        type="button"
-        class="density-btn text-xs"
-        [class.density-btn--active]="viewMode() === 'daily-schedule'"
-        (click)="viewMode.set('daily-schedule')"
-      >
-        <i class="pi pi-th-large text-xs"></i>
-        <span>Schedule Matrix</span>
-      </button>
+      @if (isStaff) {
+        <button
+          type="button"
+          class="density-btn text-xs"
+          [class.density-btn--active]="viewMode() === 'daily-schedule'"
+          (click)="viewMode.set('daily-schedule')"
+        >
+          <i class="pi pi-th-large text-xs"></i>
+          <span>Schedule Matrix</span>
+        </button>
+      }
 
-      <button
-        type="button"
-        class="density-btn text-xs"
-        [class.density-btn--active]="viewMode() === 'daily-availability'"
-        (click)="viewMode.set('daily-availability')"
-      >
-        <i class="pi pi-user text-xs"></i>
-        <span>Daily Availability</span>
-      </button>
+      @if (isStaff) {
+        <button
+          type="button"
+          class="density-btn text-xs"
+          [class.density-btn--active]="viewMode() === 'daily-availability'"
+          (click)="viewMode.set('daily-availability')"
+        >
+          <i class="pi pi-user text-xs"></i>
+          <span>Daily Availability</span>
+        </button>
+      }
 
-      <button
-        type="button"
-        class="density-btn text-xs"
-        [class.density-btn--active]="viewMode() === 'instructor-availability'"
-        (click)="viewMode.set('instructor-availability')"
-      >
-        <i class="pi pi-users text-xs"></i>
-        <span>Instructor Availability</span>
-      </button>
+      @if (isStaff) {
+        <button
+          type="button"
+          class="density-btn text-xs"
+          [class.density-btn--active]="viewMode() === 'instructor-availability'"
+          (click)="viewMode.set('instructor-availability')"
+        >
+          <i class="pi pi-users text-xs"></i>
+          <span>Instructor Availability</span>
+        </button>
+      }
 
-      <!-- Staff only: how a week is spread is a running-the-school question. -->
+      <!-- Staff only, like the matrix and availability views above: staffing
+           questions, and the availability data behind them is refused to students. -->
       @if (isStaff) {
         <button
           type="button"
@@ -409,14 +416,14 @@
         [showsInstructorName]="viewsAllInstructors"
         (sessionSelected)="onSessionSelected($event)"
       />
-    } @else if (viewMode() === 'daily-schedule') {
+    } @else if (viewMode() === 'daily-schedule' && isStaff) {
       <app-daily-schedule-matrix
         [sessions]="sessions()"
         [instructors]="instructors()"
         [selectedDate]="currentDate()"
         (sessionSelected)="onSessionSelected($event)"
       />
-    } @else if (viewMode() === 'daily-availability') {
+    } @else if (viewMode() === 'daily-availability' && isStaff) {
       <app-daily-availability-matrix
         [availability]="availability()"
         [timeOff]="timeOff()"
@@ -424,7 +431,7 @@
         [instructors]="instructors()"
         [selectedDate]="currentDate()"
       />
-    } @else if (viewMode() === 'instructor-availability') {
+    } @else if (viewMode() === 'instructor-availability' && isStaff) {
       <app-instructor-availability-matrix
         [availability]="availability()"
         [timeOff]="timeOff()"

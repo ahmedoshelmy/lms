@@ -66,8 +66,15 @@ export class MyLearningComponent implements OnInit {
   /** The groups they are in now: a child may be learning two things at once. */
   readonly groups = computed(() => (this.record()?.groupHistory ?? []).filter((g) => !g.leftAt));
 
-  /** The one the progress tab leads with. */
+  /** The first of them; the page still needs to know whether there is any. */
   readonly group = computed(() => this.groups()[0] ?? null);
+
+  /** "Python L1 – Sat · Mona and Robotics L2 · Ali", for the header. */
+  readonly groupsLine = computed(() =>
+    this.groups()
+      .map((g) => (g.instructorName ? `${g.groupName} · ${g.instructorName}` : g.groupName))
+      .join(' and ')
+  );
 
   // ── Progress ─────────────────────────────────────────────────────────────
 
@@ -77,35 +84,36 @@ export class MyLearningComponent implements OnInit {
    * why the certificate is not available rather than quietly omitting it.
    */
   readonly courses = computed<CourseRow[]>(() => {
-    const group = this.group();
-    if (!group) return [];
-
     const attendance = this.record()?.attendanceHistory ?? [];
 
-    return group.courses.map((course) => {
-      const eligibility = evaluateCertificateEligibility(
-        attendance,
-        course.title,
-        group.groupName,
-        course.totalSessions,
-        course.isCompleted
-      );
+    // Every group they are in now. Only the first used to be shown, so a child
+    // learning two things saw one -- and could not reach the other certificate.
+    return this.groups().flatMap((group) =>
+      group.courses.map((course) => {
+        const eligibility = evaluateCertificateEligibility(
+          attendance,
+          course.title,
+          group.groupName,
+          course.totalSessions,
+          course.isCompleted
+        );
 
-      const done = sessionsTaught(course);
+        const done = sessionsTaught(course);
 
-      return {
-        course,
-        groupName: group.groupName,
-        instructorName: group.instructorName ?? 'your instructor',
-        done,
-        percent: course.totalSessions
-          ? Math.min(100, Math.round((done / course.totalSessions) * 100))
-          : 0,
-        attendanceRate: eligibility.attendanceRate,
-        earned: eligibility.eligible,
-        blockedBy: eligibility.reasons,
-      };
-    });
+        return {
+          course,
+          groupName: group.groupName,
+          instructorName: group.instructorName ?? 'your instructor',
+          done,
+          percent: course.totalSessions
+            ? Math.min(100, Math.round((done / course.totalSessions) * 100))
+            : 0,
+          attendanceRate: eligibility.attendanceRate,
+          earned: eligibility.eligible,
+          blockedBy: eligibility.reasons,
+        };
+      })
+    );
   });
 
   // ── Attendance ───────────────────────────────────────────────────────────
