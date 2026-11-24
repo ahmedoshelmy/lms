@@ -6,3 +6,6 @@ coverage
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+# Generated reference artefacts, kept byte-for-byte as produced.
+docs/course-sessions.seed.json
+docs/curriculum-audit.html

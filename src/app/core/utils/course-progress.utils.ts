@@ -73,9 +73,7 @@ export function courseTotals(courses: readonly CourseProgressLike[] | null | und
 }
 
 /** Whole-curriculum progress, 0–100. */
-export function progressPercent(
-  courses: readonly CourseProgressLike[] | null | undefined
-): number {
+export function progressPercent(courses: readonly CourseProgressLike[] | null | undefined): number {
   const { taught, total } = courseTotals(courses);
   if (total === 0) return 0;
   return Math.min(100, Math.round((taught / total) * 100));

@@ -16,7 +16,7 @@ mapping, and the repository → service → thin-controller layering.
 On `CourseLevel`, not `Session`.
 
 The syllabus is a property of the course level: "Python level 1, session 6 is about for
-loops" holds every time any group runs that level. A `Session` row is one *instance* of
+loops" holds every time any group runs that level. A `Session` row is one _instance_ of
 that — a particular group, on a particular Tuesday, with a particular instructor.
 Attaching the syllabus to the instance would duplicate it per group and let two groups
 disagree about what session 6 is.
@@ -187,23 +187,23 @@ is likely stale.
 
 Following the existing pattern, a complete feature needs:
 
-| Layer | File |
-|---|---|
-| Repository interface | `LMS.Core/Interfaces/ICourseLevelSessionRepository.cs` |
-| Repository | `LMS.Infrastructure/Repositories/CourseLevelSessionRepository.cs` |
-| Service interface | `LMS.Application/Interfaces/ICourseLevelSessionService.cs` |
-| Service | `LMS.Application/Services/CourseLevelSessionService.cs` |
-| DTOs | `LMS.Core/DTOs/CourseLevels/CourseLevelSessionDto.cs`, `UpdateCourseLevelSessionDto.cs` |
-| Controller | extend `CourseLevelsController` rather than adding a new one |
-| DI | register the repository in `LMS.Infrastructure/DependencyInjection.cs` |
+| Layer                | File                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| Repository interface | `LMS.Core/Interfaces/ICourseLevelSessionRepository.cs`                                  |
+| Repository           | `LMS.Infrastructure/Repositories/CourseLevelSessionRepository.cs`                       |
+| Service interface    | `LMS.Application/Interfaces/ICourseLevelSessionService.cs`                              |
+| Service              | `LMS.Application/Services/CourseLevelSessionService.cs`                                 |
+| DTOs                 | `LMS.Core/DTOs/CourseLevels/CourseLevelSessionDto.cs`, `UpdateCourseLevelSessionDto.cs` |
+| Controller           | extend `CourseLevelsController` rather than adding a new one                            |
+| DI                   | register the repository in `LMS.Infrastructure/DependencyInjection.cs`                  |
 
 Suggested endpoints:
 
-| Method | Route | Auth | Purpose |
-|---|---|---|---|
-| GET | `/api/course-levels/{id}/sessions` | Admin, Instructor | Full syllabus for a level |
-| PUT | `/api/course-levels/{id}/sessions/{number}` | Admin | Edit one session |
-| GET | `/api/schedule/sessions/{id}/syllabus` | Any | Syllabus for a scheduled session, resolved through its GroupCourse |
+| Method | Route                                       | Auth              | Purpose                                                            |
+| ------ | ------------------------------------------- | ----------------- | ------------------------------------------------------------------ |
+| GET    | `/api/course-levels/{id}/sessions`          | Admin, Instructor | Full syllabus for a level                                          |
+| PUT    | `/api/course-levels/{id}/sessions/{number}` | Admin             | Edit one session                                                   |
+| GET    | `/api/schedule/sessions/{id}/syllabus`      | Any               | Syllabus for a scheduled session, resolved through its GroupCourse |
 
 The third endpoint is what the schedule and session-detail screens call. It must return
 only published parent fields to a Student caller, and everything to staff — otherwise
