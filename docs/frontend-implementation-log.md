@@ -39,3 +39,26 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
 - **Validation:** 9 files / 86 tests pass. The new test fails against the old code (checked
   by stashing the fix) and passes with it. Build passes; initial bundle 598.33 kB.
 - **Remaining:** the two copies of this save logic are still duplicated (F-09).
+
+## P0-03 — No default student password; the profile stops pretending to save
+
+- **What changed:**
+  - **Student form:** it now has a password field. A password is required to create a
+    student and optional when editing ("leave blank to keep current"), like the instructor
+    form. The `'pass2word'` fallback is gone.
+  - **Profile page:** now read-only (name, email, phone, role), with a note to ask an
+    administrator for changes. The Security and Preferences tabs, the forms behind them and
+    their styles are removed. So is `AuthService.updateProfile`, whose only caller was the
+    fake details save.
+- **Why:** findings C-02 and C-03 / S-1 and S-3. The student form never asked for a password,
+  so _every_ student created there had `pass2word`, which is worse than the audit stated.
+  The profile's password change was a 600 ms timer and a success toast.
+- **Files:** `features/students/students.component.{ts,html}` (+ new spec);
+  `features/profile/profile.component.{ts,html,scss}`; `core/services/auth.service.ts`.
+- **Validation:** 10 files / 88 tests pass. The new students test fails against the old code.
+  Build passes; initial bundle 598.17 kB.
+- **Backend dependency:**
+  - Existing students still have `pass2word`. They need resetting; admins can now do that
+    from the edit form.
+  - The server should reject empty or weak passwords.
+  - Self-service profile and password changes need endpoints.

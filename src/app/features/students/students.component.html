@@ -625,6 +625,24 @@
       </div>
 
       <div>
+        <label
+          for="student-password"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
+          Password {{ editingStudent() ? '(leave blank to keep current)' : '*' }}
+        </label>
+        <input
+          id="student-password"
+          type="password"
+          autocomplete="new-password"
+          [ngModel]="formPassword()"
+          (ngModelChange)="formPassword.set($event)"
+          placeholder="••••••••"
+          class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+        />
+      </div>
+
+      <div>
         <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Phone Number (optional)</label
         >

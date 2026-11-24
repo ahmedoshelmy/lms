@@ -60,14 +60,6 @@ export class AuthService {
     this.currentUserSignal.set(null);
   }
 
-  updateProfile(partialUser: Partial<User>): void {
-    const current = this.currentUserSignal();
-    if (current) {
-      const updated = { ...current, ...partialUser };
-      this.setStoredUser(updated);
-    }
-  }
-
   private normalizeUser(user: User): User {
     if (user && user.role !== undefined) {
       return { ...user, role: parseRole(user.role) };
@@ -104,4 +96,3 @@ export class AuthService {
     }
   }
 }
-

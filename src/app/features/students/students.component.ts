@@ -438,6 +438,14 @@ export class StudentsComponent implements OnInit {
       return;
     }
 
+    // Every new student used to be given the same password, "pass2word",
+    // because the form never asked for one -- so anyone who knew it could sign
+    // in as any student created here. Asked for now, as for instructors.
+    if (!this.editingStudent() && !password) {
+      this.notify.showWarn('Set a password for the student to sign in with.');
+      return;
+    }
+
     this.saving.set(true);
 
     if (this.editingStudent()) {
@@ -466,14 +474,13 @@ export class StudentsComponent implements OnInit {
       const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
       const randomId = Math.floor(1000 + Math.random() * 9000);
       const dummyEmail = email || `${cleanName || 'student'}.${randomId}@lms.local`;
-      const dummyPassword = password || 'pass2word';
 
       this.lms
         .createUser({
           name,
           email: dummyEmail,
           phone: phone || undefined,
-          password: dummyPassword,
+          password,
           role: Role.Student,
           groupId: groupId || undefined,
         })

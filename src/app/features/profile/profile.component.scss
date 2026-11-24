@@ -8,7 +8,7 @@
   height: 72px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  color: white;
+  color: var(--color-primary-content);
   font-size: 24px;
   font-weight: 800;
   display: flex;
@@ -61,22 +61,6 @@
   color: var(--color-text-primary);
 }
 
-.tab-btn {
-  color: var(--color-text-muted);
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-}
-.tab-btn:hover {
-  color: var(--color-text-primary);
-}
-.tab-active {
-  color: var(--color-secondary) !important;
-  border-bottom-color: var(--color-secondary) !important;
-}
-
 .form-label {
   display: block;
   font-size: 12px;
@@ -85,77 +69,4 @@
   letter-spacing: 0.5px;
   color: var(--color-text-muted);
   margin-bottom: 6px;
-}
-.form-input {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.form-input:focus {
-  border-color: var(--color-secondary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary) 15%, transparent);
-}
-.input-error {
-  border-color: var(--color-error) !important;
-}
-.error-msg {
-  font-size: 12px;
-  color: var(--color-error);
-  margin-top: 4px;
-  font-weight: 600;
-}
-
-.save-btn {
-  padding: 10px 24px;
-  border-radius: 12px;
-  background: var(--color-secondary);
-  color: white;
-  font-size: 14px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-flex;
-  align-items: center;
-}
-.save-btn:hover:not(:disabled) {
-  background: var(--color-secondary-hover);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-secondary) 30%, transparent);
-}
-.save-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pref-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
-}
-.pref-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-.pref-desc {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin: 2px 0 0 0;
-}
-.toggle-checkbox {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--color-secondary);
-  cursor: pointer;
 }
