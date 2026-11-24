@@ -136,10 +136,8 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
         this.sessionCreated.emit();
         this.closed.emit();
       },
-      error: (err) => {
+      error: () => {
         this.submitting.set(false);
-        const msg = err.error?.message || 'Failed to create standalone session.';
-        this.notify.showError(msg);
       },
     });
   }

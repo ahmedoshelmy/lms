@@ -110,10 +110,19 @@ export class StudentHomeComponent implements OnInit {
         .sort((a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime())[0] ?? null
   );
 
+  /** The student's record could not be loaded; said, not shown as "no group". */
+  readonly loadFailed = signal(false);
+
   ngOnInit(): void {
     this.lms
       .getMyStudentRecord()
-      .pipe(catchError(() => of(null)))
+      .pipe(
+        // A failure used to read as "You are not in a group yet".
+        catchError(() => {
+          this.loadFailed.set(true);
+          return of(null);
+        })
+      )
       .subscribe((record) => {
         this.record.set(record);
         this.loading.set(false);

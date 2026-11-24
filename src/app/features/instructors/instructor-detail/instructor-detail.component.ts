@@ -12,12 +12,14 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { InstructorDetails, InstructorStats } from '../../../core/interfaces/InstructorDetails';
 import { latestRequest } from '../../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
 
 @Component({
   selector: 'app-instructor-detail',
   standalone: true,
   imports: [
     CommonModule,
+    LoadErrorComponent,
     FormsModule,
     RouterLink,
     ProgressSpinnerModule,
@@ -31,6 +33,9 @@ export class InstructorDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly detailRequest = latestRequest();
+
+  /** The page could not be loaded; shown instead of a blank page. */
+  readonly loadFailed = signal(false);
   private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
@@ -93,6 +98,7 @@ export class InstructorDetailComponent implements OnInit {
 
   loadInstructorDetails(id: number): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lmsService
       .getInstructorDetails(id)
       .pipe(this.detailRequest.latest())
@@ -102,8 +108,8 @@ export class InstructorDetailComponent implements OnInit {
           this.loading.set(false);
         },
         error: () => {
-          this.notify.showError('Failed to load instructor details');
           this.loading.set(false);
+          this.loadFailed.set(true);
         },
       });
   }

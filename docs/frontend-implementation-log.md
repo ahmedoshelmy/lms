@@ -424,3 +424,32 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   build clean at 597.01 kB.
 - **Remaining:** typed search boxes don't debounce. Correctness is covered; fewer requests
   while typing is PF-04.
+
+## F-04 — Consistent error handling
+
+- **What changed:**
+  - **Duplicate toasts:** 35 component toasts that repeated the error interceptor's message
+    were removed; the interceptor already shows the server's own message. 22 `err`
+    parameters left unused were caught by the new lint step and fixed. Validation, PDF,
+    clipboard and logic messages were kept (21).
+  - **Failures no longer look like empty data:** new shared `app-load-error`, a "Try again"
+    state with `role="alert"`, used on:
+    - group, student and instructor detail, which were blank on failure;
+    - register compliance ("No classes were taught in …");
+    - monthly reports ("Nothing to report on …");
+    - Sales held slots and pipeline ("Nothing held yet" / "Nobody in the pipeline").
+
+    My Learning and the student home page say the record couldn't be loaded, where they
+    said "You are not in a group yet".
+
+  - **Global `ErrorHandler`** (`core/errors/app-error-handler.ts`): logs every uncaught
+    error and shows one notice per 5 s at most. It ignores `HttpErrorResponse`, which the
+    interceptor reports. It's the hook for monitoring (R-02).
+
+- **Why:** audit §5 Reliability and code quality; `AGENTS.md` forbids duplicate toasts.
+- **Mistake caught on the way:** the scripted removal of the group-detail 409 `else` branch
+  also removed the `if`'s closing brace. Found on review, fixed, and confirmed by the type
+  check.
+- **Validation:** 26 files / 146 tests pass (handler spec; a rendered instructor-detail test
+  that a failed load shows the error state and "Try again" reloads the same id); lint 0
+  errors; build clean at 597.51 kB.

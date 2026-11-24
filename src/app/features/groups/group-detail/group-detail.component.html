@@ -57,6 +57,8 @@
     <div class="flex justify-center items-center py-24">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error title="This group could not be loaded" (retry)="loadGroupDetail(groupId())" />
   } @else if (group()) {
     <!-- Compact Title & Subheader Row -->
     <div

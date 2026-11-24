@@ -290,6 +290,8 @@
   @if (tab() === 'holds') {
     @if (loading()) {
       <div class="loading"><p-progressSpinner styleClass="w-8 h-8" strokeWidth="4" /></div>
+    } @else if (holdsFailed()) {
+      <app-load-error title="Held slots could not be loaded" (retry)="loadHolds()" />
     } @else if (!liveHolds().length && !closedHolds().length) {
       <div class="empty">
         <i class="pi pi-bookmark"></i>
@@ -484,7 +486,9 @@
         </div>
       </div>
 
-      @if (!candidates().length) {
+      @if (candidatesFailed()) {
+        <app-load-error title="The pipeline could not be loaded" (retry)="loadCandidates()" />
+      } @else if (!candidates().length) {
         <div class="empty empty--flat">
           <p class="empty__title">Nobody in the pipeline</p>
           <p class="empty__note">

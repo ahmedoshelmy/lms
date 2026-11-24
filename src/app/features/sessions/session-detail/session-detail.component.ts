@@ -280,7 +280,7 @@ export class SessionDetailComponent implements OnInit {
     this.lms.recordTrialAttendance(sessionId, candidate.id, attended).subscribe({
       next: (updated) =>
         this.trials.update((list) => list.map((c) => (c.id === updated.id ? updated : c))),
-      error: () => this.notify.showError('Could not record that.'),
+      error: () => undefined, // Already reported by the error interceptor.
     });
   }
 
@@ -308,13 +308,11 @@ export class SessionDetailComponent implements OnInit {
             this.buildRecords(detail);
             this.loadTrials(detail);
           } else {
-            this.notify.showError('Session not found');
             this.router.navigate(['/schedule']);
           }
           this.loading.set(false);
         },
         error: () => {
-          this.notify.showError('Failed to load session');
           this.router.navigate(['/schedule']);
           this.loading.set(false);
         },
@@ -638,9 +636,8 @@ export class SessionDetailComponent implements OnInit {
             this.session.set({ ...s, ...updated });
             this.isEditing.set(false);
           },
-          error: (err) => {
+          error: () => {
             this.saving.set(false);
-            this.notify.showError('Failed to apply forward: ' + (err.error?.message || 'Error'));
           },
         });
     } else {
@@ -717,9 +714,8 @@ export class SessionDetailComponent implements OnInit {
         this.notify.showSuccess(res?.message || 'Session deleted successfully.');
         this.router.navigate(['/schedule']);
       },
-      error: (err) => {
+      error: () => {
         this.deleting.set(false);
-        this.notify.showError(err.error?.message || 'Failed to delete session.');
       },
     });
   }

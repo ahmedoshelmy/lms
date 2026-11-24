@@ -336,9 +336,8 @@ export class SessionDetailPanelComponent {
         this.sessionDeleted.emit(s.id);
         this.closed.emit();
       },
-      error: (err) => {
+      error: () => {
         this.deleting.set(false);
-        this.notify.showError(err.error?.message || 'Failed to delete session.');
       },
     });
   }

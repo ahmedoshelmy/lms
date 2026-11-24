@@ -40,6 +40,7 @@ import {
 } from '../../../core/utils/course-progress.utils';
 import { toIsoDate, todayIsoDate } from '../../../core/utils/date.utils';
 import { latestRequest } from '../../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -53,6 +54,7 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   standalone: true,
   imports: [
     CommonModule,
+    LoadErrorComponent,
     FormsModule,
     ProgressSpinnerModule,
     ButtonModule,
@@ -81,6 +83,9 @@ export class GroupDetailComponent implements OnInit {
   protected readonly clock = inject(ClockFormatService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly detailRequest = latestRequest();
+
+  /** The page could not be loaded; shown instead of a blank page. */
+  readonly loadFailed = signal(false);
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -416,6 +421,7 @@ export class GroupDetailComponent implements OnInit {
 
   loadGroupDetail(id: number): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lmsService
       .getGroup(id)
       .pipe(this.detailRequest.latest())
@@ -426,7 +432,7 @@ export class GroupDetailComponent implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.notify.showError('Failed to load group details');
+          this.loadFailed.set(true);
         },
       });
   }
@@ -478,8 +484,7 @@ export class GroupDetailComponent implements OnInit {
           this.loadGroupHistory(id);
           this.loadScheduleSessions();
         },
-        error: (err) => {
-          this.notify.showError('Failed to promote group: ' + (err.error?.message || 'Error'));
+        error: () => {
           this.promoting.set(false);
         },
       });
@@ -563,8 +568,7 @@ export class GroupDetailComponent implements OnInit {
           },
         });
       },
-      error: (err) => {
-        this.notify.showError('Failed to add course: ' + (err.error?.message || 'Error'));
+      error: () => {
         this.addingCourse.set(false);
       },
     });
@@ -589,8 +593,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupHistory(id);
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError('Failed to regenerate sessions: ' + (err.error?.message || 'Error'));
+      error: () => {
         this.regeneratingCourseId.set(null);
       },
     });
@@ -774,8 +777,7 @@ export class GroupDetailComponent implements OnInit {
         this.showEditModal.set(false);
         this.loadGroupDetail(id);
       },
-      error: (err) => {
-        this.notify.showError(`Failed to update group: ${err.error?.message || 'Server error'}`);
+      error: () => {
         this.saving.set(false);
       },
     });
@@ -829,8 +831,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupDetail(grp.id);
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError(`Failed to update course: ${err.error?.message || 'Server error'}`);
+      error: () => {
         this.savingCourseManagement.set(false);
       },
     });
@@ -857,8 +858,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupDetail(this.groupId());
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError(err.error?.message || 'Failed to generate custom sessions.');
+      error: () => {
         this.generatingCustom.set(false);
       },
     });
@@ -878,8 +878,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupDetail(this.groupId());
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError(err.error?.message || 'Failed to regenerate sessions.');
+      error: () => {
         this.regeneratingCourseId.set(null);
       },
     });
@@ -923,9 +922,7 @@ export class GroupDetailComponent implements OnInit {
         this.allSystemStudents.set(studentsOnly);
         this.showAddStudentModal.set(true);
       },
-      error: () => {
-        this.notify.showError('Failed to load students list.');
-      },
+      error: () => {},
     });
   }
 
@@ -1108,8 +1105,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupHistory(groupId);
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError('Failed to update sessions: ' + (err.error?.message || 'Error'));
+      error: () => {
         this.savingSessions.set(false);
       },
     });
@@ -1156,8 +1152,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupHistory(groupId);
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError('Failed to remove course: ' + (err.error?.message || 'Error'));
+      error: () => {
         this.removingCourse.set(false);
       },
     });
@@ -1197,8 +1192,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupHistory(this.groupId());
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError('Failed to generate sessions: ' + (err.error?.message || 'Error'));
+      error: () => {
         this.generatingCustom.set(false);
       },
     });
@@ -1296,8 +1290,7 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupDetail(groupId);
         this.loadScheduleSessions();
       },
-      error: (err) => {
-        this.notify.showError('Failed to update schedule: ' + (err.error?.message || 'Error'));
+      error: () => {
         this.savingSchedule.set(false);
       },
     });
@@ -1350,10 +1343,6 @@ export class GroupDetailComponent implements OnInit {
             this.sessionNumberConflictMessage.set(
               err.error?.message ||
                 'Changing current session number requires deleting and regenerating upcoming scheduled sessions.'
-            );
-          } else {
-            this.notify.showError(
-              'Failed to update session number: ' + (err.error?.message || 'Error')
             );
           }
         },
@@ -1423,9 +1412,8 @@ export class GroupDetailComponent implements OnInit {
         this.loadGroupHistory(groupData.id);
         this.loadScheduleSessions();
       },
-      error: (err) => {
+      error: () => {
         this.submittingHold.set(false);
-        this.notify.showError('Failed to hold group: ' + (err.error?.message || 'Error'));
       },
     });
   }

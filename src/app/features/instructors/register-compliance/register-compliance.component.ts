@@ -1,10 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
 import { RegisterCompliance, RegisterComplianceReport } from '../../../core/interfaces/Attendance';
 import { latestRequest } from '../../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
 
 /**
  * How each instructor kept their registers, month by month.
@@ -16,13 +16,14 @@ import { latestRequest } from '../../../core/utils/latest-request';
 @Component({
   selector: 'app-register-compliance',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadErrorComponent],
   templateUrl: './register-compliance.component.html',
   styleUrl: './register-compliance.component.scss',
 })
 export class RegisterComplianceComponent implements OnInit {
   private lms = inject(LmsService);
   private readonly monthRequest = latestRequest();
+  readonly loadFailed = signal(false);
 
   readonly loading = signal(false);
   readonly report = signal<RegisterComplianceReport | null>(null);
@@ -94,13 +95,21 @@ export class RegisterComplianceComponent implements OnInit {
     const to = new Date(Date.UTC(year, month, 1)).toISOString();
 
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lms
       .getRegisterCompliance(from, to)
-      .pipe(catchError(() => of(null)))
       .pipe(this.monthRequest.latest())
-      .subscribe((report) => {
-        this.report.set(report);
-        this.loading.set(false);
+      .subscribe({
+        next: (report) => {
+          this.report.set(report);
+          this.loading.set(false);
+        },
+        // Not "no classes were taught", which is what a failure used to read as.
+        error: () => {
+          this.report.set(null);
+          this.loading.set(false);
+          this.loadFailed.set(true);
+        },
       });
   }
 

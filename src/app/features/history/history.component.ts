@@ -68,7 +68,6 @@ export class HistoryComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.notify.showError('Failed to load group history');
         this.loading.set(false);
       },
     });
@@ -166,10 +165,7 @@ export class HistoryComponent implements OnInit {
           this.promoting = false;
           this.loadData();
         },
-        error: (err) => {
-          this.notify.showError(
-            'Failed to promote group: ' + (err.error?.message || 'Error occurred')
-          );
+        error: () => {
           this.promoting = false;
         },
       });

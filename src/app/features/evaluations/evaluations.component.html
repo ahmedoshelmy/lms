@@ -96,6 +96,8 @@
       <i class="pi pi-spinner pi-spin"></i>
       <span>Reading {{ monthLabel() }}&hellip;</span>
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error title="This month's reports could not be loaded" (retry)="load()" />
   } @else if (byGroup().length === 0) {
     <div class="state">
       <i class="pi pi-inbox"></i>

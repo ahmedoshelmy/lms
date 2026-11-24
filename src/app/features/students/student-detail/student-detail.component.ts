@@ -18,12 +18,14 @@ import { CertificateDialogComponent } from '../../../shared/components/certifica
 import { toGroupOptions } from '../../../core/interfaces/Group';
 import { SelectModule } from 'primeng/select';
 import { latestRequest } from '../../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
 
 @Component({
   selector: 'app-student-detail',
   standalone: true,
   imports: [
     CommonModule,
+    LoadErrorComponent,
     FormsModule,
     RouterLink,
     ProgressSpinnerModule,
@@ -42,6 +44,9 @@ export class StudentDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly detailRequest = latestRequest();
+
+  /** The page could not be loaded; shown instead of a blank page. */
+  readonly loadFailed = signal(false);
   private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
@@ -109,6 +114,7 @@ export class StudentDetailComponent implements OnInit {
 
   loadStudentDetails(id: number): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lmsService
       .getStudentDetails(id)
       .pipe(this.detailRequest.latest())
@@ -118,8 +124,8 @@ export class StudentDetailComponent implements OnInit {
           this.loading.set(false);
         },
         error: () => {
-          this.notify.showError('Failed to load student details');
           this.loading.set(false);
+          this.loadFailed.set(true);
         },
       });
   }

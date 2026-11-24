@@ -4,6 +4,8 @@
     <p class="learning__sub">
       @if (loading()) {
         Loading your record…
+      } @else if (loadFailed()) {
+        Your record could not be loaded just now. Reload the page to try again.
       } @else if (!group()) {
         You are not in a group yet, so there is nothing to show here.
       } @else {

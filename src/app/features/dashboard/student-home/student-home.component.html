@@ -6,6 +6,8 @@
     <p class="student-home__sub">
       @if (loading()) {
         Loading your classes…
+      } @else if (loadFailed()) {
+        Your record could not be loaded just now. Reload the page to try again.
       } @else if (!group()) {
         You are not in a group yet. Once you are, your classes will show up here.
       } @else {

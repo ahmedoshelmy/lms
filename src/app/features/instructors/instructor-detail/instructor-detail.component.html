@@ -19,6 +19,11 @@
     <div class="flex justify-center items-center py-24">
       <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
     </div>
+  } @else if (loadFailed()) {
+    <app-load-error
+      title="This instructor could not be loaded"
+      (retry)="loadInstructorDetails(instructorId())"
+    />
   } @else if (instructor()) {
     <!-- Main Instructor Card Banner -->
     <div

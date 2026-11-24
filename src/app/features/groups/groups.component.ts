@@ -656,8 +656,7 @@ export class GroupsComponent implements OnInit {
           this.showModal.set(false);
           this.router.navigate(['/groups', createdGroup.id]);
         },
-        error: (err) => {
-          this.notify.showError(`Failed to create group: ${err.error?.message || 'Server error'}`);
+        error: () => {
           this.saving.set(false);
         },
       });

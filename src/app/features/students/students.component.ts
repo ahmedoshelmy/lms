@@ -117,7 +117,6 @@ export class StudentsComponent implements OnInit {
       },
       error: () => {
         this.savingRenewalFor.set(null);
-        this.notify.showError('Could not update the renewal.');
       },
     });
   }

@@ -254,14 +254,14 @@ export class AvailabilityComponent implements OnInit {
           this.loadForInstructor(list[0].id);
         }
       },
-      error: () => this.notify.showError('Could not load the instructor list.'),
+      error: () => undefined, // Already reported by the error interceptor.
     });
   }
 
   loadRooms(): void {
     this.lms.getRooms().subscribe({
       next: (rooms) => this.rooms.set(rooms || []),
-      error: () => this.notify.showError('Could not load rooms.'),
+      error: () => undefined, // Already reported by the error interceptor.
     });
   }
 

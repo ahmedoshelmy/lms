@@ -23,6 +23,7 @@ import { ClockFormatService } from '../../core/services/clock-format.service';
 import { toIsoDate, todayIsoDate } from '../../core/utils/date.utils';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { latestRequest } from '../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 type Tab = 'find' | 'holds' | 'pipeline';
 
@@ -37,7 +38,7 @@ type Tab = 'find' | 'holds' | 'pipeline';
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule],
+  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, LoadErrorComponent],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss',
 })
@@ -200,21 +201,36 @@ export class SalesComponent implements OnInit {
     });
   }
 
+  /**
+   * Set when a list could not be loaded, so it says so instead of showing its
+   * empty state ("Nothing held yet", "Nobody in the pipeline").
+   */
+  readonly holdsFailed = signal(false);
+  readonly candidatesFailed = signal(false);
+
   loadHolds(): void {
     this.loading.set(true);
+    this.holdsFailed.set(false);
     this.lms.getSlotHolds().subscribe({
       next: (holds) => {
         this.holds.set(holds || []);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.holdsFailed.set(true);
+      },
     });
   }
 
   loadCandidates(): void {
+    this.candidatesFailed.set(false);
     this.lms.getCandidates().subscribe({
       next: (candidates) => this.candidates.set(candidates || []),
-      error: () => this.candidates.set([]),
+      error: () => {
+        this.candidates.set([]);
+        this.candidatesFailed.set(true);
+      },
     });
   }
 

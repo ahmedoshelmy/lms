@@ -386,7 +386,6 @@ export class SettingsComponent {
       error: () => {
         this.healthStatus.set('unhealthy');
         this.pinging.set(false);
-        this.notify.showError('Backend server ping failed or unreachable.');
       },
     });
   }

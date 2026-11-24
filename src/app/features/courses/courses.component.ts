@@ -115,8 +115,7 @@ export class CoursesComponent implements OnInit {
         this.topics.set(data || []);
         this.loading.set(false);
       },
-      error: (err) => {
-        this.notify.showError(`Failed to load topics: ${err.message || 'Server error'}`);
+      error: () => {
         this.loading.set(false);
       },
     });

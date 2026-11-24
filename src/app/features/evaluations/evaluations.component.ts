@@ -9,6 +9,7 @@ import { Role } from '../../core/interfaces/Role';
 import { MonthlyEvaluationSummary } from '../../core/interfaces/MonthlyEvaluation';
 import { MonthlyReportPdfService } from '../../core/services/monthly-report-pdf.service';
 import { latestRequest } from '../../core/utils/latest-request';
+import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 type StatusFilter = 'All' | 'NotStarted' | 'Draft' | 'Submitted' | 'Released';
 
@@ -22,13 +23,14 @@ type StatusFilter = 'All' | 'NotStarted' | 'Draft' | 'Submitted' | 'Released';
 @Component({
   selector: 'app-evaluations',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, LoadErrorComponent],
   templateUrl: './evaluations.component.html',
   styleUrl: './evaluations.component.scss',
 })
 export class EvaluationsComponent implements OnInit {
   private lms = inject(LmsService);
   private readonly monthRequest = latestRequest();
+  protected readonly loadFailed = signal(false);
   private auth = inject(AuthService);
   private notify = inject(NotificationService);
   private router = inject(Router);
@@ -209,6 +211,7 @@ export class EvaluationsComponent implements OnInit {
 
   protected load(): void {
     this.loading.set(true);
+    this.loadFailed.set(false);
     this.lms
       .getEvaluations(`${this.month()}-01`)
       .pipe(this.monthRequest.latest())
@@ -225,7 +228,12 @@ export class EvaluationsComponent implements OnInit {
             this.instructorFilter.set('All');
           }
         },
-        error: () => this.loading.set(false),
+        // Not "nothing to report on", which is what a failure used to read as.
+        error: () => {
+          this.rows.set([]);
+          this.loading.set(false);
+          this.loadFailed.set(true);
+        },
       });
   }
 

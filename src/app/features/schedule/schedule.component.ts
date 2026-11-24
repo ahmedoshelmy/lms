@@ -429,10 +429,7 @@ export class ScheduleComponent implements OnInit {
           this.cancelling.set(false);
           this.loadSchedule();
         },
-        error: (err) => {
-          this.notify.showError(
-            'Failed to cancel session: ' + (err.error?.message || 'Server error')
-          );
+        error: () => {
           this.cancelling.set(false);
         },
       });
@@ -482,8 +479,7 @@ export class ScheduleComponent implements OnInit {
           }
         }
       },
-      error: (err) => {
-        this.notify.showError(`Failed to load instructors list: ${err.message || 'Server error'}`);
+      error: () => {
         this.loading.set(false);
       },
     });
@@ -550,8 +546,7 @@ export class ScheduleComponent implements OnInit {
             }
           }
         },
-        error: (err) => {
-          this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
+        error: () => {
           this.loading.set(false);
         },
       });
