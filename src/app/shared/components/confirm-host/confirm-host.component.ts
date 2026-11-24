@@ -5,7 +5,8 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 /**
  * Draws whatever ConfirmService is asking. Rendered once, in the main layout.
  * Closing the dialog any other way -- Escape, the close icon -- is a "no".
- * Focus starts on the safe button.
+ * Focus starts on the safe button, or in the text box when there is one: that
+ * is what the question is waiting for, and typing in it commits to nothing.
  */
 @Component({
   selector: 'app-confirm-host',
@@ -33,7 +34,10 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 
         @if (q.input; as input) {
           <label class="confirm__label" for="confirm-input">{{ input.label }}</label>
+          <!-- PrimeNG looks for [autofocus] in the body before the footer. -->
+          <!-- eslint-disable @angular-eslint/template/no-autofocus -->
           <textarea
+            autofocus
             id="confirm-input"
             class="confirm__input"
             rows="3"
@@ -41,6 +45,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
             [value]="text()"
             (input)="text.set($any($event.target).value)"
           ></textarea>
+          <!-- eslint-enable @angular-eslint/template/no-autofocus -->
         }
 
         <ng-template #footer>

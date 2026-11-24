@@ -83,8 +83,9 @@ describe('StudentsComponent creating a student', () => {
     component.confirmBulkDelete();
 
     expect(deleted.sort()).toEqual([1, 2]);
-    // Omar's deletion was refused: he stays selected to try again; Laila was never touched.
-    expect([...component.selectedStudentIds()]).toEqual([2]);
+    // Omar's deletion was refused: he stays selected to try again. Laila was
+    // never touched, so she stays selected too, for when the filter shows her.
+    expect([...component.selectedStudentIds()].sort()).toEqual([2, 3]);
     expect(notify.showWarn).toHaveBeenCalled();
   });
 });

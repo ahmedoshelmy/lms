@@ -108,7 +108,7 @@
   </div>
 
   <!-- Persistent Floating Bulk Actions Toolbar -->
-  @if (selectedVisible().length > 0) {
+  @if (selectedStudentIds().size > 0) {
     <div
       class="mb-6 p-4 rounded-2xl bg-[var(--color-primary)] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg animate-fade-in"
     >
@@ -120,30 +120,35 @@
         </span>
         <span class="text-xs font-bold">
           Student{{ selectedVisible().length !== 1 ? 's' : '' }} Selected
-          <span class="text-white/70 font-normal hidden sm:inline">
-            (Selection persists across search/filters)</span
-          >
+          @if (selectedHidden() > 0) {
+            <span class="text-white/70 font-normal">
+              (and {{ selectedHidden() }} hidden by the filters, which bulk actions leave
+              alone)</span
+            >
+          }
         </span>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <button
-          type="button"
-          (click)="openBulkAssignModal()"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[var(--color-primary)] hover:bg-white/90 text-xs font-extrabold rounded-xl transition-colors cursor-pointer shadow w-full sm:w-auto"
-        >
-          <i class="pi pi-users text-xs"></i>
-          Bulk Assign Group
-        </button>
+        @if (selectedVisible().length > 0) {
+          <button
+            type="button"
+            (click)="openBulkAssignModal()"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[var(--color-primary)] hover:bg-white/90 text-xs font-extrabold rounded-xl transition-colors cursor-pointer shadow w-full sm:w-auto"
+          >
+            <i class="pi pi-users text-xs"></i>
+            Bulk Assign Group
+          </button>
 
-        <button
-          type="button"
-          (click)="openBulkDeleteModal()"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-xs font-extrabold rounded-xl transition-colors cursor-pointer shadow w-full sm:w-auto"
-        >
-          <i class="pi pi-trash text-xs"></i>
-          Bulk Delete
-        </button>
+          <button
+            type="button"
+            (click)="openBulkDeleteModal()"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-xs font-extrabold rounded-xl transition-colors cursor-pointer shadow w-full sm:w-auto"
+          >
+            <i class="pi pi-trash text-xs"></i>
+            Bulk Delete
+          </button>
+        }
 
         <button
           type="button"

@@ -15,6 +15,7 @@ import {
   StudentAttendanceRecord,
   StudentCourse,
   StudentDetails,
+  StudentGroup,
 } from '../../core/interfaces/StudentDetails';
 import { StudentSessionSummary } from '../../core/interfaces/SessionSyllabus';
 import { sessionsTaught } from '../../core/utils/course-progress.utils';
@@ -24,6 +25,8 @@ type Tab = 'progress' | 'attendance' | 'classes';
 /** A course as this page shows it: the record, plus what it earns. */
 interface CourseRow {
   course: StudentCourse;
+  /** The group this course is taught in: its certificate names that group. */
+  group: StudentGroup;
   groupName: string;
   instructorName: string;
   done: number;
@@ -102,6 +105,7 @@ export class MyLearningComponent implements OnInit {
 
         return {
           course,
+          group,
           groupName: group.groupName,
           instructorName: group.instructorName ?? 'your instructor',
           done,
@@ -190,8 +194,10 @@ export class MyLearningComponent implements OnInit {
    */
   downloadCertificate(row: CourseRow): void {
     const record = this.record();
-    const group = this.group();
-    if (!record || !group || !row.earned) return;
+    // The row's own group, not the first one: a child in two groups used to get
+    // the second course's certificate with the first group's name and serial.
+    const group = row.group;
+    if (!record || !row.earned) return;
 
     const level = Number(row.course.level) || row.course.level;
 

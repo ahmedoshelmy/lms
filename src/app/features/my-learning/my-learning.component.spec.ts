@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { Certificate } from '../../core/interfaces/Certificate';
 import { StudentDetails } from '../../core/interfaces/StudentDetails';
 import { AuthService } from '../../core/services/auth.service';
 import { CertificatePdfService } from '../../core/services/certificate-pdf.service';
@@ -70,5 +71,35 @@ describe('MyLearningComponent for a student in two groups', () => {
     expect(page.componentInstance.groupsLine()).toBe(
       'Python L1 – Sat · Mona and Robotics L2 – Mon · Ali'
     );
+  });
+
+  it("puts the course's own group on its certificate, not the first group", async () => {
+    TestBed.resetTestingModule();
+    const save = vi.fn<(certificates: Certificate[]) => Promise<void>>(() => Promise.resolve());
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: LmsService,
+          useValue: {
+            getMyStudentRecord: () => of({ ...RECORD, id: 4, name: 'Laila', email: 'l@x' }),
+            getStudentSessionSummaries: () => of([]),
+          },
+        },
+        { provide: AuthService, useValue: { getUserId: () => 4, currentUser: () => null } },
+        { provide: NotificationService, useValue: { showSuccess: () => {}, showError: () => {} } },
+        { provide: CertificatePdfService, useValue: { save } },
+      ],
+    });
+    const page = TestBed.createComponent(MyLearningComponent);
+    page.detectChanges();
+
+    const robotics = page.componentInstance.courses()[1];
+    page.componentInstance.downloadCertificate({ ...robotics, earned: true });
+    await Promise.resolve();
+
+    const [certificate] = save.mock.calls[0][0];
+    expect(certificate.groupId).toBe(2);
+    expect(certificate.groupName).toBe('Robotics L2 – Mon');
+    expect(certificate.key).toBe('2-21');
   });
 });

@@ -21,23 +21,22 @@ Arabic/RTL.
 
 ## Status (2026-11-24)
 
-Done on branch `frontend/phase-0`, one commit each. Details are in the implementation log.
+Each phase is on its own branch, cut from the one before (`frontend/phase-0` …
+`frontend/phase-3`), one commit per task, and each phase ends with an audit. Details are in
+the implementation log.
 
-- **Phase 0:** P0-01 to P0-11, all done.
-- **SSR-01:** done.
+- **Phase 0:** P0-01 to P0-11 and SSR-01, done.
+- **Phase 1:** R-03, F-01 to F-08 and F-10, done and audited. F-09 (splitting the largest
+  components) is deferred until Phase 7 has tests around them.
+- **Phase 2:** D-01, D-02, D-04 and D-05, done and audited. D-03 (shared page header and
+  empty state) is adopted page by page as later phases touch them.
+- **Phase 3:** W-01 to W-06, done and audited. W-07 needs a backend endpoint.
 
-Validation: 21 test files, 128 tests passing (78 at the start); production build clean, with
-the initial bundle at 596.83 kB against the 600 kB warning budget.
+Latest validation (Phase 3 audit): format ✔, lint 0 errors (167 warnings of tracked
+debt), 38 test files and 190 tests passing, production build ✔ with the initial bundle at
+about 584 kB against the 600 kB budget, production `npm audit` 0.
 
-Raised in priority by what Phase 0 found:
-
-- **R-03 → P1:** the remaining production `npm audit` advisories are against the installed
-  Angular 21.2.x, including an XSS and a sanitizer bypass. A patch update within the current
-  ranges should clear them.
-- **F-06:** add `.gitattributes` (`* text=auto eol=lf`). On Windows, `core.autocrlf=true`
-  makes `prettier --check` flag every file for line endings.
-
-Backend questions opened by Phase 0:
+Backend questions still open:
 
 - Does `PUT /groups/{id}` accept `endDate: null`?
 - Does the server accept late registers from the instructor who taught the class? If so,
@@ -45,6 +44,10 @@ Backend questions opened by Phase 0:
 - Does the server refuse attendance writes from students, and limit what they can read?
 - Can students created with `pass2word` be forced to reset?
 - Endpoints for profile edits and password change.
+- Refresh-cookie flags, before the access token moves into memory.
+- Does `mineOnly` filter on the server for holds and candidates?
+- Bulk and per-group endpoints, instead of one request per student.
+- Recording issued certificates (W-07); `instructorId` always set on sessions.
 
 ## Task table
 

@@ -831,3 +831,46 @@ Everything below was checked as unused before deletion.
 - **W-07 (certificates issued and recorded on the server):** not done. It needs a backend
   endpoint to record an issued certificate; the frontend only builds the PDF. Recorded as a
   backend dependency.
+
+## Phase 3 audit
+
+- **Checks:** format ✔; lint 0 errors (167 warnings, unchanged); 38 files / 190 tests ✔
+  (run in batches); production build ✔ at 583.99 kB; production `npm audit` 0.
+- **Visual check** (same localhost setup as the Phase 2 audit): the Sales scope toggle
+  ("Everyone's" for Admin), and the release-slot dialog with its text box, on desktop
+  (light) and as a phone sheet (dark). Both looked right.
+  - For Phase 6: in dark mode the red action button has white text on a light red, which is
+    low contrast.
+- **Independent review** of the Phase 3 diff. Fixed, each with a test that fails without the
+  fix:
+  1. **Certificate named the wrong group (High, from W-04).** My Learning lists every
+     group's courses, but the certificate still took the first group's name, id (in the
+     serial) and weekly rate. Each course row now carries its own group.
+  2. **"Leave without saving?" after deleting a class.** Marks typed before the delete
+     triggered the new guard on the way out, and "Stay" kept a page for a class that no
+     longer exists. A successful delete now clears the unsaved state.
+  3. **Signing out with an unsaved register asked after the sign-out.** By then nothing can
+     be saved, and "Stay" left a signed-out person on the page. The guard now lets the
+     navigation through once nobody is signed in. Leaving the page, or closing the tab
+     (`beforeunload`), still asks. A deliberate sign-out does not ask first; that needs a
+     confirm step in the sign-out button, left for Phase 6 (A-02).
+- **Fixed without a test:**
+  4. **Sales Mine/Everyone's could show the wrong list:** a fast double toggle let the
+     older answer land last. Holds and candidates loads now go through `latestRequest()`,
+     as AGENTS.md asks for filter-driven loads.
+  5. **Students: hidden selections were unreachable.** Once the filters hid every selected
+     student, the toolbar vanished, and with it "Clear Selection". A later bulk action then
+     cleared the hidden ones too. The toolbar now shows while anything is selected and says
+     how many are hidden. The bulk buttons show only when some are visible. A bulk action
+     unselects only what it finished, so failures and hidden students stay selected (the
+     existing test was updated to match).
+  6. **The text box in the confirm dialog** (release slot, propose week) now gets the
+     focus, so the reason can be typed at once. Plain confirmations still open on the safe
+     button. Checked in the browser.
+- **Reviewed, nothing found:** the confirm host (resets between questions, resolves once,
+  trims, null on cancel), Sales busy guards (always released), renamed members, the session
+  guard with the outstanding-work window, dashboard role branches, students with no group
+  or a group with no course, evaluations, and the availability matrix.
+- **Unconfirmed, left as is:** bulk assign sends `email: ''` for a student without an email,
+  as before this work. Whether the server accepts that is a backend question.
+

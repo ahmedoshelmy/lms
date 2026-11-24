@@ -727,6 +727,10 @@ export class SessionDetailComponent implements OnInit, HasUnsavedChanges {
         this.deleting.set(false);
         this.showDeleteModal.set(false);
         this.notify.showSuccess(res?.message || 'Session deleted successfully.');
+        // The class is gone, and its unsaved marks with it: leave without the
+        // "Leave without saving?" question, whose "Stay" would keep a page for
+        // a class that no longer exists.
+        this.isDirty.set(false);
         this.router.navigate(['/schedule']);
       },
       error: () => {

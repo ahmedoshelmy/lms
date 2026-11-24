@@ -217,6 +217,11 @@ export class SalesComponent implements OnInit {
    */
   readonly mineOnly = signal(false);
 
+  // Switching Mine/Everyone's, or an action's reload, starts a new request; an
+  // older one answering last used to put everyone's list under "Mine".
+  private readonly holdsRequest = latestRequest();
+  private readonly candidatesRequest = latestRequest();
+
   toggleMineOnly(): void {
     this.mineOnly.update((v) => !v);
     this.loadHolds();
@@ -226,27 +231,33 @@ export class SalesComponent implements OnInit {
   loadHolds(): void {
     this.loading.set(true);
     this.holdsFailed.set(false);
-    this.lms.getSlotHolds({ mineOnly: this.mineOnly() }).subscribe({
-      next: (holds) => {
-        this.holds.set(holds || []);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.holdsFailed.set(true);
-      },
-    });
+    this.lms
+      .getSlotHolds({ mineOnly: this.mineOnly() })
+      .pipe(this.holdsRequest.latest())
+      .subscribe({
+        next: (holds) => {
+          this.holds.set(holds || []);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.holdsFailed.set(true);
+        },
+      });
   }
 
   loadCandidates(): void {
     this.candidatesFailed.set(false);
-    this.lms.getCandidates({ mineOnly: this.mineOnly() }).subscribe({
-      next: (candidates) => this.candidates.set(candidates || []),
-      error: () => {
-        this.candidates.set([]);
-        this.candidatesFailed.set(true);
-      },
-    });
+    this.lms
+      .getCandidates({ mineOnly: this.mineOnly() })
+      .pipe(this.candidatesRequest.latest())
+      .subscribe({
+        next: (candidates) => this.candidates.set(candidates || []),
+        error: () => {
+          this.candidates.set([]);
+          this.candidatesFailed.set(true);
+        },
+      });
   }
 
   // ── Finding a slot ───────────────────────────────────────────────────────

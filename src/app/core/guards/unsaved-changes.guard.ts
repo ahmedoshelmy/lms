@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { ConfirmService } from '../services/confirm.service';
 
 /** A page that can say whether leaving it now would lose work. */
@@ -16,6 +17,12 @@ export interface HasUnsavedChanges {
  */
 export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (component) => {
   if (!component?.hasUnsavedChanges()) {
+    return true;
+  }
+
+  // Signed out already (here or in another tab): nothing on the page can be
+  // saved now, and "Stay" would only leave a signed-out person on it.
+  if (!inject(AuthService).isLoggedIn()) {
     return true;
   }
 

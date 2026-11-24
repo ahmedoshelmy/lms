@@ -57,9 +57,10 @@ describe('SessionDetailComponent for a student', () => {
             getSessionTrials: () => of([]),
             getSessionSyllabus: () => of(null),
             getInstructors: () => of([]),
+            deleteSession: () => of({}),
           },
         },
-        { provide: NotificationService, useValue: {} },
+        { provide: NotificationService, useValue: { showSuccess: () => undefined } },
         {
           provide: AuthService,
           useValue: { hasRole: (r: Role) => r === role, getUserId: () => userId },
@@ -107,5 +108,19 @@ describe('SessionDetailComponent for a student', () => {
     page.setStatus(page.records()[1], 'Late');
 
     expect(page.hasUnsavedChanges()).toBe(true);
+  });
+
+  it('does not count marks on a class that has just been deleted as unsaved', () => {
+    role = Role.Admin;
+    userId = 1;
+    const fixture = TestBed.createComponent(SessionDetailComponent);
+    fixture.detectChanges();
+    const page = fixture.componentInstance;
+    page.setStatus(page.records()[1], 'Late');
+
+    page.confirmDeleteSession();
+
+    // Otherwise the way out asks "Leave without saving?" about a class that is gone.
+    expect(page.hasUnsavedChanges()).toBe(false);
   });
 });

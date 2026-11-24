@@ -366,9 +366,21 @@ export class StudentsComponent implements OnInit {
     return this.filteredStudents().filter((s) => selected.has(s.id));
   });
 
-  /** Keeps only these selected, so the ones that failed can be tried again. */
-  private selectOnly(ids: number[]): void {
-    this.selectedStudentIds.set(new Set(ids));
+  /** Selected, but hidden by the filters: bulk actions leave them alone. */
+  readonly selectedHidden = computed(
+    () => this.selectedStudentIds().size - this.selectedVisible().length
+  );
+
+  /**
+   * Unselects the ones a bulk action finished. Those that failed stay selected
+   * to try again, and so do any the filters hide, which the action never touched.
+   */
+  private deselect(ids: number[]): void {
+    this.selectedStudentIds.update((set) => {
+      const next = new Set(set);
+      ids.forEach((id) => next.delete(id));
+      return next;
+    });
   }
 
   private names(ids: number[]): string {
@@ -420,7 +432,7 @@ export class StudentsComponent implements OnInit {
       this.bulkAssigning.set(false);
       this.reportBulk(
         'assigned to ' + groupName,
-        succeeded.length,
+        succeeded.map((s) => s.id),
         failed.map((s) => s.id)
       );
       if (!failed.length) this.showBulkModal.set(false);
@@ -432,18 +444,18 @@ export class StudentsComponent implements OnInit {
    * Says how a bulk action went. Everything worked: a success. Some failed:
    * how many, and which -- they stay selected so they can be tried again.
    */
-  private reportBulk(done: string, ok: number, failedIds: number[]): void {
+  private reportBulk(done: string, succeededIds: number[], failedIds: number[]): void {
+    const ok = succeededIds.length;
     const total = ok + failedIds.length;
     const plural = (n: number) => `${n} student${n === 1 ? '' : 's'}`;
+    this.deselect(succeededIds);
     if (!failedIds.length) {
       this.notify.showSuccess(`${plural(ok)} ${done}.`);
-      this.clearSelection();
       return;
     }
     this.notify.showWarn(
       `${ok} of ${plural(total)} ${done}. Not done: ${this.names(failedIds)} -- still selected, to try again.`
     );
-    this.selectOnly(failedIds);
   }
 
   openCreateModal(): void {
@@ -558,7 +570,7 @@ export class StudentsComponent implements OnInit {
     runBulk(selectedIds, (id) => this.lms.deleteUser(id)).subscribe(({ succeeded, failed }) => {
       this.bulkDeleting.set(false);
       this.showBulkDeleteModal.set(false);
-      this.reportBulk('deleted', succeeded.length, failed);
+      this.reportBulk('deleted', succeeded, failed);
       this.loadData();
     });
   }
