@@ -278,22 +278,11 @@ export class SessionDetailPanelComponent {
         };
         this.sessionUpdated.emit(merged);
       },
-      error: () => {
-        // Fallback: build the updated session from current data client-side
-        this.saving.set(false);
-        const newInstructor = this.instructors().find((i) => i.id === this.editInstructorId());
-        const optimistic: ScheduleSession = {
-          ...s,
-          instructorId: this.editInstructorId(),
-          instructorName: newInstructor?.name ?? s.instructorName,
-          status: this.editStatus(),
-          startsAt: computedStartsAt,
-          endsAt: computedEndsAt,
-          durationMinutes: computedDurationMinutes,
-        };
-        this.notify.showSuccess('Session updated locally (server sync pending).');
-        this.sessionUpdated.emit(optimistic);
-      },
+      // A refused change is not shown as made. This used to emit the edit as if
+      // it had saved and say "updated locally (server sync pending)"; nothing
+      // ever synced, so the schedule showed a class where it was not. The form
+      // stays open with what was typed; the interceptor has already said why.
+      error: () => this.saving.set(false),
     });
   }
 

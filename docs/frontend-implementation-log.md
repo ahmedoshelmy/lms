@@ -27,3 +27,15 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   unchanged at 598.33 kB.
 - **Remaining:** `LmsService.createAttendance` / `updateAttendance` are now unused (kept for
   API stability). The `lms_attendance_*` cache is P0-10.
+
+## P0-02 — A refused session edit no longer looks saved
+
+- **What changed:** on error, the schedule's session panel and the session page now stop
+  the spinner and keep the form open. They no longer apply the edit on screen or say
+  "Session updated locally (server sync pending)".
+- **Why:** finding C-04. Nothing ever synced, so staff acted on a class that hadn't moved.
+- **Files:** `features/schedule/session-detail-panel/session-detail-panel.component.ts`
+  (+ new spec); `features/sessions/session-detail/session-detail.component.ts`.
+- **Validation:** 9 files / 86 tests pass. The new test fails against the old code (checked
+  by stashing the fix) and passes with it. Build passes; initial bundle 598.33 kB.
+- **Remaining:** the two copies of this save logic are still duplicated (F-09).

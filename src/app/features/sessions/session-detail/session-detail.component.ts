@@ -675,22 +675,11 @@ export class SessionDetailComponent implements OnInit {
           this.session.set(merged);
           this.isEditing.set(false);
         },
-        error: () => {
-          this.saving.set(false);
-          const newInstructor = this.instructors().find((i) => i.id === this.editInstructorId());
-          const optimistic: ScheduleSession = {
-            ...s,
-            instructorId: this.editInstructorId(),
-            instructorName: newInstructor?.name ?? s.instructorName,
-            status: this.editStatus(),
-            startsAt: computedStartsAt,
-            endsAt: computedEndsAt,
-            durationMinutes: computedDurationMinutes,
-          };
-          this.notify.showSuccess('Session updated locally (server sync pending).');
-          this.session.set(optimistic);
-          this.isEditing.set(false);
-        },
+        // A refused change is not shown as made. This used to apply it on screen
+        // and say "updated locally (server sync pending)", and nothing ever
+        // synced, so staff acted on a class that had not moved. The form stays
+        // open with what was typed; the interceptor has already said why.
+        error: () => this.saving.set(false),
       });
     }
   }
