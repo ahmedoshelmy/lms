@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
@@ -24,7 +23,7 @@ import { sessionsTaught } from '../../../core/utils/course-progress.utils';
 @Component({
   selector: 'app-student-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './student-home.component.html',
   styleUrl: './student-home.component.scss',
 })

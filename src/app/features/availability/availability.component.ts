@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
@@ -56,7 +55,7 @@ function buildTimeOptions(): string[] {
 @Component({
   selector: 'app-availability',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule],
+  imports: [FormsModule, ProgressSpinnerModule, DialogModule],
   templateUrl: './availability.component.html',
   styleUrl: './availability.component.scss',
 })

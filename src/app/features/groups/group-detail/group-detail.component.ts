@@ -100,7 +100,6 @@ export class GroupDetailComponent implements OnInit {
   group = signal<Group | null>(null);
   loading = signal<boolean>(true);
 
-  activeTab = signal<'students' | 'courses' | 'schedules' | 'sessions'>('students');
   studentSearchQuery = signal<string>('');
 
   sessions = signal<ScheduleSession[]>([]);
@@ -218,10 +217,7 @@ export class GroupDetailComponent implements OnInit {
   selectedStudentToAdd = signal<User | null>(null);
   addingStudent = signal<boolean>(false);
 
-  // Admin Student Management Modal Signals
-  showStudentDetailsModal = signal<boolean>(false);
   showEditStudentModal = signal<boolean>(false);
-  showDeleteStudentModal = signal<boolean>(false);
   showRemoveStudentModal = signal<boolean>(false);
   selectedGroupStudent = signal<GroupStudent | null>(null);
   allGroups = signal<Group[]>([]);
@@ -229,15 +225,7 @@ export class GroupDetailComponent implements OnInit {
   editFormEmail = signal<string>('');
   editFormGroupId = signal<number>(0);
   savingStudent = signal<boolean>(false);
-  deletingStudent = signal<boolean>(false);
   readdingStudent = signal<boolean>(false);
-
-  // Edit Total Sessions Modal
-  showEditSessionsModal = signal<boolean>(false);
-  editingGroupCourseId = signal<number>(0);
-  editingCourseTitle = signal<string>('');
-  editTotalSessionsValue = signal<number>(0);
-  savingSessions = signal<boolean>(false);
 
   // Remove Course Confirmation
   showRemoveCourseModal = signal<boolean>(false);
@@ -354,14 +342,6 @@ export class GroupDetailComponent implements OnInit {
     const grp = this.group();
     if (!grp) return [];
     return this.sessions().filter((s) => s.groupId === grp.id || s.groupName === grp.name);
-  });
-
-  upcomingSessions = computed(() => {
-    return this.groupSessions().filter((s) => s.status === 'Scheduled' || s.status === 'Running');
-  });
-
-  completedSessionsFeed = computed(() => {
-    return this.groupSessions().filter((s) => s.status === 'Completed');
   });
 
   overallProgressPercent = computed(() => progressPercent(this.group()?.courses));
@@ -570,31 +550,6 @@ export class GroupDetailComponent implements OnInit {
       },
       error: () => {
         this.addingCourse.set(false);
-      },
-    });
-  }
-
-  regenerateSessions(groupCourse: GroupCourse): void {
-    const id = this.groupId();
-    if (!id) return;
-
-    const groupCourseId = this.groupCourseIdMap().get(groupCourse.courseId);
-    if (!groupCourseId) {
-      this.notify.showError('Could not find group course ID. Please reload and try again.');
-      return;
-    }
-
-    this.regeneratingCourseId.set(groupCourse.courseId);
-    this.lmsService.generateGroupCourseSessions(groupCourseId).subscribe({
-      next: () => {
-        this.notify.showSuccess('Sessions regenerated for ' + groupCourse.title);
-        this.regeneratingCourseId.set(null);
-        this.loadGroupDetail(id);
-        this.loadGroupHistory(id);
-        this.loadScheduleSessions();
-      },
-      error: () => {
-        this.regeneratingCourseId.set(null);
       },
     });
   }
@@ -903,14 +858,6 @@ export class GroupDetailComponent implements OnInit {
     return getSessionDisplayTopic(s);
   }
 
-  getStatusIcon(status: string): string {
-    return STATUS_CONFIG[status]?.icon ?? 'pi-circle';
-  }
-
-  getGroupProgress(group: Group | null): number {
-    return progressPercent(group?.courses);
-  }
-
   openAddStudentModal(): void {
     this.addStudentSearchQuery.set('');
     this.selectedStudentToAdd.set(null);
@@ -1014,29 +961,6 @@ export class GroupDetailComponent implements OnInit {
       });
   }
 
-  openDeleteStudentModal(s: GroupStudent): void {
-    this.selectedGroupStudent.set(s);
-    this.showDeleteStudentModal.set(true);
-  }
-
-  confirmDeleteStudent(): void {
-    const s = this.selectedGroupStudent();
-    if (!s) return;
-
-    this.deletingStudent.set(true);
-    this.lmsService.deleteUser(s.studentId).subscribe({
-      next: () => {
-        this.notify.showSuccess(`Student ${s.studentName} deleted.`);
-        this.deletingStudent.set(false);
-        this.showDeleteStudentModal.set(false);
-        this.loadGroupDetail(this.groupId());
-      },
-      error: () => {
-        this.deletingStudent.set(false);
-      },
-    });
-  }
-
   openRemoveStudentModal(s: GroupStudent): void {
     this.selectedGroupStudent.set(s);
     this.showRemoveStudentModal.set(true);
@@ -1080,35 +1004,6 @@ export class GroupDetailComponent implements OnInit {
   openCourseSessionsModal(gc: GroupCourse): void {
     this.selectedCourseForSessions.set(gc);
     this.showCourseSessionsModal.set(true);
-  }
-
-  openEditSessionsModal(gc: GroupCourse): void {
-    this.editingGroupCourseId.set(this.groupCourseIdMap().get(gc.courseId) || 0);
-    this.editingCourseTitle.set(gc.title);
-    this.editTotalSessionsValue.set(gc.totalSessions);
-    this.showEditSessionsModal.set(true);
-  }
-
-  saveTotalSessions(): void {
-    const groupId = this.groupId();
-    const groupCourseId = this.editingGroupCourseId();
-    const totalSessions = this.editTotalSessionsValue();
-    if (!groupId || !groupCourseId || totalSessions < 1) return;
-
-    this.savingSessions.set(true);
-    this.lmsService.updateGroupCourseSessions(groupId, groupCourseId, totalSessions).subscribe({
-      next: () => {
-        this.notify.showSuccess('Total sessions updated successfully.');
-        this.savingSessions.set(false);
-        this.showEditSessionsModal.set(false);
-        this.loadGroupDetail(groupId);
-        this.loadGroupHistory(groupId);
-        this.loadScheduleSessions();
-      },
-      error: () => {
-        this.savingSessions.set(false);
-      },
-    });
   }
 
   openRemoveCourseModal(courseId: number): void {
@@ -1297,57 +1192,6 @@ export class GroupDetailComponent implements OnInit {
   }
 
   // ─── Current Session Number Override (R3, R4, R5) ──────────────────────────
-
-  showEditSessionNumberModal = signal<boolean>(false);
-  editingSessionNumberGc = signal<GroupCourse | null>(null);
-  newCurrentSessionNumberInput = signal<number>(0);
-  sessionNumberConflictMessage = signal<string | null>(null);
-  savingSessionNumber = signal<boolean>(false);
-
-  openEditSessionNumberModal(gc: GroupCourse): void {
-    this.editingSessionNumberGc.set(gc);
-    this.newCurrentSessionNumberInput.set(Math.max((gc.currentSessionNumber || 0) - 1, 0));
-    this.sessionNumberConflictMessage.set(null);
-    this.showEditSessionNumberModal.set(true);
-  }
-
-  saveCurrentSessionNumber(confirmDeleteUpcoming = false): void {
-    const grp = this.group();
-    const gc = this.editingSessionNumberGc();
-    if (!grp || !gc) return;
-
-    const newNumber = Number(this.newCurrentSessionNumberInput());
-    if (isNaN(newNumber) || newNumber < 0) {
-      this.notify.showError('Invalid session number.');
-      return;
-    }
-
-    this.savingSessionNumber.set(true);
-    this.lmsService
-      .updateGroupCurrentSessionNumber(grp.id, gc.id, {
-        newCurrentSessionNumber: newNumber,
-        confirmDeleteUpcomingSessions: confirmDeleteUpcoming,
-      })
-      .subscribe({
-        next: () => {
-          this.notify.showSuccess('Current session number updated successfully.');
-          this.savingSessionNumber.set(false);
-          this.showEditSessionNumberModal.set(false);
-          this.sessionNumberConflictMessage.set(null);
-          this.loadGroupDetail(grp.id);
-          this.loadScheduleSessions();
-        },
-        error: (err) => {
-          this.savingSessionNumber.set(false);
-          if (err.status === 409) {
-            this.sessionNumberConflictMessage.set(
-              err.error?.message ||
-                'Changing current session number requires deleting and regenerating upcoming scheduled sessions.'
-            );
-          }
-        },
-      });
-  }
 
   // Hold / Pause Group Methods
   openHoldModal(): void {

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -20,9 +20,7 @@ import { InstructorAvailability, InstructorTimeOff } from '../../core/interfaces
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { ClockCheck } from '../../core/interfaces/ClockCheck';
 import { User } from '../../core/interfaces/User';
-
 import { DialogModule } from 'primeng/dialog';
-
 import { CreateStandaloneSessionDialogComponent } from './components/create-standalone-session-dialog/create-standalone-session-dialog.component';
 import { toIsoDate } from '../../core/utils/date.utils';
 import { latestRequest } from '../../core/utils/latest-request';
@@ -40,7 +38,6 @@ export type ExtendedViewMode =
   selector: 'app-schedule',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterModule,
     ButtonModule,
@@ -196,13 +193,6 @@ export class ScheduleComponent implements OnInit {
   loading = signal(false);
   selectedSession = signal<ScheduleSession | null>(null);
   cancelledWarningDismissed = signal(false);
-
-  // Cancel & Shift Session Modal
-  showCancelShiftModal = signal<boolean>(false);
-  cancellingSessionId = signal<number | null>(null);
-  cancellationReason = signal<string>('');
-  shiftFutureSessions = signal<boolean>(true);
-  cancelling = signal<boolean>(false);
 
   readonly uniqueStatuses = computed(() => ['Scheduled', 'Completed', 'Cancelled']);
 
@@ -401,40 +391,6 @@ export class ScheduleComponent implements OnInit {
     this.loadSchedule();
   }
 
-  openCancelShiftModal(sessionId: number): void {
-    this.cancellingSessionId.set(sessionId);
-    this.cancellationReason.set('');
-    this.shiftFutureSessions.set(true);
-    this.showCancelShiftModal.set(true);
-  }
-
-  confirmCancelAndShiftSession(): void {
-    const id = this.cancellingSessionId();
-    if (!id) return;
-    this.cancelling.set(true);
-
-    this.lmsService
-      .cancelAndShiftSession(id, {
-        reason: this.cancellationReason().trim() || 'Session cancelled by instructor/admin',
-        shiftUpcomingSchedule: this.shiftFutureSessions(),
-      })
-      .subscribe({
-        next: () => {
-          this.notify.showSuccess(
-            this.shiftFutureSessions()
-              ? 'Session cancelled and subsequent sessions shifted forward by 1 week.'
-              : 'Session cancelled.'
-          );
-          this.showCancelShiftModal.set(false);
-          this.cancelling.set(false);
-          this.loadSchedule();
-        },
-        error: () => {
-          this.cancelling.set(false);
-        },
-      });
-  }
-
   /** What everyone has declared, so the matrices show it rather than assume it. */
   readonly availability = signal<InstructorAvailability[]>([]);
   readonly timeOff = signal<InstructorTimeOff[]>([]);
@@ -550,10 +506,6 @@ export class ScheduleComponent implements OnInit {
           this.loading.set(false);
         },
       });
-  }
-
-  onInstructorChange(): void {
-    this.loadSchedule();
   }
 
   previousDate(): void {

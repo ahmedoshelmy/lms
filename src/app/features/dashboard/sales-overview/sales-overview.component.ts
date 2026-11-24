@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
@@ -23,7 +22,7 @@ import {
 @Component({
   selector: 'app-sales-overview',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './sales-overview.component.html',
   styleUrl: './sales-overview.component.scss',
 })

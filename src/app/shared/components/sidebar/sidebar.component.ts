@@ -1,6 +1,5 @@
 import { Component, computed, inject, model, output } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { MenuItem } from '../../../core/interfaces/MenuItem';
 import { Role, ROLE_LABELS } from '../../../core/interfaces/Role';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,7 +13,7 @@ import { ClockFormatService } from '../../../core/services/clock-format.service'
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, CommonModule, NotificationBellComponent],
+  imports: [RouterModule, NotificationBellComponent],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
 })

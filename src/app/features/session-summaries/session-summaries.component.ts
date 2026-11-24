@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { LmsService } from '../../core/services/lms.service';
@@ -17,7 +16,7 @@ import { SessionCatalogueEntry } from '../../core/interfaces/SessionSyllabus';
 @Component({
   selector: 'app-session-summaries',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule],
+  imports: [FormsModule, ProgressSpinnerModule],
   templateUrl: './session-summaries.component.html',
   styleUrl: './session-summaries.component.scss',
 })

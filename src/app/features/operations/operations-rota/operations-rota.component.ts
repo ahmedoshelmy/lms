@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { OperationsService } from '../../../core/services/operations.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { OperationsRotaEntry, WEEK, WeekDay } from '../../../core/interfaces/Operations';
@@ -20,7 +19,7 @@ import { OperationsRotaEntry, WEEK, WeekDay } from '../../../core/interfaces/Ope
 @Component({
   selector: 'app-operations-rota',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './operations-rota.component.html',
   styleUrl: './operations-rota.component.scss',
 })

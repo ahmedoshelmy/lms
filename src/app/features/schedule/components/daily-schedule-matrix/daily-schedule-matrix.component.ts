@@ -1,5 +1,4 @@
 import { inject, Component, input, output, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
 import { ClockFormatService } from '../../../../core/services/clock-format.service';
@@ -12,7 +11,7 @@ export interface TimeSlot {
 @Component({
   selector: 'app-daily-schedule-matrix',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="matrix-container overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"

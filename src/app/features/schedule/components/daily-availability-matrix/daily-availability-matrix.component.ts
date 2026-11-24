@@ -1,5 +1,4 @@
 import { Component, input, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
 import {
@@ -23,7 +22,7 @@ export interface SlotAvailability {
 @Component({
   selector: 'app-daily-availability-matrix',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="matrix-container overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"

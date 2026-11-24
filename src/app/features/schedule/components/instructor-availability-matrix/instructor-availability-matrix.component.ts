@@ -1,5 +1,4 @@
 import { Component, input, signal, computed, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
@@ -24,7 +23,7 @@ export interface TimeSlot {
 @Component({
   selector: 'app-instructor-availability-matrix',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule],
+  imports: [FormsModule, SelectModule],
   template: `
     <div
       class="matrix-container rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-sm"

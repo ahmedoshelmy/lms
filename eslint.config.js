@@ -42,7 +42,7 @@ module.exports = tseslint.config(
       '@angular-eslint/template/label-has-associated-control': 'warn', // A-04
       '@angular-eslint/template/click-events-have-key-events': 'warn', // A-03
       '@angular-eslint/template/interactive-supports-focus': 'warn', // A-03
-      '@angular-eslint/template/prefer-control-flow': 'warn', // F-05
+      '@angular-eslint/template/prefer-control-flow': 'error', // done in F-05
     },
   }
 );

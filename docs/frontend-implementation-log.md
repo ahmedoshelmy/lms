@@ -453,3 +453,27 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
 - **Validation:** 26 files / 146 tests pass (handler spec; a rendered instructor-detail test
   that a failed load shows the error state and "Try again" reloads the same id); lint 0
   errors; build clean at 597.51 kB.
+
+## F-05 — Dead code and unused dependencies removed
+
+Everything below was checked as unused before deletion.
+
+- **Files:** `features/home/*` (never routed or imported), `shared/layouts/auth-layout/*`
+  (never used). `core/interceptors/user-id.interceptor.ts` went earlier, in F-06.
+- **Packages:** `ngx-toastr` (imported nowhere). `@angular/animations` went earlier, in R-03.
+- **Group detail:**
+  - three dialogs that nothing could open: Student Details (no opener), Delete Student and
+    Edit Total Sessions (their openers had no callers);
+  - the session-number override, whose opener had no caller and whose dialog wasn't in the
+    template;
+  - 25 members only those used. A script removed only members referenced nowhere else,
+    re-checking after each pass.
+- **Schedule:** the cancel-and-shift modal (opener never called) and its 8 members.
+- **Dashboard styles:** 36 rule blocks for 36 class names used in no template or script,
+  dynamic class bindings included (22.6 kB → 17.4 kB of source).
+- **Templates:** all old `*ngIf`/`*ngFor` converted with Angular's own migration
+  (`@angular/core:control-flow`). It also dropped `CommonModule` where unused; the build
+  with `strictTemplates` confirms nothing needed was removed. `prefer-control-flow` is now
+  a lint error.
+- **Validation:** lint 0 errors (warnings 200 → 170); 26 files / 146 tests pass; build clean
+  at 597.51 kB.

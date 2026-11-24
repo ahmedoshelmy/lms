@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { DashboardOverview } from '../../../core/interfaces/DashboardOverview';
@@ -26,7 +25,7 @@ interface CauseSlice {
 @Component({
   selector: 'app-school-overview',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './school-overview.component.html',
   styleUrl: './school-overview.component.scss',
 })

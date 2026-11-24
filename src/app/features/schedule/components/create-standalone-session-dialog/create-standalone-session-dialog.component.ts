@@ -1,5 +1,4 @@
 import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -15,7 +14,7 @@ import { todayIsoDate } from '../../../../core/utils/date.utils';
 @Component({
   selector: 'app-create-standalone-session-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule],
+  imports: [FormsModule, DialogModule, ButtonModule],
   templateUrl: './create-standalone-session-dialog.component.html',
   styleUrl: './create-standalone-session-dialog.component.scss',
 })

@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DialogModule } from 'primeng/dialog';
@@ -38,7 +37,7 @@ type Tab = 'find' | 'holds' | 'pipeline';
 @Component({
   selector: 'app-sales',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProgressSpinnerModule, DialogModule, LoadErrorComponent],
+  imports: [FormsModule, ProgressSpinnerModule, DialogModule, LoadErrorComponent],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss',
 })

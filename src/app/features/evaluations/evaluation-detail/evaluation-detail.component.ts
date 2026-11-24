@@ -1,5 +1,4 @@
 import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
@@ -28,7 +27,7 @@ import {
 @Component({
   selector: 'app-evaluation-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './evaluation-detail.component.html',
   styleUrl: './evaluation-detail.component.scss',
 })

@@ -332,7 +332,7 @@
                         class="flex items-center justify-between text-xs text-[var(--color-text-secondary)] mb-1.5"
                       >
                         <!-- taught() and nextSession() are the shared rules, so this
-                             agrees with the groups list rather than guessing again. -->
+                                        agrees with the groups list rather than guessing again. -->
                         <span>
                           Taught:
                           <strong>
@@ -556,9 +556,9 @@
                   </th>
                   <th class="py-3 px-3">Email</th>
                   <!-- Attendance and Progress columns used to sit here, printing
-                       "Enrolled" and "Active" for every child whatever was true:
-                       the group's student list carries neither figure. Each
-                       child's real record is on their own page. -->
+                                      "Enrolled" and "Active" for every child whatever was true:
+                                      the group's student list carries neither figure. Each
+                                      child's real record is on their own page. -->
                   <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('joinedAt')">
                     Enrolled <i [ngClass]="getStudentSortIcon('joinedAt')"></i>
                   </th>
@@ -774,319 +774,312 @@
     </div>
 
     <!-- TAB 1: OVERVIEW -->
-    <div *ngIf="manageTab() === 'overview'" class="flex flex-col gap-4">
-      <div>
-        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-          Group Name *
-        </label>
-        <input
-          type="text"
-          [(ngModel)]="formName"
-          class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-        />
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    @if (manageTab() === 'overview') {
+      <div class="flex flex-col gap-4">
         <div>
           <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-            Start Date *
-          </label>
-          <input
-            type="date"
-            [(ngModel)]="formStartDate"
-            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-          />
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-            End Date
-          </label>
-          <!-- Derived from the last scheduled session, so there is nothing to
-               type: an editable box here only ever held a date nobody kept. -->
-          <p
-            class="w-full px-3.5 py-2.5 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background-alt)] text-xs text-[var(--color-text-secondary)] font-medium"
-          >
-            {{ formEndDate || 'No sessions yet' }}
-          </p>
-          <p class="mt-1 text-[10px] text-[var(--color-text-muted)] font-medium">
-            Follows the group's last class.
-          </p>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-          Primary Instructor *
-        </label>
-        <select
-          [(ngModel)]="formInstructorId"
-          class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-        >
-          <option [value]="0">Select Instructor</option>
-          @for (inst of instructors(); track inst.id) {
-            <option [value]="inst.id">{{ inst.name }} ({{ inst.email }})</option>
-          }
-        </select>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-            Group Status
-          </label>
-          <select
-            [(ngModel)]="formStatus"
-            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-          >
-            @for (opt of statusOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
-            Default Branch / Location
+            Group Name *
           </label>
           <input
             type="text"
-            [(ngModel)]="formLocation"
-            placeholder="e.g. MOA, Online"
+            [(ngModel)]="formName"
             class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
           />
         </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: CURRICULUM COURSES -->
-    <div *ngIf="manageTab() === 'curriculum'" class="flex flex-col gap-4">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase">
-          Assigned Course Levels & Session Offsets
-        </span>
-      </div>
-
-      <!-- Course Level Items List -->
-      <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
-        @for (item of editCourseItems(); track $index) {
-          <div
-            class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-          >
-            <div class="flex items-start gap-3">
-              <div
-                class="w-8 h-8 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] font-bold text-xs flex items-center justify-center shrink-0"
-              >
-                {{ $index + 1 }}
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <h4 class="font-bold text-xs text-[var(--color-text-primary)]">
-                    {{ item.title }}
-                  </h4>
-                  <span
-                    class="px-2 py-0.5 rounded-md text-[10px] font-bold"
-                    [class.bg-emerald-100]="item.isActive"
-                    [class.text-emerald-700]="item.isActive"
-                    [class.bg-gray-100]="!item.isActive"
-                    [class.text-gray-600]="!item.isActive"
-                  >
-                    {{ item.isActive ? 'Active' : 'Pending' }}
-                  </span>
-                </div>
-                <p class="text-[11px] text-[var(--color-text-muted)]">
-                  {{ item.topic }} • Level {{ item.level }}
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-              <!-- Current Session Offset -->
-              <div class="flex flex-col gap-1">
-                <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
-                  Sessions Taught
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  [max]="item.totalSessions"
-                  [(ngModel)]="item.sessionsTaught"
-                  class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
-                />
-              </div>
-
-              <!-- Total Sessions -->
-              <div class="flex flex-col gap-1">
-                <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
-                  Total Sessions
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  [(ngModel)]="item.totalSessions"
-                  class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
-                />
-              </div>
-
-              <!-- Set Active -->
-              <button
-                *ngIf="!item.isActive"
-                (click)="setUnifiedActiveCourse($index)"
-                class="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] text-[10px] font-bold text-[var(--color-secondary)] hover:bg-[var(--color-surface)] transition-all shrink-0 mt-3"
-              >
-                Make Active
-              </button>
-
-              <!-- Remove -->
-              <button
-                type="button"
-                aria-label="Remove this course from the group"
-                title="Remove this course from the group"
-                (click)="removeCourseFromUnifiedEdit($index)"
-                class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center text-xs shrink-0 mt-3 transition-colors"
-              >
-                <i class="pi pi-trash"></i>
-              </button>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+              Start Date *
+            </label>
+            <input
+              type="date"
+              [(ngModel)]="formStartDate"
+              class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            />
           </div>
-        } @empty {
-          <div
-            class="py-8 text-center border border-dashed border-[var(--color-border)] rounded-2xl"
-          >
-            <p class="text-xs text-[var(--color-text-muted)]">
-              No course levels assigned to this group yet.
+          <div>
+            <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+              End Date
+            </label>
+            <!-- Derived from the last scheduled session, so there is nothing to
+                                type: an editable box here only ever held a date nobody kept. -->
+            <p
+              class="w-full px-3.5 py-2.5 border border-dashed border-[var(--color-border)] rounded-xl bg-[var(--color-background-alt)] text-xs text-[var(--color-text-secondary)] font-medium"
+            >
+              {{ formEndDate || 'No sessions yet' }}
+            </p>
+            <p class="mt-1 text-[10px] text-[var(--color-text-muted)] font-medium">
+              Follows the group's last class.
             </p>
           </div>
-        }
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+            Primary Instructor *
+          </label>
+          <select
+            [(ngModel)]="formInstructorId"
+            class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+          >
+            <option [value]="0">Select Instructor</option>
+            @for (inst of instructors(); track inst.id) {
+              <option [value]="inst.id">{{ inst.name }} ({{ inst.email }})</option>
+            }
+          </select>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+              Group Status
+            </label>
+            <select
+              [(ngModel)]="formStatus"
+              class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            >
+              @for (opt of statusOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1">
+              Default Branch / Location
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="formLocation"
+              placeholder="e.g. MOA, Online"
+              class="w-full px-3.5 py-2.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            />
+          </div>
+        </div>
       </div>
+    }
 
-      <!-- Add New Course Selector Inline -->
-      <div
-        class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-      >
-        <select
-          [(ngModel)]="newCourseLevelToAdd"
-          class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] font-medium"
-        >
-          <option [ngValue]="null">-- Add Course Level to Group --</option>
-          @for (c of availableCourses(); track c.id) {
-            <option [ngValue]="c.id">
-              {{ c.topicName }} - {{ c.title }} (Level {{ c.level }}, {{ c.sessionCount }} sessions)
-            </option>
+    <!-- TAB 2: CURRICULUM COURSES -->
+    @if (manageTab() === 'curriculum') {
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase">
+            Assigned Course Levels & Session Offsets
+          </span>
+        </div>
+        <!-- Course Level Items List -->
+        <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
+          @for (item of editCourseItems(); track $index) {
+            <div
+              class="p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div class="flex items-start gap-3">
+                <div
+                  class="w-8 h-8 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] font-bold text-xs flex items-center justify-center shrink-0"
+                >
+                  {{ $index + 1 }}
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-bold text-xs text-[var(--color-text-primary)]">
+                      {{ item.title }}
+                    </h4>
+                    <span
+                      class="px-2 py-0.5 rounded-md text-[10px] font-bold"
+                      [class.bg-emerald-100]="item.isActive"
+                      [class.text-emerald-700]="item.isActive"
+                      [class.bg-gray-100]="!item.isActive"
+                      [class.text-gray-600]="!item.isActive"
+                    >
+                      {{ item.isActive ? 'Active' : 'Pending' }}
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-[var(--color-text-muted)]">
+                    {{ item.topic }} • Level {{ item.level }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <!-- Current Session Offset -->
+                <div class="flex flex-col gap-1">
+                  <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
+                    Sessions Taught
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    [max]="item.totalSessions"
+                    [(ngModel)]="item.sessionsTaught"
+                    class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
+                  />
+                </div>
+                <!-- Total Sessions -->
+                <div class="flex flex-col gap-1">
+                  <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase">
+                    Total Sessions
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    [(ngModel)]="item.totalSessions"
+                    class="w-20 px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-bold"
+                  />
+                </div>
+                <!-- Set Active -->
+                @if (!item.isActive) {
+                  <button
+                    (click)="setUnifiedActiveCourse($index)"
+                    class="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] text-[10px] font-bold text-[var(--color-secondary)] hover:bg-[var(--color-surface)] transition-all shrink-0 mt-3"
+                  >
+                    Make Active
+                  </button>
+                }
+                <!-- Remove -->
+                <button
+                  type="button"
+                  aria-label="Remove this course from the group"
+                  title="Remove this course from the group"
+                  (click)="removeCourseFromUnifiedEdit($index)"
+                  class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center text-xs shrink-0 mt-3 transition-colors"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div
+              class="py-8 text-center border border-dashed border-[var(--color-border)] rounded-2xl"
+            >
+              <p class="text-xs text-[var(--color-text-muted)]">
+                No course levels assigned to this group yet.
+              </p>
+            </div>
           }
-        </select>
-        <button
-          (click)="addCourseToUnifiedEdit()"
-          [disabled]="!newCourseLevelToAdd()"
-          class="px-4 py-2 bg-[var(--color-secondary)] text-white text-xs font-bold rounded-xl hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 transition-all shadow-xs"
+        </div>
+        <!-- Add New Course Selector Inline -->
+        <div
+          class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
         >
-          <i class="pi pi-plus mr-1"></i> Add Course
-        </button>
+          <select
+            [(ngModel)]="newCourseLevelToAdd"
+            class="flex-1 px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-xs text-[var(--color-text-primary)] font-medium"
+          >
+            <option [ngValue]="null">-- Add Course Level to Group --</option>
+            @for (c of availableCourses(); track c.id) {
+              <option [ngValue]="c.id">
+                {{ c.topicName }} - {{ c.title }} (Level {{ c.level }},
+                {{ c.sessionCount }} sessions)
+              </option>
+            }
+          </select>
+          <button
+            (click)="addCourseToUnifiedEdit()"
+            [disabled]="!newCourseLevelToAdd()"
+            class="px-4 py-2 bg-[var(--color-secondary)] text-white text-xs font-bold rounded-xl hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 transition-all shadow-xs"
+          >
+            <i class="pi pi-plus mr-1"></i> Add Course
+          </button>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- TAB 3: WEEKLY SCHEDULE -->
-    <div *ngIf="manageTab() === 'schedule'" class="flex flex-col gap-4">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase">
-          Recurring Schedule Slots
-        </span>
-        <button
-          (click)="addScheduleSlotToUnifiedEdit()"
-          class="text-xs font-bold text-[var(--color-secondary)] hover:underline flex items-center gap-1"
-        >
-          <i class="pi pi-plus"></i> Add Day Slot
-        </button>
-      </div>
-
-      <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
-        @for (slot of editScheduleSlots(); track $index) {
-          <div
-            class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] grid grid-cols-1 sm:grid-cols-4 gap-3 items-center"
+    @if (manageTab() === 'schedule') {
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-[var(--color-text-secondary)] uppercase">
+            Recurring Schedule Slots
+          </span>
+          <button
+            (click)="addScheduleSlotToUnifiedEdit()"
+            class="text-xs font-bold text-[var(--color-secondary)] hover:underline flex items-center gap-1"
           >
-            <div>
-              <label
-                class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
-                >Day</label
-              >
-              <select
-                [(ngModel)]="slot.dayOfWeek"
-                class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
-              >
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
-                >Start Time</label
-              >
-              <input
-                type="time"
-                [(ngModel)]="slot.startTime"
-                class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
-              />
-            </div>
-
-            <div>
-              <label
-                class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
-                >End Time</label
-              >
-              <input
-                type="time"
-                [(ngModel)]="slot.endTime"
-                class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
-              />
-            </div>
-
-            <div class="flex items-center gap-2 pt-3 sm:pt-0">
-              <div class="flex-1">
+            <i class="pi pi-plus"></i> Add Day Slot
+          </button>
+        </div>
+        <div class="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
+          @for (slot of editScheduleSlots(); track $index) {
+            <div
+              class="p-3.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] grid grid-cols-1 sm:grid-cols-4 gap-3 items-center"
+            >
+              <div>
                 <label
                   class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
-                  >Branch</label
+                  >Day</label
+                >
+                <select
+                  [(ngModel)]="slot.dayOfWeek"
+                  class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+                >
+                  <option value="Saturday">Saturday</option>
+                  <option value="Sunday">Sunday</option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                  >Start Time</label
                 >
                 <input
-                  type="text"
-                  [(ngModel)]="slot.location"
-                  placeholder="MOA"
+                  type="time"
+                  [(ngModel)]="slot.startTime"
                   class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
                 />
               </div>
-              <button
-                (click)="removeScheduleSlotFromUnifiedEdit($index)"
-                class="w-7 h-7 text-red-500 hover:bg-red-50 rounded-lg flex items-center justify-center text-xs shrink-0 mt-3"
-              >
-                <i class="pi pi-trash"></i>
-              </button>
+              <div>
+                <label
+                  class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                  >End Time</label
+                >
+                <input
+                  type="time"
+                  [(ngModel)]="slot.endTime"
+                  class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+                />
+              </div>
+              <div class="flex items-center gap-2 pt-3 sm:pt-0">
+                <div class="flex-1">
+                  <label
+                    class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+                    >Branch</label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="slot.location"
+                    placeholder="MOA"
+                    class="w-full px-2.5 py-1.5 border border-[var(--color-border)] rounded-lg text-xs bg-[var(--color-surface)] text-[var(--color-text-primary)] font-medium"
+                  />
+                </div>
+                <button
+                  (click)="removeScheduleSlotFromUnifiedEdit($index)"
+                  class="w-7 h-7 text-red-500 hover:bg-red-50 rounded-lg flex items-center justify-center text-xs shrink-0 mt-3"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
             </div>
-          </div>
-        }
-      </div>
-
-      <div
-        class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 flex items-center gap-3"
-      >
-        <input
-          type="checkbox"
-          id="updateUpcoming"
-          [(ngModel)]="editScheduleUpdateUpcoming"
-          class="w-4 h-4 text-[var(--color-primary)] rounded border-amber-300"
-        />
-        <label
-          for="updateUpcoming"
-          class="text-xs font-semibold text-amber-900 dark:text-amber-200 cursor-pointer"
+          }
+        </div>
+        <div
+          class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 flex items-center gap-3"
         >
-          Apply new schedule slots to upcoming scheduled sessions
-        </label>
+          <input
+            type="checkbox"
+            id="updateUpcoming"
+            [(ngModel)]="editScheduleUpdateUpcoming"
+            class="w-4 h-4 text-[var(--color-primary)] rounded border-amber-300"
+          />
+          <label
+            for="updateUpcoming"
+            class="text-xs font-semibold text-amber-900 dark:text-amber-200 cursor-pointer"
+          >
+            Apply new schedule slots to upcoming scheduled sessions
+          </label>
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <ng-template pTemplate="footer">
@@ -1102,8 +1095,12 @@
         [disabled]="saving()"
         class="px-5 py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] transition-all shadow-md flex items-center gap-2"
       >
-        <i *ngIf="saving()" class="pi pi-spin pi-spinner text-xs"></i>
-        <i *ngIf="!saving()" class="pi pi-check text-xs"></i>
+        @if (saving()) {
+          <i class="pi pi-spin pi-spinner text-xs"></i>
+        }
+        @if (!saving()) {
+          <i class="pi pi-check text-xs"></i>
+        }
         Save All Group Details
       </button>
     </div>
@@ -1234,73 +1231,6 @@
   </ng-template>
 </p-dialog>
 
-<!-- View Student Details Modal -->
-<p-dialog
-  [(visible)]="showStudentDetailsModal"
-  header="Student Profile Details"
-  [modal]="true"
-  [style]="{ width: '100%', maxWidth: '440px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="py-3 space-y-4">
-    <div class="flex items-center gap-3.5 pb-4 border-b border-[var(--color-border)]">
-      <div
-        class="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-extrabold text-base flex items-center justify-center shrink-0"
-      >
-        {{ (selectedGroupStudent()?.studentName || '').slice(0, 2).toUpperCase() }}
-      </div>
-      <div>
-        <h3 class="text-sm font-bold text-[var(--color-text-primary)]">
-          {{ selectedGroupStudent()?.studentName }}
-        </h3>
-        <p class="text-xs text-[var(--color-text-muted)]">
-          {{ selectedGroupStudent()?.studentEmail }}
-        </p>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3 text-xs">
-      <div
-        class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]"
-      >
-        <p
-          class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1"
-        >
-          Student ID
-        </p>
-        <p class="font-bold text-[var(--color-text-primary)]">
-          #{{ selectedGroupStudent()?.studentId }}
-        </p>
-      </div>
-      <div
-        class="p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-secondary)]"
-      >
-        <p
-          class="font-semibold text-[var(--color-text-muted)] text-[10px] uppercase tracking-wider mb-1"
-        >
-          Group Cohort
-        </p>
-        <p class="font-bold text-[var(--color-secondary)]">
-          {{ group()?.name }}
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end pt-2 border-t border-[var(--color-border)]">
-      <button
-        type="button"
-        (click)="showStudentDetailsModal.set(false)"
-        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-      >
-        Close
-      </button>
-    </div>
-  </ng-template>
-</p-dialog>
-
 <!-- Edit Student Modal -->
 <p-dialog
   [(visible)]="showEditStudentModal"
@@ -1368,47 +1298,6 @@
           <i class="pi pi-spinner pi-spin"></i>
         }
         Save Changes
-      </button>
-    </div>
-  </ng-template>
-</p-dialog>
-
-<!-- Delete Student Modal -->
-<p-dialog
-  [(visible)]="showDeleteStudentModal"
-  header="Confirm Delete Student"
-  [modal]="true"
-  [style]="{ width: '100%', maxWidth: '440px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="py-2 text-xs">
-    <p class="text-[var(--color-text-primary)]">
-      Are you sure you want to delete
-      <strong class="text-red-600 font-bold">{{ selectedGroupStudent()?.studentName }}</strong
-      >? This action cannot be undone.
-    </p>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="flex items-center justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
-      <button
-        type="button"
-        (click)="showDeleteStudentModal.set(false)"
-        class="px-4 py-2 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
-      >
-        Cancel
-      </button>
-      <button
-        type="button"
-        (click)="confirmDeleteStudent()"
-        [disabled]="deletingStudent()"
-        class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50 shadow"
-      >
-        @if (deletingStudent()) {
-          <i class="pi pi-spinner pi-spin"></i>
-        }
-        Delete Student
       </button>
     </div>
   </ng-template>
@@ -1493,9 +1382,11 @@
             (Recommended: {{ recommendedNextLevel()?.recommendedCourse?.title }})
           }
         </option>
-        <option *ngFor="let c of courseLevels()" [value]="c.id">
-          {{ c.title }} ({{ c.topicName }} Level {{ c.level }} - {{ c.sessionCount }} sessions)
-        </option>
+        @for (c of courseLevels(); track c) {
+          <option [value]="c.id">
+            {{ c.title }} ({{ c.topicName }} Level {{ c.level }} - {{ c.sessionCount }} sessions)
+          </option>
+        }
       </select>
     </div>
   </div>
@@ -1629,57 +1520,6 @@
         } @else {
           Add Course & Generate Sessions
         }
-      </button>
-    </div>
-  </ng-template>
-</p-dialog>
-
-<!-- Edit Total Sessions Dialog -->
-<p-dialog
-  [(visible)]="showEditSessionsModal"
-  header="Edit Total Sessions"
-  [modal]="true"
-  [style]="{ width: '100%', maxWidth: '420px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="space-y-4 py-2">
-    <p class="text-xs text-[var(--color-text-secondary)]">
-      Update the total session count for
-      <strong class="text-[var(--color-primary)]">{{ editingCourseTitle() }}</strong
-      >. Remaining sessions and progress will be recalculated automatically.
-    </p>
-    <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] uppercase mb-1"
-        >Total Sessions</label
-      >
-      <input
-        type="number"
-        [ngModel]="editTotalSessionsValue()"
-        (ngModelChange)="editTotalSessionsValue.set($event)"
-        min="1"
-        class="w-full px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-      />
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="flex items-center justify-end gap-2 pt-2">
-      <button
-        (click)="showEditSessionsModal.set(false)"
-        class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] cursor-pointer"
-      >
-        Cancel
-      </button>
-      <button
-        (click)="saveTotalSessions()"
-        [disabled]="savingSessions()"
-        class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50 cursor-pointer shadow"
-      >
-        @if (savingSessions()) {
-          <i class="pi pi-spinner pi-spin"></i>
-        }
-        Save Changes
       </button>
     </div>
   </ng-template>
@@ -2172,8 +2012,12 @@
           [disabled]="savingCourseManagement()"
           class="px-4 py-2 bg-[var(--color-primary)] text-white text-xs font-bold rounded-xl hover:bg-[var(--color-primary-hover)] transition-all shadow-xs flex items-center gap-1.5"
         >
-          <i *ngIf="savingCourseManagement()" class="pi pi-spin pi-spinner text-xs"></i>
-          <i *ngIf="!savingCourseManagement()" class="pi pi-check text-xs"></i>
+          @if (savingCourseManagement()) {
+            <i class="pi pi-spin pi-spinner text-xs"></i>
+          }
+          @if (!savingCourseManagement()) {
+            <i class="pi pi-check text-xs"></i>
+          }
           Save Settings
         </button>
       </div>
@@ -2238,14 +2082,12 @@
             [disabled]="regeneratingCourseId() === selectedCourseForManagement()?.courseId"
             class="px-3 py-2 border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-background-alt)] text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
           >
-            <i
-              *ngIf="regeneratingCourseId() === selectedCourseForManagement()?.courseId"
-              class="pi pi-spin pi-spinner text-xs"
-            ></i>
-            <i
-              *ngIf="regeneratingCourseId() !== selectedCourseForManagement()?.courseId"
-              class="pi pi-refresh text-xs"
-            ></i>
+            @if (regeneratingCourseId() === selectedCourseForManagement()?.courseId) {
+              <i class="pi pi-spin pi-spinner text-xs"></i>
+            }
+            @if (regeneratingCourseId() !== selectedCourseForManagement()?.courseId) {
+              <i class="pi pi-refresh text-xs"></i>
+            }
             Regenerate All
           </button>
 
@@ -2254,8 +2096,12 @@
             [disabled]="generatingCustom()"
             class="px-4 py-2 bg-[var(--color-secondary)] text-white text-xs font-semibold hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 cursor-pointer shadow flex items-center gap-1.5 rounded-xl"
           >
-            <i *ngIf="generatingCustom()" class="pi pi-spin pi-spinner text-xs"></i>
-            <i *ngIf="!generatingCustom()" class="pi pi-calendar-plus text-xs"></i>
+            @if (generatingCustom()) {
+              <i class="pi pi-spin pi-spinner text-xs"></i>
+            }
+            @if (!generatingCustom()) {
+              <i class="pi pi-calendar-plus text-xs"></i>
+            }
             Generate Sessions
           </button>
         </div>
