@@ -1196,3 +1196,50 @@ Everything below was checked as unused before deletion.
   - the page is announced, but not the first or a query change;
   - the focus is rescued, or kept on a sidebar link;
   - the skip link comes first and moves the focus.
+
+## A-02 — The hand-built modals behave as modals; sign-out asks about unsaved work
+
+- **`appModal` directive** (`shared/directives/modal.directive.ts`), on the three modals
+  not built with PrimeNG. It does what `p-dialog` does:
+  - announces the panel as a dialog (`role="dialog"`, `aria-modal`);
+  - moves the focus in when it opens, to the first control or, with
+    `appModalFocus="panel"`, to the panel;
+  - keeps Tab and Shift+Tab inside;
+  - emits `appModalEscape` on Escape, unless something inside claimed the key;
+  - gives the focus back to what had it when it closes.
+- **Where it is used:**
+  - **Outstanding-work window:** the focus starts on the panel, so the heading and the
+    reason are read before any button. Still no Escape: it is meant to be in the way.
+    Before, Tab walked out of it into the page behind.
+  - **Command palette:** the focus now leaves when the palette closes and goes back to
+    where it was. The 50 ms `setTimeout` focus is gone. The search box has a name.
+    Escape works from the results too, not only from the search box.
+  - **Dashboard "sessions" modal:** it had no Escape and no dialog role, and its close
+    button had no name. All three are fixed.
+  - **Both backdrops:** they close on a click on the backdrop itself (a target check)
+    rather than through `stopPropagation`. The lint exception for the backdrop's click is
+    scoped and explained: from the keyboard, Escape is the way out.
+- **Sign-out with unsaved work.** The leave-page guard lets everything through once nobody
+  is signed in, so the sidebar's Logout silently dropped a half-marked register. Now:
+  - the shell's outlet tells `SessionService` which page is open;
+  - `askToSignOut()` asks first ("Sign out without saving?") when that page reports
+    unsaved work. The sidebar uses it.
+  - The outstanding-work window keeps a direct sign-out. A confirm would open under its
+    scrim, and the person would be stuck.
+  - `hasUnsavedWork()` is shared with the guard.
+- **Validation:** 8 new tests:
+  - directive: role, focus on opening (both ways), the Tab wrap, Escape and a claimed
+    Escape, focus back on closing;
+  - sign-out: asks and respects the answer, and does not ask for a closed page;
+  - layout: the outlet reports the open page.
+
+  In headless Chrome, with real key presses:
+  - **Palette:** Shift+Tab wraps to its last result. Escape closes it and puts the focus
+    back on the sidebar link that opened it.
+  - **Outstanding-work window:** keeps the focus through four Tabs.
+  - **Skip link:** the first Tab stop. Enter moves the focus to `<main>`, and the next Tab
+    is inside the page.
+- **Found, not changed:** PrimeNG puts a fixed `autofocus` on each toast's close button.
+  Browsers act on that once per page load, when nothing has the focus. So an error toast
+  during the first load, before any click or key press, takes the focus. It is narrow, and
+  the error gets read out, so it is not patched around.

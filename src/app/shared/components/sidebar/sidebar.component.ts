@@ -74,7 +74,7 @@ export class SidebarComponent {
   }
 
   logout(): void {
-    this.session.signOut();
+    void this.session.askToSignOut();
   }
 
   private getUserInitials(name: string): string {

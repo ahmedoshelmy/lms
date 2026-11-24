@@ -55,7 +55,11 @@
     <!-- Focusable by script only: where the skip link goes, and where the focus
          goes when the drawer closes onto a page. -->
     <main class="content" id="main-content" #mainContent tabindex="-1">
-      <router-outlet />
+      <!-- SessionService asks before a sign-out would lose the open page's work. -->
+      <router-outlet
+        (activate)="session.pageOpened($event)"
+        (deactivate)="session.pageClosed($event)"
+      />
     </main>
   </div>
 </div>

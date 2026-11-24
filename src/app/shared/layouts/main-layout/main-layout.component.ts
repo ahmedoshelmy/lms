@@ -47,7 +47,7 @@ export const PHONE_QUERY = '(max-width: 768px)';
 })
 export class MainLayoutComponent {
   /** Started with the signed-in shell: clears up after a session ends, and hears other tabs. */
-  private readonly session = inject(SessionService);
+  protected readonly session = inject(SessionService);
   private readonly injector = inject(Injector);
   private readonly document = inject(DOCUMENT);
   private readonly router = inject(Router);

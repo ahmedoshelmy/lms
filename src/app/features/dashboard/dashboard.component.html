@@ -338,17 +338,31 @@
 
     <!-- Modal for Attendance Updated Today / Pending Attendance Sessions -->
     @if (activeSessionModal() !== null) {
-      <div class="modal-overlay" (click)="closeSessionModal()">
-        <div class="modal-panel" (click)="$event.stopPropagation()">
+      <!-- A click on the backdrop closes; from the keyboard, Escape does (appModal). -->
+      <!-- eslint-disable @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+      <div
+        class="modal-overlay"
+        (click)="$event.target === $event.currentTarget && closeSessionModal()"
+      >
+        <!-- eslint-enable @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+        <div
+          class="modal-panel"
+          appModal
+          aria-labelledby="session-modal-title"
+          (appModalEscape)="closeSessionModal()"
+        >
           <div class="modal-header">
             <div>
-              <h2 class="modal-title">
+              <h2 class="modal-title" id="session-modal-title">
                 @if (activeSessionModal() === 'updated') {
-                  <i class="pi pi-file-edit text-[var(--color-warning)]"></i> Attendance Updated
-                  Today
+                  <i class="pi pi-file-edit text-[var(--color-warning)]" aria-hidden="true"></i>
+                  Attendance Updated Today
                 } @else {
-                  <i class="pi pi-exclamation-circle text-[var(--color-danger)]"></i> Pending
-                  Attendance Sessions
+                  <i
+                    class="pi pi-exclamation-circle text-[var(--color-danger)]"
+                    aria-hidden="true"
+                  ></i>
+                  Pending Attendance Sessions
                 }
               </h2>
               <p class="modal-desc">
@@ -359,8 +373,13 @@
                 }
               </p>
             </div>
-            <button type="button" (click)="closeSessionModal()" class="modal-close">
-              <i class="pi pi-times"></i>
+            <button
+              type="button"
+              (click)="closeSessionModal()"
+              class="modal-close"
+              aria-label="Close"
+            >
+              <i class="pi pi-times" aria-hidden="true"></i>
             </button>
           </div>
 

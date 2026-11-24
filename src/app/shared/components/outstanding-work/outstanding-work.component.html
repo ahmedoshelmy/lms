@@ -1,8 +1,9 @@
 @if (showing()) {
   <!-- No backdrop click and no escape: this is the one window in the
-       application that is meant to be in the way. -->
+       application that is meant to be in the way. The focus starts on the
+       panel, so its heading and reason are read before any button. -->
   <div class="scrim">
-    <section class="panel" role="dialog" aria-modal="true" aria-labelledby="outstanding-heading">
+    <section class="panel" appModal appModalFocus="panel" aria-labelledby="outstanding-heading">
       <header class="panel__head">
         <h2 class="panel__title" id="outstanding-heading">{{ heading() }}</h2>
         <p class="panel__lead">

@@ -22,6 +22,7 @@ import {
   OutstandingSession,
   SessionClaim,
 } from '../../../core/interfaces/Operations';
+import { ModalDirective } from '../../directives/modal.directive';
 
 /**
  * The window that will not go away until the work is done.
@@ -45,7 +46,7 @@ import {
   selector: 'app-outstanding-work',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalDirective],
   templateUrl: './outstanding-work.component.html',
   styleUrl: './outstanding-work.component.scss',
 })

@@ -5,8 +5,6 @@ import {
   signal,
   computed,
   HostListener,
-  ElementRef,
-  ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -15,6 +13,7 @@ import { Router } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
+import { ModalDirective } from '../../directives/modal.directive';
 
 export interface CommandItem {
   id: string | number;
@@ -29,23 +28,31 @@ export interface CommandItem {
   selector: 'app-command-palette',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalDirective],
   template: `
     @if (isOpen()) {
+      <!-- A click on the backdrop closes; from the keyboard, Escape does (appModal). -->
+      <!-- eslint-disable @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
       <div
         class="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/60 backdrop-blur-xs animate-fade-in"
-        (click)="close()"
+        (click)="$event.target === $event.currentTarget && close()"
       >
+        <!-- eslint-enable @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
         <div
+          appModal
+          aria-label="Search"
+          (appModalEscape)="close()"
           class="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden relative"
-          (click)="$event.stopPropagation()"
         >
           <!-- Search Input Bar -->
           <div class="flex items-center gap-3 px-5 py-4 border-b border-[var(--color-border)]">
-            <i class="pi pi-search text-lg text-[var(--color-secondary)] font-bold"></i>
+            <i
+              class="pi pi-search text-lg text-[var(--color-secondary)] font-bold"
+              aria-hidden="true"
+            ></i>
             <input
-              #searchInput
               type="text"
+              aria-label="Search pages, students, groups and courses"
               [ngModel]="searchQuery()"
               (ngModelChange)="onSearchChange($event)"
               (keydown)="onKeyDown($event)"
@@ -172,8 +179,6 @@ export class CommandPaletteComponent implements OnInit {
     return this.auth.canAccess('students');
   }
 
-  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
-
   isOpen = signal<boolean>(false);
   searchQuery = signal<string>('');
   selectedIndex = signal<number>(0);
@@ -255,10 +260,8 @@ export class CommandPaletteComponent implements OnInit {
     }
     this.searchQuery.set('');
     this.selectedIndex.set(0);
+    // The search box gets the focus from appModal, as the panel opens.
     this.isOpen.set(true);
-    setTimeout(() => {
-      this.searchInput?.nativeElement?.focus();
-    }, 50);
   }
 
   close(): void {

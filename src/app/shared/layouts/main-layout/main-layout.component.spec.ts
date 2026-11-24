@@ -36,6 +36,12 @@ function pressEscape(claim = false) {
   document.removeEventListener('keydown', claimer);
 }
 
+const sessionStub = {
+  signOut: vi.fn(),
+  pageOpened: vi.fn(),
+  pageClosed: vi.fn(),
+};
+
 function render(phone: boolean) {
   vi.stubGlobal('matchMedia', (query: string) => ({
     matches: phone,
@@ -54,7 +60,7 @@ function render(phone: boolean) {
         provide: AuthService,
         useValue: { currentUser: signal({ id: 1, name: 'Mona Adel', role: Role.Instructor }) },
       },
-      { provide: SessionService, useValue: { signOut: () => undefined } },
+      { provide: SessionService, useValue: sessionStub },
     ],
   });
   TestBed.overrideComponent(MainLayoutComponent, {
@@ -227,6 +233,19 @@ describe('MainLayoutComponent between pages', () => {
     await go(fixture, '/groups/7');
 
     expect(document.activeElement).toBe(link);
+  });
+
+  it('tells the session which page is open, so a sign-out can ask about its work', async () => {
+    const { fixture } = render(false);
+    sessionStub.pageOpened.mockClear();
+    sessionStub.pageClosed.mockClear();
+
+    await go(fixture, '/groups');
+    const first = sessionStub.pageOpened.mock.calls[0][0];
+    expect(first).toBeInstanceOf(PageStub);
+
+    await go(fixture, '/groups/7');
+    expect(sessionStub.pageClosed).toHaveBeenCalledWith(first);
   });
 
   it('skips past the navigation to the page', () => {

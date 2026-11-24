@@ -14,6 +14,8 @@ import { LmsService } from './lms.service';
 import { NotificationCenterService } from './notification-center.service';
 import { OperationsService } from './operations.service';
 import { ReferenceCache } from './reference-cache.service';
+import { ConfirmService } from './confirm.service';
+import { hasUnsavedWork } from '../guards/unsaved-changes.guard';
 
 /**
  * Ending a session, in one place.
@@ -38,6 +40,10 @@ export class SessionService {
   private readonly operations = inject(OperationsService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly document = inject(DOCUMENT);
+  private readonly confirm = inject(ConfirmService);
+
+  /** The page in the signed-in shell, told by its outlet. */
+  private openPage: unknown = null;
 
   constructor() {
     effect(() => {
@@ -52,6 +58,34 @@ export class SessionService {
       view.addEventListener('storage', listener);
       inject(DestroyRef).onDestroy(() => view.removeEventListener('storage', listener));
     }
+  }
+
+  pageOpened(page: unknown): void {
+    this.openPage = page;
+  }
+
+  pageClosed(page: unknown): void {
+    if (this.openPage === page) this.openPage = null;
+  }
+
+  /**
+   * Sign out from the menu: first asks, if the page open has unsaved work.
+   *
+   * The leave-page guard cannot: it lets everything through once nobody is
+   * signed in, so a register half marked was lost without a word.
+   */
+  async askToSignOut(): Promise<void> {
+    if (hasUnsavedWork(this.openPage)) {
+      const leave = await this.confirm.ask({
+        header: 'Sign out without saving?',
+        message: 'Changes on this page have not been saved. If you sign out now, they are lost.',
+        acceptLabel: 'Sign out without saving',
+        rejectLabel: 'Stay signed in',
+        danger: true,
+      });
+      if (!leave) return;
+    }
+    this.signOut();
   }
 
   /** The person chose to sign out: tell the server, then end it here. */

@@ -8,6 +8,12 @@ export interface HasUnsavedChanges {
   hasUnsavedChanges(): boolean;
 }
 
+/** Whether a page (any component) says it has work that leaving would lose. */
+export function hasUnsavedWork(page: unknown): boolean {
+  const check = (page as Partial<HasUnsavedChanges> | null)?.hasUnsavedChanges;
+  return typeof check === 'function' && check.call(page) === true;
+}
+
 /**
  * Asks before leaving a page with work on it that has not been saved.
  *
@@ -16,7 +22,7 @@ export interface HasUnsavedChanges {
  * on `beforeunload`.
  */
 export const unsavedChangesGuard: CanDeactivateFn<HasUnsavedChanges> = (component) => {
-  if (!component?.hasUnsavedChanges()) {
+  if (!hasUnsavedWork(component)) {
     return true;
   }
 

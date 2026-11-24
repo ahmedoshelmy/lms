@@ -4,6 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_STORAGE_KEY, AuthService } from './auth.service';
+import { ConfirmService } from './confirm.service';
 import { LmsService } from './lms.service';
 import { NotificationCenterService } from './notification-center.service';
 import { OperationsService } from './operations.service';
@@ -16,6 +17,7 @@ describe('SessionService', () => {
   let bell: { clear: ReturnType<typeof vi.fn> };
   let operations: { clear: ReturnType<typeof vi.fn> };
   let navigate: ReturnType<typeof vi.spyOn>;
+  let ask: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     loggedIn.set(true);
@@ -23,6 +25,7 @@ describe('SessionService', () => {
     lms = { logout: vi.fn(() => of(undefined)) };
     bell = { clear: vi.fn() };
     operations = { clear: vi.fn() };
+    ask = vi.fn(async () => false);
 
     TestBed.configureTestingModule({
       providers: [
@@ -31,6 +34,7 @@ describe('SessionService', () => {
         { provide: LmsService, useValue: lms },
         { provide: NotificationCenterService, useValue: bell },
         { provide: OperationsService, useValue: operations },
+        { provide: ConfirmService, useValue: { ask } },
       ],
     });
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -52,6 +56,42 @@ describe('SessionService', () => {
     expect(lms.logout).toHaveBeenCalled();
     expect(auth.logout).toHaveBeenCalled();
     expect(navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('asks before a sign-out from the menu would lose unsaved work', async () => {
+    const session = start();
+    let dirty = true;
+    const page = { hasUnsavedChanges: () => dirty };
+    session.pageOpened(page);
+
+    // "Stay signed in"
+    await session.askToSignOut();
+    expect(ask).toHaveBeenCalledTimes(1);
+    expect(lms.logout).not.toHaveBeenCalled();
+
+    // "Sign out without saving"
+    ask.mockResolvedValueOnce(true);
+    await session.askToSignOut();
+    expect(lms.logout).toHaveBeenCalledTimes(1);
+
+    // Nothing unsaved: no question.
+    dirty = false;
+    ask.mockClear();
+    await session.askToSignOut();
+    expect(ask).not.toHaveBeenCalled();
+    expect(lms.logout).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not ask about a page that has closed', async () => {
+    const session = start();
+    const page = { hasUnsavedChanges: () => true };
+    session.pageOpened(page);
+    session.pageClosed(page);
+
+    await session.askToSignOut();
+
+    expect(ask).not.toHaveBeenCalled();
+    expect(lms.logout).toHaveBeenCalled();
   });
 
   it('clears the bell and outstanding work however the session ends', () => {

@@ -19,6 +19,7 @@ import { SalesOverviewComponent } from './sales-overview/sales-overview.componen
 import { StudentHomeComponent } from './student-home/student-home.component';
 import { SchoolOverviewComponent } from './school-overview/school-overview.component';
 import { ClockFormatService } from '../../core/services/clock-format.service';
+import { ModalDirective } from '../../shared/directives/modal.directive';
 
 interface StatCard {
   label: string;
@@ -44,6 +45,7 @@ export type DashboardView = 'today' | 'week' | 'month';
     SalesOverviewComponent,
     StudentHomeComponent,
     SchoolOverviewComponent,
+    ModalDirective,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

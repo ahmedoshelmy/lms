@@ -27,6 +27,7 @@ src/app/
 │
 ├── shared/                 # Shared UI
 │   ├── components/         # sidebar, command palette, confirm-host, load-error, ...
+│   ├── directives/         # appModal (focus, Tab and Escape for hand-built modals)
 │   └── layouts/            # main-layout (the signed-in shell)
 │
 ├── app.component.ts        # Root component (holds <router-outlet>)
@@ -206,7 +207,9 @@ runner".
 - > [!IMPORTANT]
   - **Destructive actions:** ask first with `ConfirmService.ask()`, which shows the shared dialog with the safe choice focused. Do not use `window.confirm` or `prompt`.
 - > [!NOTE]
-  - **Signing out:** use `SessionService.signOut()`. It clears everything a session left behind and keeps other tabs in step.
+  - **Signing out:** use `SessionService.signOut()`. It clears everything a session left behind and keeps other tabs in step. A sign-out the person starts from the menu goes through `askToSignOut()`, which asks first when the open page has unsaved work.
+- > [!NOTE]
+  - **Modals:** prefer PrimeNG's `p-dialog`. A hand-built overlay panel takes the `appModal` directive (`shared/directives/modal.directive.ts`), which gives it dialog semantics, focus on opening and back on closing, Tab kept inside and Escape.
 - > [!NOTE]
   - **PrimeNG Element Positioning:** PrimeNG elements styled with absolute positioning (such as select elements and dialogs) may occasionally conflict with parent layouts. Ensure that deep overrides (`::ng-deep`) do not leak globally and are scoped to the host component.
 
