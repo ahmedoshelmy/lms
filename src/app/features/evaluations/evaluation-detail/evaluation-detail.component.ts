@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -6,6 +6,7 @@ import { LmsService } from '../../../core/services/lms.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
+import { HasUnsavedChanges } from '../../../core/guards/unsaved-changes.guard';
 import { MonthlyReportPdfService } from '../../../core/services/monthly-report-pdf.service';
 import { CourseLevel } from '../../../core/interfaces/CourseLevel';
 import { SessionSyllabus } from '../../../core/interfaces/SessionSyllabus';
@@ -31,7 +32,7 @@ import {
   templateUrl: './evaluation-detail.component.html',
   styleUrl: './evaluation-detail.component.scss',
 })
-export class EvaluationDetailComponent implements OnInit {
+export class EvaluationDetailComponent implements OnInit, HasUnsavedChanges {
   private lms = inject(LmsService);
   private auth = inject(AuthService);
   private notify = inject(NotificationService);
@@ -382,6 +383,14 @@ export class EvaluationDetailComponent implements OnInit {
     const id = this.report()?.id;
     if (!id) return;
 
+    // Releasing sends the stored copy and then shows it, which used to wipe
+    // whatever had been typed since the last save. The button is disabled
+    // while anything is unsaved; this is the backstop.
+    if (this.unsaved()) {
+      this.notify.showWarn('Save your changes first, then release.');
+      return;
+    }
+
     this.saving.set(true);
     this.lms.releaseEvaluation(id).subscribe({
       next: (saved) => {
@@ -407,6 +416,20 @@ export class EvaluationDetailComponent implements OnInit {
 
   protected back(): void {
     this.router.navigate(['/evaluations']);
+  }
+
+  /** Read by unsavedChangesGuard before the route changes. */
+  hasUnsavedChanges(): boolean {
+    return this.unsaved() && !this.locked();
+  }
+
+  /** Closing or reloading the tab is outside the router, so the browser asks. */
+  @HostListener('window:beforeunload', ['$event'])
+  protected warnBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
   }
 }
 

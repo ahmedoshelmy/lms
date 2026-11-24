@@ -394,7 +394,13 @@
         }
 
         @if (isAdmin() && report.status === 'Submitted') {
-          <button type="button" class="btn btn--go" (click)="release()" [disabled]="saving()">
+          <button
+            type="button"
+            class="btn btn--go"
+            (click)="release()"
+            [disabled]="saving() || unsaved()"
+            [title]="unsaved() ? 'Save your changes first, then release' : ''"
+          >
             Release to parents
           </button>
         }

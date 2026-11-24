@@ -177,3 +177,26 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
 - **Note for CI (F-06):** `prettier --check` flags every file Git checks out with CRLF
   (`core.autocrlf=true` vs `endOfLine: lf`). It's a line-ending artefact, not formatting.
   Fix with a `.gitattributes` `* text=auto eol=lf`, or check with `--end-of-line auto`.
+
+## P0-08 — Monthly report edits are no longer lost on release or navigation
+
+- **What changed:**
+  - "Release to parents" is disabled while there are unsaved edits, with a tooltip, and
+    `release()` refuses as a backstop.
+  - New reusable `unsavedChangesGuard` (`core/guards/unsaved-changes.guard.ts`, with a
+    `HasUnsavedChanges` interface), added to the `evaluations/:studentId/:groupId` route. It
+    asks "Leave without saving?" through `ConfirmService`. The report editor also warns on
+    `beforeunload` (tab close or reload).
+- **Why:** finding C-10. Releasing applied the stored copy over the screen and wiped
+  anything typed since the last save, and nothing warned before leaving the editor.
+- **Decision:** block rather than auto-save before release. Auto-save would mean choosing
+  `save(true)` or `save(false)` for a report already sent to operations, and how the server
+  treats each in that state isn't verified. Admins save ("Send to operations"), then
+  release.
+- **Files:** `core/guards/unsaved-changes.guard.ts` (+ spec), `app.routes.ts`,
+  `features/evaluations/evaluation-detail/evaluation-detail.component.{ts,html}`.
+- **Validation:** 17 files / 116 tests pass (3 new, guard). Build passes; initial bundle
+  596.47 kB. The release block has no component test: it needs a full report fixture, and
+  the rule is a direct guard plus a disabled button.
+- **Remaining:** the register on `/sessions/:id` can lose unsaved marks the same way. The
+  guard can be reused there (W-02).

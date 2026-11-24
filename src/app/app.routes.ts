@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 import { getRolesForPath } from './core/config/app-navigation.config';
 
 export const routes: Routes = [
@@ -115,6 +116,7 @@ export const routes: Routes = [
       {
         path: 'evaluations/:studentId/:groupId',
         canActivate: [roleGuard],
+        canDeactivate: [unsavedChangesGuard],
         data: { roles: getRolesForPath('evaluations') },
         loadComponent: () =>
           import('./features/evaluations/evaluation-detail/evaluation-detail.component').then(
