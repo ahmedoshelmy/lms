@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,10 +23,9 @@ import { ClockFormatService } from '../../core/services/clock-format.service';
 import { latestRequest } from '../../core/utils/latest-request';
 import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
-// Not OnPush yet: promoting and showPromoteModal are plain fields set in callbacks.
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: 'app-history',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -58,10 +64,10 @@ export class HistoryComponent implements OnInit {
   courses = signal<Course[]>([]);
 
   // Promote Modal state
-  showPromoteModal = false;
+  readonly showPromoteModal = signal(false);
   selectedGroupHistory: GroupHistory | null = null;
   selectedTargetCourseId: number | null = null;
-  promoting = false;
+  readonly promoting = signal(false);
 
   ngOnInit(): void {
     this.loadData();
@@ -162,12 +168,12 @@ export class HistoryComponent implements OnInit {
     } else {
       this.selectedTargetCourseId = null;
     }
-    this.showPromoteModal = true;
+    this.showPromoteModal.set(true);
   }
 
   confirmPromote(): void {
     if (!this.selectedGroupHistory) return;
-    this.promoting = true;
+    this.promoting.set(true);
 
     this.lmsService
       .promoteGroupNextLevel(this.selectedGroupHistory.groupId, {
@@ -179,12 +185,12 @@ export class HistoryComponent implements OnInit {
           this.notify.showSuccess(
             `Group ${this.selectedGroupHistory?.groupName} promoted to next level!`
           );
-          this.showPromoteModal = false;
-          this.promoting = false;
+          this.showPromoteModal.set(false);
+          this.promoting.set(false);
           this.loadData();
         },
         error: () => {
-          this.promoting = false;
+          this.promoting.set(false);
         },
       });
   }

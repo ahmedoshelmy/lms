@@ -92,7 +92,7 @@ export interface TimeSlot {
                     class="h-16 border-r border-[var(--color-border)] p-1 text-center align-top relative"
                   >
                     @let entry = slotAt(instructor.id, slot.hour);
-                    @let session = entry && entry.starts ? entry.session : null;
+                    @let session = entry && (entry.starts || $first) ? entry.session : null;
                     @if (session) {
                       <div
                         (click)="sessionSelected.emit(session)"

@@ -1,14 +1,13 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { Component, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 
-// Not OnPush yet: apiUrl is a plain field set in a callback.
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: 'app-settings',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `

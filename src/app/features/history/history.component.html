@@ -313,17 +313,17 @@
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-2 pt-4 border-t border-[var(--color-border)]">
       <button
-        (click)="showPromoteModal = false"
+        (click)="showPromoteModal.set(false)"
         class="px-4 py-2 text-sm font-semibold rounded-lg border border-[var(--color-border)] text-[var(--color-secondary)] hover:bg-[var(--color-surface-hover)]"
       >
         Cancel
       </button>
       <button
         (click)="confirmPromote()"
-        [disabled]="promoting"
+        [disabled]="promoting()"
         class="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] flex items-center gap-2"
       >
-        @if (promoting) {
+        @if (promoting()) {
           <i class="pi pi-spin pi-spinner"></i>
         }
         <span>Confirm & Generate Sessions</span>

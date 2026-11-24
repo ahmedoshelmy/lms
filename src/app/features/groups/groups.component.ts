@@ -1,4 +1,12 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -45,10 +53,9 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
 
 const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-// Not OnPush yet: formName is set from a server suggestion in a callback.
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: 'app-groups',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
     CommonModule,
@@ -63,6 +70,7 @@ const DAYS_OF_WEEK = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'T
 })
 export class GroupsComponent implements OnInit {
   private router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
@@ -504,6 +512,9 @@ export class GroupsComponent implements OnInit {
         if (result?.name) {
           this.formName = result.name;
           this.nameWasSuggested.set(true);
+          // formName is a plain field (the form binds it with ngModel) set
+          // after a request: OnPush needs telling.
+          this.cdr.markForCheck();
         }
       });
   }

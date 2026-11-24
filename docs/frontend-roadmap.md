@@ -22,7 +22,7 @@ Arabic/RTL.
 ## Status (2026-11-24)
 
 Each phase is on its own branch, cut from the one before (`frontend/phase-0` …
-`frontend/phase-4`), one commit per task, and each phase ends with an audit. Details are in
+`frontend/phase-5`), one commit per task, and each phase ends with an audit. Details are in
 the implementation log.
 
 - **Phase 0:** P0-01 to P0-11 and SSR-01, done.
@@ -33,9 +33,12 @@ the implementation log.
 - **Phase 3:** W-01 to W-06, done and audited. W-07 needs a backend endpoint.
 - **Phase 4:** M-01 to M-03, done and audited. Dark-mode contrast of primary-coloured text
   (101 uses) is handed to Phase 6 (A-04).
+- **Phase 5:** PF-01 to PF-04 done and audited (PF-05 was done in Phase 2). All components are
+  `OnPush`. The group page's session feed and Attendance's all-time list wait on backend
+  queries (per group; paging).
 
-Latest validation (Phase 4 audit): format ✔, lint 0 errors (167 warnings of tracked
-debt), 41 test files and 199 tests passing, production build ✔ with the initial bundle at
+Latest validation (Phase 5 audit): format ✔, lint 0 errors (167 warnings of tracked
+debt), 45 test files and 214 tests passing, production build ✔ with the initial bundle at
 about 586 kB against the 600 kB budget, production `npm audit` 0.
 
 Backend questions still open:
@@ -50,6 +53,8 @@ Backend questions still open:
 - Does `mineOnly` filter on the server for holds and candidates?
 - Bulk and per-group endpoints, instead of one request per student.
 - Recording issued certificates (W-07); `instructorId` always set on sessions.
+- A per-group session query; paging for the all-time session list; whether `GET /schedule`
+  with only `from` has a default end.
 
 ## Task table
 

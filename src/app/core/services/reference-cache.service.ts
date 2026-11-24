@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpInterceptorFn } from '@angular/common/http';
-import { Observable, catchError, finalize, map, shareReplay, throwError } from 'rxjs';
+import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { EMPTY, Observable, catchError, map, shareReplay, tap, throwError } from 'rxjs';
 
 /** Long enough to cover a working session's page-to-page moves, short enough to pick up others' edits. */
 const TTL_MS = 5 * 60_000;
@@ -29,14 +29,17 @@ export class ReferenceCache {
     const now = Date.now();
     let entry = this.entries.get(key);
     if (!entry || entry.expires <= now) {
-      const value$ = load().pipe(
+      const fresh: Entry = { expires: now + TTL_MS, value$: EMPTY };
+      fresh.value$ = load().pipe(
         catchError((error) => {
-          this.entries.delete(key);
+          // Only its own entry: a newer one under the same key may have
+          // replaced it since (after a write), and is not to be thrown away.
+          if (this.entries.get(key) === fresh) this.entries.delete(key);
           return throwError(() => error);
         }),
         shareReplay({ bufferSize: 1, refCount: false })
       );
-      entry = { expires: now + TTL_MS, value$ };
+      entry = fresh;
       this.entries.set(key, entry);
     }
     return (entry.value$ as Observable<T[]>).pipe(map((list) => (list ? [...list] : list)));
@@ -60,9 +63,21 @@ export class ReferenceCache {
   }
 }
 
-/** After any write -- whether it worked or not -- the lists it may have changed are fetched afresh. */
+/**
+ * After any write -- whether it worked or not -- the lists it may have changed
+ * are fetched afresh. Cleared as the response arrives, before the caller sees
+ * it: pages reload the list in their success handler, and clearing afterwards
+ * (in finalize) handed them the old list -- a topic just created did not show.
+ */
 export const referenceCacheInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.method === 'GET') return next(req);
   const cache = inject(ReferenceCache);
-  return next(req).pipe(finalize(() => cache.invalidateFor(req.url)));
+  return next(req).pipe(
+    tap({
+      next: (event) => {
+        if (event instanceof HttpResponse) cache.invalidateFor(req.url);
+      },
+      error: () => cache.invalidateFor(req.url),
+    })
+  );
 };

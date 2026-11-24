@@ -9,6 +9,7 @@ import {
 import { RouterModule } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { DashboardOverview } from '../../../core/interfaces/DashboardOverview';
+import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
 
 /** Which stretch of time the cancellation panel is showing. */
 type CancellationPeriod = 'week' | 'month';
@@ -33,7 +34,7 @@ interface CauseSlice {
   selector: 'app-school-overview',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, LoadErrorComponent],
   templateUrl: './school-overview.component.html',
   styleUrl: './school-overview.component.scss',
 })
@@ -139,6 +140,11 @@ export class SchoolOverviewComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
     this.lms.getDashboardOverview().subscribe({
       next: (data) => {
         this.overview.set(data);

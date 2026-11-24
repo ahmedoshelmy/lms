@@ -357,16 +357,16 @@ export class InstructorAvailabilityMatrixComponent {
     indexSessionsBySlot(this.sessions(), { skipCancelled: true })
   );
 
+  /** Classes this week, not the hours they fill: the label says "sessions". */
   readonly weeklyBookedCount = computed(() => {
-    let count = 0;
+    const classes = new Set<number>();
     for (const day of this.weekDays()) {
       for (const slot of this.timeSlots) {
-        if (this.getInstructorSlotState(day.date, slot.hour).session) {
-          count++;
-        }
+        const session = this.getInstructorSlotState(day.date, slot.hour).session;
+        if (session) classes.add(session.id);
       }
     }
-    return count;
+    return classes.size;
   });
 
   /**

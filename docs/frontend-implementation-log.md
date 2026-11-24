@@ -1128,3 +1128,43 @@ Everything below was checked as unused before deletion.
   All batches exit 0 (44 files / 212 tests). In the browser, five page moves between
   Groups and Courses fetched `/topics` and `/instructors` once each. Lint 0 errors; build
   586.46 kB initial.
+
+## Phase 5 audit
+
+- **Checks:** format ✔; lint 0 errors (167 warnings, unchanged). All batches exit 0:
+  45 files / 214 tests. Production build ✔ at 586.58 kB initial; production `npm audit` 0.
+- **Runtime sweep:** every page loaded with sample data in a development build, with
+  uncaught exceptions and `console.error` logged. None.
+  - **Fixed: the admin home's failure state.** It was one grey line ("The figures could not
+    be loaded.") with no heading and no way to retry. It now has its heading and
+    `app-load-error` with "Try again" (new `school-overview.component.spec.ts`).
+- **Independent review** of the Phase 5 diff. Fixed:
+  1. **New or edited topics, levels and rooms did not appear after saving (High, from
+     PF-04).** The interceptor cleared the cache in `finalize`, which runs after the
+     caller's success handler. Pages reload the list there, and got the old one. It now
+     clears as the response arrives, before the caller sees it. A test reproduces it: a
+     reload inside the success handler gets the new list. In the browser, creating a topic
+     now fetches `/topics` again.
+  2. **A failed request could remove a newer cache entry** under the same key. It now
+     removes only its own.
+  3. **"Scheduled Sessions" on the week matrix counted booked hours** after PF-03, so three
+     90-minute classes read as 6. It counts classes again.
+  4. **A class starting before the grid's first hour** (07:30–09:00) showed only
+     "continues" at 08:00. Its card now shows in the first visible hour.
+  5. **Groups, History and Settings were left on Default under `OnPush` parents.** They
+     refreshed only when something else redrew. Now all three are `OnPush`, so all 46
+     components are:
+     - **History:** `promoting` and `showPromoteModal` are signals.
+     - **Groups:** calls `markForCheck()` where a server name suggestion sets `formName`.
+     - **Settings:** already safe, since its callback also sets a signal the template
+       reads.
+
+     Checked in the browser: History's promote dialog opens; Settings shows its address.
+
+- **Accepted:**
+  - The add-session dialog no longer animates closed, and its date and time start fresh on
+    each open.
+  - A class crossing midnight is booked only to 23:00 of its first day; the grids run
+    08–20.
+  - The groups list's `from = now` query assumes the server sets no default end date.
+    That is a backend question, recorded with the others.

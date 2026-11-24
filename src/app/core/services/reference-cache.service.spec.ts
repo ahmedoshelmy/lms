@@ -90,4 +90,28 @@ describe('referenceCacheInterceptor', () => {
     backend.expectOne('http://api.test/users/4').flush({});
     expect(spy).toHaveBeenCalledWith('http://api.test/users/4');
   });
+
+  it('clears before the caller sees the answer, so a reload in its success handler is fresh', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([referenceCacheInterceptor])),
+        provideHttpClientTesting(),
+      ],
+    });
+    const cache = TestBed.inject(ReferenceCache);
+    const http = TestBed.inject(HttpClient);
+    const backend = TestBed.inject(HttpTestingController);
+    const load = vi.fn(() => of(['old']));
+    await firstValueFrom(cache.get('topics:x', load));
+
+    let seen: string[] = [];
+    http.post('http://api.test/topics', {}).subscribe(() => {
+      // What the Courses page does: reload the list as soon as the save succeeds.
+      cache.get('topics:x', () => of(['old', 'new'])).subscribe((list) => (seen = list));
+    });
+    backend.expectOne('http://api.test/topics').flush({});
+
+    expect(seen).toEqual(['old', 'new']);
+  });
 });

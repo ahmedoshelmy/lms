@@ -185,5 +185,7 @@
     </div>
   </div>
 } @else {
-  <p class="panel__empty">The figures could not be loaded.</p>
+  <!-- A heading and a way to try again; it used to be one grey line on an empty page. -->
+  <h1 class="overview__title">The school today</h1>
+  <app-load-error title="The figures could not be loaded" (retry)="load()" />
 }
