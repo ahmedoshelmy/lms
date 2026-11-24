@@ -177,15 +177,18 @@
         <span>Instructor Availability</span>
       </button>
 
-      <button
-        type="button"
-        class="density-btn text-xs"
-        [class.density-btn--active]="viewMode() === 'analytics'"
-        (click)="viewMode.set('analytics')"
-      >
-        <i class="pi pi-chart-bar text-xs"></i>
-        <span>Analytics & Capacity</span>
-      </button>
+      <!-- Staff only: how a week is spread is a running-the-school question. -->
+      @if (isStaff) {
+        <button
+          type="button"
+          class="density-btn text-xs"
+          [class.density-btn--active]="viewMode() === 'analytics'"
+          (click)="viewMode.set('analytics')"
+        >
+          <i class="pi pi-chart-bar text-xs"></i>
+          <span>Week in numbers</span>
+        </button>
+      }
     </div>
   </div>
 
@@ -431,12 +434,8 @@
         [canPickInstructor]="viewsAllInstructors"
         (sessionSelected)="onSessionSelected($event)"
       />
-    } @else if (viewMode() === 'analytics') {
-      <app-schedule-analytics
-        [sessions]="sessions()"
-        [instructors]="instructors()"
-        [currentWeekStart]="currentWeekStart()"
-      />
+    } @else if (viewMode() === 'analytics' && isStaff) {
+      <app-schedule-analytics [sessions]="sessions()" [currentWeekStart]="currentWeekStart()" />
     }
   }
 </div>

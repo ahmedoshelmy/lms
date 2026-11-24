@@ -62,3 +62,24 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
     from the edit form.
   - The server should reject empty or weak passwords.
   - Self-service profile and password changes need endpoints.
+
+## P0-04 — Schedule analytics counts real classes only
+
+- **What changed:**
+  - The tab, renamed "Week in numbers", is built from `summariseWeek` /
+    `busiestAndQuietest`. Per day it shows classes, cancellations, instructors teaching and
+    teaching hours, all counted from the loaded sessions.
+  - The busiest day and the quietest day with classes are computed, and an empty week says
+    so.
+  - Removed: the hard-coded per-day figures, the "19 Sessions" / "15 Free" headlines, the
+    floor of 4 instructors, the "9 hours × every instructor" capacity and free-slot columns,
+    and the emojis.
+  - The tab is now staff-only (`isStaff`), so students no longer see it.
+- **Why:** finding C-05. On any day without sessions the tab showed invented numbers, to
+  students too.
+- **Decision:** capacity is not estimated here. It's an availability question, and the
+  availability views answer it from declared hours.
+- **Files:** `core/utils/week-summary.utils.ts` (+ spec);
+  `features/schedule/components/schedule-analytics/schedule-analytics.component.ts`;
+  `features/schedule/schedule.component.html`.
+- **Validation:** 11 files / 93 tests pass (5 new); build passes; initial bundle 596.34 kB.
