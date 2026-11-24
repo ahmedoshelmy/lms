@@ -223,8 +223,9 @@ export class WeeklyScheduleComponent {
       }
       // 5. Instructor filter
       if (inst) {
+        // The filter holds a name. Matched exactly: "Ali" used to match "Alia".
         const instMatch =
-          s.instructorName.toLowerCase().includes(inst) || s.instructorId.toString() === inst;
+          (s.instructorName ?? '').toLowerCase() === inst || String(s.instructorId) === inst;
         if (!instMatch) return false;
       }
       // 6. Location filter

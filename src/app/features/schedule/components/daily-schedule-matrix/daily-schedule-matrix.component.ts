@@ -218,12 +218,8 @@ export class DailyScheduleMatrixComponent {
 
   getSessionForSlot(instructorId: number, hour: number): ScheduleSession | undefined {
     return this.daySessions().find((s) => {
-      if (s.instructorId !== instructorId) {
-        const inst = this.activeInstructors().find((i) => i.id === instructorId);
-        if (!inst || !s.instructorName?.toLowerCase().includes(inst.name.toLowerCase())) {
-          return false;
-        }
-      }
+      // By id; a name test matched "Ali" inside "Alia".
+      if (s.instructorId !== instructorId) return false;
       const sHour = new Date(s.startsAt).getHours();
       return sHour === hour;
     });

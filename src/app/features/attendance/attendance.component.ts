@@ -12,6 +12,7 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { ClockFormatService } from '../../core/services/clock-format.service';
+import { startOfSchoolWeek } from '../../core/utils/week.utils';
 
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
 export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
@@ -85,9 +86,7 @@ export class AttendanceComponent implements OnInit {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const todayEnd = todayStart + 24 * 60 * 60 * 1000;
 
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay());
-    weekStart.setHours(0, 0, 0, 0);
+    const weekStart = startOfSchoolWeek(now);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 7);
 
@@ -96,13 +95,8 @@ export class AttendanceComponent implements OnInit {
 
     return all.filter((s) => {
       if (instFilter !== 0) {
-        const selectedInst = this.instructors().find((i) => i.id === instFilter);
-        const matchesInstId = String(s.instructorId) === String(instFilter);
-        const matchesInstName =
-          selectedInst && s.instructorName
-            ? s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase())
-            : false;
-        if (!matchesInstId && !matchesInstName) return false;
+        // By id, not by name: a name test matched "Ali" inside "Alia".
+        if (String(s.instructorId) !== String(instFilter)) return false;
       }
 
       const normStatus = (s.status ?? '').toLowerCase();

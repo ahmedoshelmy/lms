@@ -26,6 +26,7 @@ import { SessionSyllabusComponent } from '../../../shared/components/session-syl
 import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { fromIsoDate, toIsoDate } from '../../../core/utils/date.utils';
+import { isSameSchoolWeek } from '../../../core/utils/week.utils';
 
 export type StudentStatus = RegisterMark;
 
@@ -52,19 +53,6 @@ function sessionStatusToApiEnum(statusStr: string): number {
   if (norm.includes('cancel')) return SessionStatus.Cancelled;
   if (norm.includes('completed')) return SessionStatus.Completed;
   return SessionStatus.Scheduled;
-}
-
-function getMonday(d: Date): Date {
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(date.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-  return monday;
-}
-
-function isSameWeek(d1: Date, d2: Date): boolean {
-  return getMonday(d1).getTime() === getMonday(d2).getTime();
 }
 
 function normalizeAttendanceStatus(raw: any): StudentStatus {
@@ -563,7 +551,7 @@ export class SessionDetailComponent implements OnInit {
       const originalDate = new Date(s.startsAt);
       const newDate = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
 
-      if (!isSameWeek(originalDate, newDate) && newDate > originalDate) {
+      if (!isSameSchoolWeek(originalDate, newDate) && newDate > originalDate) {
         this.showFutureWeekConfirmModal.set(true);
         return;
       }

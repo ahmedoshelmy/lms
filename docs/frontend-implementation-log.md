@@ -477,3 +477,24 @@ Everything below was checked as unused before deletion.
   a lint error.
 - **Validation:** lint 0 errors (warnings 200 → 170); 26 files / 146 tests pass; build clean
   at 597.51 kB.
+
+## F-07 — One school week; instructors matched by id
+
+- **What changed:**
+  - **School week:** new `core/utils/week.utils.ts` holds `SCHOOL_WEEK_STARTS_ON = 6`
+    (Saturday), `startOfSchoolWeek` and `isSameSchoolWeek`. They replace:
+    - the schedule's two Saturday calculations;
+    - the session editors' Monday-based `getMonday` / `isSameWeek` (panel and page);
+    - the attendance list's Sunday-based "this week".
+  - **Instructor matching:**
+    - by id in the schedule load filter, the attendance filter and all three matrices;
+    - the weekly view's filter holds a name, so it uses an exact, case-insensitive match.
+
+    All of these used to match by substring, so "Ali" matched "Alia".
+
+- **Decision (made for you, easy to change):** the school week starts on **Saturday**, as
+  the schedule has always shown it. Change `SCHOOL_WEEK_STARTS_ON` to switch it everywhere.
+- **Why:** audit §5 Business logic. Moving a class from Saturday to the Monday of the same
+  school week used to start the "future week" cancel-and-shift flow.
+- **Validation:** 28 files / 151 tests pass (6 new). The Ali/Alia test fails against the
+  old weekly view. Lint 0 errors; build clean.

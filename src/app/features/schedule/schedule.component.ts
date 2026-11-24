@@ -24,6 +24,7 @@ import { DialogModule } from 'primeng/dialog';
 import { CreateStandaloneSessionDialogComponent } from './components/create-standalone-session-dialog/create-standalone-session-dialog.component';
 import { toIsoDate } from '../../core/utils/date.utils';
 import { latestRequest } from '../../core/utils/latest-request';
+import { startOfSchoolWeek } from '../../core/utils/week.utils';
 
 export type ExtendedViewMode =
   | 'weekly'
@@ -373,13 +374,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   calculateWeekStart(): void {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const saturdayOffset = (dayOfWeek + 1) % 7;
-    const diff = today.getDate() - saturdayOffset;
-    const weekStart = new Date(today.setDate(diff));
-    weekStart.setHours(0, 0, 0, 0);
-    this.currentWeekStart.set(weekStart);
+    this.currentWeekStart.set(startOfSchoolWeek(new Date()));
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -463,13 +458,9 @@ export class ScheduleComponent implements OnInit {
         next: (res) => {
           let sessions = res || [];
           if (userId && userId !== 0) {
-            const selectedInst = this.instructors().find((i) => i.id === userId);
             const filtered = sessions.filter((s) => {
-              if (s.instructorId === userId) return true;
-              if (selectedInst && s.instructorName) {
-                return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
-              }
-              return false;
+              // By id. Matching names by substring put Alia's classes on Ali's week.
+              return s.instructorId === userId;
             });
             if (
               filtered.length > 0 ||
@@ -553,13 +544,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   private getWeekStartForDate(date: Date): Date {
-    const d = new Date(date);
-    const dayOfWeek = d.getDay();
-    const saturdayOffset = (dayOfWeek + 1) % 7;
-    const diff = d.getDate() - saturdayOffset;
-    const weekStart = new Date(d.setDate(diff));
-    weekStart.setHours(0, 0, 0, 0);
-    return weekStart;
+    return startOfSchoolWeek(date);
   }
 
   getDateRangeString(): string {

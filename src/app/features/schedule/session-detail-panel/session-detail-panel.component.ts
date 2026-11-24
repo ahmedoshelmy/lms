@@ -17,25 +17,13 @@ import { CancelSessionDialogComponent } from '../../../shared/components/cancel-
 import { CancelSessionPayload } from '../../../core/interfaces/History';
 import { cancellationNote, isNewCancellation } from '../../../core/utils/cancellation.utils';
 import { fromIsoDate, toIsoDate } from '../../../core/utils/date.utils';
+import { isSameSchoolWeek } from '../../../core/utils/week.utils';
 
 function sessionStatusToApiEnum(statusStr: string): number {
   const norm = (statusStr || '').toLowerCase();
   if (norm.includes('cancel')) return SessionStatus.Cancelled;
   if (norm.includes('completed')) return SessionStatus.Completed;
   return SessionStatus.Scheduled;
-}
-
-function getMonday(d: Date): Date {
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(date.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-  return monday;
-}
-
-function isSameWeek(d1: Date, d2: Date): boolean {
-  return getMonday(d1).getTime() === getMonday(d2).getTime();
 }
 
 @Component({
@@ -215,7 +203,7 @@ export class SessionDetailPanelComponent {
       const originalDate = new Date(s.startsAt);
       const newDate = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
 
-      if (!isSameWeek(originalDate, newDate) && newDate > originalDate) {
+      if (!isSameSchoolWeek(originalDate, newDate) && newDate > originalDate) {
         // Moving to future week triggers cancellation & shift confirmation prompt
         this.showFutureWeekConfirmModal.set(true);
         return;

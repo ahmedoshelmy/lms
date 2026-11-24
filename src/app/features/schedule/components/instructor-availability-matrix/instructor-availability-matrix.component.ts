@@ -323,9 +323,8 @@ export class InstructorAvailabilityMatrixComponent {
     const isWorkingHour = !onLeave && isDeclaredAvailable(this.availability(), inst.id, date, hour);
 
     const session = this.sessions().find((s) => {
-      const isSameInst =
-        s.instructorId === inst.id ||
-        (s.instructorName && s.instructorName.toLowerCase().includes(inst.name.toLowerCase()));
+      // By id; a name test matched "Ali" inside "Alia".
+      const isSameInst = s.instructorId === inst.id;
       if (!isSameInst) return false;
 
       const d = new Date(s.startsAt);
