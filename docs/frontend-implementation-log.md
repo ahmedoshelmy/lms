@@ -104,3 +104,41 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   code with exactly that Friday. Build passes.
 - **Remaining:** the certificate dialog keeps its own correct helper (`localDateInputToIso`);
   merging it is F-08 tidy-up.
+
+## P0-06 — Group detail stops changing things nobody asked it to
+
+- **What changed (group detail, plus the groups list where noted):**
+  - **Location:** no more "MOA" default (four places); the field starts empty.
+  - **Course removal:** the curriculum tab's trash button no longer drops a saved course
+    silently. It opens the existing Remove Course dialog, which lists the classes and
+    registers that go with it, and the row leaves the list only after the server confirms.
+    Rows added in the same edit and not yet saved still remove directly. The button now has
+    an accessible name.
+  - **End date (group detail and the groups list):** editing no longer requires an end date,
+    which is display-only and derived from the last class. A group with no classes yet sends
+    `endDate: null`, and `UpdateGroupPayload.endDate` is now typed `string | null`. Creating
+    a group still asks for one.
+  - **Garbled text:** 38 double-encoded lines restored (bullets, dashes, "·", "…", emojis)
+    in group detail, `courses.component.html`, the standalone-session dialog and the
+    `lms.service.ts` section comments. Fragments cut off part-way were dropped.
+  - **Fake columns:** "Attendance" and "Progress" columns removed from the group's student
+    table. They printed "Enrolled"/"Active" for every child and sorted on fields the API
+    doesn't send.
+  - **Course-sessions dialog:** shows a real first–last date range instead of
+    `[object Object] - [object Object]`.
+  - **Tidy-up:** removed the unused `RouterLink` import, the build's only Angular warning.
+- **Why:** finding C-08, and the group-detail items in the audit's Admin/Operations section.
+- **Files:** `features/groups/group-detail/group-detail.component.{ts,html}` (+ new spec),
+  `features/groups/groups.component.ts`, `core/interfaces/Group.ts`,
+  `core/services/lms.service.ts` (comments only), `features/courses/courses.component.html`,
+  `features/schedule/components/create-standalone-session-dialog/…html`.
+- **Validation:**
+  - 14 files / 104 tests pass (3 new: no invented location, saving without an end date, a
+    saved course goes to the removal dialog). Build passes with no Angular warnings;
+    initial bundle 595.71 kB.
+  - The "fails on the old code" check could not run here: with the old component restored,
+    the new template binding no longer compiles. The old behaviour each test targets is
+    visible in the diff.
+- **Backend to verify:** the server accepts `endDate: null` on `PUT /groups/{id}`. It returns
+  null for these groups, so the field should be nullable; if it isn't, the save is refused
+  with a 400 and nothing is written, which is no worse than the blocked form.

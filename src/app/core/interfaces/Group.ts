@@ -212,7 +212,11 @@ export interface CreateGroupPayload {
 export interface UpdateGroupPayload {
   name: string;
   startDate: string;
-  endDate: string;
+  /**
+   * Shown read-only on edit: the server works it out from the group's last
+   * class. Null for a group with no classes yet, which is what it sends back.
+   */
+  endDate: string | null;
   defaultInstructorId: number;
   status: number;
   location?: string;

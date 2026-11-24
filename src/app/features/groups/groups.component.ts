@@ -542,7 +542,16 @@ export class GroupsComponent implements OnInit {
   }
 
   saveGroup(): void {
-    if (!this.formName || !this.formStartDate || !this.formEndDate || !this.formInstructorId) {
+    // Editing shows the end date read-only -- it is worked out from the last
+    // class -- so only a new group is asked for one. Requiring it on edit left a
+    // group with no classes yet impossible to save.
+    const needsEndDate = this.modalMode() === 'create';
+    if (
+      !this.formName ||
+      !this.formStartDate ||
+      (needsEndDate && !this.formEndDate) ||
+      !this.formInstructorId
+    ) {
       this.notify.showError('Please fill in all required fields.');
       return;
     }
@@ -628,7 +637,7 @@ export class GroupsComponent implements OnInit {
       const payload: UpdateGroupPayload = {
         name: this.formName,
         startDate: this.formStartDate,
-        endDate: this.formEndDate,
+        endDate: this.formEndDate || null,
         defaultInstructorId: this.formInstructorId,
         status: this.formStatus,
         location: this.formLocation || undefined,

@@ -131,7 +131,7 @@ export class LmsService {
     this.apiUrlSubject.next(this.defaultApiUrl);
   }
 
-  // â”€â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Auth ────────────────────────────────────────────────────────────────
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.getApiUrl()}/auth/login`, payload, {
@@ -149,7 +149,7 @@ export class LmsService {
     );
   }
 
-  // â”€â”€â”€ Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Users ───────────────────────────────────────────────────────────────
 
   getStudents(): Observable<User[]> {
     return this.http.get<User[]>(`${this.getApiUrl()}/students`);
@@ -283,7 +283,7 @@ export class LmsService {
     return this.http.get<InstructorStats>(`${this.getApiUrl()}/instructors/${id}/stats`);
   }
 
-  // â”€â”€â”€ Topics & Course Levels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Topics & Course Levels ────────────────────────────────────────────────
 
   getTopics(): Observable<Topic[]> {
     return this.http.get<Topic[]>(`${this.getApiUrl()}/topics`);
@@ -336,7 +336,7 @@ export class LmsService {
     return this.http.get<Course[]>(`${this.getApiUrl()}/topics`);
   }
 
-  // â”€â”€â”€ Groups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Groups ──────────────────────────────────────────────────────────────
 
   getGroups(): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.getApiUrl()}/groups`);
@@ -347,7 +347,7 @@ export class LmsService {
   }
 
   /**
-   * What the next group on this course would be called. A suggestion only â€”
+   * What the next group on this course would be called. A suggestion only —
    * the name is settled again on the server when the group is saved.
    */
   suggestGroupName(courseLevelId: number): Observable<{ name: string }> {
@@ -453,7 +453,7 @@ export class LmsService {
     );
   }
 
-  // â”€â”€â”€ Schedule & Sessions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Schedule & Sessions ──────────────────────────────────────────────────
 
   getSchedule(from?: Date, to?: Date): Observable<ScheduleSession[]> {
     let url = `${this.getApiUrl()}/schedule`;
@@ -501,7 +501,7 @@ export class LmsService {
     );
   }
 
-  // â”€â”€â”€ Session syllabus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Session syllabus ─────────────────────────────────────────────────────
 
   /**
    * The curriculum entry for a scheduled session, resolved by the API through
@@ -555,7 +555,7 @@ export class LmsService {
     );
   }
 
-  // â”€â”€â”€ Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Attendance ───────────────────────────────────────────────────────────
 
   getSessionAttendance(sessionId: number): Observable<AttendanceResponseDto[]> {
     return this.http.get<AttendanceResponseDto[]>(
@@ -630,7 +630,7 @@ export class LmsService {
     return this.http.get<AttendanceSummaryDto>(`${this.getApiUrl()}/Attendance/summary`);
   }
 
-  // â”€â”€â”€ Group Promotion & History â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Group Promotion & History ─────────────────────────────────────────────
 
   promoteGroupNextLevel(groupId: number, payload: PromoteGroupNextLevelPayload): Observable<Group> {
     return this.http.post<Group>(`${this.getApiUrl()}/groups/${groupId}/promote`, payload);
@@ -670,7 +670,7 @@ export class LmsService {
     return this.http.get<ScheduleSession[]>(url);
   }
 
-  // â”€â”€ Availability â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Availability ──────────────────────────────────────────────────────────
 
   getRooms(includeInactive = false): Observable<Room[]> {
     return this.http.get<Room[]>(
@@ -692,7 +692,7 @@ export class LmsService {
     );
   }
 
-  /** Admin only â€” everyone else asks for a change instead. */
+  /** Admin only — everyone else asks for a change instead. */
   replaceWeeklyAvailability(
     instructorId: number,
     windows: AvailabilityWindowInput[],
@@ -736,7 +736,7 @@ export class LmsService {
     return this.http.get<InstructorTimeOff[]>(`${this.getApiUrl()}/Availability/time-off${query}`);
   }
 
-  // â”€â”€ Availability requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Availability requests ─────────────────────────────────────────────────
 
   getAvailabilityRequests(status?: string, type?: string): Observable<AvailabilityRequest[]> {
     const params: string[] = [];
@@ -804,7 +804,7 @@ export class LmsService {
     );
   }
 
-  // â”€â”€ Slot finder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Slot finder ───────────────────────────────────────────────────────────
 
   /**
    * The weekly hours a new group could go into. The one answer to "is this hour
@@ -816,7 +816,7 @@ export class LmsService {
     );
   }
 
-  // â”€â”€ Holds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Holds ─────────────────────────────────────────────────────────────────
 
   getSlotHolds(
     options: {
@@ -865,7 +865,7 @@ export class LmsService {
     });
   }
 
-  // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Candidates ────────────────────────────────────────────────────────────
 
   getCandidates(
     options: {

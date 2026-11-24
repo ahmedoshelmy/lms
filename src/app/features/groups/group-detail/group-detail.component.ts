@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -53,7 +53,6 @@ const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     ProgressSpinnerModule,
     ButtonModule,
     DialogModule,
@@ -374,6 +373,18 @@ export class GroupDetailComponent implements OnInit {
     return this.groupSessions().filter((s) => s.courseId === course.courseId);
   });
 
+  /**
+   * When the course's classes run from and to. The dialog used to pipe the
+   * session list itself through `slice`, which printed "[object Object]".
+   */
+  readonly courseSessionRange = computed(() => {
+    const times = this.courseSessions()
+      .map((s) => new Date(s.startsAt).getTime())
+      .filter((t) => Number.isFinite(t));
+    if (!times.length) return null;
+    return { first: new Date(Math.min(...times)), last: new Date(Math.max(...times)) };
+  });
+
   // Add Course: selected course details preview
   selectedCourseToAddDetails = computed(() => {
     const id = this.selectedCourseIdToAdd();
@@ -601,7 +612,9 @@ export class GroupDetailComponent implements OnInit {
     this.formEndDate = grp.endDate ? grp.endDate.split('T')[0] : '';
     this.formInstructorId = grp.defaultInstructorId || 0;
     this.formStatus = GROUP_STATUS[grp.status] ?? 0;
-    this.formLocation = grp.location || 'MOA';
+    // Never filled in for them. "MOA" used to appear here whenever a group had
+    // no location, and saving the dialog for any other reason recorded it.
+    this.formLocation = grp.location || '';
 
     // Populate editable courses
     const coursesToEdit = (grp.courses || []).map((c, idx) => ({
@@ -623,14 +636,14 @@ export class GroupDetailComponent implements OnInit {
       dayOfWeek: s.dayOfWeek || 'Saturday',
       startTime: s.startTime || '13:30',
       endTime: s.endTime || '15:00',
-      location: s.location || grp.location || 'MOA',
+      location: s.location || grp.location || '',
     }));
     if (schedulesToEdit.length === 0) {
       schedulesToEdit.push({
         dayOfWeek: 'Saturday',
         startTime: '13:30',
         endTime: '15:00',
-        location: grp.location || 'MOA',
+        location: grp.location || '',
       });
     }
     this.editScheduleSlots.set(schedulesToEdit);
@@ -665,8 +678,24 @@ export class GroupDetailComponent implements OnInit {
     this.newCourseLevelToAdd.set(null);
   }
 
+  /**
+   * A course added in this dialog and not yet saved just comes off the list. A
+   * saved one goes through the removal dialog, which says how many classes and
+   * registers go with it -- dropping it here and saving used to skip that.
+   */
   removeCourseFromUnifiedEdit(index: number): void {
-    this.editCourseItems.update((items) => items.filter((_, i) => i !== index));
+    const item = this.editCourseItems()[index];
+    if (!item) return;
+
+    if (!item.groupCourseId) {
+      this.editCourseItems.update((items) => items.filter((_, i) => i !== index));
+      return;
+    }
+
+    const saved = this.group()?.courses.find((c) => c.id === item.groupCourseId);
+    if (saved) {
+      this.openRemoveCourseModal(saved.courseId);
+    }
   }
 
   setUnifiedActiveCourse(index: number): void {
@@ -686,7 +715,7 @@ export class GroupDetailComponent implements OnInit {
         dayOfWeek: 'Sunday',
         startTime: '15:00',
         endTime: '16:30',
-        location: this.formLocation || 'MOA',
+        location: this.formLocation || '',
       },
     ]);
   }
@@ -698,7 +727,10 @@ export class GroupDetailComponent implements OnInit {
   saveGroup(): void {
     const id = this.groupId();
     if (!id) return;
-    if (!this.formName || !this.formStartDate || !this.formEndDate || !this.formInstructorId) {
+    // No end date is asked for: it is worked out from the group's last class,
+    // and shown read-only. A group with no classes yet has none, and requiring
+    // one left it impossible to save.
+    if (!this.formName || !this.formStartDate || !this.formInstructorId) {
       this.notify.showError('Please fill in all required fields.');
       return;
     }
@@ -707,7 +739,7 @@ export class GroupDetailComponent implements OnInit {
     const payload: UpdateGroupPayload = {
       name: this.formName,
       startDate: this.formStartDate,
-      endDate: this.formEndDate,
+      endDate: this.formEndDate || null,
       defaultInstructorId: Number(this.formInstructorId),
       status: Number(this.formStatus),
       location: this.formLocation || undefined,
@@ -1094,12 +1126,17 @@ export class GroupDetailComponent implements OnInit {
     const groupId = this.groupId();
     const courseId = this.removingCourseId();
     if (!groupId || !courseId) return;
+    const removedGroupCourseId = this.group()?.courses.find((c) => c.courseId === courseId)?.id;
 
     this.removingCourse.set(true);
     this.lmsService.removeCourseFromGroup(groupId, courseId, forceDelete).subscribe({
       next: () => {
         this.notify.showSuccess('Course removed from group.');
         this.removingCourse.set(false);
+        // Asked for from the Manage Group dialog, which is still open behind.
+        this.editCourseItems.update((items) =>
+          items.filter((i) => !removedGroupCourseId || i.groupCourseId !== removedGroupCourseId)
+        );
         this.showRemoveCourseModal.set(false);
         this.loadGroupDetail(groupId);
         this.loadGroupHistory(groupId);

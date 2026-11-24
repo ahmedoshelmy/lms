@@ -96,18 +96,18 @@
                 {{ group()!.defaultInstructorName }}
               </button>
             </div>
-            <span class="text-[var(--color-border)]">â€¢</span>
+            <span class="text-[var(--color-border)]">•</span>
             @if (group()!.location) {
               <div class="flex items-center gap-1">
                 <i class="pi pi-map-marker text-[var(--color-primary)] text-xs"></i>
                 <span class="font-semibold">{{ group()!.location }}</span>
               </div>
-              <span class="text-[var(--color-border)]">â€¢</span>
+              <span class="text-[var(--color-border)]">•</span>
             }
             <div class="flex items-center gap-1">
               <i class="pi pi-calendar text-[var(--color-text-muted)] text-xs"></i>
               <span
-                >{{ group()!.startDate | date: 'mediumDate' }} â€“
+                >{{ group()!.startDate | date: 'mediumDate' }} –
                 {{ group()!.endDate | date: 'mediumDate' }}</span
               >
             </div>
@@ -143,7 +143,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold"
           >
-            ðŸ‘¥
+            👥
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -161,7 +161,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-sm font-bold"
           >
-            ðŸ“š
+            📚
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -179,7 +179,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold"
           >
-            ðŸ“…
+            📅
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -197,7 +197,7 @@
           <div
             class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold"
           >
-            ðŸ“ˆ
+            📈
           </div>
           <div>
             <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
@@ -287,7 +287,7 @@
                                 : 'text-[var(--color-text-muted)]'
                             "
                           >
-                            â€¢ {{ c.status }}
+                            • {{ c.status }}
                           </span>
                         </div>
                         <h4 class="text-sm font-bold text-[var(--color-text-primary)]">
@@ -381,7 +381,7 @@
                   (click)="openEditModal()"
                   class="text-xs font-bold text-[var(--color-secondary)] hover:underline cursor-pointer"
                 >
-                  âœ Edit
+                  ✏ Edit
                 </button>
               }
             </div>
@@ -452,7 +452,7 @@
                 (click)="openCustomGenerateModal(group()!.courses[0] || null)"
                 class="w-full py-2.5 px-3.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>âš¡ Generate Sessions</span>
+                <span>⚡ Generate Sessions</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
 
@@ -460,7 +460,7 @@
                 (click)="openPromoteDialog()"
                 class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>ðŸš€ Promote Group</span>
+                <span>🚀 Promote Group</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
 
@@ -468,7 +468,7 @@
                 (click)="openAddStudentModal()"
                 class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>ðŸ‘¥ Add Student</span>
+                <span>👥 Add Student</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
 
@@ -476,7 +476,7 @@
                 (click)="openEditScheduleModal()"
                 class="w-full py-2.5 px-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] text-xs font-bold hover:bg-[var(--color-background-alt)] transition-all flex items-center justify-between cursor-pointer"
               >
-                <span>ðŸ“… Edit Weekly Schedule</span>
+                <span>📅 Edit Weekly Schedule</span>
                 <i class="pi pi-chevron-right text-xs"></i>
               </button>
             </div>
@@ -546,15 +546,10 @@
                     Student <i [ngClass]="getStudentSortIcon('studentName')"></i>
                   </th>
                   <th class="py-3 px-3">Email</th>
-                  <th
-                    class="py-3 px-3 cursor-pointer"
-                    (click)="toggleStudentSort('attendanceRate')"
-                  >
-                    Attendance <i [ngClass]="getStudentSortIcon('attendanceRate')"></i>
-                  </th>
-                  <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('progressRate')">
-                    Progress <i [ngClass]="getStudentSortIcon('progressRate')"></i>
-                  </th>
+                  <!-- Attendance and Progress columns used to sit here, printing
+                       "Enrolled" and "Active" for every child whatever was true:
+                       the group's student list carries neither figure. Each
+                       child's real record is on their own page. -->
                   <th class="py-3 px-3 cursor-pointer" (click)="toggleStudentSort('joinedAt')">
                     Enrolled <i [ngClass]="getStudentSortIcon('joinedAt')"></i>
                   </th>
@@ -582,14 +577,6 @@
                     <td class="py-3 px-3 text-[var(--color-text-secondary)]">
                       {{ st.studentEmail }}
                     </td>
-                    <td class="py-3 px-3 font-bold">
-                      <span
-                        class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/15 text-emerald-600 font-extrabold"
-                      >
-                        Enrolled
-                      </span>
-                    </td>
-                    <td class="py-3 px-3 font-bold text-[var(--color-secondary)]">Active</td>
                     <td class="py-3 px-3 text-[var(--color-text-muted)]">
                       {{ st.joinedAt | date: 'mediumDate' }}
                     </td>
@@ -691,7 +678,7 @@
                       {{ getSessionDisplayTopic(sess) }}
                     </td>
                     <td class="py-3 px-3 font-medium text-[var(--color-secondary)]">
-                      {{ sess.startsAt | date: 'EEE, MMM d, y' }} Â· {{ clock.time(sess.startsAt) }}
+                      {{ sess.startsAt | date: 'EEE, MMM d, y' }} · {{ clock.time(sess.startsAt) }}
                     </td>
                     <td class="py-3 px-3 text-[var(--color-text-secondary)]">
                       {{ sess.instructorName }}
@@ -889,7 +876,7 @@
                   </span>
                 </div>
                 <p class="text-[11px] text-[var(--color-text-muted)]">
-                  {{ item.topic }} â€¢ Level {{ item.level }}
+                  {{ item.topic }} • Level {{ item.level }}
                 </p>
               </div>
             </div>
@@ -933,6 +920,9 @@
 
               <!-- Remove -->
               <button
+                type="button"
+                aria-label="Remove this course from the group"
+                title="Remove this course from the group"
                 (click)="removeCourseFromUnifiedEdit($index)"
                 class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center text-xs shrink-0 mt-3 transition-colors"
               >
@@ -1571,7 +1561,7 @@
                   </span>
                   <span class="text-[10px] text-[var(--color-text-muted)]">{{ c.topicName }}</span>
                   <span class="text-[10px] text-[var(--color-text-muted)]"
-                    >Â· {{ c.sessionCount }} sessions</span
+                    >· {{ c.sessionCount }} sessions</span
                   >
                 </div>
               </div>
@@ -1987,10 +1977,12 @@
         <span class="text-xs font-bold text-[var(--color-text-muted)]">
           {{ courseSessions().length }} session{{ courseSessions().length !== 1 ? 's' : '' }}
         </span>
-        <span class="text-[10px] text-[var(--color-text-muted)]">Â·</span>
-        <span class="text-xs text-[var(--color-text-secondary)]">
-          {{ courseSessions() | slice: 0 : 1 }} - {{ courseSessions() | slice: -1 }}
-        </span>
+        <span class="text-[10px] text-[var(--color-text-muted)]">·</span>
+        @if (courseSessionRange(); as range) {
+          <span class="text-xs text-[var(--color-text-secondary)]">
+            {{ range.first | date: 'MMM d, y' }} – {{ range.last | date: 'MMM d, y' }}
+          </span>
+        }
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-[var(--color-text-primary)] border-collapse">
@@ -2013,7 +2005,7 @@
                   {{ getSessionDisplayTopic(sess) }}
                 </td>
                 <td class="py-2.5 px-3 font-medium text-[var(--color-secondary)]">
-                  {{ sess.startsAt | date: 'EEE, MMM d, y' }} Â· {{ clock.time(sess.startsAt) }}
+                  {{ sess.startsAt | date: 'EEE, MMM d, y' }} · {{ clock.time(sess.startsAt) }}
                 </td>
                 <td class="py-2.5 px-3 text-[var(--color-text-secondary)]">
                   {{ sess.instructorName }}
@@ -2405,7 +2397,7 @@
           Every class this group still has booked will be called off, and the group marked Stopped.
         </p>
         <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
-          Nothing is deleted â€” the classes stay on record as cancelled, with the reason below, and
+          Nothing is deleted — the classes stay on record as cancelled, with the reason below, and
           any register already taken is kept. The group disappears from the schedule until you set
           it Running again, at which point the rest of its course is laid out afresh from where its
           progress stands. Use this when you do not know the return date.
