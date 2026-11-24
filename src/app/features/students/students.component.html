@@ -21,7 +21,7 @@
           </span>
 
           <span
-            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-warning/10 text-warning-foreground border border-warning/20"
           >
             <i class="pi pi-exclamation-circle text-[10px]"></i>
             {{ unassignedCount() }} Unassigned
@@ -139,7 +139,7 @@
         <button
           type="button"
           (click)="openBulkDeleteModal()"
-          class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold rounded-xl transition-colors cursor-pointer shadow w-full sm:w-auto"
+          class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-xs font-extrabold rounded-xl transition-colors cursor-pointer shadow w-full sm:w-auto"
         >
           <i class="pi pi-trash text-xs"></i>
           Bulk Delete
@@ -258,7 +258,7 @@
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
                         [class]="
                           place.renewalDue && !place.renewalHandled
-                            ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                            ? 'bg-error/10 text-error-foreground border-error/20'
                             : 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border-[var(--color-secondary)]/20'
                         "
                         [title]="placeLabel(place)"
@@ -275,7 +275,7 @@
                   </span>
                 } @else {
                   <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-warning/10 text-warning-foreground border border-warning/20"
                   >
                     In no group
                   </span>
@@ -321,7 +321,7 @@
                 <button
                   type="button"
                   (click)="openDeleteModal(student)"
-                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                   title="Delete Student"
                 >
                   <i class="pi pi-trash text-xs"></i>
@@ -433,7 +433,7 @@
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
                         [class]="
                           place.renewalDue && !place.renewalHandled
-                            ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                            ? 'bg-error/10 text-error-foreground border-error/20'
                             : 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border-[var(--color-secondary)]/20'
                         "
                         [title]="placeLabel(place)"
@@ -450,7 +450,7 @@
                   </span>
                 } @else {
                   <span
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-warning/10 text-warning-foreground border border-warning/20"
                   >
                     In no group
                   </span>
@@ -499,7 +499,7 @@
                   <button
                     type="button"
                     (click)="openDeleteModal(student)"
-                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                     title="Delete Student"
                   >
                     <i class="pi pi-trash text-xs"></i>
@@ -746,7 +746,7 @@
           type="button"
           (click)="confirmDelete()"
           [disabled]="saving()"
-          class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+          class="inline-flex items-center gap-2 px-5 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
         >
           @if (saving()) {
             <i class="pi pi-spinner pi-spin"></i>
@@ -769,7 +769,7 @@
     <div class="py-2">
       <p class="text-xs text-[var(--color-text-primary)]">
         Are you sure you want to delete
-        <strong class="text-red-600 font-bold"
+        <strong class="text-error-foreground font-bold"
           >{{ selectedStudentIds().size }} selected student{{
             selectedStudentIds().size !== 1 ? 's' : ''
           }}</strong
@@ -790,7 +790,7 @@
           type="button"
           (click)="confirmBulkDelete()"
           [disabled]="bulkDeleting()"
-          class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+          class="inline-flex items-center gap-2 px-5 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
         >
           @if (bulkDeleting()) {
             <i class="pi pi-spinner pi-spin"></i>

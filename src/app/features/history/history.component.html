@@ -129,7 +129,7 @@
                   {{ g.groupName }}
                 </h2>
                 <span
-                  class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+                  class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-info-background text-info-foreground"
                 >
                   {{ g.currentStatus }}
                 </span>
@@ -159,7 +159,9 @@
                   </h3>
                   <span
                     [class]="
-                      c.isCompleted ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                      c.isCompleted
+                        ? 'bg-success-background text-success-foreground'
+                        : 'bg-warning-background text-warning-foreground'
                     "
                     class="px-2 py-0.5 text-xs font-bold rounded-md"
                   >
@@ -176,7 +178,7 @@
                     <span>Progress</span>
                     <span>{{ c.progressPercentage }}%</span>
                   </div>
-                  <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                  <div class="w-full bg-border h-2 rounded-full overflow-hidden">
                     <div
                       class="bg-[var(--color-primary)] h-full transition-all duration-300"
                       [style.width.%]="c.progressPercentage"
@@ -188,12 +190,12 @@
                 >
                   <div>
                     <span>Completed: </span>
-                    <span class="font-bold text-green-600">{{ c.completedSessions }}</span>
+                    <span class="font-bold text-success-foreground">{{ c.completedSessions }}</span>
                   </div>
                   @if (c.cancelledSessions > 0) {
                     <div>
                       <span>Cancelled: </span>
-                      <span class="font-bold text-red-500">{{ c.cancelledSessions }}</span>
+                      <span class="font-bold text-error">{{ c.cancelledSessions }}</span>
                     </div>
                   }
                 </div>
@@ -242,9 +244,9 @@
                 <td class="p-4">
                   <span
                     [ngClass]="{
-                      'bg-green-100 text-green-800': s.status === 'Completed',
-                      'bg-red-100 text-red-800': s.status === 'Cancelled',
-                      'bg-blue-100 text-blue-800': s.status === 'Scheduled',
+                      'bg-success-background text-success-foreground': s.status === 'Completed',
+                      'bg-error-background text-error-foreground': s.status === 'Cancelled',
+                      'bg-info-background text-info-foreground': s.status === 'Scheduled',
                     }"
                     class="px-2.5 py-1 text-xs font-bold rounded-full"
                   >

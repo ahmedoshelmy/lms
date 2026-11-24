@@ -123,7 +123,7 @@
                   <!-- Conflict indicator flag -->
                   @if (isConflict(session)) {
                     <div
-                      class="absolute right-2 top-2 text-rose-500 font-bold text-xs"
+                      class="absolute right-2 top-2 text-error font-bold text-xs"
                       title="Scheduling conflict detected"
                     >
                       <i class="pi pi-exclamation-circle"></i>
@@ -336,7 +336,7 @@
             >
               @if (isConflict(session)) {
                 <div
-                  class="absolute right-2 top-2 text-rose-500 font-bold text-xs"
+                  class="absolute right-2 top-2 text-error font-bold text-xs"
                   title="Scheduling conflict detected"
                 >
                   <i class="pi pi-exclamation-circle"></i>

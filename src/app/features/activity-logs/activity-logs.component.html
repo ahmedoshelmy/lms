@@ -57,7 +57,7 @@
             class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider"
             >Most Frequent Actions</span
           >
-          <i class="pi pi-star text-amber-500"></i>
+          <i class="pi pi-star text-warning"></i>
         </div>
         <div class="space-y-2">
           @for (item of s.topActions.slice(0, 3); track item.action) {
@@ -91,7 +91,7 @@
             class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider"
             >Activity by Role</span
           >
-          <i class="pi pi-users text-blue-500"></i>
+          <i class="pi pi-users text-info"></i>
         </div>
         <div class="space-y-2">
           @for (roleItem of s.activitiesByRole; track roleItem.role) {

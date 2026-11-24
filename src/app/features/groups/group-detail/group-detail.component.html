@@ -19,7 +19,7 @@
       <div class="flex items-center gap-2">
         <button
           (click)="openHoldModal()"
-          class="px-3 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+          class="px-3 py-1.5 rounded-xl border border-warning/50 bg-warning-background text-warning-foreground text-xs font-bold hover:bg-warning-background transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
         >
           <i class="pi pi-pause-circle text-xs"></i>
           Pause / Hold Group
@@ -150,7 +150,7 @@
           class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
         >
           <div
-            class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-sm font-bold"
+            class="w-8 h-8 rounded-lg bg-info/10 text-info-foreground flex items-center justify-center text-sm font-bold"
           >
             👥
           </div>
@@ -168,7 +168,7 @@
           class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
         >
           <div
-            class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-sm font-bold"
+            class="w-8 h-8 rounded-lg bg-session-group/10 text-session-group flex items-center justify-center text-sm font-bold"
           >
             📚
           </div>
@@ -186,7 +186,7 @@
           class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
         >
           <div
-            class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-sm font-bold"
+            class="w-8 h-8 rounded-lg bg-warning/10 text-warning-foreground flex items-center justify-center text-sm font-bold"
           >
             📅
           </div>
@@ -204,7 +204,7 @@
           class="p-2.5 rounded-xl bg-[var(--color-background-alt)] border border-[var(--color-border)] flex items-center gap-3"
         >
           <div
-            class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-bold"
+            class="w-8 h-8 rounded-lg bg-success/10 text-success-foreground flex items-center justify-center text-sm font-bold"
           >
             📈
           </div>
@@ -617,7 +617,7 @@
                           </button>
                           <button
                             (click)="openRemoveStudentModal(st)"
-                            class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+                            class="p-1 rounded text-[var(--color-text-muted)] hover:text-error-foreground cursor-pointer"
                             title="Remove from group"
                           >
                             <i class="pi pi-trash text-xs"></i>
@@ -883,10 +883,10 @@
                     </h4>
                     <span
                       class="px-2 py-0.5 rounded-md text-[10px] font-bold"
-                      [class.bg-emerald-100]="item.isActive"
-                      [class.text-emerald-700]="item.isActive"
-                      [class.bg-gray-100]="!item.isActive"
-                      [class.text-gray-600]="!item.isActive"
+                      [class.bg-success-background]="item.isActive"
+                      [class.text-success-foreground]="item.isActive"
+                      [class.bg-surface-secondary]="!item.isActive"
+                      [class.text-text-secondary]="!item.isActive"
                     >
                       {{ item.isActive ? 'Active' : 'Pending' }}
                     </span>
@@ -937,7 +937,7 @@
                   aria-label="Remove this course from the group"
                   title="Remove this course from the group"
                   (click)="removeCourseFromUnifiedEdit($index)"
-                  class="w-7 h-7 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 flex items-center justify-center text-xs shrink-0 mt-3 transition-colors"
+                  class="w-7 h-7 rounded-lg text-error hover:bg-error-background flex items-center justify-center text-xs shrink-0 mt-3 transition-colors"
                 >
                   <i class="pi pi-trash"></i>
                 </button>
@@ -955,7 +955,7 @@
         </div>
         <!-- Add New Course Selector Inline -->
         <div
-          class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+          class="p-4 rounded-2xl border border-dashed border-[var(--color-secondary)] bg-info-background/40 flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
         >
           <select
             [(ngModel)]="newCourseLevelToAdd"
@@ -1054,7 +1054,7 @@
                 </div>
                 <button
                   (click)="removeScheduleSlotFromUnifiedEdit($index)"
-                  class="w-7 h-7 text-red-500 hover:bg-red-50 rounded-lg flex items-center justify-center text-xs shrink-0 mt-3"
+                  class="w-7 h-7 text-error hover:bg-error-background rounded-lg flex items-center justify-center text-xs shrink-0 mt-3"
                 >
                   <i class="pi pi-trash"></i>
                 </button>
@@ -1063,17 +1063,17 @@
           }
         </div>
         <div
-          class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 flex items-center gap-3"
+          class="p-3 rounded-xl bg-warning-background border border-warning/25 flex items-center gap-3"
         >
           <input
             type="checkbox"
             id="updateUpcoming"
             [(ngModel)]="editScheduleUpdateUpcoming"
-            class="w-4 h-4 text-[var(--color-primary)] rounded border-amber-300"
+            class="w-4 h-4 text-[var(--color-primary)] rounded border-warning/50"
           />
           <label
             for="updateUpcoming"
-            class="text-xs font-semibold text-amber-900 dark:text-amber-200 cursor-pointer"
+            class="text-xs font-semibold text-warning-foreground cursor-pointer"
           >
             Apply new schedule slots to upcoming scheduled sessions
           </label>
@@ -1172,14 +1172,14 @@
               @if (st.groups?.length) {
                 @for (place of st.groups; track place.groupId) {
                   <span
-                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-warning/10 text-warning-foreground border border-warning/20"
                   >
                     {{ place.groupName }}
                   </span>
                 }
               } @else {
                 <span
-                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-500/10 text-gray-600 border border-gray-500/20"
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-text-muted/10 text-text-secondary border border-border/20"
                 >
                   In no group
                 </span>
@@ -1197,7 +1197,7 @@
     <!-- Selected Info Banner -->
     @if (selectedStudentToAdd()) {
       <div
-        class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 flex items-center gap-2"
+        class="p-3 rounded-xl bg-info/10 border border-info/20 text-xs text-info-foreground flex items-center gap-2"
       >
         <i class="pi pi-info-circle text-sm shrink-0"></i>
         <span>
@@ -1484,10 +1484,8 @@
     }
 
     @if (selectedCourseToAddDetails(); as details) {
-      <div
-        class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40"
-      >
-        <p class="text-xs text-blue-700 dark:text-blue-300 font-semibold flex items-center gap-2">
+      <div class="p-3 rounded-xl bg-info-background border border-info/25">
+        <p class="text-xs text-info-foreground font-semibold flex items-center gap-2">
           <i class="pi pi-info-circle text-sm shrink-0"></i>
           <span>
             <strong>{{ details.title }}</strong> has
@@ -1537,13 +1535,11 @@
   <div class="space-y-3 py-2">
     <p class="text-xs text-[var(--color-text-primary)]">
       Are you sure you want to remove
-      <strong class="text-red-600">{{ removingCourseTitle() }}</strong> from this group?
+      <strong class="text-error-foreground">{{ removingCourseTitle() }}</strong> from this group?
     </p>
     @if (removingCourseSessionCount() > 0) {
-      <div
-        class="p-3 rounded-xl bg-red-50 border border-red-200 dark:bg-red-950/40 dark:border-red-800/40"
-      >
-        <p class="text-xs text-red-700 dark:text-red-300 font-semibold">
+      <div class="p-3 rounded-xl bg-error-background border border-error/25">
+        <p class="text-xs text-error-foreground font-semibold">
           <i class="pi pi-exclamation-triangle mr-1"></i>
           This course has {{ removingCourseSessionCount() }}
           {{ removingCourseSessionCount() === 1 ? 'class' : 'classes' }} on the timetable, cancelled
@@ -1571,7 +1567,7 @@
         <button
           (click)="confirmRemoveCourse(true)"
           [disabled]="removingCourse()"
-          class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 disabled:opacity-50 cursor-pointer shadow"
+          class="px-4 py-2 rounded-xl bg-error-solid text-white text-xs font-semibold hover:bg-error-solid/85 disabled:opacity-50 cursor-pointer shadow"
         >
           @if (removingCourse()) {
             <i class="pi pi-spinner pi-spin"></i>
@@ -1582,7 +1578,7 @@
         <button
           (click)="confirmRemoveCourse(false)"
           [disabled]="removingCourse()"
-          class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 disabled:opacity-50 cursor-pointer shadow"
+          class="px-4 py-2 rounded-xl bg-error-solid text-white text-xs font-semibold hover:bg-error-solid/85 disabled:opacity-50 cursor-pointer shadow"
         >
           @if (removingCourse()) {
             <i class="pi pi-spinner pi-spin"></i>
@@ -1697,7 +1693,7 @@
             <button
               type="button"
               (click)="removeScheduleSlot(i)"
-              class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 cursor-pointer"
+              class="p-1 rounded text-[var(--color-text-muted)] hover:text-error-foreground cursor-pointer"
             >
               <i class="pi pi-times text-xs"></i>
             </button>
@@ -1770,21 +1766,19 @@
       <i class="pi pi-plus mr-1"></i> Add Schedule Slot
     </button>
 
-    <div
-      class="p-3 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40"
-    >
+    <div class="p-3 rounded-xl bg-info-background border border-info/25">
       <label class="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
           [ngModel]="editScheduleUpdateUpcoming()"
           (ngModelChange)="editScheduleUpdateUpcoming.set($event)"
-          class="rounded border-blue-400"
+          class="rounded border-info/50"
         />
-        <span class="text-xs text-blue-700 dark:text-blue-300 font-semibold">
+        <span class="text-xs text-info-foreground font-semibold">
           Apply schedule changes to all upcoming scheduled sessions
         </span>
       </label>
-      <p class="text-[10px] text-blue-600 dark:text-blue-400 mt-1 ml-6">
+      <p class="text-[10px] text-info-foreground mt-1 ml-6">
         Past/completed sessions will remain unchanged.
       </p>
     </div>
@@ -1985,7 +1979,7 @@
 
       <!-- Live Calculation Helper Banner -->
       <div
-        class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 dark:bg-blue-950/40 dark:border-blue-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs"
+        class="p-3.5 rounded-xl bg-info-background/70 border border-info/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs"
       >
         <div>
           <span class="font-extrabold text-[var(--color-primary)]">
@@ -2110,17 +2104,17 @@
 
     <!-- Section 3: Danger Zone -->
     <div
-      class="p-4 rounded-2xl bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 flex items-center justify-between"
+      class="p-4 rounded-2xl bg-error-background/50 border border-error/25 flex items-center justify-between"
     >
       <div>
-        <h5 class="text-xs font-bold text-red-700 dark:text-red-300 uppercase">Remove Course</h5>
-        <p class="text-[11px] text-red-600 dark:text-red-400">
+        <h5 class="text-xs font-bold text-error-foreground uppercase">Remove Course</h5>
+        <p class="text-[11px] text-error-foreground">
           Unlink this course level from the group's curriculum.
         </p>
       </div>
       <button
         (click)="removeCourseFromManagedModal()"
-        class="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shrink-0"
+        class="px-3.5 py-2 bg-error-solid hover:bg-error-solid/85 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shrink-0"
       >
         <i class="pi pi-trash text-xs"></i> Remove Course
       </button>
@@ -2152,10 +2146,10 @@
   <div class="space-y-5 py-2">
     <!-- Explanatory Banner -->
     <div
-      class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200"
+      class="p-4 rounded-2xl bg-warning-background border border-warning/25 text-warning-foreground"
     >
       <div class="flex items-start gap-3">
-        <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-lg mt-0.5 shrink-0"></i>
+        <i class="pi pi-info-circle text-warning-foreground text-lg mt-0.5 shrink-0"></i>
         <div class="text-xs leading-relaxed">
           <p class="font-bold text-sm mb-1">Robust Schedule Hold</p>
           <p>
@@ -2298,7 +2292,7 @@
         <div
           class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col"
         >
-          <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase"
+          <span class="text-[10px] text-warning-foreground font-bold uppercase"
             >1. Cancel Status</span
           >
           <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
@@ -2309,7 +2303,7 @@
         <div
           class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col"
         >
-          <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase"
+          <span class="text-[10px] text-success-foreground font-bold uppercase"
             >2. Substitutes</span
           >
           <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
@@ -2321,7 +2315,7 @@
         <div
           class="p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex flex-col"
         >
-          <span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase"
+          <span class="text-[10px] text-info-foreground font-bold uppercase"
             >3. Schedule Shift</span
           >
           <span class="font-bold text-[var(--color-text-primary)] mt-0.5">
@@ -2345,7 +2339,7 @@
         type="button"
         (click)="submitHoldGroup()"
         [disabled]="submittingHold()"
-        class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+        class="px-5 py-2 rounded-xl bg-warning-solid hover:bg-warning-solid/85 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
       >
         @if (submittingHold()) {
           <i class="pi pi-spin pi-spinner text-xs"></i>

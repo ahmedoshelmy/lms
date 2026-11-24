@@ -255,7 +255,7 @@ import { NotificationService } from '../../core/services/notification.service';
     }
     .settings-input:focus {
       border-color: var(--color-secondary);
-      box-shadow: 0 0 0 3px rgba(62, 109, 181, 0.12);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary) 12%, transparent);
     }
     .settings-input.input-changed {
       border-color: var(--color-warning);

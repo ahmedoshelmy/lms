@@ -127,7 +127,7 @@
                     openDeleteModal({ type: 'topic', id: topic.id, name: topic.name });
                     $event.stopPropagation()
                   "
-                  class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                   title="Delete Topic"
                 >
                   <i class="pi pi-trash text-xs"></i>
@@ -213,7 +213,7 @@
                               name: level.title,
                             })
                           "
-                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                           title="Delete Level"
                         >
                           <i class="pi pi-trash text-xs"></i>
@@ -441,7 +441,7 @@
           type="button"
           (click)="confirmDelete()"
           [disabled]="saving()"
-          class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+          class="inline-flex items-center gap-2 px-5 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
         >
           @if (saving()) {
             <i class="pi pi-spinner pi-spin"></i>

@@ -188,11 +188,11 @@ export class InstructorDetailComponent implements OnInit {
       case 'Completed':
         return 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]';
       case 'Scheduled':
-        return 'bg-blue-500/10 text-blue-600';
+        return 'bg-info/10 text-info-foreground';
       case 'Cancelled':
         return 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)]';
       default:
-        return 'bg-gray-500/10 text-gray-600';
+        return 'bg-text-muted/10 text-text-secondary';
     }
   }
 
@@ -214,11 +214,11 @@ export class InstructorDetailComponent implements OnInit {
       case 'Running':
         return 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]';
       case 'Stopped':
-        return 'bg-amber-500/10 text-amber-600';
+        return 'bg-warning/10 text-warning-foreground';
       case 'Completed':
-        return 'bg-blue-500/10 text-blue-600';
+        return 'bg-info/10 text-info-foreground';
       default:
-        return 'bg-gray-500/10 text-gray-600';
+        return 'bg-text-muted/10 text-text-secondary';
     }
   }
 }

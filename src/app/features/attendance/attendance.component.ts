@@ -310,14 +310,14 @@ export class AttendanceComponent implements OnInit {
     if (status.includes('cancel')) {
       return {
         label: 'Cancelled',
-        css: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
+        css: 'bg-error/10 text-error-foreground border-error/20',
         icon: 'pi-times-circle',
       };
     }
     if (status.includes('completed')) {
       return {
         label: 'Attendance Marked',
-        css: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+        css: 'bg-success/10 text-success-foreground border-success/20',
         icon: 'pi-check-circle',
       };
     }
@@ -327,14 +327,14 @@ export class AttendanceComponent implements OnInit {
     if (sessionTime <= now) {
       return {
         label: 'Attendance Pending',
-        css: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+        css: 'bg-warning/10 text-warning-foreground border-warning/20',
         icon: 'pi-exclamation-triangle',
       };
     }
 
     return {
       label: 'Upcoming',
-      css: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+      css: 'bg-info/10 text-info-foreground border-info/20',
       icon: 'pi-clock',
     };
   }

@@ -80,7 +80,7 @@ export interface CommandItem {
                         item.category === 'Instructor',
                       'bg-[var(--color-success)]/10 text-[var(--color-success-foreground)]':
                         item.category === 'Group',
-                      'bg-purple-500/10 text-purple-600': item.category === 'Course',
+                      'bg-session-group/10 text-session-group': item.category === 'Course',
                     }"
                   >
                     <i [class]="'pi ' + item.icon + ' text-sm'"></i>
@@ -111,7 +111,7 @@ export interface CommandItem {
                         item.category === 'Instructor',
                       'bg-[var(--color-success-background)] text-[var(--color-success-foreground)]':
                         item.category === 'Group',
-                      'bg-purple-500/10 text-purple-600': item.category === 'Course',
+                      'bg-session-group/10 text-session-group': item.category === 'Course',
                     }"
                   >
                     {{ item.category }}

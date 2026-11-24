@@ -653,3 +653,44 @@ Everything below was checked as unused before deletion.
 - **Not yet verified visually:** PrimeNG controls will look navy/blue instead of green.
   It's checked in the Phase 2 audit.
 - **Validation:** 32 files / 167 tests ✔; lint 0 errors; build ✔ at 589.81 kB.
+
+## D-04 + D-05 — Dialogs fit phones; components use tokens, not colours
+
+- **D-04, dialogs on phones** (`src/styles.css`, ≤ 640 px): every PrimeNG dialog becomes a
+  full-width sheet along the bottom, with top corners rounded, `max-height: 92dvh` (the
+  visible height) and the footer clear of the home indicator. One scoped rule instead of
+  51 template edits; `!important` overrides the dialogs' inline widths.
+- **D-05, palette classes:** all **328 Tailwind palette classes (99 distinct) in 19 files**
+  were replaced with token utilities by a script with a reviewed mapping:
+  - **Hue → meaning:** red/rose → `error`, amber/orange/yellow → `warning`, green/emerald/
+    teal → `success`, blue/sky/indigo → `info`, violet/purple → `session-group`, grey/slate
+    → the neutral text, border and surface tokens.
+  - **Shade → token:** pale tints → `*-background` (keeping any opacity), mid → base,
+    dark text → `*-foreground`, pale borders → base at 25 %.
+  - **Solid fills** behind white text → new `--color-{error,success,warning,info}-solid`
+    tokens, each ≥ 5:1 against white. The plain error red is 3.8:1. On hover, solid fills
+    go to 85 % so the hover still shows.
+  - **The 49 `dark:` palette classes were removed:** the tokens already switch with the
+    theme.
+- **D-05, literal colours:** all **44 literal colour values in 15 component files** became
+  tokens:
+  - white text on fills → `--color-primary-content`;
+  - tinted shadows and focus rings → `color-mix()` from their token;
+  - the sidebar's blue → its `--color-sidebar-item-active` token;
+  - the notification badge → `--color-error-solid` (white on it is now readable);
+  - a hover wash that was invisible on the light sidebar → `--color-sidebar-item-hover`;
+  - `var(--x, #fallback)` fallbacks removed;
+  - the mobile backdrop → a new `--color-scrim` token.
+
+  Only neutral black shadows remain, which `AGENTS.md` allows.
+
+- **Checked in the build:**
+  - all 51 token classes the conversion introduced exist in the compiled CSS (Tailwind
+    drops unknown classes silently);
+  - token classes compile to live `var(--color-…)` references, so they follow dark mode.
+    The one exception: Tailwind folds the value into arbitrary _shadow_ classes, so the
+    login button's tinted shadow keeps its light tint in dark mode. Cosmetic.
+- **Result:** initial bundle 589.81 → **583.33 kB**.
+- **Not verified visually:** colours stay in the same families, but I can't sign in to look
+  at the pages. They're checked against a running build in the Phase 2 audit.
+- **Validation:** 32 files / 167 tests ✔; lint 0 errors; format ✔; build ✔.

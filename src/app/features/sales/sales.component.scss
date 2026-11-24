@@ -74,7 +74,7 @@
 
 .tab--on {
   background: var(--color-secondary);
-  color: #fff;
+  color: var(--color-primary-content);
 
   &:hover {
     background: var(--color-secondary);
@@ -868,5 +868,5 @@
 
 .btn--primary {
   background: var(--color-secondary);
-  color: #fff;
+  color: var(--color-primary-content);
 }

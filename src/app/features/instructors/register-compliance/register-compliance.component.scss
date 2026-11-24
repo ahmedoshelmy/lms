@@ -128,7 +128,7 @@
 }
 
 .total__value--bad {
-  color: var(--color-danger, #ef4444);
+  color: var(--color-danger);
 }
 
 .total__label {
@@ -190,7 +190,7 @@
 }
 
 .num--bad {
-  color: var(--color-danger, #ef4444);
+  color: var(--color-danger);
 }
 
 /* Colour carries the judgement, so it is spent only on the rate. */
@@ -215,6 +215,6 @@
 }
 
 .rate--poor {
-  background: color-mix(in srgb, var(--color-danger, #ef4444) 15%, transparent);
-  color: var(--color-danger, #ef4444);
+  background: color-mix(in srgb, var(--color-danger) 15%, transparent);
+  color: var(--color-danger);
 }

@@ -73,7 +73,7 @@
         @if (hasActiveFilters()) {
           <button
             (click)="clearAllFilters()"
-            class="text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+            class="text-xs font-bold text-error-foreground hover:underline cursor-pointer"
           >
             Clear All Filters
           </button>
@@ -179,7 +179,7 @@
           }}</span>
         </div>
         <div
-          class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center text-xs font-bold"
+          class="w-8 h-8 rounded-lg bg-info/10 text-info-foreground flex items-center justify-center text-xs font-bold"
         >
           🏢
         </div>
@@ -192,10 +192,12 @@
           <span class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase block"
             >Running</span
           >
-          <span class="text-lg font-black text-emerald-600">{{ countByStatus('Running') }}</span>
+          <span class="text-lg font-black text-success-foreground">{{
+            countByStatus('Running')
+          }}</span>
         </div>
         <div
-          class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xs font-bold"
+          class="w-8 h-8 rounded-lg bg-success/10 text-success-foreground flex items-center justify-center text-xs font-bold"
         >
           🟢
         </div>
@@ -213,7 +215,7 @@
           }}</span>
         </div>
         <div
-          class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 flex items-center justify-center text-xs font-bold"
+          class="w-8 h-8 rounded-lg bg-session-group/10 text-session-group flex items-center justify-center text-xs font-bold"
         >
           👥
         </div>
@@ -231,7 +233,7 @@
           }}</span>
         </div>
         <div
-          class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold"
+          class="w-8 h-8 rounded-lg bg-warning/10 text-warning-foreground flex items-center justify-center text-xs font-bold"
         >
           🔵
         </div>
@@ -483,7 +485,7 @@
                     </button>
                     <button
                       (click)="confirmDelete(group)"
-                      class="p-1 rounded text-[var(--color-text-muted)] hover:text-red-600 transition-colors cursor-pointer"
+                      class="p-1 rounded text-[var(--color-text-muted)] hover:text-error-foreground transition-colors cursor-pointer"
                       title="Delete Group"
                     >
                       <i class="pi pi-trash text-xs"></i>
@@ -811,7 +813,7 @@
                   <button
                     type="button"
                     (click)="removeScheduleSlot($index)"
-                    class="p-1 text-red-500 hover:text-red-700 cursor-pointer ml-auto"
+                    class="p-1 text-error hover:text-error-foreground cursor-pointer ml-auto"
                   >
                     <i class="pi pi-times text-xs"></i>
                   </button>

@@ -26,12 +26,12 @@
 .category-pill--active {
   background: var(--color-secondary);
   border-color: var(--color-secondary);
-  color: #ffffff !important;
+  color: var(--color-primary-content) !important;
   font-weight: 700;
   box-shadow: 0 2px 6px color-mix(in srgb, var(--color-secondary) 25%, transparent);
 
   .category-pill-dot {
-    box-shadow: 0 0 0 1.5px #ffffff;
+    box-shadow: 0 0 0 1.5px var(--color-surface);
   }
 }
 .category-pill-dot {
@@ -240,7 +240,7 @@
 }
 .badge-ongoing {
   background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
-  color: var(--color-success-foreground, #027a48);
+  color: var(--color-success-foreground);
   border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
 }
 .badge-completed {

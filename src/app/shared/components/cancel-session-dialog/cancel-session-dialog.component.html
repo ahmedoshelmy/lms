@@ -40,7 +40,7 @@
       </div>
 
       @if (showErrors() && !cause()) {
-        <p class="text-[11px] font-semibold text-red-600 mt-2">
+        <p class="text-[11px] font-semibold text-error-foreground mt-2">
           Pick one of the three, so the school can count what it is losing classes to.
         </p>
       }
@@ -63,7 +63,7 @@
           class="w-full px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-secondary)] resize-y"
         ></textarea>
         @if (showErrors() && missingDetail()) {
-          <p class="text-[11px] font-semibold text-red-600 mt-1">
+          <p class="text-[11px] font-semibold text-error-foreground mt-1">
             Say what happened. A cancellation counted against somebody with no reason beside it is
             one nobody can answer for later.
           </p>
@@ -111,7 +111,7 @@
         type="button"
         (click)="submit()"
         [disabled]="saving()"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+        class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-sm font-semibold rounded-xl cursor-pointer disabled:opacity-50"
       >
         @if (saving()) {
           <i class="pi pi-spinner pi-spin"></i>

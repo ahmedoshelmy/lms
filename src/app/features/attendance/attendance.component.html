@@ -22,15 +22,17 @@
           sessionStats().total
         }}</span>
       </div>
-      <div
-        class="px-3 py-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-center"
-      >
-        <span class="text-[10px] font-bold text-emerald-600 block uppercase">Completed</span>
-        <span class="text-xs font-black text-emerald-600">{{ sessionStats().completed }}</span>
+      <div class="px-3 py-1.5 rounded-xl border border-success/20 bg-success/10 text-center">
+        <span class="text-[10px] font-bold text-success-foreground block uppercase">Completed</span>
+        <span class="text-xs font-black text-success-foreground">{{
+          sessionStats().completed
+        }}</span>
       </div>
-      <div class="px-3 py-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-center">
-        <span class="text-[10px] font-bold text-amber-600 block uppercase">Scheduled</span>
-        <span class="text-xs font-black text-amber-600">{{ sessionStats().scheduled }}</span>
+      <div class="px-3 py-1.5 rounded-xl border border-warning/20 bg-warning/10 text-center">
+        <span class="text-[10px] font-bold text-warning-foreground block uppercase">Scheduled</span>
+        <span class="text-xs font-black text-warning-foreground">{{
+          sessionStats().scheduled
+        }}</span>
       </div>
     </div>
   </div>
@@ -129,7 +131,7 @@
         <button
           type="button"
           (click)="setSessionStatusFilter('scheduled')"
-          [class.bg-amber-600]="sessionStatusFilter() === 'scheduled'"
+          [class.bg-warning-solid]="sessionStatusFilter() === 'scheduled'"
           [class.text-white]="sessionStatusFilter() === 'scheduled'"
           [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'scheduled'"
           class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
@@ -139,7 +141,7 @@
         <button
           type="button"
           (click)="setSessionStatusFilter('completed')"
-          [class.bg-emerald-600]="sessionStatusFilter() === 'completed'"
+          [class.bg-success-solid]="sessionStatusFilter() === 'completed'"
           [class.text-white]="sessionStatusFilter() === 'completed'"
           [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'completed'"
           class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
@@ -149,7 +151,7 @@
         <button
           type="button"
           (click)="setSessionStatusFilter('cancelled')"
-          [class.bg-rose-600]="sessionStatusFilter() === 'cancelled'"
+          [class.bg-error-solid]="sessionStatusFilter() === 'cancelled'"
           [class.text-white]="sessionStatusFilter() === 'cancelled'"
           [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'cancelled'"
           class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
@@ -181,7 +183,7 @@
           <button
             type="button"
             (click)="resetFilters()"
-            class="ml-2 text-xs font-bold text-rose-600 hover:underline cursor-pointer"
+            class="ml-2 text-xs font-bold text-error-foreground hover:underline cursor-pointer"
           >
             Reset Filters
           </button>
@@ -223,7 +225,7 @@
               }}</span>
             } @else if (group.isTomorrow) {
               <span
-                class="px-2.5 py-1 rounded-xl bg-amber-500 text-white text-xs font-black tracking-wider uppercase shadow-xs"
+                class="px-2.5 py-1 rounded-xl bg-warning text-white text-xs font-black tracking-wider uppercase shadow-xs"
               >
                 TOMORROW
               </span>

@@ -96,7 +96,7 @@
             </button>
             <button
               (click)="openDeleteModal()"
-              class="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-300 text-red-600 font-semibold text-xs hover:bg-red-50 transition-all duration-200"
+              class="cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl border border-error/50 text-error-foreground font-semibold text-xs hover:bg-error-background transition-all duration-200"
             >
               <i class="pi pi-trash text-xs"></i>
               Delete
@@ -228,7 +228,7 @@
               {{ attendanceStats().present }} Present
             </span>
             <span
-              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-warning/10 text-warning-foreground border border-warning/20"
             >
               {{ attendanceStats().late }} Late
             </span>
@@ -239,7 +239,7 @@
             </span>
             @if (attendanceStats().excused > 0) {
               <span
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-info/10 text-info-foreground border border-info/20"
               >
                 {{ attendanceStats().excused }} Excused
               </span>
@@ -433,7 +433,7 @@
                     class="px-2.5 py-0.5 rounded-full text-[10px] font-bold"
                     [class]="
                       group.leftAt
-                        ? 'bg-gray-500/10 text-gray-600'
+                        ? 'bg-text-muted/10 text-text-secondary'
                         : 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]'
                     "
                   >
@@ -722,7 +722,7 @@
         type="button"
         (click)="confirmDelete()"
         [disabled]="deleting()"
-        class="inline-flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
+        class="inline-flex items-center gap-2 px-5 py-2 bg-error-solid hover:bg-error-solid/85 text-white text-xs font-semibold rounded-xl cursor-pointer disabled:opacity-50"
       >
         @if (deleting()) {
           <i class="pi pi-spinner pi-spin"></i>

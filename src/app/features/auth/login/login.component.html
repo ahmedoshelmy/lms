@@ -44,7 +44,7 @@
             formControlName="email"
             placeholder="you@example.com"
             autocomplete="email"
-            class="box-border w-full rounded-[10px] border-2 border-(--color-border) bg-(--color-surface) px-3.5 py-3 text-sm text-(--color-text-primary) transition-all duration-200 focus:border-(--color-secondary) focus:outline-none focus:ring-[3px] focus:ring-[rgba(62,109,181,0.15)]"
+            class="box-border w-full rounded-[10px] border-2 border-(--color-border) bg-(--color-surface) px-3.5 py-3 text-sm text-(--color-text-primary) transition-all duration-200 focus:border-(--color-secondary) focus:outline-none focus:ring-[3px] focus:ring-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]"
             [class.!border-(--color-error)]="emailControl.invalid && emailControl.touched"
           />
           @if (emailControl.invalid && emailControl.touched) {
@@ -67,7 +67,7 @@
             formControlName="password"
             placeholder="••••••••"
             autocomplete="current-password"
-            class="box-border w-full rounded-[10px] border-2 border-(--color-border) bg-(--color-surface) px-3.5 py-3 text-sm text-(--color-text-primary) transition-all duration-200 focus:border-(--color-secondary) focus:outline-none focus:ring-[3px] focus:ring-[rgba(62,109,181,0.15)]"
+            class="box-border w-full rounded-[10px] border-2 border-(--color-border) bg-(--color-surface) px-3.5 py-3 text-sm text-(--color-text-primary) transition-all duration-200 focus:border-(--color-secondary) focus:outline-none focus:ring-[3px] focus:ring-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]"
             [class.!border-(--color-error)]="passwordControl.invalid && passwordControl.touched"
           />
           @if (passwordControl.invalid && passwordControl.touched) {
@@ -84,7 +84,7 @@
         <button
           type="submit"
           [disabled]="form.invalid || loading()"
-          class="mt-2 w-full rounded-[10px] border-none bg-linear-to-br from-(--color-primary) to-(--color-secondary) p-3.5 text-[15px] font-semibold text-(--color-primary-content) shadow-[0_4px_12px_rgba(26,43,76,0.3)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(26,43,76,0.4)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-[0_4px_12px_rgba(26,43,76,0.3)]"
+          class="mt-2 w-full rounded-[10px] border-none bg-linear-to-br from-(--color-primary) to-(--color-secondary) p-3.5 text-[15px] font-semibold text-(--color-primary-content) shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_30%,transparent)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_6px_20px_color-mix(in_srgb,var(--color-primary)_40%,transparent)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_30%,transparent)]"
         >
           @if (loading()) {
             <i class="pi pi-spinner pi-spin" aria-hidden="true"></i> Signing in…

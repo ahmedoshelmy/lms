@@ -44,7 +44,7 @@ import { SessionService } from '../../core/services/session.service';
       align-items: center;
       justify-content: center;
       margin: 0 auto 24px;
-      box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--color-error) 30%, transparent);
     }
 
     .icon i {
@@ -90,22 +90,22 @@ import { SessionService } from '../../core/services/session.service';
     .btn-primary {
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
       color: var(--color-primary-content);
-      box-shadow: 0 4px 12px rgba(26, 43, 76, 0.3);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(26, 43, 76, 0.4);
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--color-primary) 40%, transparent);
     }
 
     .btn-outline {
       background: transparent;
-      border: 1px solid var(--color-border, #e2e8f0);
+      border: 1px solid var(--color-border);
       color: var(--color-text-primary);
     }
 
     .btn-outline:hover {
-      background: var(--color-surface-hover, #f8fafc);
+      background: var(--color-surface-hover);
       transform: translateY(-2px);
     }
   `,
