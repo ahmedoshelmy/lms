@@ -375,7 +375,11 @@ export class SettingsComponent {
     this.healthStatus.set(null);
     const start = performance.now();
 
-    this.lms.getSchedule().subscribe({
+    // Any answer proves the server is up. It used to download the whole
+    // timetable, so the "latency" it reported was mostly the size of that.
+    const from = new Date();
+    const to = new Date(from.getTime() + 60_000);
+    this.lms.getSchedule(from, to).subscribe({
       next: () => {
         const elapsed = Math.round(performance.now() - start);
         this.latencyMs.set(elapsed);

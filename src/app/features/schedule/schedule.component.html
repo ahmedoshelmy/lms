@@ -458,12 +458,16 @@
 />
 
 <!-- Create Standalone Session Dialog -->
-<app-create-standalone-session-dialog
-  [visible]="showStandaloneSessionModal()"
-  [instructors]="instructors()"
-  (closed)="showStandaloneSessionModal.set(false)"
-  (sessionCreated)="loadSchedule()"
-/>
+<!-- Created when opened: it loads every student and instructor, which the
+     schedule used to do on every visit whether or not a class was added. -->
+@if (showStandaloneSessionModal()) {
+  <app-create-standalone-session-dialog
+    [visible]="true"
+    [instructors]="instructors()"
+    (closed)="showStandaloneSessionModal.set(false)"
+    (sessionCreated)="loadSchedule()"
+  />
+}
 
 <!-- The clocks moved: did the timetable? -->
 <p-dialog

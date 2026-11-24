@@ -226,8 +226,16 @@ export class CommandPaletteComponent implements OnInit {
     }
   }
 
+  /**
+   * The pages are known at once; students, groups and courses are fetched the
+   * first time the palette opens. They used to be fetched for everybody the
+   * moment they signed in -- three requests, one of them every student --
+   * whether or not anyone ever pressed Ctrl+K.
+   */
+  private catalogRequested = false;
+
   ngOnInit(): void {
-    this.loadCatalogData();
+    this.allItems.set(this.navItems());
   }
 
   toggle(): void {
@@ -239,6 +247,10 @@ export class CommandPaletteComponent implements OnInit {
   }
 
   open(): void {
+    if (!this.catalogRequested) {
+      this.catalogRequested = true;
+      this.loadCatalogData();
+    }
     this.searchQuery.set('');
     this.selectedIndex.set(0);
     this.isOpen.set(true);

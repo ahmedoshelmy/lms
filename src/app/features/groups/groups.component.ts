@@ -455,7 +455,9 @@ export class GroupsComponent implements OnInit {
   }
 
   loadSchedule(): void {
-    this.lmsService.getSchedule().subscribe({
+    // Only classes still to come are counted (getRemainingSessions), so only
+    // those are asked for. It used to download every class ever scheduled.
+    this.lmsService.getSchedule(new Date()).subscribe({
       next: (data) => this.scheduleSessions.set(data || []),
       error: () => {},
     });

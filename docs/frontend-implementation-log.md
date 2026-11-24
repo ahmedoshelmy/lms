@@ -1018,3 +1018,28 @@ Everything below was checked as unused before deletion.
 - **Reviewed, nothing found:** SSR guards, the desktop toggle, schedule `HttpParams` (same
   parameters as before) and its failure flags, history flags, the register CSS (desktop
   unchanged), the grids, and spec clean-up.
+
+## PF-01 — Nothing loaded before it is needed
+
+- **Command palette:** students, groups and courses are fetched the first time it opens,
+  once per session. They used to be fetched for everyone the moment they signed in (three
+  requests, one of them every student), whether or not Ctrl+K was ever pressed. A failure
+  there showed an error toast on whatever page had just opened. The pages are listed at
+  once, with no request. New `command-palette.component.spec.ts`.
+- **Add-session dialog (Schedule):** created when opened, by a plain `@if`. It loaded every
+  student and instructor on each visit to the schedule. It now starts fresh each time it
+  opens.
+- **Groups list:** asks for classes from now on (`getSchedule(new Date())`). It only counts
+  upcoming classes, but downloaded every class ever scheduled.
+- **Settings health check:** asks for one minute of timetable. It downloaded the whole
+  timetable, so the "latency" it reported was mostly download time.
+- **Tried and dropped: `@defer`** for the add-session and certificate dialogs. It added
+  6.4 kB to the initial bundle (Angular's defer runtime), 585.5 → 591.9 kB, and saved
+  10 kB in the lazy Schedule chunk. The certificate dialog's code was already in a chunk
+  shared by the group and student pages, and its data already loads on open.
+- **Left unbounded, as backend dependencies:**
+  - The group page's session feed needs a per-group query. `/Schedule/history` takes
+    `groupId`, but nothing here confirms it returns the same set, future classes
+    included.
+  - Attendance's "All time" list needs paging.
+- **Validation:** lint 0 errors; build 585.51 kB initial (unchanged).
