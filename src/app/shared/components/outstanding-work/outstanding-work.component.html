@@ -65,11 +65,23 @@
                       </button>
                     </div>
                   </div>
-                } @else {
+                } @else if (canMark(session)) {
                   <div class="item__actions">
                     <button type="button" class="btn btn--primary" (click)="markRegister(session)">
                       Mark the register
                     </button>
+                    <button type="button" class="btn btn--quiet" (click)="startClaim(session)">
+                      It didn't happen
+                    </button>
+                  </div>
+                } @else {
+                  <!-- Past the window, the register page is closed to them. Not
+                       sent there to find a locked page. -->
+                  <p class="item__note">
+                    The register closed a day after the class, so operations will fill it in. If the
+                    class didn't happen, say so here.
+                  </p>
+                  <div class="item__actions">
                     <button type="button" class="btn btn--quiet" (click)="startClaim(session)">
                       It didn't happen
                     </button>
@@ -203,8 +215,20 @@
       </div>
 
       <footer class="panel__foot">
-        The instructor who taught a class can still take its register however late it is. Taken
-        after a day it is recorded as late, which is better than never taken at all.
+        <p class="panel__foot-text">
+          A register is due within a day of the class. After that, operations fills it in.
+        </p>
+        <div class="panel__foot-actions">
+          @if (canClose()) {
+            <!-- Nothing left here is theirs to do, so it stops being in the way. -->
+            <button type="button" class="btn btn--primary" (click)="closeForNow()">
+              Close for now
+            </button>
+          }
+          <button type="button" class="btn btn--quiet" (click)="signOut()">
+            <i class="pi pi-sign-out" aria-hidden="true"></i> Sign out
+          </button>
+        </div>
       </footer>
     </section>
   </div>

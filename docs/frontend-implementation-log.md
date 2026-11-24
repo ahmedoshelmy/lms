@@ -200,3 +200,32 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   the rule is a direct guard plus a disabled button.
 - **Remaining:** the register on `/sessions/:id` can lose unsaved marks the same way. The
   guard can be reused there (W-02).
+
+## P0-09 — The outstanding-work window always has a way out
+
+- **What changed:**
+  - **Late registers for non-admins:** the window no longer offers "Mark the register",
+    which opened a page locked for them. It says operations will fill the register in, and
+    keeps "It didn't happen". Admins, who can take late registers, still get the button.
+  - **"Close for now":** appears when everything left is out of the person's hands. It snoozes
+    the window (`OperationsService.snoozed`) until reload or sign-out, and new actionable
+    work brings it back.
+  - **"Sign out":** always in the window's footer, since the window covers the sidebar.
+  - **Wording:** the footer no longer promises that an instructor can take a register
+    "however late it is". The panel uses `100dvh` so the footer stays on screen on phones.
+- **Why:** finding C-06. An instructor with a late register was sent to a locked page, and
+  any navigation brought the window back. The only way out was to claim a class that
+  happened did not, and sign-out sat underneath the window.
+- **Decision (yours):** frontend-only. The server rule is unchanged.
+- **Files:** `shared/components/outstanding-work/outstanding-work.component.{ts,html,scss}`
+  (+ new spec), `core/services/operations.service.ts`.
+- **Validation:** 18 files / 121 tests pass (5 new, rendered). Against the old component the
+  three trap tests fail and the two unchanged behaviours pass. Build passes.
+- **Follow-up for you (backend question):** the window's original wording and the server's
+  `late` flag ("it will be recorded as taken late") suggest the server _accepts_ late
+  registers from the teaching instructor. The session page's lock dates from August, three
+  months before the window. If the server does accept them, the lock is stale, and unlocking
+  it for the teaching instructor (`isLocked` in `session-detail.component.ts`) would let the
+  window work as first designed.
+- **Remaining:** the window is still not a proper modal for keyboard users (focus is not
+  moved into it or kept there) — A-02. Sign-out logic now exists in three places — F-01.

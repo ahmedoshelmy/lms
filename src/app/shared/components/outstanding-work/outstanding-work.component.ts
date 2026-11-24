@@ -7,6 +7,9 @@ import { filter } from 'rxjs';
 import { OperationsService } from '../../../core/services/operations.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LmsService } from '../../../core/services/lms.service';
+import { NotificationCenterService } from '../../../core/services/notification-center.service';
+import { Role } from '../../../core/interfaces/Role';
 import {
   CancellationCauseName,
   OutstandingSession,
@@ -44,6 +47,8 @@ export class OutstandingWorkComponent implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private lms = inject(LmsService);
+  private notificationCentre = inject(NotificationCenterService);
 
   protected readonly work = this.operations.work;
 
@@ -70,12 +75,56 @@ export class OutstandingWorkComponent implements OnInit {
    */
   protected readonly showing = computed(() => {
     const work = this.work();
-    return !!work && work.any && this.operations.workingOn() === null && this.auth.isLoggedIn();
+    const there =
+      !!work && work.any && this.operations.workingOn() === null && this.auth.isLoggedIn();
+
+    // Closed for now, and still nothing in it they can do.
+    return there && !(this.operations.snoozed() && this.canClose());
   });
 
   protected readonly mine = computed(() => this.work()?.myRegisters ?? []);
   protected readonly claims = computed(() => this.work()?.claimsToAnswer ?? []);
   protected readonly onMyDays = computed(() => this.work()?.registersOnMyDays ?? []);
+
+  private readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
+
+  /**
+   * Whether this person can still take the register themselves.
+   *
+   * The session page closes a register to everybody but operations once the
+   * class is a day old. Sending an instructor there for a late one opened a
+   * locked page, and coming back put this window over them again -- the only
+   * way out was to say a class that happened did not.
+   */
+  protected canMark(session: OutstandingSession): boolean {
+    return !session.late || this.isAdmin();
+  }
+
+  /** True when nothing left here is something this person can act on. */
+  protected readonly canClose = computed(
+    () =>
+      this.mine().every((s) => !this.canMark(s)) &&
+      this.claims().length === 0 &&
+      this.onMyDays().length === 0
+  );
+
+  protected closeForNow(): void {
+    this.operations.snooze();
+  }
+
+  /**
+   * Always available. The window covers the sidebar, so on a shared machine
+   * this is the only way to hand it over.
+   */
+  protected signOut(): void {
+    const finish = () => {
+      this.notificationCentre.clear();
+      this.operations.clear();
+      this.auth.logout();
+      this.router.navigate(['/login']);
+    };
+    this.lms.logout().subscribe({ next: finish, error: finish });
+  }
 
   /** What the window is for, in one line, so it does not read as a punishment. */
   protected readonly heading = computed(() => {

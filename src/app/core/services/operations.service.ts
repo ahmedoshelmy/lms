@@ -40,6 +40,14 @@ export class OperationsService {
    */
   readonly workingOn = signal<number | null>(null);
 
+  /**
+   * Set when somebody closes the window while everything left in it is out
+   * of their hands -- late registers only operations can now fill in. Lasts
+   * until the page is reloaded or they sign out; new work they can do brings
+   * the window straight back.
+   */
+  readonly snoozed = signal(false);
+
   private get base(): string {
     return `${this.lms.getApiUrl()}/operations`;
   }
@@ -76,6 +84,11 @@ export class OperationsService {
   clear(): void {
     this.work.set(null);
     this.workingOn.set(null);
+    this.snoozed.set(false);
+  }
+
+  snooze(): void {
+    this.snoozed.set(true);
   }
 
   /** An instructor saying a class did not happen. */
