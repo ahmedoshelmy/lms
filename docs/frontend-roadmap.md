@@ -19,6 +19,33 @@ Still open: a separate Operations role; the school week's first day; new tooling
 CI, Playwright, axe, an error monitor); one deployment target; brand icon artwork;
 Arabic/RTL.
 
+## Status (2026-11-24)
+
+Done on branch `frontend/phase-0`, one commit each. Details are in the implementation log.
+
+- **Phase 0:** P0-01 to P0-11, all done.
+- **SSR-01:** done.
+
+Validation: 21 test files, 128 tests passing (78 at the start); production build clean, with
+the initial bundle at 596.83 kB against the 600 kB warning budget.
+
+Raised in priority by what Phase 0 found:
+
+- **R-03 → P1:** the remaining production `npm audit` advisories are against the installed
+  Angular 21.2.x, including an XSS and a sanitizer bypass. A patch update within the current
+  ranges should clear them.
+- **F-06:** add `.gitattributes` (`* text=auto eol=lf`). On Windows, `core.autocrlf=true`
+  makes `prettier --check` flag every file for line endings.
+
+Backend questions opened by Phase 0:
+
+- Does `PUT /groups/{id}` accept `endDate: null`?
+- Does the server accept late registers from the instructor who taught the class? If so,
+  the session page's lock is stale.
+- Does the server refuse attendance writes from students, and limit what they can read?
+- Can students created with `pass2word` be forced to reset?
+- Endpoints for profile edits and password change.
+
 ## Task table
 
 | ID     | Phase | Task                                                                                                                      | Priority | Size | Depends on                     |
