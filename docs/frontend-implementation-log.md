@@ -142,3 +142,38 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
 - **Backend to verify:** the server accepts `endDate: null` on `PUT /groups/{id}`. It returns
   null for these groups, so the field should be nullable; if it isn't, the save is refused
   with a 400 and nothing is written, which is no worse than the blocked form.
+
+## P0-07 — Destructive actions ask first; cancelling always asks why
+
+- **What changed:**
+  - **Shared confirmation:** `ConfirmService.ask()` returns a promise, and
+    `ConfirmHostComponent` draws it once in the main layout using `p-dialog`. The safe
+    button comes first and has focus. Escape or the close icon counts as "no", and a second
+    question answers the first with "no".
+  - **Sales:** cancelling the release-reason prompt no longer releases the hold. Removing a
+    candidate asks first, and its icon button now has an accessible name.
+  - **Session edit forms (panel and page):** saving a status of "Cancelled" on a running
+    class opens the cancel dialog, which asks the cause and whether to shift, instead of
+    filing the cancellation through the plain update. The rule lives in
+    `isNewCancellation` (`cancellation.utils.ts`).
+  - **Groups list:** "Move forward", "Generate N", "Mark completed" and "Set to N" are
+    Admin-only (they call Admin-only endpoints) and ask first. Other roles see "Open".
+- **Why:** finding C-09. The app had no shared confirmation pattern.
+- **Decision:** this was first built on PrimeNG's `ConfirmDialog`, which pushed the initial
+  bundle to 602.11 kB, over the 600 kB warning budget. A stats diff showed +5.5 kB of Angular
+  core code pulled in by that one component. Rebuilt on `p-dialog`, which the app already
+  uses, the bundle is back to 595.71 kB and the budget is unchanged.
+- **Files:** `core/services/confirm.service.ts` (+ spec),
+  `shared/components/confirm-host/confirm-host.component.ts` (+ render spec),
+  `shared/layouts/main-layout/*`, `core/utils/cancellation.utils.ts` (+ spec),
+  `features/sales/sales.component.{ts,html}` (+ spec),
+  `features/groups/groups.component.{ts,html}`,
+  `features/schedule/session-detail-panel/session-detail-panel.component.ts` (+ spec),
+  `features/sessions/session-detail/session-detail.component.ts`.
+- **Validation:** 16 files / 113 tests pass (9 new, including a render test of the dialog).
+  Build passes with no warnings; initial bundle 595.71 kB.
+- **Remaining:** `prompt()` for the release reason stays until W-01. Other destructive
+  actions already had their own dialogs; moving them onto `ConfirmService` is D-03.
+- **Note for CI (F-06):** `prettier --check` flags every file Git checks out with CRLF
+  (`core.autocrlf=true` vs `endOfLine: lf`). It's a line-ending artefact, not formatting.
+  Fix with a `.gitattributes` `* text=auto eol=lf`, or check with `--end-of-line auto`.

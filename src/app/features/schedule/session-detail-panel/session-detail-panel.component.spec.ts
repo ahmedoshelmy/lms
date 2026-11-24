@@ -78,4 +78,15 @@ describe('SessionDetailPanelComponent saving', () => {
     expect(emitted[0].status).toBe('Completed');
     expect(notify.showSuccess).toHaveBeenCalledTimes(1);
   });
+
+  it('sends a cancellation to the cancel dialog instead of saving it', () => {
+    const { panel, emitted } = createPanel();
+    panel.editStatus.set('Cancelled');
+
+    panel.saveChanges();
+
+    expect(lms.updateSession).not.toHaveBeenCalled();
+    expect(panel.showCancelDialog()).toBe(true);
+    expect(emitted).toEqual([]);
+  });
 });

@@ -39,3 +39,19 @@ export function cancellationNote(
 
   return label || detail ? { cause: label, reason: detail } : null;
 }
+
+function readsCancelled(status?: string | null): boolean {
+  return (status ?? '').toLowerCase().includes('cancel');
+}
+
+/**
+ * Whether an edit would call off a class that is running.
+ *
+ * Only the cancel flow may do that, because only it asks why and whether to
+ * move the rest of the course back. The edit forms used to let a status of
+ * "Cancelled" be saved like any other change, which filed the cancellation
+ * with no cause and no reason.
+ */
+export function isNewCancellation(original?: string | null, edited?: string | null): boolean {
+  return readsCancelled(edited) && !readsCancelled(original);
+}

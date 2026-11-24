@@ -21,6 +21,7 @@ import {
 } from '../../core/interfaces/Sales';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { toIsoDate, todayIsoDate } from '../../core/utils/date.utils';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 type Tab = 'find' | 'holds' | 'pipeline';
 
@@ -43,6 +44,7 @@ export class SalesComponent implements OnInit {
   private readonly lms = inject(LmsService);
   private readonly auth = inject(AuthService);
   private readonly notify = inject(NotificationService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly weekdays = WEEKDAYS;
 
@@ -373,7 +375,11 @@ export class SalesComponent implements OnInit {
   }
 
   releaseHold(hold: SlotHold): void {
-    const reason = (prompt('Why are you releasing this slot?') ?? '').trim();
+    // Cancel means stop. prompt() answers null for it, and that used to be
+    // read as "no reason given" -- so backing out released the slot anyway.
+    const answer = prompt('Why are you releasing this slot?');
+    if (answer === null) return;
+    const reason = answer.trim();
     this.lms.releaseSlotHold(hold.id, reason || undefined).subscribe({
       next: () => {
         this.loadHolds();
@@ -581,7 +587,15 @@ export class SalesComponent implements OnInit {
       });
   }
 
-  removeCandidate(candidate: Candidate): void {
+  async removeCandidate(candidate: Candidate): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      header: 'Remove candidate',
+      message: `Remove ${candidate.name || 'this candidate'} from the pipeline? Their details and notes go with them.`,
+      acceptLabel: 'Remove candidate',
+      danger: true,
+    });
+    if (!confirmed) return;
+
     this.lms.deleteCandidate(candidate.id).subscribe({
       next: () => {
         this.loadCandidates();

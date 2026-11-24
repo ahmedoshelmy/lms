@@ -34,6 +34,7 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { Room } from '../../core/interfaces/Availability';
 import { catchError, of } from 'rxjs';
 import { toIsoDate } from '../../core/utils/date.utils';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -56,6 +57,7 @@ export class GroupsComponent implements OnInit {
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
+  private confirm = inject(ConfirmService);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
@@ -155,7 +157,15 @@ export class GroupsComponent implements OnInit {
   readonly showOverdue = signal(false);
 
   /** Moves classes that never happened forward onto the group's pattern. */
-  rescheduleOverdue(group: Group): void {
+  async rescheduleOverdue(group: Group): Promise<void> {
+    const count = group.overdueSessions ?? 0;
+    const confirmed = await this.confirm.ask({
+      header: 'Move classes forward',
+      message: `Move ${group.name}'s ${count} unmarked ${count === 1 ? 'class' : 'classes'} forward onto the next free slots in its pattern? Do this only if they did not happen; if they did, take the registers instead.`,
+      acceptLabel: 'Move forward',
+    });
+    if (!confirmed) return;
+
     this.saving.set(true);
     this.lmsService.rescheduleOverdueSessions(group.id).subscribe({
       next: () => {
@@ -183,7 +193,14 @@ export class GroupsComponent implements OnInit {
   readonly showDrift = signal(false);
 
   /** Sets a group's progress to what its delivered sessions say it is. */
-  reconcileProgress(group: Group): void {
+  async reconcileProgress(group: Group): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      header: 'Correct progress',
+      message: `Set ${group.name}'s next session to session ${group.progressShouldBe}? Sessions are labelled from this number, and it decides when the group moves up a level.`,
+      acceptLabel: `Set to ${group.progressShouldBe}`,
+    });
+    if (!confirmed) return;
+
     this.saving.set(true);
     const shouldBe = group.progressShouldBe;
     this.lmsService.reconcileProgress(group.id).subscribe({
@@ -203,7 +220,15 @@ export class GroupsComponent implements OnInit {
   readonly showStalled = signal(false);
 
   /** Creates what a group is owed, putting it back on the schedule. */
-  generateMissing(group: Group): void {
+  async generateMissing(group: Group): Promise<void> {
+    const count = group.sessionsOwed ?? 0;
+    const confirmed = await this.confirm.ask({
+      header: 'Generate sessions',
+      message: `Add ${count} ${count === 1 ? 'session' : 'sessions'} to ${group.name}'s schedule on its weekly pattern?`,
+      acceptLabel: 'Generate',
+    });
+    if (!confirmed) return;
+
     this.saving.set(true);
     this.lmsService.generateMissingSessions(group.id).subscribe({
       next: () => {
@@ -217,7 +242,14 @@ export class GroupsComponent implements OnInit {
   }
 
   /** Marks a taught-out group completed, which is what its status should say. */
-  markCompleted(group: Group): void {
+  async markCompleted(group: Group): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      header: 'Mark group completed',
+      message: `Mark ${group.name} as completed? It leaves the running groups.`,
+      acceptLabel: 'Mark completed',
+    });
+    if (!confirmed) return;
+
     this.saving.set(true);
     this.lmsService
       .updateGroup(group.id, {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cancellationNote } from './cancellation.utils';
+import { cancellationNote, isNewCancellation } from './cancellation.utils';
 
 /**
  * A cancelled class carries two separate things — whose doing it was, and what
@@ -45,5 +45,19 @@ describe('cancellationNote', () => {
 
   it('passes through a cause it does not recognise rather than hiding it', () => {
     expect(cancellationNote('Weather', 'Storm')?.cause).toBe('Weather');
+  });
+});
+
+describe('isNewCancellation', () => {
+  it('is true only when a running class would become cancelled', () => {
+    expect(isNewCancellation('Scheduled', 'Cancelled')).toBe(true);
+    expect(isNewCancellation('Completed', 'Cancelled')).toBe(true);
+  });
+
+  it('is false for any other change', () => {
+    expect(isNewCancellation('Scheduled', 'Completed')).toBe(false);
+    expect(isNewCancellation('Cancelled', 'Cancelled')).toBe(false);
+    expect(isNewCancellation('Cancelled', 'Scheduled')).toBe(false);
+    expect(isNewCancellation(undefined, 'Scheduled')).toBe(false);
   });
 });

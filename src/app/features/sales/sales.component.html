@@ -529,7 +529,10 @@
                       <button
                         type="button"
                         class="card__remove"
-                        title="Remove"
+                        title="Remove from the pipeline"
+                        [attr.aria-label]="
+                          'Remove ' + (candidate.name || 'candidate') + ' from the pipeline'
+                        "
                         (click)="removeCandidate(candidate)"
                       >
                         <i class="pi pi-trash"></i>

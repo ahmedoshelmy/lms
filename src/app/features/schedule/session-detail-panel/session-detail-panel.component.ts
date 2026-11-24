@@ -15,7 +15,7 @@ import { SessionStatus } from '../../../core/enums/SessionStatus';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
-import { cancellationNote } from '../../../core/utils/cancellation.utils';
+import { cancellationNote, isNewCancellation } from '../../../core/utils/cancellation.utils';
 import { fromIsoDate, toIsoDate } from '../../../core/utils/date.utils';
 
 function sessionStatusToApiEnum(statusStr: string): number {
@@ -202,6 +202,12 @@ export class SessionDetailPanelComponent {
     const s = this.session();
     if (!s) return;
 
+    // Calling a class off goes through the cancel dialog, which asks why.
+    if (isNewCancellation(s.status, this.editStatus())) {
+      this.showCancelDialog.set(true);
+      return;
+    }
+
     if (this.editDate() && s.startsAt) {
       const originalDate = new Date(s.startsAt);
       const newDate = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
@@ -224,6 +230,10 @@ export class SessionDetailPanelComponent {
   executeSave(): void {
     const s = this.session();
     if (!s) return;
+    if (isNewCancellation(s.status, this.editStatus())) {
+      this.showCancelDialog.set(true);
+      return;
+    }
     this.saving.set(true);
 
     let computedStartsAt = s.startsAt;

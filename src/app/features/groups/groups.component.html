@@ -277,7 +277,13 @@
                   }
                 </span>
 
-                @if (group.stalledReason === 'Overdue') {
+                <!-- The fixes change the schedule and are admin actions on the
+                     server; everyone else opens the group. -->
+                @if (!isAdmin()) {
+                  <button type="button" class="stalled__action" (click)="viewGroupDetails(group)">
+                    Open
+                  </button>
+                } @else if (group.stalledReason === 'Overdue') {
                   <button
                     type="button"
                     class="stalled__action"
@@ -352,14 +358,20 @@
                   Its next session is session {{ group.progressShouldBe }}. Sessions are labelled
                   from this number, and it decides when the group moves up a level.
                 </span>
-                <button
-                  type="button"
-                  class="stalled__action"
-                  [disabled]="saving()"
-                  (click)="reconcileProgress(group)"
-                >
-                  Set to {{ group.progressShouldBe }}
-                </button>
+                @if (isAdmin()) {
+                  <button
+                    type="button"
+                    class="stalled__action"
+                    [disabled]="saving()"
+                    (click)="reconcileProgress(group)"
+                  >
+                    Set to {{ group.progressShouldBe }}
+                  </button>
+                } @else {
+                  <button type="button" class="stalled__action" (click)="viewGroupDetails(group)">
+                    Open
+                  </button>
+                }
               </div>
             }
           </div>
@@ -396,14 +408,20 @@
                 <span class="stalled__fix">
                   Take the register if they happened, or move them forward if they did not.
                 </span>
-                <button
-                  type="button"
-                  class="stalled__action"
-                  [disabled]="saving()"
-                  (click)="rescheduleOverdue(group)"
-                >
-                  Move forward
-                </button>
+                @if (isAdmin()) {
+                  <button
+                    type="button"
+                    class="stalled__action"
+                    [disabled]="saving()"
+                    (click)="rescheduleOverdue(group)"
+                  >
+                    Move forward
+                  </button>
+                } @else {
+                  <button type="button" class="stalled__action" (click)="viewGroupDetails(group)">
+                    Open
+                  </button>
+                }
               </div>
             }
           </div>

@@ -17,7 +17,7 @@ import {
   UpdateSessionPayload,
 } from '../../../core/interfaces/ScheduleSession';
 import { getSessionCode, getSessionDisplayTopic } from '../../../core/utils/session-code.utils';
-import { cancellationNote } from '../../../core/utils/cancellation.utils';
+import { cancellationNote, isNewCancellation } from '../../../core/utils/cancellation.utils';
 import { CancelSessionPayload } from '../../../core/interfaces/History';
 import { RegisterMark, buildRegisterPayload } from '../../../core/utils/attendance.utils';
 import { SessionStatus } from '../../../core/enums/SessionStatus';
@@ -570,6 +570,12 @@ export class SessionDetailComponent implements OnInit {
     const s = this.session();
     if (!s) return;
 
+    // Calling a class off goes through the cancel dialog, which asks why.
+    if (isNewCancellation(s.status, this.editStatus())) {
+      this.showCancelDialog.set(true);
+      return;
+    }
+
     if (this.editDate() && s.startsAt) {
       const originalDate = new Date(s.startsAt);
       const newDate = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
@@ -594,6 +600,10 @@ export class SessionDetailComponent implements OnInit {
   private executeSessionSave(): void {
     const s = this.session();
     if (!s) return;
+    if (isNewCancellation(s.status, this.editStatus())) {
+      this.showCancelDialog.set(true);
+      return;
+    }
     this.saving.set(true);
 
     let computedStartsAt = s.startsAt;

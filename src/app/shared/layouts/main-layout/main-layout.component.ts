@@ -2,6 +2,7 @@ import { afterNextRender, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmHostComponent } from '../../components/confirm-host/confirm-host.component';
 import { CommandPaletteComponent } from '../../components/command-palette/command-palette.component';
 import { OutstandingWorkComponent } from '../../components/outstanding-work/outstanding-work.component';
 
@@ -12,6 +13,7 @@ import { OutstandingWorkComponent } from '../../components/outstanding-work/outs
     RouterOutlet,
     SidebarComponent,
     ToastModule,
+    ConfirmHostComponent,
     CommandPaletteComponent,
     OutstandingWorkComponent,
   ],
