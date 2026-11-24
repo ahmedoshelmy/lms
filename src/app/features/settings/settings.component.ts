@@ -78,7 +78,7 @@ import { NotificationService } from '../../core/services/notification.service';
             <i class="pi pi-heart-fill"></i>
           </div>
           <div>
-            <h2 class="settings-card__title">Connection & Cache Diagnostics</h2>
+            <h2 class="settings-card__title">Connection Diagnostics</h2>
             <p class="settings-card__subtitle">Test API latency and manage local storage cache</p>
           </div>
         </div>
@@ -131,20 +131,6 @@ import { NotificationService } from '../../core/services/notification.service';
                 }
               </button>
             </div>
-          </div>
-
-          <div class="flex items-center justify-between gap-4 flex-wrap pt-2">
-            <div>
-              <p class="text-sm font-bold text-[var(--color-text-primary)]">
-                Offline Local Storage Cache
-              </p>
-              <p class="text-xs text-[var(--color-text-muted)]">
-                Clear cached attendance sheets and offline fallback state
-              </p>
-            </div>
-            <button type="button" class="btn-secondary" (click)="clearCache()">
-              <i class="pi pi-trash mr-2 text-[var(--color-error)]"></i> Clear Cache
-            </button>
           </div>
         </div>
       </div>
@@ -390,19 +376,5 @@ export class SettingsComponent {
         this.notify.showError('Backend server ping failed or unreachable.');
       },
     });
-  }
-
-  clearCache(): void {
-    if (typeof window !== 'undefined') {
-      const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('lms_attendance_')) {
-          keysToRemove.push(k);
-        }
-      }
-      keysToRemove.forEach((k) => localStorage.removeItem(k));
-      this.notify.showSuccess(`Cleared ${keysToRemove.length} cached attendance record(s).`);
-    }
   }
 }

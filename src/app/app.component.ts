@@ -1,6 +1,7 @@
 import { Component, inject, afterNextRender } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './core/services/theme.service';
+import { purgeLegacyAttendanceCache } from './core/utils/legacy-storage.utils';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,10 @@ export class AppComponent {
     // Apply the persisted / OS-preferred theme as early as possible
     afterNextRender(() => {
       this.themeService.applyTheme();
-    });
 
+      // Register copies older versions kept in the browser. Runs in the browser
+      // only, like everything in afterNextRender.
+      purgeLegacyAttendanceCache(localStorage);
+    });
   }
 }

@@ -229,3 +229,28 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   window work as first designed.
 - **Remaining:** the window is still not a proper modal for keyboard users (focus is not
   moved into it or kept there) — A-02. Sign-out logic now exists in three places — F-01.
+
+## P0-10 — Students no longer see the class list; no register copies in the browser
+
+- **What changed:**
+  - **Session page (`/sessions/:id`):** the attendance stats, class list and register
+    controls show only to Admin and Instructor (`isStaff`). A student sees "Your attendance"
+    with their own mark, or "Not marked yet".
+  - **Attendance cache:** registers are no longer copied into `lms_attendance_*` in
+    `localStorage` or merged back on load. `purgeLegacyAttendanceCache` deletes existing
+    copies once at startup (in `AppComponent`'s `afterNextRender`, browser only). The
+    Settings "Clear Cache" control, now pointless, is removed.
+- **Why:** finding C-12 / S-6.
+  - Students saw every classmate's name, email and mark, with active Save buttons.
+  - The cache held student ids and marks indefinitely and survived sign-out.
+  - Its only visible effect was to bring back students who had left the group as
+    "Student #id" rows, which the next save then filed marks for.
+- **Files:** `features/sessions/session-detail/session-detail.component.{ts,html}`
+  (+ new spec), `core/utils/legacy-storage.utils.ts` (+ spec), `app.component.ts`,
+  `features/settings/settings.component.ts`.
+- **Validation:** 20 files / 124 tests pass (3 new). Against the old page the student test
+  fails: the student saw a classmate's name and email. The instructor test passes on both
+  versions. Build passes.
+- **Backend dependency:** confirm the server refuses attendance writes from students and
+  limits what `GET /Schedule/sessions/{id}` returns to them. Hiding it here is presentation
+  only.

@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -109,7 +109,6 @@ export class SessionDetailComponent implements OnInit {
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private platformId = inject(PLATFORM_ID);
 
   session = signal<ScheduleSession | null>(null);
   records = signal<StudentAttendanceRecord[]>([]);
@@ -159,6 +158,21 @@ export class SessionDetailComponent implements OnInit {
   );
   readonly isInstructor = computed(() => this.auth.hasRole(Role.Instructor));
   readonly canEdit = computed(() => this.auth.hasRole(Role.Admin));
+
+  /**
+   * Who sees the register. Students can open a session page too, and used to
+   * get the whole class list -- names, emails, everyone's marks -- with the
+   * buttons to change them. They see their own mark instead.
+   */
+  readonly isStaff = computed(
+    () => this.auth.hasRole(Role.Admin) || this.auth.hasRole(Role.Instructor)
+  );
+
+  /** The signed-in student's own line on the register, if they are on it. */
+  readonly myRecord = computed(() => {
+    const me = this.auth.getUserId();
+    return this.records().find((r) => r.studentId === me) ?? null;
+  });
 
   readonly isEditCancelled = computed(() =>
     (this.editStatus() ?? '').toLowerCase().includes('cancel')
@@ -320,27 +334,10 @@ export class SessionDetailComponent implements OnInit {
       assignmentDone: a.assignmentDone ?? null,
     }));
 
-    if (isPlatformBrowser(this.platformId)) {
-      const storedJson = localStorage.getItem(`lms_attendance_${session.id}`);
-      if (storedJson) {
-        const storedMap: Record<string, { status: string; recordId?: number }> =
-          JSON.parse(storedJson);
-        const apiIds = new Set(recs.map((r) => r.studentId));
-        Object.entries(storedMap).forEach(([stIdStr, data]) => {
-          if (!apiIds.has(Number(stIdStr))) {
-            recs.push({
-              studentId: Number(stIdStr),
-              studentName: `Student #${stIdStr}`,
-              studentEmail: '',
-              status: normalizeAttendanceStatus(data.status),
-              recordId: data.recordId,
-              isSaved: false,
-            });
-          }
-        });
-      }
-    }
-
+    // The roster is the server's. A copy of every saved register used to be
+    // kept in this browser and merged back in, which only ever added children
+    // the server no longer listed -- ones who had left -- as "Student #12",
+    // and the next save filed a mark for them.
     this.records.set(recs);
     this.isDirty.set(false);
   }
@@ -415,17 +412,12 @@ export class SessionDetailComponent implements OnInit {
 
     this.saving.set(true);
 
-    const cacheMap: Record<string, { status: string; recordId?: number }> = {};
-    recs.forEach((r) => {
-      cacheMap[r.studentId] = { status: r.status, recordId: r.recordId };
-    });
-
     // No per-student retry on failure. It used to resend the register one child
     // at a time after any error -- a refusal included -- which multiplied the
     // error by the size of the class and dropped the task and assignment marks.
     this.lms.saveBulkAttendance(s.id, bulkPayload).subscribe({
-      next: () => this.finishSave(cacheMap, false),
-      error: () => this.finishSave(cacheMap, true),
+      next: () => this.finishSave(false),
+      error: () => this.finishSave(true),
     });
   }
 
@@ -438,14 +430,7 @@ export class SessionDetailComponent implements OnInit {
    * stays dirty and says nothing was saved -- the error itself has already
    * been shown by the interceptor.
    */
-  private finishSave(
-    cacheMap: Record<string, { status: string; recordId?: number }>,
-    hasError: boolean
-  ): void {
-    const s = this.session();
-    if (s && isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(`lms_attendance_${s.id}`, JSON.stringify(cacheMap));
-    }
+  private finishSave(hasError: boolean): void {
     this.saving.set(false);
     this.isDirty.set(hasError);
 
