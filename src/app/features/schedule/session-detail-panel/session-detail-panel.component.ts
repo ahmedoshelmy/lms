@@ -73,6 +73,9 @@ export class SessionDetailPanelComponent {
   editEndTime = signal<string>('');
   editDate = signal<string>('');
   saving = signal(false);
+
+  /** Students can open this panel but not the attendance page it links to. */
+  readonly canOpenAttendance = computed(() => this.auth.canAccess('attendance'));
   deleting = signal(false);
 
   showCancelDialog = signal<boolean>(false);

@@ -1061,6 +1061,14 @@ export class GroupDetailComponent implements OnInit {
     this.router.navigate(['/groups']);
   }
 
+  /**
+   * Whether the people on this page can be opened. Student and instructor
+   * pages are admin-only, and an instructor following these links used to land
+   * on "Access denied".
+   */
+  readonly canOpenStudents = computed(() => this.auth.canAccess('students'));
+  readonly canOpenInstructors = computed(() => this.auth.canAccess('instructors'));
+
   viewInstructor(instructorId: number): void {
     this.router.navigate(['/instructors', instructorId]);
   }

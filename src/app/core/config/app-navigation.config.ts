@@ -182,6 +182,23 @@ export function getRolesForPath(path: string): Role[] {
   return ROUTE_PERMISSIONS.find((route) => route.path === path)?.roles ?? [];
 }
 
+/**
+ * Whether a role may open a path, from the same table the routes and the menu
+ * are built from. Takes "groups", "/groups" or "/groups/12" -- the first
+ * segment decides. A path the table does not know is refused: nothing is open
+ * by being forgotten.
+ *
+ * This only decides what the interface offers. The server decides what anyone
+ * may actually read or change.
+ */
+export function canAccessPath(rawRole: Role | unknown, path: string): boolean {
+  if (rawRole === null || rawRole === undefined) return false;
+  const role = parseRole(rawRole);
+  const first = path.replace(/^\/+/, '').split(/[/?#]/)[0];
+  const roles = getRolesForPath(first);
+  return roles.some((r) => parseRole(r) === role);
+}
+
 export function getMenuItemsForRole(rawRole: Role | unknown): MenuItem[] {
   const role = parseRole(rawRole);
   // isDevMode is read here rather than where the routes are declared, so it is

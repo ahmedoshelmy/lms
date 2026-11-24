@@ -5,6 +5,7 @@ import { Role, parseRole } from '../interfaces/Role';
 import { LmsService } from '../services/lms.service';
 import { LoginRequest } from '../interfaces/Login';
 import { User } from '../interfaces/User';
+import { canAccessPath } from '../config/app-navigation.config';
 
 @Injectable({
   providedIn: 'root',
@@ -49,6 +50,11 @@ export class AuthService {
     if (userRole === null) return false;
     const normalizedUserRole = parseRole(userRole);
     return roles.some((r) => parseRole(r) === normalizedUserRole);
+  }
+
+  /** Whether the signed-in user may open a path; see canAccessPath. */
+  canAccess(path: string): boolean {
+    return canAccessPath(this.currentRole(), path);
   }
 
   login(payload: LoginRequest): ReturnType<LmsService['login']> {

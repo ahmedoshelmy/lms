@@ -89,12 +89,19 @@
           >
             <div class="flex items-center gap-1.5">
               <i class="pi pi-user text-[var(--color-secondary)] text-xs"></i>
-              <button
-                (click)="viewInstructor(group()!.defaultInstructorId)"
-                class="font-bold text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
-              >
-                {{ group()!.defaultInstructorName }}
-              </button>
+              @if (canOpenInstructors()) {
+                <button
+                  type="button"
+                  (click)="viewInstructor(group()!.defaultInstructorId)"
+                  class="font-bold text-[var(--color-text-primary)] hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
+                >
+                  {{ group()!.defaultInstructorName }}
+                </button>
+              } @else {
+                <span class="font-bold text-[var(--color-text-primary)]">
+                  {{ group()!.defaultInstructorName }}
+                </span>
+              }
             </div>
             <span class="text-[var(--color-border)]">•</span>
             @if (group()!.location) {
@@ -567,12 +574,17 @@
                       >
                         {{ st.studentName.charAt(0).toUpperCase() }}
                       </div>
-                      <button
-                        (click)="openStudentDetailsModal(st)"
-                        class="hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
-                      >
-                        {{ st.studentName }}
-                      </button>
+                      @if (canOpenStudents()) {
+                        <button
+                          type="button"
+                          (click)="openStudentDetailsModal(st)"
+                          class="hover:text-[var(--color-secondary)] transition-colors cursor-pointer"
+                        >
+                          {{ st.studentName }}
+                        </button>
+                      } @else {
+                        <span>{{ st.studentName }}</span>
+                      }
                     </td>
                     <td class="py-3 px-3 text-[var(--color-text-secondary)]">
                       {{ st.studentEmail }}
@@ -582,13 +594,17 @@
                     </td>
                     <td class="py-3 px-3 text-right">
                       <div class="flex items-center justify-end gap-1.5">
-                        <button
-                          (click)="openStudentDetailsModal(st)"
-                          class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] cursor-pointer"
-                          title="View Details"
-                        >
-                          <i class="pi pi-eye text-xs"></i>
-                        </button>
+                        @if (canOpenStudents()) {
+                          <button
+                            type="button"
+                            (click)="openStudentDetailsModal(st)"
+                            class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] cursor-pointer"
+                            title="View details"
+                            [attr.aria-label]="'View ' + st.studentName"
+                          >
+                            <i class="pi pi-eye text-xs" aria-hidden="true"></i>
+                          </button>
+                        }
                         @if (isAdmin()) {
                           <button
                             (click)="openEditStudentModal(st)"

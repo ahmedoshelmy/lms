@@ -363,3 +363,34 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
 - **Validation:** the same steps run locally all pass: lint 0 errors; 21 files / 128 tests;
   build clean at 596.89 kB.
 - **Not verified:** the workflow hasn't run on GitHub; it runs on the first push.
+
+## F-02 — One source of truth for permissions
+
+- **What changed:**
+  - **Guard:** `roleGuard` now denies a route with no roles; before, it let everyone in.
+  - **`canAccessPath(role, path)`** in `app-navigation.config.ts`, plus
+    `AuthService.canAccess(path)`: whether a role may open a path, read from
+    `ROUTE_PERMISSIONS`. Unknown paths are refused.
+  - **Command palette:**
+    - its menu is built with `getMenuItemsForRole`, the same table as the sidebar, replacing
+      its own hard-coded list (which sent Sales and students to refused pages, used different
+      labels, and kept Settings admin-only);
+    - students and groups load only for roles that can open them (`canAccess`);
+    - a student result opens that student's page instead of the list.
+  - **Links gated with `canAccess`:**
+    - group detail: the instructor name, student names and the "view" icon are plain text
+      for roles that can't open those pages (instructors used to land on "Access denied");
+    - the schedule panel's "Take / View Attendance" link is hidden from students.
+- **Why:** findings on fail-open guard and scattered role checks (audit §5 "Roles").
+- **Tests (T-02, done here):** a guard spec (allow, deny, deny when no roles, signed-out
+  redirect). A navigation spec checks that every route behind `roleGuard` has a
+  `ROUTE_PERMISSIONS` entry with matching roles, that `canAccessPath` works for every path
+  form, and that no role's menu offers a page that role would be refused.
+- **Files:** `core/config/app-navigation.config.ts` (+ spec), `core/guards/role.guard.ts`
+  (+ spec), `core/services/auth.service.ts`,
+  `shared/components/command-palette/command-palette.component.ts`, group detail and
+  schedule panel components (+ spec mocks).
+- **Validation:** 23 files / 139 tests pass (11 new); lint 0 errors; build clean at
+  597.01 kB.
+- **Remaining:** component-level `isAdmin()` checks for _actions_ (as opposed to page
+  access) stay as they are. They gate server-side admin operations, not routes.

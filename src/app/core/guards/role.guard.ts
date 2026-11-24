@@ -20,7 +20,9 @@ export const roleGuard: CanActivateFn = (route, state) => {
     });
   }
 
-  if (!roles?.length || auth.hasAnyRole(roles)) {
+  // Deny by default. A route that reached here with no roles was forgotten in
+  // ROUTE_PERMISSIONS, and used to be open to everyone signed in.
+  if (roles?.length && auth.hasAnyRole(roles)) {
     return true;
   }
 

@@ -261,7 +261,7 @@
 
   <ng-template pTemplate="footer">
     <div class="flex items-center justify-between gap-2 w-full">
-      @if (session(); as s) {
+      @if (canOpenAttendance() && session(); as s) {
         <a
           [routerLink]="['/attendance']"
           [queryParams]="{ sessionId: s.id }"

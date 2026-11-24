@@ -47,7 +47,10 @@ describe('GroupDetailComponent Manage Group dialog', () => {
         provideRouter([]),
         { provide: LmsService, useValue: lms },
         { provide: NotificationService, useValue: notify },
-        { provide: AuthService, useValue: { hasRole: () => true, getUserId: () => 1 } },
+        {
+          provide: AuthService,
+          useValue: { hasRole: () => true, getUserId: () => 1, canAccess: () => true },
+        },
         { provide: CertificateService, useValue: {} },
       ],
     });

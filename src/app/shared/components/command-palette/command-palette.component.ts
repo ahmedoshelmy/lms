@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Role } from '../../../core/interfaces/Role';
+import { getMenuItemsForRole } from '../../../core/config/app-navigation.config';
 
 export interface CommandItem {
   id: string | number;
@@ -162,11 +162,12 @@ export class CommandPaletteComponent implements OnInit {
    * still reaches them as an error, whatever this component does with it.
    */
   private get canSeeGroups(): boolean {
-    return this.auth.hasRole(Role.Admin) || this.auth.hasRole(Role.Instructor);
+    return this.auth.canAccess('groups');
   }
 
-  private get isAdmin(): boolean {
-    return this.auth.hasRole(Role.Admin);
+  /** The student list is loaded only for those who may open student pages. */
+  private get canSeeStudents(): boolean {
+    return this.auth.canAccess('students');
   }
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -177,74 +178,31 @@ export class CommandPaletteComponent implements OnInit {
 
   allItems = signal<CommandItem[]>([]);
 
-  readonly staticNavItems: CommandItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      category: 'Navigation',
-      icon: 'pi-th-large',
-      route: ['/dashboard'],
-    },
-    {
-      id: 'schedule',
-      label: 'Schedule & Calendar',
-      category: 'Navigation',
-      icon: 'pi-calendar',
-      route: ['/schedule'],
-    },
-    {
-      id: 'attendance',
-      label: 'Attendance Management',
-      category: 'Navigation',
-      icon: 'pi-check-square',
-      route: ['/attendance'],
-    },
-    {
-      id: 'courses',
-      label: 'Course Catalog',
-      category: 'Navigation',
-      icon: 'pi-book',
-      route: ['/courses'],
-    },
-    {
-      id: 'groups',
-      label: 'Cohort Groups',
-      category: 'Navigation',
-      icon: 'pi-users',
-      route: ['/groups'],
-    },
-    {
-      id: 'students',
-      label: 'Student Directory',
-      category: 'Navigation',
-      icon: 'pi-user',
-      route: ['/students'],
-      adminOnly: true,
-    },
-    {
-      id: 'instructors',
-      label: 'Instructor Roster',
-      category: 'Navigation',
-      icon: 'pi-user-edit',
-      route: ['/instructors'],
-      adminOnly: true,
-    },
-    {
-      id: 'profile',
-      label: 'My Profile Settings',
-      category: 'Navigation',
-      icon: 'pi-id-card',
-      route: ['/profile'],
-    },
-    {
-      id: 'settings',
-      label: 'System Settings & Diagnostics',
-      category: 'Navigation',
-      icon: 'pi-cog',
-      route: ['/settings'],
-      adminOnly: true,
-    },
-  ] as (CommandItem & { adminOnly?: boolean })[];
+  /**
+   * The pages this person can open, from the same table as the sidebar and the
+   * routes. The palette used to keep its own list, which offered Sales and
+   * students pages they would be refused and named them differently.
+   */
+  private navItems(): CommandItem[] {
+    const items = getMenuItemsForRole(this.auth.currentRole()).map((item) => ({
+      id: item.route,
+      label: item.label,
+      category: 'Navigation' as const,
+      icon: item.icon.replace(/^pi\s+/, ''),
+      route: [item.route],
+    }));
+
+    return [
+      ...items,
+      {
+        id: '/profile',
+        label: 'Profile',
+        category: 'Navigation',
+        icon: 'pi-id-card',
+        route: ['/profile'],
+      },
+    ];
+  }
 
   readonly filteredItems = computed(() => {
     const q = this.searchQuery().toLowerCase().trim();
@@ -324,14 +282,10 @@ export class CommandPaletteComponent implements OnInit {
   }
 
   private loadCatalogData(): void {
-    // Only include admin-only nav items when the user is an admin
-    const navItems = (this.staticNavItems as (CommandItem & { adminOnly?: boolean })[]).filter(
-      (item) => !item.adminOnly || this.isAdmin
-    );
-    const catalog: CommandItem[] = [...navItems];
+    const catalog: CommandItem[] = this.navItems();
 
     // Load Students — admin only (instructors get 403)
-    if (this.isAdmin) {
+    if (this.canSeeStudents) {
       this.lms.getStudents().subscribe({
         next: (students) => {
           (students || []).forEach((s) => {
@@ -341,7 +295,7 @@ export class CommandPaletteComponent implements OnInit {
               detail: s.email,
               category: 'Student',
               icon: 'pi-user',
-              route: ['/students'],
+              route: ['/students', String(s.id)],
             });
           });
           this.allItems.set([...catalog]);
