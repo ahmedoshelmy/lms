@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { catchError, of } from 'rxjs';
 import { LmsService } from '../../../core/services/lms.service';
 import { RegisterCompliance, RegisterComplianceReport } from '../../../core/interfaces/Attendance';
+import { latestRequest } from '../../../core/utils/latest-request';
 
 /**
  * How each instructor kept their registers, month by month.
@@ -21,6 +22,7 @@ import { RegisterCompliance, RegisterComplianceReport } from '../../../core/inte
 })
 export class RegisterComplianceComponent implements OnInit {
   private lms = inject(LmsService);
+  private readonly monthRequest = latestRequest();
 
   readonly loading = signal(false);
   readonly report = signal<RegisterComplianceReport | null>(null);
@@ -95,6 +97,7 @@ export class RegisterComplianceComponent implements OnInit {
     this.lms
       .getRegisterCompliance(from, to)
       .pipe(catchError(() => of(null)))
+      .pipe(this.monthRequest.latest())
       .subscribe((report) => {
         this.report.set(report);
         this.loading.set(false);

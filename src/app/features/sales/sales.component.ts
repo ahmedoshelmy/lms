@@ -22,6 +22,7 @@ import {
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { toIsoDate, todayIsoDate } from '../../core/utils/date.utils';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { latestRequest } from '../../core/utils/latest-request';
 
 type Tab = 'find' | 'holds' | 'pipeline';
 
@@ -42,6 +43,7 @@ type Tab = 'find' | 'holds' | 'pipeline';
 })
 export class SalesComponent implements OnInit {
   private readonly lms = inject(LmsService);
+  private readonly searchRequest = latestRequest();
   private readonly auth = inject(AuthService);
   private readonly notify = inject(NotificationService);
   private readonly confirm = inject(ConfirmService);
@@ -239,6 +241,7 @@ export class SalesComponent implements OnInit {
         startTime: form.startTime || undefined,
         allStartTimes: form.startTime ? false : form.allStartTimes,
       })
+      .pipe(this.searchRequest.latest())
       .subscribe({
         next: (slots) => {
           this.slots.set(slots || []);

@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,6 +17,7 @@ import { CertificateService } from '../../../core/services/certificate.service';
 import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';
 import { toGroupOptions } from '../../../core/interfaces/Group';
 import { SelectModule } from 'primeng/select';
+import { latestRequest } from '../../../core/utils/latest-request';
 
 @Component({
   selector: 'app-student-detail',
@@ -38,6 +40,8 @@ export class StudentDetailComponent implements OnInit {
   readonly groupOptions = computed(() => toGroupOptions(this.groups(), true));
 
   private route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly detailRequest = latestRequest();
   private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
@@ -90,7 +94,7 @@ export class StudentDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const idParam = params.get('id');
       if (idParam) {
         const id = parseInt(idParam, 10);
@@ -105,16 +109,19 @@ export class StudentDetailComponent implements OnInit {
 
   loadStudentDetails(id: number): void {
     this.loading.set(true);
-    this.lmsService.getStudentDetails(id).subscribe({
-      next: (data) => {
-        this.student.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.notify.showError('Failed to load student details');
-        this.loading.set(false);
-      },
-    });
+    this.lmsService
+      .getStudentDetails(id)
+      .pipe(this.detailRequest.latest())
+      .subscribe({
+        next: (data) => {
+          this.student.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.notify.showError('Failed to load student details');
+          this.loading.set(false);
+        },
+      });
   }
 
   loadGroups(): void {

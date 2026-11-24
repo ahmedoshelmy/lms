@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,6 +39,7 @@ import {
   sessionsTaught,
 } from '../../../core/utils/course-progress.utils';
 import { toIsoDate, todayIsoDate } from '../../../core/utils/date.utils';
+import { latestRequest } from '../../../core/utils/latest-request';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -77,6 +79,8 @@ export class GroupDetailComponent implements OnInit {
 
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
   protected readonly clock = inject(ClockFormatService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly detailRequest = latestRequest();
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -392,7 +396,7 @@ export class GroupDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const idParam = params.get('id');
       if (idParam) {
         const id = parseInt(idParam, 10);
@@ -412,16 +416,19 @@ export class GroupDetailComponent implements OnInit {
 
   loadGroupDetail(id: number): void {
     this.loading.set(true);
-    this.lmsService.getGroup(id).subscribe({
-      next: (data) => {
-        this.group.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.notify.showError('Failed to load group details');
-      },
-    });
+    this.lmsService
+      .getGroup(id)
+      .pipe(this.detailRequest.latest())
+      .subscribe({
+        next: (data) => {
+          this.group.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.notify.showError('Failed to load group details');
+        },
+      });
   }
 
   loadGroupHistory(id: number): void {

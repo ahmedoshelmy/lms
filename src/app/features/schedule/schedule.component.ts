@@ -25,6 +25,7 @@ import { DialogModule } from 'primeng/dialog';
 
 import { CreateStandaloneSessionDialogComponent } from './components/create-standalone-session-dialog/create-standalone-session-dialog.component';
 import { toIsoDate } from '../../core/utils/date.utils';
+import { latestRequest } from '../../core/utils/latest-request';
 
 export type ExtendedViewMode =
   | 'weekly'
@@ -59,6 +60,7 @@ export type ExtendedViewMode =
 })
 export class ScheduleComponent implements OnInit {
   private lmsService = inject(LmsService);
+  private readonly scheduleRequest = latestRequest();
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
   private http = inject(HttpClient);
@@ -502,54 +504,57 @@ export class ScheduleComponent implements OnInit {
 
     const headers: Record<string, string> = {};
 
-    this.http.get<ScheduleSession[]>(url, { headers }).subscribe({
-      next: (res) => {
-        let sessions = res || [];
-        if (userId && userId !== 0) {
-          const selectedInst = this.instructors().find((i) => i.id === userId);
-          const filtered = sessions.filter((s) => {
-            if (s.instructorId === userId) return true;
-            if (selectedInst && s.instructorName) {
-              return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
-            }
-            return false;
-          });
-          if (
-            filtered.length > 0 ||
-            sessions.some((s) => s.instructorId && s.instructorId !== userId)
-          ) {
-            sessions = filtered;
-          }
-        }
-        this.sessions.set(sessions);
-        this.loading.set(false);
-
-        // Check if query parameter specifies a target sessionId
-        const queryParams = this.route.snapshot.queryParams;
-        const targetId = Number(queryParams['sessionId'] || queryParams['id']);
-        if (targetId && !this.selectedSession()) {
-          const found = sessions.find((s) => s.id === targetId);
-          if (found) {
-            this.selectedSession.set(found);
-          } else {
-            this.lmsService.getSessionDetails(targetId).subscribe({
-              next: (detail) => {
-                if (detail && detail.startsAt) {
-                  const d = new Date(detail.startsAt);
-                  this.currentWeekStart.set(this.getWeekStartForDate(d));
-                  this.selectedSession.set(detail);
-                  this.loadSchedule();
-                }
-              },
+    this.http
+      .get<ScheduleSession[]>(url, { headers })
+      .pipe(this.scheduleRequest.latest())
+      .subscribe({
+        next: (res) => {
+          let sessions = res || [];
+          if (userId && userId !== 0) {
+            const selectedInst = this.instructors().find((i) => i.id === userId);
+            const filtered = sessions.filter((s) => {
+              if (s.instructorId === userId) return true;
+              if (selectedInst && s.instructorName) {
+                return s.instructorName.toLowerCase().includes(selectedInst.name.toLowerCase());
+              }
+              return false;
             });
+            if (
+              filtered.length > 0 ||
+              sessions.some((s) => s.instructorId && s.instructorId !== userId)
+            ) {
+              sessions = filtered;
+            }
           }
-        }
-      },
-      error: (err) => {
-        this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
-        this.loading.set(false);
-      },
-    });
+          this.sessions.set(sessions);
+          this.loading.set(false);
+
+          // Check if query parameter specifies a target sessionId
+          const queryParams = this.route.snapshot.queryParams;
+          const targetId = Number(queryParams['sessionId'] || queryParams['id']);
+          if (targetId && !this.selectedSession()) {
+            const found = sessions.find((s) => s.id === targetId);
+            if (found) {
+              this.selectedSession.set(found);
+            } else {
+              this.lmsService.getSessionDetails(targetId).subscribe({
+                next: (detail) => {
+                  if (detail && detail.startsAt) {
+                    const d = new Date(detail.startsAt);
+                    this.currentWeekStart.set(this.getWeekStartForDate(d));
+                    this.selectedSession.set(detail);
+                    this.loadSchedule();
+                  }
+                },
+              });
+            }
+          }
+        },
+        error: (err) => {
+          this.notify.showError(`Failed to load schedule: ${err.message || 'Server error'}`);
+          this.loading.set(false);
+        },
+      });
   }
 
   onInstructorChange(): void {

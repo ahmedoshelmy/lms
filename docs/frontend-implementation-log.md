@@ -394,3 +394,33 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   597.01 kB.
 - **Remaining:** component-level `isAdmin()` checks for _actions_ (as opposed to page
   access) stay as they are. They gate server-side admin operations, not routes.
+
+## F-03 — The latest request wins
+
+- **What changed:**
+  - New `core/utils/latest-request.ts`: `latestRequest()` returns a `LatestRequest` whose
+    `latest()` operator cancels the previous request of the same kind when a new one starts,
+    and cancels on destroy.
+  - **Applied to:**
+    - schedule week and instructor loads;
+    - availability's three per-instructor loads;
+    - the session syllabus;
+    - monthly reports by month;
+    - history filters;
+    - activity-log filters and paging;
+    - register-compliance months;
+    - the Sales slot search;
+    - the main load on group, student and instructor detail.
+  - The three detail pages' `paramMap` subscriptions now end with the page
+    (`takeUntilDestroyed`). They used to stay subscribed after leaving.
+- **Why:** finding C-14. Changing week, month or filter quickly let an older, slower
+  response land last and overwrite the newer one.
+- **Decision:** an operator inserted before each existing `.subscribe` rather than rewriting
+  each screen as a stream. Callbacks and loading flags are unchanged, so the diff at each
+  site is one line.
+- **Files:** `core/utils/latest-request.ts` (+ spec, including the out-of-order case) and the
+  eleven components above.
+- **Validation:** 24 files / 142 tests pass; tsc clean for the app and specs; lint 0 errors;
+  build clean at 597.01 kB.
+- **Remaining:** typed search boxes don't debounce. Correctness is covered; fewer requests
+  while typing is PF-04.

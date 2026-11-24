@@ -13,6 +13,7 @@ import { GroupHistory } from '../../core/interfaces/History';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { Course } from '../../core/interfaces/Course';
 import { ClockFormatService } from '../../core/services/clock-format.service';
+import { latestRequest } from '../../core/utils/latest-request';
 
 @Component({
   selector: 'app-history',
@@ -24,6 +25,7 @@ import { ClockFormatService } from '../../core/services/clock-format.service';
 export class HistoryComponent implements OnInit {
   /** Times read as 16:30 or 4:30 pm, whichever the reader chose. */
   protected readonly clock = inject(ClockFormatService);
+  private readonly historyRequest = latestRequest();
 
   private router = inject(Router);
   private lmsService = inject(LmsService);
@@ -83,10 +85,13 @@ export class HistoryComponent implements OnInit {
       filterObj.status = this.statusFilter();
     }
 
-    this.lmsService.getSessionHistory(filterObj).subscribe({
-      next: (sessions) => this.sessionsHistory.set(sessions),
-      error: () => {},
-    });
+    this.lmsService
+      .getSessionHistory(filterObj)
+      .pipe(this.historyRequest.latest())
+      .subscribe({
+        next: (sessions) => this.sessionsHistory.set(sessions),
+        error: () => {},
+      });
   }
 
   setTab(tab: 'groups' | 'sessions'): void {

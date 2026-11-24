@@ -26,6 +26,7 @@ import {
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { toIsoMonth, todayIsoDate } from '../../core/utils/date.utils';
+import { latestRequest } from '../../core/utils/latest-request';
 
 /**
  * Half-hour marks from 08:00 to 22:30.
@@ -61,6 +62,9 @@ function buildTimeOptions(): string[] {
 })
 export class AvailabilityComponent implements OnInit {
   private readonly lms = inject(LmsService);
+  private readonly availabilityRequest = latestRequest();
+  private readonly timeOffRequest = latestRequest();
+  private readonly sessionsRequest = latestRequest();
   private readonly auth = inject(AuthService);
   private readonly notify = inject(NotificationService);
 
@@ -265,18 +269,24 @@ export class AvailabilityComponent implements OnInit {
     this.loading.set(true);
     this.editing.set(false);
 
-    this.lms.getInstructorAvailability(instructorId).subscribe({
-      next: (windows) => {
-        this.availability.set(windows || []);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
+    this.lms
+      .getInstructorAvailability(instructorId)
+      .pipe(this.availabilityRequest.latest())
+      .subscribe({
+        next: (windows) => {
+          this.availability.set(windows || []);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      });
 
-    this.lms.getTimeOff(instructorId).subscribe({
-      next: (off) => this.timeOff.set(off || []),
-      error: () => this.timeOff.set([]),
-    });
+    this.lms
+      .getTimeOff(instructorId)
+      .pipe(this.timeOffRequest.latest())
+      .subscribe({
+        next: (off) => this.timeOff.set(off || []),
+        error: () => this.timeOff.set([]),
+      });
 
     this.loadSessions(instructorId);
   }
@@ -291,11 +301,14 @@ export class AvailabilityComponent implements OnInit {
     const to = new Date(from);
     to.setDate(to.getDate() + 28);
 
-    this.lms.getSchedule(from, to).subscribe({
-      next: (sessions) =>
-        this.sessions.set((sessions || []).filter((s) => s.instructorId === instructorId)),
-      error: () => this.sessions.set([]),
-    });
+    this.lms
+      .getSchedule(from, to)
+      .pipe(this.sessionsRequest.latest())
+      .subscribe({
+        next: (sessions) =>
+          this.sessions.set((sessions || []).filter((s) => s.instructorId === instructorId)),
+        error: () => this.sessions.set([]),
+      });
   }
 
   private loadRequests(): void {

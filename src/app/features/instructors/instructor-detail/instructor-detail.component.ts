@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,6 +11,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { InstructorDetails, InstructorStats } from '../../../core/interfaces/InstructorDetails';
+import { latestRequest } from '../../../core/utils/latest-request';
 
 @Component({
   selector: 'app-instructor-detail',
@@ -27,6 +29,8 @@ import { InstructorDetails, InstructorStats } from '../../../core/interfaces/Ins
 })
 export class InstructorDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly detailRequest = latestRequest();
   private router = inject(Router);
   private lmsService = inject(LmsService);
   private notify = inject(NotificationService);
@@ -74,7 +78,7 @@ export class InstructorDetailComponent implements OnInit {
   deleting = signal<boolean>(false);
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const idParam = params.get('id');
       if (idParam) {
         const id = parseInt(idParam, 10);
@@ -89,16 +93,19 @@ export class InstructorDetailComponent implements OnInit {
 
   loadInstructorDetails(id: number): void {
     this.loading.set(true);
-    this.lmsService.getInstructorDetails(id).subscribe({
-      next: (data) => {
-        this.instructor.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.notify.showError('Failed to load instructor details');
-        this.loading.set(false);
-      },
-    });
+    this.lmsService
+      .getInstructorDetails(id)
+      .pipe(this.detailRequest.latest())
+      .subscribe({
+        next: (data) => {
+          this.instructor.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.notify.showError('Failed to load instructor details');
+          this.loading.set(false);
+        },
+      });
   }
 
   loadStats(id: number): void {

@@ -12,6 +12,7 @@ import {
   ActivityLog,
   ActivityStats,
 } from '../../core/interfaces/activity-log.interface';
+import { latestRequest } from '../../core/utils/latest-request';
 
 /**
  * Who did what, and to which group.
@@ -39,6 +40,7 @@ import {
 })
 export class ActivityLogsComponent implements OnInit {
   private activityLogService = inject(ActivityLogService);
+  private readonly logsRequest = latestRequest();
 
   stats = signal<ActivityStats | null>(null);
   logs = signal<ActivityLog[]>([]);
@@ -156,6 +158,7 @@ export class ActivityLogsComponent implements OnInit {
         entityType: this.entityType() || undefined,
         entityId: this.entityId() || undefined,
       })
+      .pipe(this.logsRequest.latest())
       .subscribe({
         next: (res) => {
           this.logs.set(res?.items ?? []);

@@ -5,6 +5,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { SessionSyllabus } from '../../../core/interfaces/SessionSyllabus';
+import { latestRequest } from '../../../core/utils/latest-request';
 
 /**
  * Shows what a session covers, in five parts: STEM, Content, Projects, Task and
@@ -28,6 +29,7 @@ import { SessionSyllabus } from '../../../core/interfaces/SessionSyllabus';
 })
 export class SessionSyllabusComponent {
   private readonly lms = inject(LmsService);
+  private readonly syllabusRequest = latestRequest();
   private readonly notify = inject(NotificationService);
   private readonly auth = inject(AuthService);
 
@@ -96,16 +98,19 @@ export class SessionSyllabusComponent {
     this.fetched.set(null);
     this.tab.set('content');
 
-    this.lms.getSessionSyllabus(sessionId).subscribe({
-      next: (syllabus) => {
-        this.fetched.set(syllabus);
-        this.loading.set(false);
-      },
-      error: () => {
-        // Normal for standalone sessions and for levels with no material yet.
-        this.loading.set(false);
-      },
-    });
+    this.lms
+      .getSessionSyllabus(sessionId)
+      .pipe(this.syllabusRequest.latest())
+      .subscribe({
+        next: (syllabus) => {
+          this.fetched.set(syllabus);
+          this.loading.set(false);
+        },
+        error: () => {
+          // Normal for standalone sessions and for levels with no material yet.
+          this.loading.set(false);
+        },
+      });
   }
 
   /**

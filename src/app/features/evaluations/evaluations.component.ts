@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
 import { MonthlyEvaluationSummary } from '../../core/interfaces/MonthlyEvaluation';
 import { MonthlyReportPdfService } from '../../core/services/monthly-report-pdf.service';
+import { latestRequest } from '../../core/utils/latest-request';
 
 type StatusFilter = 'All' | 'NotStarted' | 'Draft' | 'Submitted' | 'Released';
 
@@ -27,6 +28,7 @@ type StatusFilter = 'All' | 'NotStarted' | 'Draft' | 'Submitted' | 'Released';
 })
 export class EvaluationsComponent implements OnInit {
   private lms = inject(LmsService);
+  private readonly monthRequest = latestRequest();
   private auth = inject(AuthService);
   private notify = inject(NotificationService);
   private router = inject(Router);
@@ -207,21 +209,24 @@ export class EvaluationsComponent implements OnInit {
 
   protected load(): void {
     this.loading.set(true);
-    this.lms.getEvaluations(`${this.month()}-01`).subscribe({
-      next: (rows) => {
-        this.rows.set(rows || []);
-        this.loading.set(false);
+    this.lms
+      .getEvaluations(`${this.month()}-01`)
+      .pipe(this.monthRequest.latest())
+      .subscribe({
+        next: (rows) => {
+          this.rows.set(rows || []);
+          this.loading.set(false);
 
-        // A month the chosen instructor has no children in would otherwise
-        // show an empty page with their name still in the box, reading as
-        // "none written" rather than "none to write".
-        const instructor = this.instructorFilter();
-        if (instructor !== 'All' && !this.instructorOptions().includes(instructor)) {
-          this.instructorFilter.set('All');
-        }
-      },
-      error: () => this.loading.set(false),
-    });
+          // A month the chosen instructor has no children in would otherwise
+          // show an empty page with their name still in the box, reading as
+          // "none written" rather than "none to write".
+          const instructor = this.instructorFilter();
+          if (instructor !== 'All' && !this.instructorOptions().includes(instructor)) {
+            this.instructorFilter.set('All');
+          }
+        },
+        error: () => this.loading.set(false),
+      });
   }
 
   protected open(row: MonthlyEvaluationSummary): void {
