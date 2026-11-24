@@ -498,3 +498,26 @@ Everything below was checked as unused before deletion.
   school week used to start the "future week" cancel-and-shift flow.
 - **Validation:** 28 files / 151 tests pass (6 new). The Ali/Alia test fails against the
   old weekly view. Lint 0 errors; build clean.
+
+## F-08 (+ T-03) — The API service encodes its queries and says what it returns
+
+- **What changed:**
+  - **Request tests first (T-03):** `lms.service.spec.ts` pins the exact method and URL
+    (with query) of every query-building endpoint, written against the old hand-built
+    strings.
+  - **`HttpParams`:** all 16 hand-built query strings now go through one `query()` helper
+    on top of `HttpParams`, so values are encoded. Each method keeps its own skip rules
+    (`includeInactive=false` is still sent). The request tests pass unchanged, so the
+    server gets exactly the same URLs.
+  - **Encoding bug fixed:** a value containing `&` or a space used to split the query and
+    invent parameters. A test now covers it; it failed on the old code.
+  - **Types:**
+    - `Observable<any>` is gone: the two generate endpoints return `{ message?: string }`
+      (their callers read it), and the bulk register returns `unknown`;
+    - the duplicate `BulkAttendanceItem` interface now comes from `interfaces/Attendance`,
+      re-exported for existing imports.
+- **Decision:** splitting `LmsService` into per-domain services is deferred to F-09. Done
+  now it would touch every consumer without changing behaviour; it belongs with breaking up
+  the large components that use it.
+- **Validation:** 29 files / 158 tests pass (7 new); lint 0 errors; build clean at
+  597.09 kB.

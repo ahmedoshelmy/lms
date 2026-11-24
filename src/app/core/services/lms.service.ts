@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
-import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
 import { StudentDetails } from '../interfaces/StudentDetails';
@@ -87,13 +86,28 @@ import { slotSearchQuery } from '../utils/slot-search.utils';
 import { API_URL_STORAGE_KEY, resolveApiUrl } from '../config/api-url';
 import { environment } from '../../../environments/environment';
 
-export interface BulkAttendanceItem {
-  studentId: number;
-  status: AttendanceStatus;
-  /** Did the task set in class. Null where there was nothing to ask. */
-  taskDone?: boolean | null;
-  /** Handed in the assignment. Null where there was nothing to ask. */
-  assignmentDone?: boolean | null;
+import type { BulkAttendanceItem } from '../interfaces/Attendance';
+
+// Defined once, in the interfaces; re-exported for anything importing it from here.
+export type { BulkAttendanceItem } from '../interfaces/Attendance';
+
+type QueryValue = string | number | boolean | null | undefined;
+
+/**
+ * Query parameters, encoded, with unset ones left out. Each caller decides what
+ * "unset" means for its own parameters (pass undefined to leave one out).
+ *
+ * Replaces query strings built by hand, which encoded nothing: a value with a
+ * space or an "&" in it split the query and invented parameters.
+ */
+function query(values: Record<string, QueryValue>): HttpParams {
+  let params = new HttpParams();
+  for (const [key, value] of Object.entries(values)) {
+    if (value !== undefined && value !== null && value !== '') {
+      params = params.set(key, String(value));
+    }
+  }
+  return params;
 }
 
 @Injectable({
@@ -238,13 +252,13 @@ export class LmsService {
     month: string,
     filter?: { instructorId?: number; groupId?: number }
   ): Observable<MonthlyEvaluationSummary[]> {
-    const params = [`month=${month}`];
-    if (filter?.instructorId) params.push(`instructorId=${filter.instructorId}`);
-    if (filter?.groupId) params.push(`groupId=${filter.groupId}`);
-
-    return this.http.get<MonthlyEvaluationSummary[]>(
-      `${this.getApiUrl()}/evaluations?${params.join('&')}`
-    );
+    return this.http.get<MonthlyEvaluationSummary[]>(`${this.getApiUrl()}/evaluations`, {
+      params: query({
+        month,
+        instructorId: filter?.instructorId || undefined,
+        groupId: filter?.groupId || undefined,
+      }),
+    });
   }
 
   /**
@@ -253,7 +267,8 @@ export class LmsService {
    */
   getEvaluation(studentId: number, groupId: number, month: string): Observable<MonthlyEvaluation> {
     return this.http.get<MonthlyEvaluation>(
-      `${this.getApiUrl()}/evaluations/student/${studentId}/group/${groupId}?month=${month}`
+      `${this.getApiUrl()}/evaluations/student/${studentId}/group/${groupId}`,
+      { params: query({ month }) }
     );
   }
 
@@ -357,9 +372,9 @@ export class LmsService {
    * the name is settled again on the server when the group is saved.
    */
   suggestGroupName(courseLevelId: number): Observable<{ name: string }> {
-    return this.http.get<{ name: string }>(
-      `${this.getApiUrl()}/groups/next-name?courseLevelId=${courseLevelId}`
-    );
+    return this.http.get<{ name: string }>(`${this.getApiUrl()}/groups/next-name`, {
+      params: query({ courseLevelId }),
+    });
   }
 
   createGroup(payload: CreateGroupPayload): Observable<Group> {
@@ -385,8 +400,11 @@ export class LmsService {
     });
   }
 
-  generateGroupCourseSessions(groupCourseId: number): Observable<any> {
-    return this.http.post(`${this.getApiUrl()}/schedule/generate-sessions/${groupCourseId}`, {});
+  generateGroupCourseSessions(groupCourseId: number): Observable<{ message?: string }> {
+    return this.http.post<{ message?: string }>(
+      `${this.getApiUrl()}/schedule/generate-sessions/${groupCourseId}`,
+      {}
+    );
   }
 
   removeCourseFromGroup(
@@ -394,11 +412,12 @@ export class LmsService {
     groupCourseId: number,
     confirmDeleteSessions = false
   ): Observable<Group> {
-    let url = `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}`;
-    if (confirmDeleteSessions) {
-      url += `?confirmDeleteSessions=true`;
-    }
-    return this.http.delete<Group>(url);
+    return this.http.delete<Group>(
+      `${this.getApiUrl()}/groups/${groupId}/courses/${groupCourseId}`,
+      {
+        params: query({ confirmDeleteSessions: confirmDeleteSessions || undefined }),
+      }
+    );
   }
 
   updateGroupCourseSessions(
@@ -445,8 +464,11 @@ export class LmsService {
     return this.http.put<Group>(`${this.getApiUrl()}/groups/${groupId}/schedule`, payload);
   }
 
-  generateCustomSessions(payload: GenerateCustomSessionsPayload): Observable<any> {
-    return this.http.post(`${this.getApiUrl()}/schedule/generate-custom`, payload);
+  generateCustomSessions(payload: GenerateCustomSessionsPayload): Observable<{ message?: string }> {
+    return this.http.post<{ message?: string }>(
+      `${this.getApiUrl()}/schedule/generate-custom`,
+      payload
+    );
   }
 
   cancelUpcomingGroupSessions(
@@ -462,18 +484,9 @@ export class LmsService {
   // ─── Schedule & Sessions ──────────────────────────────────────────────────
 
   getSchedule(from?: Date, to?: Date): Observable<ScheduleSession[]> {
-    let url = `${this.getApiUrl()}/schedule`;
-    const params: string[] = [];
-    if (from) {
-      params.push(`from=${from.toISOString()}`);
-    }
-    if (to) {
-      params.push(`to=${to.toISOString()}`);
-    }
-    if (params.length > 0) {
-      url += `?${params.join('&')}`;
-    }
-    return this.http.get<ScheduleSession[]>(url);
+    return this.http.get<ScheduleSession[]>(`${this.getApiUrl()}/schedule`, {
+      params: query({ from: from?.toISOString(), to: to?.toISOString() }),
+    });
   }
 
   updateSession(id: number, payload: UpdateSessionPayload): Observable<ScheduleSession> {
@@ -577,7 +590,7 @@ export class LmsService {
     return this.http.put<AttendanceResponseDto>(`${this.getApiUrl()}/Attendance/${id}`, payload);
   }
 
-  saveBulkAttendance(sessionId: number, records: BulkAttendanceItem[]): Observable<any> {
+  saveBulkAttendance(sessionId: number, records: BulkAttendanceItem[]): Observable<unknown> {
     return this.http.post(`${this.getApiUrl()}/Attendance/session/${sessionId}`, records);
   }
 
@@ -603,9 +616,9 @@ export class LmsService {
 
   /** How each instructor kept their registers over a period. Admin only. */
   getRegisterCompliance(from: string, to: string): Observable<RegisterComplianceReport> {
-    return this.http.get<RegisterComplianceReport>(
-      `${this.getApiUrl()}/Attendance/compliance?from=${from}&to=${to}`
-    );
+    return this.http.get<RegisterComplianceReport>(`${this.getApiUrl()}/Attendance/compliance`, {
+      params: query({ from, to }),
+    });
   }
 
   /**
@@ -661,27 +674,23 @@ export class LmsService {
   }
 
   getSessionHistory(filter?: SessionHistoryFilter): Observable<ScheduleSession[]> {
-    let url = `${this.getApiUrl()}/Schedule/history`;
-    const params: string[] = [];
-    if (filter) {
-      if (filter.groupId) params.push(`groupId=${filter.groupId}`);
-      if (filter.instructorId) params.push(`instructorId=${filter.instructorId}`);
-      if (filter.status) params.push(`status=${filter.status}`);
-      if (filter.from) params.push(`from=${filter.from}`);
-      if (filter.to) params.push(`to=${filter.to}`);
-    }
-    if (params.length > 0) {
-      url += `?${params.join('&')}`;
-    }
-    return this.http.get<ScheduleSession[]>(url);
+    return this.http.get<ScheduleSession[]>(`${this.getApiUrl()}/Schedule/history`, {
+      params: query({
+        groupId: filter?.groupId || undefined,
+        instructorId: filter?.instructorId || undefined,
+        status: filter?.status,
+        from: filter?.from,
+        to: filter?.to,
+      }),
+    });
   }
 
   // ── Availability ──────────────────────────────────────────────────────────
 
   getRooms(includeInactive = false): Observable<Room[]> {
-    return this.http.get<Room[]>(
-      `${this.getApiUrl()}/Availability/rooms?includeInactive=${includeInactive}`
-    );
+    return this.http.get<Room[]>(`${this.getApiUrl()}/Availability/rooms`, {
+      params: query({ includeInactive }),
+    });
   }
 
   /** Omit instructorId for the whole board, which is what the slot finder wants. */
@@ -689,13 +698,9 @@ export class LmsService {
     instructorId?: number,
     onDate?: string
   ): Observable<InstructorAvailability[]> {
-    const params: string[] = [];
-    if (instructorId) params.push(`instructorId=${instructorId}`);
-    if (onDate) params.push(`onDate=${onDate}`);
-    const query = params.length ? `?${params.join('&')}` : '';
-    return this.http.get<InstructorAvailability[]>(
-      `${this.getApiUrl()}/Availability/instructors${query}`
-    );
+    return this.http.get<InstructorAvailability[]>(`${this.getApiUrl()}/Availability/instructors`, {
+      params: query({ instructorId: instructorId || undefined, onDate }),
+    });
   }
 
   /** Admin only — everyone else asks for a change instead. */
@@ -720,9 +725,9 @@ export class LmsService {
 
   /** Admin only. A month's absences per instructor, with the decisions made in it. */
   getLeaveSummary(year: number, month: number): Observable<LeaveSummary> {
-    return this.http.get<LeaveSummary>(
-      `${this.getApiUrl()}/Availability/time-off/summary?year=${year}&month=${month}`
-    );
+    return this.http.get<LeaveSummary>(`${this.getApiUrl()}/Availability/time-off/summary`, {
+      params: query({ year, month }),
+    });
   }
 
   /** Admin only. Hours a week, or null to remove the limit. */
@@ -734,34 +739,27 @@ export class LmsService {
   }
 
   getTimeOff(instructorId?: number, from?: string, to?: string): Observable<InstructorTimeOff[]> {
-    const params: string[] = [];
-    if (instructorId) params.push(`instructorId=${instructorId}`);
-    if (from) params.push(`from=${from}`);
-    if (to) params.push(`to=${to}`);
-    const query = params.length ? `?${params.join('&')}` : '';
-    return this.http.get<InstructorTimeOff[]>(`${this.getApiUrl()}/Availability/time-off${query}`);
+    return this.http.get<InstructorTimeOff[]>(`${this.getApiUrl()}/Availability/time-off`, {
+      params: query({ instructorId: instructorId || undefined, from, to }),
+    });
   }
 
   // ── Availability requests ─────────────────────────────────────────────────
 
   getAvailabilityRequests(status?: string, type?: string): Observable<AvailabilityRequest[]> {
-    const params: string[] = [];
-    if (status) params.push(`status=${status}`);
-    if (type) params.push(`type=${type}`);
-    const query = params.length ? `?${params.join('&')}` : '';
-    return this.http.get<AvailabilityRequest[]>(
-      `${this.getApiUrl()}/availability/requests${query}`
-    );
+    return this.http.get<AvailabilityRequest[]>(`${this.getApiUrl()}/availability/requests`, {
+      params: query({ status, type }),
+    });
   }
 
   requestTimeOff(
     payload: CreateTimeOffRequest,
     instructorId?: number
   ): Observable<AvailabilityRequest> {
-    const query = instructorId ? `?instructorId=${instructorId}` : '';
     return this.http.post<AvailabilityRequest>(
-      `${this.getApiUrl()}/availability/requests/time-off${query}`,
-      payload
+      `${this.getApiUrl()}/availability/requests/time-off`,
+      payload,
+      { params: query({ instructorId: instructorId || undefined }) }
     );
   }
 
@@ -769,10 +767,10 @@ export class LmsService {
     payload: CreateAvailabilityChangeRequest,
     instructorId?: number
   ): Observable<AvailabilityRequest> {
-    const query = instructorId ? `?instructorId=${instructorId}` : '';
     return this.http.post<AvailabilityRequest>(
-      `${this.getApiUrl()}/availability/requests/availability-change${query}`,
-      payload
+      `${this.getApiUrl()}/availability/requests/availability-change`,
+      payload,
+      { params: query({ instructorId: instructorId || undefined }) }
     );
   }
 
@@ -831,12 +829,13 @@ export class LmsService {
       mineOnly?: boolean;
     } = {}
   ): Observable<SlotHold[]> {
-    const params: string[] = [];
-    if (options.status) params.push(`status=${options.status}`);
-    if (options.readyOnly) params.push('readyOnly=true');
-    if (options.mineOnly) params.push('mineOnly=true');
-    const query = params.length ? `?${params.join('&')}` : '';
-    return this.http.get<SlotHold[]>(`${this.getApiUrl()}/Sales/holds${query}`);
+    return this.http.get<SlotHold[]>(`${this.getApiUrl()}/Sales/holds`, {
+      params: query({
+        status: options.status,
+        readyOnly: options.readyOnly || undefined,
+        mineOnly: options.mineOnly || undefined,
+      }),
+    });
   }
 
   createSlotHold(payload: CreateSlotHold): Observable<SlotHold> {
@@ -880,12 +879,13 @@ export class LmsService {
       mineOnly?: boolean;
     } = {}
   ): Observable<Candidate[]> {
-    const params: string[] = [];
-    if (options.holdId) params.push(`holdId=${options.holdId}`);
-    if (options.status) params.push(`status=${options.status}`);
-    if (options.mineOnly) params.push('mineOnly=true');
-    const query = params.length ? `?${params.join('&')}` : '';
-    return this.http.get<Candidate[]>(`${this.getApiUrl()}/Sales/candidates${query}`);
+    return this.http.get<Candidate[]>(`${this.getApiUrl()}/Sales/candidates`, {
+      params: query({
+        holdId: options.holdId || undefined,
+        status: options.status,
+        mineOnly: options.mineOnly || undefined,
+      }),
+    });
   }
 
   createCandidate(payload: UpsertCandidate): Observable<Candidate> {
