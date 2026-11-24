@@ -281,3 +281,32 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   should use a development build.
 - **Later (deployment):** to serve several environments from one Docker image, swap this
   for a runtime `config.json` served by nginx. Not needed while there is one API.
+
+## SSR-01 — Unused server-side rendering removed
+
+- **Confirmed unused before deleting:**
+  - `angular.json` has no `server`, `ssr`, `outputMode` or `prerender` option, and the
+    build produces only `browser/` with an empty `prerendered-routes.json`.
+  - Both deployment targets are static: Docker → nginx (`.do/app.yaml`) and `vercel.json`.
+  - Nothing outside the SSR files imports `@angular/ssr`, `@angular/platform-server` or
+    `express`, and `tsconfig.server.json` isn't referenced by `tsconfig.json`.
+  - The `serve:ssr:lms-platform` script pointed at a `server.mjs` the build never produced.
+- **What changed:**
+  - Deleted `src/server.ts`, `src/main.server.ts`, `src/app/app.config.server.ts`,
+    `src/app/app.routes.server.ts` and `tsconfig.server.json`, plus the `serve:ssr` script.
+  - `npm uninstall` removed `@angular/ssr`, `@angular/platform-server`, `express` and
+    `@types/express`. The lockfile change is removals plus 66 `"dev": true` flags (express
+    and friends remain for the dev server); no versions changed.
+  - The SSR note in `AGENTS.md` now says the app is client-side only. Its platform-check
+    advice stays, so SSR can come back without breakage.
+- **Decision (yours):** delete once confirmed unused.
+- **Validation:** build output and initial bundle unchanged (596.83 kB), which confirms none
+  of it shipped. 21 files / 128 tests pass.
+- **Effect on security:** production `npm audit` went from 16 advisories (1 critical) to
+  11 (none critical). The critical `proxy-addr` came in through `express`.
+- **Left alone:** the Dockerfile's `index.csr.html` copy step and nginx's
+  `try_files … /index.csr.html` are harmless SSR-era leftovers; tidy them with R-01.
+- **Recommended next (R-03):** the remaining production advisories are against the
+  installed Angular 21.2.x itself, including an i18n XSS and a sanitizer bypass through host
+  bindings. The current `^21.2.0` ranges already allow 21.2.26, so a patch update within the
+  ranges, with a full test and build pass, should clear most of them.

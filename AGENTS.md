@@ -169,7 +169,7 @@ Verify configurations and run the development app using these commands from the 
 ## 7. Common Pitfalls & Code Quality
 
 - > [!WARNING]
-  - **SSR & LocalStorage Checks:** The app is configured with Angular SSR (Server-Side Rendering). Always wrap `localStorage` or `window` interactions with platform checks to avoid server-side execution failures:
+  - **SSR & LocalStorage Checks:** The app is currently built and deployed as a client-side app only (the unused SSR scaffolding was removed in November 2026; see `docs/frontend-implementation-log.md`). Keep wrapping `localStorage` or `window` interactions with platform checks anyway, so server rendering or prerendering can be added back without breaking:
 
     ```typescript
     private readonly platformId = inject(PLATFORM_ID);
