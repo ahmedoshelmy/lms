@@ -726,3 +726,25 @@ Everything below was checked as unused before deletion.
      login error's colour class had a stray `]`. Both predate this work. Fixed.
 - **Re-checked visually after the fixes:** login logo, groups error state with no toast
   stack, desktop dialog width.
+
+## W-01 — Sales: no browser prompts, no double actions, own records first
+
+- **What changed:**
+  - **`ConfirmService.askText()`:** the shared dialog with an optional labelled text box
+    (`input: { label, placeholder, required }`). It returns the trimmed text, or `null` when
+    the person backs out, and the go-ahead stays disabled until a required box has text.
+    It replaces the last two `window.prompt()` calls: the Sales release reason, and the
+    Availability change reason (where a too-short reason used to be dropped silently and
+    now gets a warning).
+  - **Per-item busy state in Sales:** extend, release, trial outcome, status change and
+    remove each claim their item for the length of the request, and that item's buttons
+    are disabled meanwhile. Before, each extra click on "Extend" added another 14 days.
+  - **Mine / Everyone's:** the Sales page loads holds and candidates with
+    `mineOnly: true` for a salesperson and `false` for Admin, with a visible toggle
+    (`aria-pressed`). It matches the Sales dashboard, which already showed each
+    salesperson their own, and keeps families' phone numbers to the person dealing with
+    them by default. Nothing is out of reach: one click shows everyone's.
+- **Validation:** 33 files / 175 tests ✔ (new: extend fires once under triple-click; the
+  release dialog's cancel stops; text box returns trimmed text, required gating, and its
+  label). Lint 0 errors; build ✔ at 583.65 kB.
+- **Backend to confirm:** that `mineOnly` filters on the server. The frontend can only ask.

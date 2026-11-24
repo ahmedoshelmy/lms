@@ -7,6 +7,18 @@
       </p>
     </div>
 
+    <!-- Whose holds and pipeline to show. Off-screen records are a click away,
+         not hidden. -->
+    <button type="button" class="scope" [attr.aria-pressed]="mineOnly()" (click)="toggleMineOnly()">
+      <i
+        class="pi"
+        [class.pi-user]="mineOnly()"
+        [class.pi-users]="!mineOnly()"
+        aria-hidden="true"
+      ></i>
+      {{ mineOnly() ? 'Mine' : "Everyone's" }}
+    </button>
+
     <nav class="tabs">
       <button
         type="button"
@@ -331,10 +343,20 @@
             </span>
 
             <div class="panel__actions">
-              <button type="button" class="btn btn--ghost" (click)="extendHold(hold)">
+              <button
+                type="button"
+                class="btn btn--ghost"
+                [disabled]="isBusy('hold', hold.id)"
+                (click)="extendHold(hold)"
+              >
                 Extend
               </button>
-              <button type="button" class="btn btn--ghost" (click)="releaseHold(hold)">
+              <button
+                type="button"
+                class="btn btn--ghost"
+                [disabled]="isBusy('hold', hold.id)"
+                (click)="releaseHold(hold)"
+              >
                 Release
               </button>
               @if (isAdmin()) {
@@ -374,6 +396,7 @@
                   <select
                     class="input input--tiny"
                     [ngModel]="candidate.status"
+                    [disabled]="isBusy('candidate', candidate.id)"
                     (ngModelChange)="setStatus(candidate, $event)"
                   >
                     @for (status of candidateStatuses; track status) {
@@ -392,6 +415,7 @@
                       type="button"
                       class="person__yes"
                       title="They attended the trial"
+                      [disabled]="isBusy('candidate', candidate.id)"
                       (click)="recordTrialOutcome(candidate, true)"
                     >
                       <i class="pi pi-check"></i>
@@ -400,6 +424,7 @@
                       type="button"
                       class="person__no"
                       title="They did not turn up"
+                      [disabled]="isBusy('candidate', candidate.id)"
                       (click)="recordTrialOutcome(candidate, false)"
                     >
                       <i class="pi pi-times"></i>
@@ -461,7 +486,12 @@
                   <span class="closed__note">{{ hold.outcomeNote }}</span>
                 }
                 @if (hold.status === 'Expired' || hold.status === 'Released') {
-                  <button type="button" class="btn btn--ghost" (click)="extendHold(hold)">
+                  <button
+                    type="button"
+                    class="btn btn--ghost"
+                    [disabled]="isBusy('hold', hold.id)"
+                    (click)="extendHold(hold)"
+                  >
                     Take it again
                   </button>
                 }
@@ -522,6 +552,7 @@
                       <select
                         class="input input--tiny"
                         [ngModel]="candidate.status"
+                        [disabled]="isBusy('candidate', candidate.id)"
                         (ngModelChange)="setStatus(candidate, $event)"
                       >
                         @for (status of candidateStatuses; track status) {
@@ -537,6 +568,7 @@
                         [attr.aria-label]="
                           'Remove ' + (candidate.name || 'candidate') + ' from the pipeline'
                         "
+                        [disabled]="isBusy('candidate', candidate.id)"
                         (click)="removeCandidate(candidate)"
                       >
                         <i class="pi pi-trash"></i>

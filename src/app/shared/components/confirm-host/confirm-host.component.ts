@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmService } from '../../../core/services/confirm.service';
 
@@ -31,6 +31,18 @@ import { ConfirmService } from '../../../core/services/confirm.service';
           <span>{{ q.message }}</span>
         </p>
 
+        @if (q.input; as input) {
+          <label class="confirm__label" for="confirm-input">{{ input.label }}</label>
+          <textarea
+            id="confirm-input"
+            class="confirm__input"
+            rows="3"
+            [placeholder]="input.placeholder ?? ''"
+            [value]="text()"
+            (input)="text.set($any($event.target).value)"
+          ></textarea>
+        }
+
         <ng-template #footer>
           <div class="confirm__actions">
             <!-- Deliberate: a confirmation opens on its safe choice, as the
@@ -49,7 +61,8 @@ import { ConfirmService } from '../../../core/services/confirm.service';
               type="button"
               class="confirm__btn"
               [class.confirm__btn--danger]="q.danger"
-              (click)="q.answer(true)"
+              [disabled]="!!q.input?.required && !text().trim()"
+              (click)="q.answer(true, text())"
             >
               {{ q.acceptLabel }}
             </button>
@@ -66,6 +79,32 @@ import { ConfirmService } from '../../../core/services/confirm.service';
       font-size: 14px;
       line-height: 1.5;
       color: var(--color-text-primary);
+    }
+    .confirm__label {
+      display: block;
+      margin: 14px 0 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+    .confirm__input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-control);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      font: inherit;
+      font-size: 14px;
+      resize: vertical;
+    }
+    .confirm__input:focus-visible {
+      outline: 2px solid var(--color-secondary);
+      outline-offset: 1px;
+    }
+    .confirm__btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     .confirm__icon {
       color: var(--color-error);
@@ -105,4 +144,15 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 })
 export class ConfirmHostComponent {
   protected readonly confirm = inject(ConfirmService);
+
+  /** What has been typed into the text box, for the question on screen. */
+  protected readonly text = signal('');
+
+  constructor() {
+    // Each new question starts with an empty box.
+    effect(() => {
+      this.confirm.pending();
+      untracked(() => this.text.set(''));
+    });
+  }
 }

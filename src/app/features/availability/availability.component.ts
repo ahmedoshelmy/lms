@@ -26,6 +26,7 @@ import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { toIsoMonth, todayIsoDate } from '../../core/utils/date.utils';
 import { latestRequest } from '../../core/utils/latest-request';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 /**
  * Half-hour marks from 08:00 to 22:30.
@@ -66,6 +67,7 @@ export class AvailabilityComponent implements OnInit {
   private readonly sessionsRequest = latestRequest();
   private readonly auth = inject(AuthService);
   private readonly notify = inject(NotificationService);
+  private readonly confirm = inject(ConfirmService);
 
   readonly weekdays = WEEKDAYS;
   readonly leaveTypes = LEAVE_TYPES;
@@ -448,12 +450,27 @@ export class AvailabilityComponent implements OnInit {
     });
   }
 
-  proposeWeek(): void {
+  async proposeWeek(): Promise<void> {
     const instructorId = this.selectedInstructorId();
     if (!instructorId || this.draftError()) return;
 
-    const reason = (prompt('Why are you asking to change your hours?') ?? '').trim();
-    if (reason.length < 3) return;
+    // The app's dialog, not window.prompt(). A reason too short to read used
+    // to be dropped without a word; now it says so.
+    const reason = await this.confirm.askText({
+      header: 'Ask to change your hours',
+      message: 'Operations will see this with the new hours and decide.',
+      acceptLabel: 'Send for approval',
+      input: {
+        label: 'Why are you asking?',
+        placeholder: 'I start a new job on Tuesday mornings.',
+        required: true,
+      },
+    });
+    if (reason === null) return;
+    if (reason.length < 3) {
+      this.notify.showWarn('Give a reason of a few words, so operations can decide.');
+      return;
+    }
 
     this.saving.set(true);
     this.lms.requestAvailabilityChange({ windows: this.draft(), reason }).subscribe({

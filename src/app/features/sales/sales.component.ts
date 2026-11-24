@@ -1,3 +1,4 @@
+import { finalize } from 'rxjs';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -173,6 +174,7 @@ export class SalesComponent implements OnInit {
   readonly unattached = computed(() => this.candidates().filter((c) => !c.slotHoldId));
 
   ngOnInit(): void {
+    this.mineOnly.set(!this.isAdmin());
     this.loadReference();
     this.loadHolds();
     this.loadCandidates();
@@ -207,10 +209,24 @@ export class SalesComponent implements OnInit {
   readonly holdsFailed = signal(false);
   readonly candidatesFailed = signal(false);
 
+  /**
+   * Show only this person's holds and candidates. On by default for Sales --
+   * the pipeline carries families' phone numbers, and the Sales dashboard
+   * already shows each salesperson their own -- off for Admin, who runs the
+   * whole board. Either can switch it.
+   */
+  readonly mineOnly = signal(false);
+
+  toggleMineOnly(): void {
+    this.mineOnly.update((v) => !v);
+    this.loadHolds();
+    this.loadCandidates();
+  }
+
   loadHolds(): void {
     this.loading.set(true);
     this.holdsFailed.set(false);
-    this.lms.getSlotHolds().subscribe({
+    this.lms.getSlotHolds({ mineOnly: this.mineOnly() }).subscribe({
       next: (holds) => {
         this.holds.set(holds || []);
         this.loading.set(false);
@@ -224,7 +240,7 @@ export class SalesComponent implements OnInit {
 
   loadCandidates(): void {
     this.candidatesFailed.set(false);
-    this.lms.getCandidates().subscribe({
+    this.lms.getCandidates({ mineOnly: this.mineOnly() }).subscribe({
       next: (candidates) => this.candidates.set(candidates || []),
       error: () => {
         this.candidates.set([]);
@@ -383,28 +399,72 @@ export class SalesComponent implements OnInit {
       });
   }
 
-  extendHold(hold: SlotHold): void {
-    this.lms.extendSlotHold(hold.id, 14).subscribe({
-      next: () => {
-        this.loadHolds();
-        this.notify.showSuccess('Held for another fortnight.');
-      },
+  // ── One action at a time per item ────────────────────────────────────────
+
+  /**
+   * Items with a request in flight, as "hold:5" or "candidate:9". An extra
+   * click on "Extend" used to add another fortnight per click; the buttons for
+   * an item are disabled while its request runs.
+   */
+  private readonly busy = signal<ReadonlySet<string>>(new Set());
+
+  isBusy(kind: 'hold' | 'candidate', id: number): boolean {
+    return this.busy().has(`${kind}:${id}`);
+  }
+
+  /** Marks an item busy; returns false if it already was. */
+  private claim(kind: 'hold' | 'candidate', id: number): boolean {
+    const key = `${kind}:${id}`;
+    if (this.busy().has(key)) return false;
+    this.busy.update((set) => new Set(set).add(key));
+    return true;
+  }
+
+  private release(kind: 'hold' | 'candidate', id: number): void {
+    const key = `${kind}:${id}`;
+    this.busy.update((set) => {
+      const next = new Set(set);
+      next.delete(key);
+      return next;
     });
   }
 
-  releaseHold(hold: SlotHold): void {
-    // Cancel means stop. prompt() answers null for it, and that used to be
-    // read as "no reason given" -- so backing out released the slot anyway.
-    const answer = prompt('Why are you releasing this slot?');
-    if (answer === null) return;
-    const reason = answer.trim();
-    this.lms.releaseSlotHold(hold.id, reason || undefined).subscribe({
-      next: () => {
-        this.loadHolds();
-        this.loadCandidates();
-        this.notify.showSuccess('Slot released. Anyone on it is back in the pipeline.');
-      },
+  extendHold(hold: SlotHold): void {
+    if (!this.claim('hold', hold.id)) return;
+    this.lms
+      .extendSlotHold(hold.id, 14)
+      .pipe(finalize(() => this.release('hold', hold.id)))
+      .subscribe({
+        next: () => {
+          this.loadHolds();
+          this.notify.showSuccess('Held for another fortnight.');
+        },
+      });
+  }
+
+  async releaseHold(hold: SlotHold): Promise<void> {
+    // The app's own dialog rather than window.prompt(). Backing out is null,
+    // and stops; it used to be read as "no reason given" and release anyway.
+    const reason = await this.confirm.askText({
+      header: 'Release this slot',
+      message: 'The hour goes back on the market, and anyone on it returns to the pipeline.',
+      acceptLabel: 'Release slot',
+      danger: true,
+      input: { label: 'Why? (optional)', placeholder: 'The family chose another time.' },
     });
+    if (reason === null) return;
+    if (!this.claim('hold', hold.id)) return;
+
+    this.lms
+      .releaseSlotHold(hold.id, reason || undefined)
+      .pipe(finalize(() => this.release('hold', hold.id)))
+      .subscribe({
+        next: () => {
+          this.loadHolds();
+          this.loadCandidates();
+          this.notify.showSuccess('Slot released. Anyone on it is back in the pipeline.');
+        },
+      });
   }
 
   // ── Trials ───────────────────────────────────────────────────────────────
@@ -515,15 +575,19 @@ export class SalesComponent implements OnInit {
 
   /** Whether they turned up. The fact that decides whether the trial worked. */
   recordTrialOutcome(candidate: Candidate, attended: boolean): void {
-    this.lms.recordTrialOutcome(candidate.id, attended).subscribe({
-      next: () => {
-        this.loadHolds();
-        this.loadCandidates();
-        this.notify.showSuccess(
-          attended ? `${candidate.name} attended.` : `${candidate.name} did not turn up.`
-        );
-      },
-    });
+    if (!this.claim('candidate', candidate.id)) return;
+    this.lms
+      .recordTrialOutcome(candidate.id, attended)
+      .pipe(finalize(() => this.release('candidate', candidate.id)))
+      .subscribe({
+        next: () => {
+          this.loadHolds();
+          this.loadCandidates();
+          this.notify.showSuccess(
+            attended ? `${candidate.name} attended.` : `${candidate.name} did not turn up.`
+          );
+        },
+      });
   }
 
   /** A trial that has happened but has no outcome recorded is the thing to chase. */
@@ -586,6 +650,7 @@ export class SalesComponent implements OnInit {
 
   /** Moving someone along the pipeline is the commonest action, so it is one click. */
   setStatus(candidate: Candidate, status: CandidateStatus): void {
+    if (!this.claim('candidate', candidate.id)) return;
     this.lms
       .updateCandidate(candidate.id, {
         name: candidate.name,
@@ -597,6 +662,7 @@ export class SalesComponent implements OnInit {
         slotHoldId: candidate.slotHoldId,
         status,
       })
+      .pipe(finalize(() => this.release('candidate', candidate.id)))
       .subscribe({
         next: () => {
           this.loadCandidates();
@@ -613,14 +679,18 @@ export class SalesComponent implements OnInit {
       danger: true,
     });
     if (!confirmed) return;
+    if (!this.claim('candidate', candidate.id)) return;
 
-    this.lms.deleteCandidate(candidate.id).subscribe({
-      next: () => {
-        this.loadCandidates();
-        this.loadHolds();
-        this.notify.showSuccess('Candidate removed.');
-      },
-    });
+    this.lms
+      .deleteCandidate(candidate.id)
+      .pipe(finalize(() => this.release('candidate', candidate.id)))
+      .subscribe({
+        next: () => {
+          this.loadCandidates();
+          this.loadHolds();
+          this.notify.showSuccess('Candidate removed.');
+        },
+      });
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

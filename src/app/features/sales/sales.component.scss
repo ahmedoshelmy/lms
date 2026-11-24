@@ -870,3 +870,29 @@
   background: var(--color-secondary);
   color: var(--color-primary-content);
 }
+
+/* Mine / Everyone's: which records the holds and pipeline show. */
+.scope {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scope[aria-pressed='true'] {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.scope:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}

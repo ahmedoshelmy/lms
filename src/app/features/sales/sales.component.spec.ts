@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Candidate, SlotHold } from '../../core/interfaces/Sales';
 import { AuthService } from '../../core/services/auth.service';
@@ -50,33 +51,51 @@ describe('SalesComponent trial dates', () => {
   });
 });
 
-describe('SalesComponent destructive actions', () => {
-  let lms: { releaseSlotHold: ReturnType<typeof vi.fn>; deleteCandidate: ReturnType<typeof vi.fn> };
+describe('SalesComponent actions', () => {
+  let lms: {
+    releaseSlotHold: ReturnType<typeof vi.fn>;
+    deleteCandidate: ReturnType<typeof vi.fn>;
+    extendSlotHold: ReturnType<typeof vi.fn>;
+  };
   let ask: ReturnType<typeof vi.fn>;
+  let askText: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    lms = { releaseSlotHold: vi.fn(), deleteCandidate: vi.fn() };
+    lms = { releaseSlotHold: vi.fn(), deleteCandidate: vi.fn(), extendSlotHold: vi.fn() };
     ask = vi.fn(() => Promise.resolve(false));
+    askText = vi.fn(() => Promise.resolve(null));
 
     TestBed.configureTestingModule({
       providers: [
         { provide: LmsService, useValue: lms },
         { provide: NotificationService, useValue: {} },
         { provide: AuthService, useValue: { hasRole: () => false, getUserId: () => 1 } },
-        { provide: ConfirmService, useValue: { ask } },
+        { provide: ConfirmService, useValue: { ask, askText } },
       ],
     });
   });
 
-  afterEach(() => vi.unstubAllGlobals());
-
-  it('keeps the hold when the release prompt is cancelled', () => {
-    vi.stubGlobal('prompt', () => null);
+  it('keeps the hold when the release is cancelled', async () => {
     const sales = TestBed.createComponent(SalesComponent).componentInstance;
 
-    sales.releaseHold({ id: 1 } as SlotHold);
+    await sales.releaseHold({ id: 1 } as SlotHold);
 
+    expect(askText).toHaveBeenCalledTimes(1);
     expect(lms.releaseSlotHold).not.toHaveBeenCalled();
+  });
+
+  it('extends a hold once however many times the button is pressed', () => {
+    // A request that has not answered yet.
+    lms.extendSlotHold.mockReturnValue(new Subject());
+    const sales = TestBed.createComponent(SalesComponent).componentInstance;
+
+    sales.extendHold({ id: 1 } as SlotHold);
+    sales.extendHold({ id: 1 } as SlotHold);
+    sales.extendHold({ id: 1 } as SlotHold);
+
+    expect(lms.extendSlotHold).toHaveBeenCalledTimes(1);
+    expect(sales.isBusy('hold', 1)).toBe(true);
+    expect(sales.isBusy('hold', 2)).toBe(false);
   });
 
   it('keeps a candidate unless the removal is confirmed', async () => {
