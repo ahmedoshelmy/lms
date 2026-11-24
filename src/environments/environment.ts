@@ -15,4 +15,13 @@ export const environment = {
    * their password to it.
    */
   allowApiUrlOverride: false,
+
+  /**
+   * Features built ahead of the server endpoints they need. Each stays off here
+   * until its endpoints are live; nothing stands in for a missing one.
+   */
+  features: {
+    /** docs/instructor-kpis.api.md */
+    instructorKpis: false,
+  },
 };

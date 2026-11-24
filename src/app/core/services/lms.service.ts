@@ -100,7 +100,7 @@ type QueryValue = string | number | boolean | null | undefined;
  * Replaces query strings built by hand, which encoded nothing: a value with a
  * space or an "&" in it split the query and invented parameters.
  */
-function query(values: Record<string, QueryValue>): HttpParams {
+export function query(values: Record<string, QueryValue>): HttpParams {
   let params = new HttpParams();
   for (const [key, value] of Object.entries(values)) {
     if (value !== undefined && value !== null && value !== '') {

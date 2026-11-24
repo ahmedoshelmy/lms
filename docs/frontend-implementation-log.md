@@ -1401,3 +1401,71 @@ Everything below was checked as unused before deletion.
   - PrimeNG's toast close button takes the focus on an error during the first page load.
   - Secondary, and the green and amber foregrounds, on `background-alt` measure 4.1 to
     4.3:1.
+
+## KPI-01 — Instructor KPIs (built ahead of the backend)
+
+- **What was asked for:** each instructor's month in three indicators, plus an overall
+  percentage:
+  - monthly reports submitted by the last day of the month;
+  - registers taken on time (within 24 hours);
+  - classes kept: 100% minus the share they cancelled themselves.
+
+  Admins can adjust the figures, approve the month, and send a report to the owner.
+
+- **The user's decisions:**
+  - the overall score is weighted, with weights admins set;
+  - an adjustment needs a reason, and the calculated figure is kept;
+  - the month is a calendar month, and review opens on the 29th;
+  - approval waits until the month has ended, then freezes the figures;
+  - reports go to the owner as a PDF for one instructor or for everyone, as a CSV, or by
+    email from the server;
+  - instructors see their own approved months;
+  - bands are words as well as colours, with cut-offs admins set.
+- **Backend:** none of this can be stored yet, and the backend is not ours to change. So:
+  - **The contract** is in `docs/instructor-kpis.api.md`: endpoints, shapes, and the exact
+    calculation rules. The server computes every figure, so the page, the PDF and the CSV
+    cannot disagree with it.
+  - **The switch:** the screens are built and tested against that contract, and switched
+    off in production with `environment.features.instructorKpis`. It is on in
+    development.
+  - **What "off" means:** a new `feature` field in `ROUTE_PERMISSIONS`. While the feature
+    is off, its pages are in no menu and their routes refuse.
+- **Admin page** (`/instructor-kpis`):
+  - **The table:** one row per instructor. Each figure has the line it was counted from
+    ("8 of 10 on time (1 late, 1 missing)"). The overall score has its band as a word.
+    "No data" for an instructor with nothing to measure, rather than 100%.
+  - **The month banner:**
+    - in progress until the 28th;
+    - from the 29th, the review is open and adjusting is allowed;
+    - from the 1st, the month can be approved;
+    - once approved, it is frozen, and can be reopened with a reason.
+  - **Adjusting:** a dialog with the calculated figure on show. The new figure must be
+    0–100 to one decimal. The reason must be at least 10 characters, not counting spaces
+    at either end. An adjustment can be removed.
+  - **Settings:** weights (whole numbers adding up to 100), band cut-offs (Excellent above
+    Good), and the owner's email.
+  - **Reports:**
+    - a CSV with a byte-order mark, so Excel reads Arabic names. Fields are quoted, and a
+      leading `=` is defused so the file cannot run a formula;
+    - a PDF of everyone (a summary table, then a page each);
+    - a PDF of one instructor, with their last six months;
+    - "Send to owner", which posts the same PDF to the server to email.
+  - **On every PDF:** "NOT YET APPROVED" on an open month, and every adjustment with the
+    figure it replaced, who made it and why.
+- **Instructor page** (`/my-kpis`): their approved months only. The latest is shown in
+  full, with any adjustment and its reason; the year before it is a table.
+- **No new dependencies:** jsPDF was already in use, loaded on demand. `query()` in
+  `lms.service.ts` is exported for the new `KpiService`.
+- **Validation:**
+  - 37 new tests: the helpers, the CSV, the PDF content, the service's URLs and bodies,
+    the feature switch both ways, and the page.
+  - The page tests cover the approval and adjusting windows on a fake clock, the frozen
+    approved month, adjusting, the missing owner address, and a failed load.
+  - Also the two dialogs' validation and the instructor's page.
+  - All batches exit 0: 58 files / 268 tests. Lint 0 errors. Build 589.76 kB initial.
+  - In headless Chrome with sample data shaped to the contract, light and dark: the table,
+    the banner in each phase, the adjust dialog, and the instructor page. Both PDFs were
+    downloaded and read.
+  - That check fixed three things: an adjustment note overlapping the line above it in
+    the PDF, the summary's band column overlapping Overall, and adjusting being offered
+    before the 29th.

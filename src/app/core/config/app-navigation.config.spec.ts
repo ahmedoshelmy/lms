@@ -1,9 +1,15 @@
 import { Route } from '@angular/router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { environment } from '../../../environments/environment';
 import { routes } from '../../app.routes';
 import { Role } from '../interfaces/Role';
 import { roleGuard } from '../guards/role.guard';
-import { ROUTE_PERMISSIONS, canAccessPath, getMenuItemsForRole } from './app-navigation.config';
+import {
+  ROUTE_PERMISSIONS,
+  canAccessPath,
+  featureEnabled,
+  getMenuItemsForRole,
+} from './app-navigation.config';
 
 /** Every route behind roleGuard, with its first path segment. */
 function guardedRoutes(list: Route[], out: Route[] = []): Route[] {
@@ -28,7 +34,9 @@ describe('route permissions', () => {
     for (const route of guardedRoutes(routes)) {
       const first = (route.path ?? '').split('/')[0];
       const table = ROUTE_PERMISSIONS.find((p) => p.path === first)!;
-      expect(route.data?.['roles'], route.path).toEqual(table.roles);
+      // A feature waiting on its endpoints is refused to everyone until it is on.
+      const expected = featureEnabled(table.feature) ? table.roles : [];
+      expect(route.data?.['roles'], route.path).toEqual(expected);
     }
   });
 });
@@ -68,5 +76,41 @@ describe('the menu each role sees', () => {
       expect(paths(role)).not.toContain('/students');
       expect(paths(role)).not.toContain('/attendance');
     }
+  });
+});
+
+describe('features waiting on the server', () => {
+  const saved = environment.features.instructorKpis;
+  afterEach(() => (environment.features.instructorKpis = saved));
+
+  function offered(on: boolean) {
+    environment.features.instructorKpis = on;
+    return {
+      admin: canAccessPath(Role.Admin, '/instructor-kpis'),
+      instructor: canAccessPath(Role.Instructor, '/my-kpis'),
+      adminMenu: getMenuItemsForRole(Role.Admin).some((m) => m.route === '/instructor-kpis'),
+      instructorMenu: getMenuItemsForRole(Role.Instructor).some((m) => m.route === '/my-kpis'),
+    };
+  }
+
+  it('are refused, and in no menu, while switched off', () => {
+    expect(offered(false)).toEqual({
+      admin: false,
+      instructor: false,
+      adminMenu: false,
+      instructorMenu: false,
+    });
+  });
+
+  it('are offered to their roles once switched on', () => {
+    expect(offered(true)).toEqual({
+      admin: true,
+      instructor: true,
+      adminMenu: true,
+      instructorMenu: true,
+    });
+    // And to nobody else.
+    expect(canAccessPath(Role.Instructor, '/instructor-kpis')).toBe(false);
+    expect(canAccessPath(Role.Sales, '/my-kpis')).toBe(false);
   });
 });

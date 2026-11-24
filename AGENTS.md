@@ -21,8 +21,8 @@ src/app/
 │   └── utils/              # Pure, tested helpers (dates, school week, attendance, ...)
 │
 ├── features/               # Lazy-loaded pages: activity-logs, attendance, auth, availability,
-│                           # courses, dashboard, evaluations, groups, history, instructors,
-│                           # my-learning, operations, profile, sales, schedule,
+│                           # courses, dashboard, evaluations, groups, history, instructor-kpis, instructors,
+│                           # my-kpis, my-learning, operations, profile, sales, schedule,
 │                           # session-summaries, sessions, settings, students, unauthorized
 │
 ├── shared/                 # Shared UI
@@ -107,6 +107,7 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
 - **Auth Interceptor:** Attaches the Bearer token automatically to every outgoing API request.
 - **Error Interceptor:** Intercepts failures globally, displays error notifications using `NotificationService`, and re-throws the error block.
 - **API address:** comes from `src/environments/*` through `resolveApiUrl()` (`core/config/api-url.ts`). Only a development build may override it from Settings.
+- **Features ahead of their endpoints:** a page built before the server has its endpoints is switched by `environment.features.<name>` (off in `environment.ts`, on in development) and marked with `feature:` in `ROUTE_PERMISSIONS`. While off, it is in no menu and its route refuses. Its API contract lives in `docs/` (e.g. `docs/instructor-kpis.api.md`).
 - **No local fallbacks:** there are no `localStorage` stand-ins for missing endpoints, and a failed request must never be shown as if it succeeded. If an endpoint is missing, hide the feature and record it as a backend dependency.
 - **Query parameters:** pass them as `HttpParams` (see `query()` in `lms.service.ts`), never by string concatenation.
 - **Filter- or route-driven loads:** pipe them through a `latestRequest()` (`core/utils/latest-request.ts`) so an older response can never overwrite a newer one.

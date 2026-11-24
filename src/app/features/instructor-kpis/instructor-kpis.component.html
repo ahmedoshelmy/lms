@@ -1,0 +1,262 @@
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto flex flex-col gap-5">
+  <!-- Header -->
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-[var(--color-text-primary)]">Instructor KPIs</h1>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">
+        Monthly reports on time, registers on time and classes kept, for each instructor.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-end gap-2">
+      <div>
+        <label
+          for="kpi-month"
+          class="block text-xs font-semibold text-[var(--color-text-muted)] mb-1"
+          >Month</label
+        >
+        <select
+          id="kpi-month"
+          class="px-3 py-2 border border-[var(--color-border)] rounded-xl bg-[var(--color-surface)] text-[var(--color-text-primary)] text-sm font-semibold"
+          [value]="month()"
+          (change)="setMonth($any($event.target).value)"
+        >
+          @for (m of months; track m) {
+            <option [value]="m">{{ monthLabel(m) }}</option>
+          }
+        </select>
+      </div>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-semibold text-[var(--color-text-primary)]"
+        (click)="settingsOpen.set(true)"
+      >
+        <i class="pi pi-cog text-xs" aria-hidden="true"></i> Settings
+      </button>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-semibold text-[var(--color-text-primary)] disabled:opacity-50"
+        [disabled]="!data()?.instructors?.length"
+        (click)="downloadCsv()"
+      >
+        <i class="pi pi-file-excel text-xs" aria-hidden="true"></i> CSV
+      </button>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-semibold text-[var(--color-text-primary)] disabled:opacity-50"
+        [disabled]="!data()?.instructors?.length || busy() !== null"
+        (click)="downloadPdf()"
+      >
+        <i class="pi pi-file-pdf text-xs" aria-hidden="true"></i>
+        {{ busy() === 'pdf' ? 'Preparing…' : 'PDF, everyone' }}
+      </button>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-content)] text-sm font-semibold disabled:opacity-50"
+        [disabled]="!data()?.instructors?.length || busy() !== null"
+        (click)="sendToOwner()"
+      >
+        <i class="pi pi-send text-xs" aria-hidden="true"></i>
+        {{ busy() === 'send' ? 'Sending…' : 'Send to owner' }}
+      </button>
+    </div>
+  </div>
+
+  @if (loadFailed()) {
+    <app-load-error title="The KPIs could not be loaded" (retry)="load()" />
+  } @else if (loading()) {
+    <p class="text-sm text-[var(--color-text-muted)]" aria-live="polite">Loading the month…</p>
+  } @else if (data(); as d) {
+    <!-- Where the month stands -->
+    <section
+      class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+      aria-label="Month status"
+    >
+      <div class="text-sm text-[var(--color-text-secondary)]">
+        @if (approved()) {
+          <p class="font-bold text-success-foreground">
+            <i class="pi pi-lock text-xs" aria-hidden="true"></i> Approved
+          </p>
+          @if (lastApproval(); as a) {
+            <p>
+              By {{ a.byName }} on {{ shortDate(a.at) }}. The figures are frozen as they were then.
+            </p>
+          }
+        } @else if (phase() === 'Live') {
+          <p class="font-bold text-[var(--color-text-primary)]">Month in progress</p>
+          <p>
+            The figures still move. Review and adjusting open on the {{ reviewDay }}th; approval on
+            {{ approvalOpensOn() }}.
+          </p>
+        } @else if (phase() === 'Review') {
+          <p class="font-bold text-warning-foreground">Review is open</p>
+          <p>
+            Check the figures and adjust any that need it. Reports are due by the end of the month,
+            so approval opens on {{ approvalOpensOn() }}.
+          </p>
+        } @else {
+          <p class="font-bold text-[var(--color-text-primary)]">Ready to approve</p>
+          <p>The month is over and every deadline in it has passed.</p>
+        }
+      </div>
+      <div class="flex gap-2 shrink-0">
+        @if (approved()) {
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl border border-[var(--color-border)] text-sm font-semibold text-[var(--color-text-primary)] disabled:opacity-50"
+            [disabled]="busy() !== null"
+            (click)="reopen()"
+          >
+            Reopen
+          </button>
+        } @else if (canApprove()) {
+          <button
+            type="button"
+            class="px-4 py-2 rounded-xl bg-[var(--color-primary)] text-[var(--color-primary-content)] text-sm font-semibold disabled:opacity-50"
+            [disabled]="busy() !== null"
+            (click)="approve()"
+          >
+            {{ busy() === 'approve' ? 'Approving…' : 'Approve the month' }}
+          </button>
+        }
+      </div>
+    </section>
+
+    <p class="text-xs text-[var(--color-text-muted)]">
+      Overall = reports {{ d.settings.weights.reports }}% · registers
+      {{ d.settings.weights.registers }}% · classes kept {{ d.settings.weights.cancellations }}%.
+      Excellent from {{ d.settings.bands.excellent }}%, Good from {{ d.settings.bands.good }}%. A
+      figure marked “adjusted” was changed by an admin; the calculated one is shown under it.
+    </p>
+
+    @if (d.instructors.length === 0) {
+      <div
+        class="rounded-2xl border border-dashed border-[var(--color-border)] p-10 text-center text-sm text-[var(--color-text-muted)]"
+      >
+        No instructors taught in {{ monthLabel(d.month) }}.
+      </div>
+    } @else {
+      <div
+        class="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]"
+      >
+        <table class="w-full min-w-[860px] text-left text-sm">
+          <caption class="sr-only">
+            KPIs for
+            {{
+              monthLabel(d.month)
+            }}
+          </caption>
+          <thead>
+            <tr
+              class="border-b border-[var(--color-border)] bg-[var(--color-surface-secondary)] text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
+            >
+              <th scope="col" class="px-4 py-3">Instructor</th>
+              @for (ind of indicators; track ind.key) {
+                <th scope="col" class="px-4 py-3">{{ ind.label }}</th>
+              }
+              <th scope="col" class="px-4 py-3">Overall</th>
+              <th scope="col" class="px-4 py-3 text-right">Report</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--color-border)]">
+            @for (kpi of d.instructors; track kpi.instructorId) {
+              <tr class="align-top">
+                <th scope="row" class="px-4 py-3 font-bold text-[var(--color-text-primary)]">
+                  {{ kpi.instructorName }}
+                </th>
+                @for (ind of indicators; track ind.key) {
+                  @let indicator = kpi[ind.key];
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <span class="text-base font-extrabold text-[var(--color-text-primary)]">{{
+                        formatPercent(indicator.value)
+                      }}</span>
+                      @if (indicator.override) {
+                        <span
+                          class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-warning-background text-warning-foreground"
+                          [title]="indicator.override.reason"
+                          >adjusted</span
+                        >
+                      }
+                      @if (editable()) {
+                        <button
+                          type="button"
+                          class="ml-auto p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)]"
+                          [attr.aria-label]="
+                            'Adjust ' + ind.label.toLowerCase() + ' for ' + kpi.instructorName
+                          "
+                          (click)="openOverride(kpi, ind.key)"
+                        >
+                          <i class="pi pi-pencil text-xs" aria-hidden="true"></i>
+                        </button>
+                      }
+                    </div>
+                    <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+                      {{ basis(kpi, ind.key) }}
+                    </p>
+                    @if (indicator.override; as o) {
+                      <p class="text-xs text-[var(--color-text-secondary)] mt-1">
+                        Calculated {{ formatPercent(indicator.calculated) }}. {{ o.byName }}: “{{
+                          o.reason
+                        }}”
+                      </p>
+                    }
+                  </td>
+                }
+                <td class="px-4 py-3">
+                  <p class="text-lg font-extrabold text-[var(--color-text-primary)]">
+                    {{ formatPercent(kpi.overall) }}
+                  </p>
+                  <span
+                    class="inline-block mt-1 px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap"
+                    [class]="bandClass(kpi.band)"
+                    >{{ kpi.band ? bandLabels[kpi.band] : 'No data' }}</span
+                  >
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex justify-end gap-1">
+                    <button
+                      type="button"
+                      class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] disabled:opacity-50"
+                      [attr.aria-label]="'PDF for ' + kpi.instructorName"
+                      title="Save a PDF"
+                      [disabled]="busy() !== null"
+                      (click)="downloadPdf(kpi)"
+                    >
+                      <i
+                        class="pi text-sm"
+                        [class.pi-file-pdf]="busy() !== 'pdf-' + kpi.instructorId"
+                        [class.pi-spinner]="busy() === 'pdf-' + kpi.instructorId"
+                        [class.pi-spin]="busy() === 'pdf-' + kpi.instructorId"
+                        aria-hidden="true"
+                      ></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] disabled:opacity-50"
+                      [attr.aria-label]="'Send ' + kpi.instructorName + '’s KPIs to the owner'"
+                      title="Send to owner"
+                      [disabled]="busy() !== null"
+                      (click)="sendToOwner(kpi)"
+                    >
+                      <i class="pi pi-send text-sm" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+
+<app-kpi-override-dialog
+  [(visible)]="overrideOpen"
+  [target]="overrideTarget()"
+  [saving]="savingOverride()"
+  (saved)="saveOverride($event)"
+  (cleared)="clearOverride()"
+/>
+<app-kpi-settings-dialog [(visible)]="settingsOpen" (saved)="load()" />

@@ -46,6 +46,9 @@ initial bundle at 588 kB against the 600 kB budget.
 
 Backend questions still open:
 
+- **Instructor KPIs:** the endpoints in `docs/instructor-kpis.api.md`. The screens are built
+  and tested against that contract, and switched off in production
+  (`environment.features.instructorKpis`) until the endpoints exist.
 - Does `PUT /groups/{id}` accept `endDate: null`?
 - Does the server accept late registers from the instructor who taught the class? If so,
   the session page's lock is stale.

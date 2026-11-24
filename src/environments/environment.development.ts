@@ -5,4 +5,9 @@ export const environment = {
 
   /** Lets Settings point this browser at a local or staging API while developing. */
   allowApiUrlOverride: true,
+
+  /** On while developing, to work on them; see environment.ts. */
+  features: {
+    instructorKpis: true,
+  },
 };

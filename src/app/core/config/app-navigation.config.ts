@@ -1,6 +1,14 @@
 import { isDevMode } from '@angular/core';
 import { Role, parseRole } from '../interfaces/Role';
 import { MenuItem } from '../interfaces/MenuItem';
+import { environment } from '../../../environments/environment';
+
+export type FeatureName = keyof typeof environment.features;
+
+/** Whether a feature built ahead of its server endpoints is switched on. */
+export function featureEnabled(name: FeatureName | undefined): boolean {
+  return !name || environment.features[name];
+}
 
 /** Literally every role. A route using this is reachable by anyone signed in. */
 export const ALL_ROLES: Role[] = [Role.Admin, Role.Instructor, Role.Student, Role.Sales];
@@ -30,6 +38,11 @@ export interface RoutePermission {
   showInMenu: boolean;
   /** Shown only in a development build. */
   devOnly?: boolean;
+  /**
+   * A feature waiting on server endpoints: while it is off the page is in no
+   * menu and its route refuses, as if it were not there.
+   */
+  feature?: FeatureName;
 }
 
 export const ROUTE_PERMISSIONS: RoutePermission[] = [
@@ -108,6 +121,22 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     showInMenu: true,
   },
   {
+    path: 'instructor-kpis',
+    label: 'Instructor KPIs',
+    icon: 'pi pi-chart-bar',
+    roles: [Role.Admin],
+    showInMenu: true,
+    feature: 'instructorKpis',
+  },
+  {
+    path: 'my-kpis',
+    label: 'My KPIs',
+    icon: 'pi pi-chart-bar',
+    roles: [Role.Instructor],
+    showInMenu: true,
+    feature: 'instructorKpis',
+  },
+  {
     path: 'history',
     label: 'History & Events',
     icon: 'pi pi-history',
@@ -179,7 +208,8 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
 ];
 
 export function getRolesForPath(path: string): Role[] {
-  return ROUTE_PERMISSIONS.find((route) => route.path === path)?.roles ?? [];
+  const route = ROUTE_PERMISSIONS.find((r) => r.path === path);
+  return route && featureEnabled(route.feature) ? route.roles : [];
 }
 
 /**
@@ -209,6 +239,7 @@ export function getMenuItemsForRole(rawRole: Role | unknown): MenuItem[] {
     (route) =>
       route.showInMenu &&
       (showing || !route.devOnly) &&
+      featureEnabled(route.feature) &&
       route.roles.some((r) => parseRole(r) === role)
   ).map(({ label, icon, roles, path }) => ({
     label,

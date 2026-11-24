@@ -138,6 +138,24 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'instructor-kpis',
+        title: 'Instructor KPIs',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('instructor-kpis') },
+        loadComponent: () =>
+          import('./features/instructor-kpis/instructor-kpis.component').then(
+            (c) => c.InstructorKpisComponent
+          ),
+      },
+      {
+        path: 'my-kpis',
+        title: 'My KPIs',
+        canActivate: [roleGuard],
+        data: { roles: getRolesForPath('my-kpis') },
+        loadComponent: () =>
+          import('./features/my-kpis/my-kpis.component').then((c) => c.MyKpisComponent),
+      },
+      {
         path: 'instructors',
         title: 'Instructors',
         canActivate: [roleGuard],
