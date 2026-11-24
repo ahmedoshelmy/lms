@@ -273,7 +273,7 @@
                     @let cat = getCategory(session);
                     <a
                       [routerLink]="['/sessions', session.id]"
-                      class="timeline-card rounded-lg p-2 mb-1 cursor-pointer border border-transparent hover:border-[var(--color-secondary)] transition-colors"
+                      class="timeline-card block rounded-lg p-2 mb-1 cursor-pointer border border-transparent hover:border-[var(--color-secondary)] transition-colors"
                       [style.border-left-color]="cat.color"
                       [style.border-left-width]="'3px'"
                       [style.background]="cat.bg"

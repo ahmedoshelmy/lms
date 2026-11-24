@@ -576,6 +576,7 @@
 
       <div>
         <label
+          id="students-bulk-target-group-id-label"
           for="students-bulk-target-group-id"
           class="block text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider mb-1.5"
         >
@@ -583,6 +584,7 @@
         </label>
         <p-select
           inputId="students-bulk-target-group-id"
+          ariaLabelledBy="students-bulk-target-group-id-label"
           [options]="groupOptions()"
           [ngModel]="bulkTargetGroupId()"
           (ngModelChange)="bulkTargetGroupId.set($event)"
@@ -706,6 +708,7 @@
 
       <div>
         <label
+          id="students-group-id-label"
           for="students-group-id"
           class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
         >
@@ -727,6 +730,7 @@
         }
         <p-select
           inputId="students-group-id"
+          ariaLabelledBy="students-group-id-label"
           [options]="groupOptions()"
           [ngModel]="formGroupId()"
           (ngModelChange)="formGroupId.set($event)"

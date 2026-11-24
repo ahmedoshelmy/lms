@@ -116,9 +116,12 @@
         <div class="edit-section__body">
           <!-- Assign Instructor -->
           <div class="edit-field">
-            <label class="edit-label" for="edit-instructor">Assign Instructor</label>
+            <label id="edit-instructor-label" class="edit-label" for="edit-instructor"
+              >Assign Instructor</label
+            >
             <p-select
               inputId="edit-instructor"
+              ariaLabelledBy="edit-instructor-label"
               [options]="instructors()"
               [ngModel]="editInstructorId()"
               (ngModelChange)="editInstructorId.set($event)"

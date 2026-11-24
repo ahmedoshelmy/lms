@@ -1344,12 +1344,14 @@
 
     <div>
       <label
+        id="group-detail-edit-form-group-id-label"
         for="group-detail-edit-form-group-id"
         class="block font-bold text-[var(--color-text-primary)] mb-1"
         >Assign Group</label
       >
       <p-select
         inputId="group-detail-edit-form-group-id"
+        ariaLabelledBy="group-detail-edit-form-group-id-label"
         [options]="groupOptions()"
         [ngModel]="editFormGroupId()"
         (ngModelChange)="editFormGroupId.set($event)"

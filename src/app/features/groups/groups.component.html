@@ -558,8 +558,9 @@
             >
               <span>👥 {{ group.studentCount }} Students</span>
               @if (seatsOverBy(group); as over) {
+                <!-- Above the card's link, so its explanation still shows on hover. -->
                 <span
-                  class="text-[var(--color-warning-foreground)]"
+                  class="relative z-10 text-[var(--color-warning-foreground)]"
                   [title]="
                     group.roomName +
                     ' seats ' +
@@ -713,8 +714,9 @@
         />
       </div>
       <div>
+        <!-- When editing, the end date is shown, not typed: no field to point at. -->
         <label
-          for="groups-end-date"
+          [attr.for]="editingGroup() ? null : 'groups-end-date'"
           class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
         >
           End Date{{ editingGroup() ? '' : ' *' }}

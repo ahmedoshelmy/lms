@@ -52,6 +52,7 @@ export interface TimeSlot {
         @if (canPickInstructor()) {
           <div class="flex items-center gap-2">
             <label
+              id="instructor-availability-matrix-selected-instructor-id-label"
               for="instructor-availability-matrix-selected-instructor-id"
               class="text-xs font-semibold text-[var(--color-text-secondary)]"
             >
@@ -59,6 +60,7 @@ export interface TimeSlot {
             </label>
             <p-select
               inputId="instructor-availability-matrix-selected-instructor-id"
+              ariaLabelledBy="instructor-availability-matrix-selected-instructor-id-label"
               [options]="instructorOptions()"
               [ngModel]="selectedInstructorId()"
               (ngModelChange)="onInstructorChange($event)"

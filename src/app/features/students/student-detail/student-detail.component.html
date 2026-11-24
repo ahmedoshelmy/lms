@@ -662,12 +662,14 @@
 
     <div>
       <label
+        id="student-detail-group-id-label"
         for="student-detail-group-id"
         class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
         >Assigned Group</label
       >
       <p-select
         inputId="student-detail-group-id"
+        ariaLabelledBy="student-detail-group-id-label"
         [options]="groupOptions()"
         [ngModel]="formGroupId()"
         (ngModelChange)="formGroupId.set($event)"

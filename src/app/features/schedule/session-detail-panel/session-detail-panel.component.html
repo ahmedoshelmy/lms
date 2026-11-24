@@ -125,6 +125,7 @@
           <!-- Assign Instructor -->
           <div>
             <label
+              id="edit-instructor-select-label"
               class="block text-xs font-semibold text-[var(--color-text-muted)] mb-1.5"
               for="edit-instructor-select"
             >
@@ -132,6 +133,7 @@
             </label>
             <p-select
               inputId="edit-instructor-select"
+              ariaLabelledBy="edit-instructor-select-label"
               [options]="instructors()"
               [ngModel]="editInstructorId()"
               (ngModelChange)="editInstructorId.set($event)"

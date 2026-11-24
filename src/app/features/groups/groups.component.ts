@@ -541,7 +541,9 @@ export class GroupsComponent implements OnInit {
     this.formEndDate = toIsoDate(end);
 
     this.formInstructorId = this.instructors().length > 0 ? this.instructors()[0].id : 0;
-    this.formStatus = 0;
+    // A new group is running. 0 is not a status: the select showed blank and the
+    // form sent it unless someone picked one.
+    this.formStatus = GROUP_STATUS['Running'];
     this.formLocation = '';
     this.formInitialSessionNumber.set(0);
     this.formAutoGenerateSessions.set(true);

@@ -36,10 +36,13 @@ the implementation log.
 - **Phase 5:** PF-01 to PF-04 done and audited (PF-05 was done in Phase 2). All components are
   `OnPush`. The group page's session feed and Attendance's all-time list wait on backend
   queries (per group; paging).
+- **Phase 6:** A-01 to A-04, done and audited. Page titles, skip link, page announcements,
+  modal focus, links instead of clickable boxes, labelled fields and named buttons, and
+  token-level contrast in both themes. The label and keyboard lint rules are errors again.
 
-Latest validation (Phase 5 audit): format ✔, lint 0 errors (167 warnings of tracked
-debt), 45 test files and 214 tests passing, production build ✔ with the initial bundle at
-about 586 kB against the 600 kB budget, production `npm audit` 0.
+Latest validation (Phase 6 audit): format ✔, lint 0 errors (42 warnings, all
+`no-explicit-any`, F-08), 51 test files and 237 tests passing, production build ✔ with the
+initial bundle at 588 kB against the 600 kB budget.
 
 Backend questions still open:
 

@@ -1355,3 +1355,49 @@ Everything below was checked as unused before deletion.
   - All batches exit 0: 50 files / 236 tests.
   - Lint: 0 errors, 42 warnings, all `no-explicit-any` (F-08).
   - Build 588.22 kB initial.
+
+## Phase 6 audit
+
+- **Checks:**
+  - format ✔;
+  - lint 0 errors, 42 warnings, all `no-explicit-any` (F-08);
+  - all batches exit 0: 51 files / 237 tests;
+  - production build ✔ at 588.22 kB initial.
+- **Runtime sweep:** all 19 pages in dark mode with sample data, plus the Create Group and
+  Add Session dialogs. No uncaught exceptions or `console.error`. A light-mode look at
+  the session page and Attendance.
+- **Found in the sweep, fixed: Create Group started a new group as status 0.**
+  - That is not a status: the API's statuses run from Running = 1.
+  - The Status box showed blank, and unless someone picked one, the form sent 0.
+  - New groups now start as Running.
+  - New `groups.component.spec.ts` fails without the fix.
+  - This was left over from the Phase 0 status fix, which covered editing but not
+    creating.
+- **Independent review** of the Phase 6 diff. Fixed:
+  1. **Timeline cards lost their box (Medium, from A-03).** The card became an `<a>`
+     with no display class, so its background, accent border, padding and conflict
+     colouring drew as thin inline fragments. It is `block` again. In the browser it
+     measures 181×62 again.
+  2. **A group card's "(2 over Room 4)" note lost its explanation** under the stretched
+     link. It sits above the link now, as Edit and Delete do.
+  3. **`<label for>` does not name a PrimeNG Select.** `inputId` lands on a
+     `<span role="combobox">`, which a label cannot name, and the span's
+     `aria-label` (the chosen option) wins anyway.
+     - All seven Selects now get `ariaLabelledBy` pointing at their label's `id`. Two
+       of them were labelled before this phase.
+     - In the browser, the instructor box is named "Select Instructor".
+  4. **The group form's End Date label pointed at nothing when editing:** in that mode
+     the date is shown, not typed. Its `for` is bound only while there is a field.
+- **Checked and held up:**
+  - the modal directive's focus, Tab and Escape, including against the drawer's Escape
+    handler;
+  - the page announcement and focus rescue;
+  - the sign-out question and the outlet wiring;
+  - the removed outputs, which nothing still used;
+  - every new link goes to the same place as before;
+  - every `aria-labelledby` and `aria-describedby` target exists;
+  - no colour token lands on a fill of its own hue.
+- **Known, not changed:**
+  - PrimeNG's toast close button takes the focus on an error during the first page load.
+  - Secondary, and the green and amber foregrounds, on `background-alt` measure 4.1 to
+    4.3:1.
