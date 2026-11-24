@@ -855,22 +855,21 @@ Everything below was checked as unused before deletion.
      (`beforeunload`), still asks. A deliberate sign-out does not ask first; that needs a
      confirm step in the sign-out button, left for Phase 6 (A-02).
 - **Fixed without a test:**
-  4. **Sales Mine/Everyone's could show the wrong list:** a fast double toggle let the
-     older answer land last. Holds and candidates loads now go through `latestRequest()`,
-     as AGENTS.md asks for filter-driven loads.
-  5. **Students: hidden selections were unreachable.** Once the filters hid every selected
-     student, the toolbar vanished, and with it "Clear Selection". A later bulk action then
-     cleared the hidden ones too. The toolbar now shows while anything is selected and says
-     how many are hidden. The bulk buttons show only when some are visible. A bulk action
-     unselects only what it finished, so failures and hidden students stay selected (the
-     existing test was updated to match).
-  6. **The text box in the confirm dialog** (release slot, propose week) now gets the
-     focus, so the reason can be typed at once. Plain confirmations still open on the safe
-     button. Checked in the browser.
+  - **Sales Mine/Everyone's could show the wrong list:** a fast double toggle let the
+    older answer land last. Holds and candidates loads now go through `latestRequest()`,
+    as AGENTS.md asks for filter-driven loads.
+  - **Students: hidden selections were unreachable.** Once the filters hid every selected
+    student, the toolbar vanished, and with it "Clear Selection". A later bulk action then
+    cleared the hidden ones too. The toolbar now shows while anything is selected and says
+    how many are hidden. The bulk buttons show only when some are visible. A bulk action
+    unselects only what it finished, so failures and hidden students stay selected (the
+    existing test was updated to match).
+  - **The text box in the confirm dialog** (release slot, propose week) now gets the
+    focus, so the reason can be typed at once. Plain confirmations still open on the safe
+    button. Checked in the browser.
 - **Reviewed, nothing found:** the confirm host (resets between questions, resolves once,
   trims, null on cancel), Sales busy guards (always released), renamed members, the session
   guard with the outstanding-work window, dashboard role branches, students with no group
   or a group with no course, evaluations, and the availability matrix.
 - **Unconfirmed, left as is:** bulk assign sends `email: ''` for a student without an email,
   as before this work. Whether the server accepts that is a backend question.
-
