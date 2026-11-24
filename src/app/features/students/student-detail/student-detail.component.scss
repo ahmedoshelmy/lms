@@ -41,7 +41,7 @@
 }
 
 .tab-active {
-  color: var(--color-primary) !important;
+  color: var(--color-brand-text) !important;
   background: color-mix(in srgb, var(--color-primary) 10%, transparent) !important;
   border-bottom: 2px solid var(--color-primary);
 }

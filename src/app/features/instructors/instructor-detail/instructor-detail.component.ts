@@ -195,11 +195,11 @@ export class InstructorDetailComponent implements OnInit {
   getSessionStatusCss(status: string): string {
     switch (status) {
       case 'Completed':
-        return 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]';
+        return 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success-foreground)]';
       case 'Scheduled':
         return 'bg-info/10 text-info-foreground';
       case 'Cancelled':
-        return 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)]';
+        return 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error-foreground)]';
       default:
         return 'bg-text-muted/10 text-text-secondary';
     }
@@ -221,7 +221,7 @@ export class InstructorDetailComponent implements OnInit {
   getGroupStatusCss(status: string): string {
     switch (status) {
       case 'Running':
-        return 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)]';
+        return 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success-foreground)]';
       case 'Stopped':
         return 'bg-warning/10 text-warning-foreground';
       case 'Completed':

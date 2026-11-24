@@ -114,10 +114,13 @@
         [class.max-sm:hidden]="!filtersOpen()"
       >
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+          <label
+            for="groups-course-filter"
+            class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
             >Course</label
           >
           <select
+            id="groups-course-filter"
             [ngModel]="courseFilter()"
             (ngModelChange)="courseFilter.set($event)"
             class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -130,10 +133,13 @@
         </div>
 
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+          <label
+            for="groups-topic-filter"
+            class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
             >Topic</label
           >
           <select
+            id="groups-topic-filter"
             [ngModel]="topicFilter()"
             (ngModelChange)="topicFilter.set($event)"
             class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -147,10 +153,13 @@
 
         @if (isAdmin()) {
           <div>
-            <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+            <label
+              for="groups-instructor-filter"
+              class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
               >Instructor</label
             >
             <select
+              id="groups-instructor-filter"
               [ngModel]="instructorFilter()"
               (ngModelChange)="instructorFilter.set($event)"
               class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -164,10 +173,13 @@
         }
 
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+          <label
+            for="groups-day-filter"
+            class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
             >Day</label
           >
           <select
+            id="groups-day-filter"
             [ngModel]="dayFilter()"
             (ngModelChange)="dayFilter.set($event)"
             class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -180,10 +192,13 @@
         </div>
 
         <div>
-          <label class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
+          <label
+            for="groups-location-filter"
+            class="block text-[10px] font-bold text-[var(--color-text-muted)] uppercase mb-1"
             >Location</label
           >
           <select
+            id="groups-location-filter"
             [ngModel]="locationFilter()"
             (ngModelChange)="locationFilter.set($event)"
             class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -517,7 +532,7 @@
                     <button
                       type="button"
                       (click)="openEditModal(group)"
-                      class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors cursor-pointer"
+                      class="p-1 rounded text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] transition-colors cursor-pointer"
                       title="Edit Group"
                       [attr.aria-label]="'Edit ' + group.name"
                     >
@@ -544,7 +559,7 @@
               <span>👥 {{ group.studentCount }} Students</span>
               @if (seatsOverBy(group); as over) {
                 <span
-                  class="text-[var(--color-warning)]"
+                  class="text-[var(--color-warning-foreground)]"
                   [title]="
                     group.roomName +
                     ' seats ' +
@@ -642,10 +657,13 @@
   <form (ngSubmit)="saveGroup()" class="flex flex-col gap-4 pt-2">
     <!-- Name -->
     <div>
-      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+      <label
+        for="groups-name"
+        class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
         >Group Name *</label
       >
       <input
+        id="groups-name"
         type="text"
         [ngModel]="formName"
         (ngModelChange)="onNameEdited($event)"
@@ -658,10 +676,13 @@
 
     <!-- Instructor -->
     <div>
-      <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+      <label
+        for="groups-instructor-id"
+        class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
         >Default Instructor *</label
       >
       <select
+        id="groups-instructor-id"
         [(ngModel)]="formInstructorId"
         name="defaultInstructorId"
         required
@@ -677,10 +698,13 @@
     <!-- Dates Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="groups-start-date"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Start Date *</label
         >
         <input
+          id="groups-start-date"
           type="date"
           [(ngModel)]="formStartDate"
           name="startDate"
@@ -689,7 +713,10 @@
         />
       </div>
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="groups-end-date"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           End Date{{ editingGroup() ? '' : ' *' }}
         </label>
         @if (editingGroup()) {
@@ -705,6 +732,7 @@
           </p>
         } @else {
           <input
+            id="groups-end-date"
             type="date"
             [(ngModel)]="formEndDate"
             name="endDate"
@@ -718,10 +746,13 @@
     <!-- Status & Location Row -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="groups-status"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Status *</label
         >
         <select
+          id="groups-status"
           [(ngModel)]="formStatus"
           name="status"
           required
@@ -733,13 +764,16 @@
         </select>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="groups-location"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Location</label
         >
         <!-- A list rather than a box: typed by hand, the place drifted
              ("ESpaces" against "ESPACES") and the room it names was never
              found, so the class was booked nowhere. -->
         <input
+          id="groups-location"
           type="text"
           [(ngModel)]="formLocation"
           name="location"
@@ -762,10 +796,14 @@
       >
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="sm:col-span-2">
-            <label class="block text-xs font-bold text-[var(--color-text-primary)] mb-1">
+            <label
+              for="groups-selected-course-level-id"
+              class="block text-xs font-bold text-[var(--color-text-primary)] mb-1"
+            >
               Course Level *
             </label>
             <select
+              id="groups-selected-course-level-id"
               [ngModel]="formSelectedCourseLevelId()"
               (ngModelChange)="formSelectedCourseLevelId.set($any($event)); suggestName()"
               name="primaryCourseLevelId"
@@ -783,12 +821,14 @@
 
           <div>
             <label
+              for="groups-initial-session-number"
               class="block text-xs font-bold text-[var(--color-text-primary)] mb-1"
               title="Set > 0 for groups that started before software onboarding"
             >
               Completed Sessions Offset
             </label>
             <input
+              id="groups-initial-session-number"
               type="number"
               min="0"
               [ngModel]="formInitialSessionNumber()"
@@ -810,9 +850,10 @@
         <!-- Weekly Schedule Slots -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-bold text-[var(--color-text-primary)]">
+            <!-- A heading over the list, not a label for one field. -->
+            <span class="block text-xs font-bold text-[var(--color-text-primary)]">
               Weekly Schedule Slots
-            </label>
+            </span>
             <button
               type="button"
               (click)="addScheduleSlot()"
@@ -826,8 +867,11 @@
             @for (slot of scheduleSlots(); track $index) {
               <div
                 class="flex items-center gap-2 bg-[var(--color-surface)] p-2.5 rounded-xl border border-[var(--color-border)]"
+                role="group"
+                [attr.aria-label]="'Weekly slot ' + ($index + 1)"
               >
                 <select
+                  aria-label="Day"
                   [(ngModel)]="slot.dayOfWeek"
                   [name]="'slotDay_' + $index"
                   class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold bg-[var(--color-surface)]"
@@ -839,6 +883,7 @@
 
                 <input
                   type="time"
+                  aria-label="Starts at"
                   [(ngModel)]="slot.startTime"
                   [name]="'slotStart_' + $index"
                   class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
@@ -846,6 +891,7 @@
                 <span class="text-xs text-[var(--color-text-muted)]">-</span>
                 <input
                   type="time"
+                  aria-label="Ends at"
                   [(ngModel)]="slot.endTime"
                   [name]="'slotEnd_' + $index"
                   class="px-2 py-1 border border-[var(--color-border)] rounded-lg text-xs font-semibold"
@@ -855,9 +901,10 @@
                   <button
                     type="button"
                     (click)="removeScheduleSlot($index)"
-                    class="p-1 text-error hover:text-error-foreground cursor-pointer ml-auto"
+                    class="p-1 text-error-foreground hover:text-error-foreground cursor-pointer ml-auto"
+                    [attr.aria-label]="'Remove weekly slot ' + ($index + 1)"
                   >
-                    <i class="pi pi-times text-xs"></i>
+                    <i class="pi pi-times text-xs" aria-hidden="true"></i>
                   </button>
                 }
               </div>
@@ -916,7 +963,7 @@
   <div class="pt-2">
     <p class="text-sm text-[var(--color-text-primary)]">
       Are you sure you want to delete group
-      <strong class="text-[var(--color-error)]">{{ groupToDelete()?.name }}</strong
+      <strong class="text-[var(--color-error-foreground)]">{{ groupToDelete()?.name }}</strong
       >? This will delete all sessions, schedules, and enrollments linked to this group.
     </p>
 
@@ -932,7 +979,7 @@
         type="button"
         (click)="deleteGroup()"
         [disabled]="saving()"
-        class="px-4 py-2 rounded-xl bg-[var(--color-error)] text-white font-semibold text-xs hover:opacity-90 transition-all duration-200 disabled:opacity-50"
+        class="px-4 py-2 rounded-xl bg-error-solid text-white font-semibold text-xs hover:opacity-90 transition-all duration-200 disabled:opacity-50"
       >
         {{ saving() ? 'Deleting...' : 'Delete' }}
       </button>
@@ -953,7 +1000,9 @@
     <div
       class="flex items-center gap-3 p-3.5 rounded-xl bg-[color-mix(in_srgb,var(--color-warning)_12%,transparent)] border border-[color-mix(in_srgb,var(--color-warning)_30%,transparent)]"
     >
-      <i class="pi pi-exclamation-triangle text-xl text-[var(--color-warning)] shrink-0"></i>
+      <i
+        class="pi pi-exclamation-triangle text-xl text-[var(--color-warning-foreground)] shrink-0"
+      ></i>
       <p class="text-xs text-[var(--color-text-primary)] leading-relaxed">
         Reassigning the default instructor will update the group instructor and automatically assign
         all remaining upcoming sessions.
@@ -962,7 +1011,7 @@
 
     <p class="text-sm text-[var(--color-text-primary)] leading-relaxed">
       Are you sure you want to assign the remaining
-      <strong class="font-bold text-[var(--color-primary)]">{{
+      <strong class="font-bold text-[var(--color-brand-text)]">{{
         pendingRemainingSessions()
       }}</strong>
       session{{ pendingRemainingSessions() === 1 ? '' : 's' }} to

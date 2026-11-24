@@ -120,7 +120,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
       cursor: not-allowed;
     }
     .confirm__icon {
-      color: var(--color-error);
+      color: var(--color-error-foreground);
       margin-top: 3px;
     }
     .confirm__actions {
@@ -145,9 +145,10 @@ import { ConfirmService } from '../../../core/services/confirm.service';
       border-color: var(--color-border);
       color: var(--color-text-primary);
     }
+    /* The solid red: white on the lighter one is too faint, most of all in dark mode. */
     .confirm__btn--danger {
-      background: var(--color-error);
-      border-color: var(--color-error);
+      background: var(--color-error-solid);
+      border-color: var(--color-error-solid);
     }
     .confirm__btn:focus-visible {
       outline: 2px solid var(--color-secondary);

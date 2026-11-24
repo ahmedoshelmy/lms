@@ -82,7 +82,7 @@
                   @if (!candidate.eligibility.eligible) {
                     <span class="block mt-1 space-y-0.5">
                       @for (reason of candidate.eligibility.reasons; track reason) {
-                        <span class="block text-[10px] text-[var(--color-warning)]">
+                        <span class="block text-[10px] text-[var(--color-warning-foreground)]">
                           <i class="pi pi-exclamation-triangle text-[9px]"></i> {{ reason }}
                         </span>
                       }
@@ -133,6 +133,7 @@
                   />
                 </label>
 
+                <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -- it wraps its control; lint cannot see one inside @if -->
                 <label>
                   <span class="cert-manual__label">Instructor</span>
                   @if (instructors().length > 0) {
@@ -226,7 +227,7 @@
           </div>
 
           @if (catalog().length === 0) {
-            <p class="text-[11px] text-[var(--color-warning)] mt-2">
+            <p class="text-[11px] text-[var(--color-warning-foreground)] mt-2">
               No course levels found in the catalog.
             </p>
           }
@@ -355,7 +356,7 @@
     >
       <p class="text-[11px] text-[var(--color-text-muted)]">
         @if (bypassedCount() > 0) {
-          <i class="pi pi-exclamation-triangle text-[var(--color-warning)]"></i>
+          <i class="pi pi-exclamation-triangle text-[var(--color-warning-foreground)]"></i>
           {{ bypassedCount() }} of {{ selectedCount() }} issued with validation bypassed
         } @else if (selectedCount() > 0) {
           {{ selectedCount() }} {{ selectedCount() === 1 ? 'certificate' : 'certificates' }} ready

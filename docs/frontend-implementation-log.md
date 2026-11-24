@@ -1239,6 +1239,7 @@ Everything below was checked as unused before deletion.
   - **Outstanding-work window:** keeps the focus through four Tabs.
   - **Skip link:** the first Tab stop. Enter moves the focus to `<main>`, and the next Tab
     is inside the page.
+
 - **Found, not changed:** PrimeNG puts a fixed `autofocus` on each toast's close button.
   Browsers act on that once per page load, when nothing has the focus. So an error toast
   during the first load, before any click or key press, takes the focus. It is narrow, and
@@ -1297,3 +1298,60 @@ Everything below was checked as unused before deletion.
     stays on top.
   - **Students:** the Email header sorts.
   - **Schedule:** the card renders as before, as a link.
+
+## A-04 — Labels, names, announced errors, status in words, contrast
+
+- **Every label is tied to its field** (85 lint warnings, now 0):
+  - **Scripted:** each `<label>` above a field got a matching `for` and `id`, named from
+    the field's model and prefixed with the file name. PrimeNG controls take `inputId`,
+    so the label reaches the real input.
+  - **Fields inside loops:** the id includes `$index`, bound with `[id]` and
+    `[attr.for]`.
+  - **Labels over things that are not fields** became captions: the derived end date,
+    session status.
+  - **Labels over a set of choices** became named groups (`role="group"` or
+    `radiogroup` with `aria-labelledby`): session type, hold duration, who to notify,
+    the cancellation reason, assigned students.
+  - **Groups' weekly slots:** each row is a named group ("Weekly slot 2"), and its day,
+    start and end fields have names. They had none.
+  - **Certificate dialog:** the label already wraps its field; lint cannot see the field
+    inside an `@if`, so that rule is disabled for the one line, with the reason.
+- **Lint rules promoted:** the label and keyboard rules (A-03, A-04) are errors again.
+- **Icon-only buttons have names** (33): "Edit Sara Ahmed", "Remove Mona Adel from the
+  group", "Clear the search", "Stop editing", and so on. A `title` was their only name, and
+  some had none.
+  - **The register's task and assignment marks** say the student and the state: "Task,
+    Sara Ahmed: did it".
+  - **The trial Came / Did not come buttons** have `aria-pressed`.
+- **The chosen option is no longer marked by colour alone:** session type, hold mode,
+  cancellation reason and the trial buttons carry `aria-pressed`.
+- **Icon-only flags have words:** "Attended their trial", "Did not turn up", "Has a parent
+  summary" and "Has parent copy" are now screen-reader text, not only a hover title.
+- **Today in the weekly view** was shown by colour only. It now also says "(today)" to
+  screen readers, in all three layouts.
+- **Errors are read out.** On the login page:
+  - each field is tied to its message (`aria-invalid`, `aria-describedby`);
+  - submitting with mistakes puts the focus on the first one;
+  - a failed sign-in is a `role="alert"`.
+- **Contrast** (measured from the tokens, both themes):
+  - **Dark mode:** primary-coloured text (about 100 uses, Tailwind and SCSS) moves to
+    `--color-brand-text`. That is the same colour in light mode and the ordinary text
+    colour in dark mode, where primary was 1.6:1 on the surface. The one exception is
+    the white button on the students' bulk toolbar, which keeps primary text.
+  - **Status colours used as text** (red, green, amber; about 100 uses) move to their
+    `-foreground` tokens. As text, red was 3.8:1, green 2.5:1 and amber 2.1:1 on white.
+  - **White text on a red fill** moves to `--color-error-solid` (5.6:1), instead of the
+    lighter red: 3.8:1 in light mode, 2.6:1 in dark. This covers the confirm dialog's
+    danger button, Groups' Delete, the register's Absent, and Attendance and Schedule
+    badges.
+  - **Muted grey (light mode)** goes from #6b7280 to #5f6673: now 4.6:1 or better on
+    every light background, where it was 3.9:1 on `background-alt`.
+  - **Left alone:** secondary, and the green and amber foregrounds, on the beige
+    `background-alt` measure 4.1 to 4.3:1. They are brand colours, used there only for
+    small chips.
+- **Validation:**
+  - 2 new login tests: a field is tied to its error and gets the focus; a failed sign-in
+    is an alert.
+  - All batches exit 0: 50 files / 236 tests.
+  - Lint: 0 errors, 42 warnings, all `no-explicit-any` (F-08).
+  - Build 588.22 kB initial.

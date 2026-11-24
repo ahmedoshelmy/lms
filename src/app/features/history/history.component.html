@@ -2,7 +2,7 @@
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-[var(--color-primary)]">History & Events</h1>
+      <h1 class="text-2xl font-bold text-[var(--color-brand-text)]">History & Events</h1>
       <p class="text-sm text-[var(--color-secondary)]">
         Track group course progression over time and inspect session history & schedule audit logs.
       </p>
@@ -16,7 +16,7 @@
         (click)="setTab('groups')"
         [class.bg-[var(--color-primary)]]="activeTab() === 'groups'"
         [class.text-white]="activeTab() === 'groups'"
-        [class.text-[var(--color-primary)]]="activeTab() !== 'groups'"
+        [class.text-[var(--color-brand-text)]]="activeTab() !== 'groups'"
         class="px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2"
       >
         <i class="pi pi-sitemap"></i> Group Course History
@@ -25,7 +25,7 @@
         (click)="setTab('sessions')"
         [class.bg-[var(--color-primary)]]="activeTab() === 'sessions'"
         [class.text-white]="activeTab() === 'sessions'"
-        [class.text-[var(--color-primary)]]="activeTab() !== 'sessions'"
+        [class.text-[var(--color-brand-text)]]="activeTab() !== 'sessions'"
         class="px-4 py-2 text-sm font-semibold rounded-lg transition-all flex items-center gap-2"
       >
         <i class="pi pi-calendar"></i> Session Audit Log
@@ -39,6 +39,7 @@
   >
     <div>
       <label
+        for="history-search-query"
         class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
       >
         Search
@@ -48,6 +49,7 @@
           class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-secondary)]"
         ></i>
         <input
+          id="history-search-query"
           type="text"
           [(ngModel)]="searchQuery"
           placeholder="Search groups, courses, topics..."
@@ -59,11 +61,13 @@
     @if (activeTab() === 'sessions') {
       <div>
         <label
+          for="history-group-filter"
           class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
         >
           Group Filter
         </label>
         <select
+          id="history-group-filter"
           [(ngModel)]="groupFilter"
           (change)="onFilterChange()"
           class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
@@ -79,11 +83,13 @@
     @if (activeTab() === 'sessions') {
       <div>
         <label
+          for="history-status-filter"
           class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
         >
           Status Filter
         </label>
         <select
+          id="history-status-filter"
           [(ngModel)]="statusFilter"
           (change)="onFilterChange()"
           class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
@@ -157,7 +163,7 @@
                 class="bg-[var(--color-background)] rounded-lg p-4 border border-[var(--color-border)] space-y-3 relative overflow-hidden"
               >
                 <div class="flex items-center justify-between">
-                  <h3 class="font-bold text-sm text-[var(--color-primary)]">
+                  <h3 class="font-bold text-sm text-[var(--color-brand-text)]">
                     {{ c.courseTitle }}
                   </h3>
                   <span
@@ -198,7 +204,7 @@
                   @if (c.cancelledSessions > 0) {
                     <div>
                       <span>Cancelled: </span>
-                      <span class="font-bold text-error">{{ c.cancelledSessions }}</span>
+                      <span class="font-bold text-error-foreground">{{ c.cancelledSessions }}</span>
                     </div>
                   }
                 </div>
@@ -234,15 +240,15 @@
           <tbody class="divide-y divide-[var(--color-border)]">
             @for (s of filteredSessionsHistory(); track s) {
               <tr class="hover:bg-[var(--color-surface-hover)] transition-colors">
-                <td class="p-4 font-medium text-[var(--color-primary)]">
+                <td class="p-4 font-medium text-[var(--color-brand-text)]">
                   <div>{{ s.startsAt | date: 'mediumDate' }}</div>
                   <div class="text-xs text-[var(--color-secondary)]">
                     {{ clock.time(s.startsAt) }} - {{ clock.time(s.endsAt) }}
                   </div>
                 </td>
-                <td class="p-4 font-semibold text-[var(--color-primary)]">{{ s.groupName }}</td>
+                <td class="p-4 font-semibold text-[var(--color-brand-text)]">{{ s.groupName }}</td>
                 <td class="p-4">
-                  <div class="font-medium text-[var(--color-primary)]">{{ s.courseTitle }}</div>
+                  <div class="font-medium text-[var(--color-brand-text)]">{{ s.courseTitle }}</div>
                   <div class="text-xs text-[var(--color-secondary)]">{{ s.topic }}</div>
                 </td>
                 <td class="p-4 text-[var(--color-secondary)]">{{ s.instructorName }}</td>
@@ -286,18 +292,20 @@
   <div class="space-y-4 pt-2">
     <p class="text-sm text-[var(--color-secondary)]">
       Promoting group
-      <strong class="text-[var(--color-primary)]">{{ selectedGroupHistory?.groupName }}</strong>
+      <strong class="text-[var(--color-brand-text)]">{{ selectedGroupHistory?.groupName }}</strong>
       will add the next course level to its curriculum and automatically schedule recurring weekly
       sessions.
     </p>
 
     <div>
       <label
+        for="history-selected-target-course-id"
         class="block text-xs font-semibold text-[var(--color-secondary)] uppercase tracking-wider mb-1"
       >
         Select Target Course Level
       </label>
       <select
+        id="history-selected-target-course-id"
         [(ngModel)]="selectedTargetCourseId"
         class="w-full px-3 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
       >

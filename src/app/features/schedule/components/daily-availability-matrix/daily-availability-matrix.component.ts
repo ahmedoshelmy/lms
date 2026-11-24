@@ -90,7 +90,7 @@ export interface SlotAvailability {
                 >
                   <div class="flex items-center gap-2">
                     <div
-                      class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-neutral-icon-bg)] font-semibold text-[var(--color-primary)] text-[10px]"
+                      class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-neutral-icon-bg)] font-semibold text-[var(--color-brand-text)] text-[10px]"
                     >
                       {{ getInitials(instructor.name) }}
                     </div>

@@ -355,11 +355,14 @@
             <div>
               <h2 class="modal-title" id="session-modal-title">
                 @if (activeSessionModal() === 'updated') {
-                  <i class="pi pi-file-edit text-[var(--color-warning)]" aria-hidden="true"></i>
+                  <i
+                    class="pi pi-file-edit text-[var(--color-warning-foreground)]"
+                    aria-hidden="true"
+                  ></i>
                   Attendance Updated Today
                 } @else {
                   <i
-                    class="pi pi-exclamation-circle text-[var(--color-danger)]"
+                    class="pi pi-exclamation-circle text-[var(--color-error-foreground)]"
                     aria-hidden="true"
                   ></i>
                   Pending Attendance Sessions
@@ -389,7 +392,7 @@
             @if (sessionsList.length === 0) {
               <div class="modal-empty">
                 <i
-                  class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success)]"
+                  class="pi pi-check-circle text-4xl mb-3 block opacity-30 text-[var(--color-success-foreground)]"
                 ></i>
                 <p class="font-semibold text-[var(--color-text-primary)]">
                   No sessions found in this list
@@ -409,7 +412,7 @@
                     <h3 class="modal-session__topic">{{ getSessionDisplayTopic(s) }}</h3>
                     <div class="modal-session__meta">
                       <span
-                        class="flex items-center gap-1 text-[var(--color-primary)] font-semibold"
+                        class="flex items-center gap-1 text-[var(--color-brand-text)] font-semibold"
                       >
                         <i class="pi pi-user text-xs"></i> Instructor: {{ s.instructorName }}
                       </span>

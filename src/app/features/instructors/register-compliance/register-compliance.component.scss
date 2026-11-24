@@ -124,11 +124,11 @@
 }
 
 .total__value--warn {
-  color: var(--color-warning);
+  color: var(--color-warning-foreground);
 }
 
 .total__value--bad {
-  color: var(--color-danger);
+  color: var(--color-error-foreground);
 }
 
 .total__label {
@@ -186,11 +186,11 @@
 }
 
 .num--warn {
-  color: var(--color-warning);
+  color: var(--color-warning-foreground);
 }
 
 .num--bad {
-  color: var(--color-danger);
+  color: var(--color-error-foreground);
 }
 
 /* Colour carries the judgement, so it is spent only on the rate. */
@@ -206,15 +206,15 @@
 
 .rate--good {
   background: color-mix(in srgb, var(--color-success) 16%, transparent);
-  color: var(--color-success);
+  color: var(--color-success-foreground);
 }
 
 .rate--fair {
   background: color-mix(in srgb, var(--color-warning) 18%, transparent);
-  color: var(--color-warning);
+  color: var(--color-warning-foreground);
 }
 
 .rate--poor {
   background: color-mix(in srgb, var(--color-danger) 15%, transparent);
-  color: var(--color-danger);
+  color: var(--color-error-foreground);
 }

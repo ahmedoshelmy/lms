@@ -49,10 +49,8 @@ module.exports = tseslint.config(
       '@angular-eslint/template/eqeqeq': ['error', { allowNullOrUndefined: true }],
       // PrimeNG's pButton draws its text from the `label` input.
       '@angular-eslint/template/elements-content': ['error', { allowList: ['label'] }],
-      // Known debt, as above.
-      '@angular-eslint/template/label-has-associated-control': 'warn', // A-04
-      '@angular-eslint/template/click-events-have-key-events': 'warn', // A-03
-      '@angular-eslint/template/interactive-supports-focus': 'warn', // A-03
+      // Labels, keyboard support and focus are back to the accessibility
+      // preset's errors: the debt was paid in A-03 and A-04.
       '@angular-eslint/template/prefer-control-flow': 'error', // done in F-05
     },
   }

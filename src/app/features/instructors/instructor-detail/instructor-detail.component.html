@@ -57,7 +57,7 @@
               </div>
               @if (instructor()!.phone) {
                 <div class="flex items-center gap-1.5">
-                  <i class="pi pi-phone text-[var(--color-primary)]"></i>
+                  <i class="pi pi-phone text-[var(--color-brand-text)]"></i>
                   <span class="font-medium">{{ instructor()!.phone }}</span>
                 </div>
               }
@@ -112,7 +112,7 @@
             This Week
           </span>
           <div class="flex items-center gap-2">
-            <i class="pi pi-clock text-lg text-[var(--color-primary)]"></i>
+            <i class="pi pi-clock text-lg text-[var(--color-brand-text)]"></i>
             <span class="text-xl font-black text-[var(--color-text-primary)]">
               {{ stats()?.sessionsThisWeek ?? 0 }}
             </span>
@@ -131,7 +131,7 @@
             Groups Assigned
           </span>
           <div class="flex items-center gap-2">
-            <i class="pi pi-sitemap text-lg text-[var(--color-success)]"></i>
+            <i class="pi pi-sitemap text-lg text-[var(--color-success-foreground)]"></i>
             <span class="text-xl font-black text-[var(--color-text-primary)]">
               {{ stats()?.totalGroups ?? instructor()!.groups.length }}
             </span>
@@ -166,7 +166,7 @@
             Called Off By Them
           </span>
           <div class="flex items-center gap-2">
-            <i class="pi pi-ban text-lg text-[var(--color-warning)]"></i>
+            <i class="pi pi-ban text-lg text-[var(--color-warning-foreground)]"></i>
             <span class="text-xl font-black text-[var(--color-text-primary)]">
               {{ stats()?.cancelledByThemPercent ?? 0 }}%
             </span>
@@ -241,7 +241,7 @@
               class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
               [class]="
                 sessionFilter() === 'completed'
-                  ? 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success)] border border-[color-mix(in_srgb,var(--color-success)_20%,transparent)]'
+                  ? 'bg-[color-mix(in_srgb,var(--color-success)_12%,transparent)] text-[var(--color-success-foreground)] border border-[color-mix(in_srgb,var(--color-success)_20%,transparent)]'
                   : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-success)]/40'
               "
             >
@@ -264,7 +264,7 @@
                 class="px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer"
                 [class]="
                   sessionFilter() === 'cancelled'
-                    ? 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error)] border border-[color-mix(in_srgb,var(--color-error)_20%,transparent)]'
+                    ? 'bg-[color-mix(in_srgb,var(--color-error)_12%,transparent)] text-[var(--color-error-foreground)] border border-[color-mix(in_srgb,var(--color-error)_20%,transparent)]'
                     : 'bg-[var(--color-background)] text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-error)]/40'
                 "
               >
@@ -522,7 +522,7 @@
                     </td>
                     <td class="py-3.5 px-4">
                       <span
-                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                        class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-primary)]/10 text-[var(--color-brand-text)]"
                       >
                         {{ session.type }}
                       </span>
@@ -627,7 +627,7 @@
   <div class="py-2">
     <p class="text-xs text-[var(--color-text-primary)]">
       Are you sure you want to delete
-      <strong class="text-[var(--color-primary)]">{{ instructor()?.name }}</strong
+      <strong class="text-[var(--color-brand-text)]">{{ instructor()?.name }}</strong
       >? This action cannot be undone. All assigned sessions and groups will be unlinked.
     </p>
   </div>

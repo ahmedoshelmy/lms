@@ -139,7 +139,7 @@
     font-variant-numeric: tabular-nums;
 
     &--over {
-      color: var(--color-danger);
+      color: var(--color-error-foreground);
     }
   }
 
@@ -169,7 +169,7 @@
   }
 
   &__warn {
-    color: var(--color-danger);
+    color: var(--color-error-foreground);
   }
 }
 

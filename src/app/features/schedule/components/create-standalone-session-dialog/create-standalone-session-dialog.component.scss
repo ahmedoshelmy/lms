@@ -19,6 +19,6 @@
   &--active {
     border-color: var(--color-primary);
     background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
-    color: var(--color-primary);
+    color: var(--color-brand-text);
   }
 }

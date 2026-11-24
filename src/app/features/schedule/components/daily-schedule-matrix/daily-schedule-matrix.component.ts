@@ -74,7 +74,7 @@ export interface TimeSlot {
                 >
                   <div class="flex items-center gap-2">
                     <div
-                      class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-neutral-icon-bg)] font-semibold text-[var(--color-primary)] text-[10px]"
+                      class="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-neutral-icon-bg)] font-semibold text-[var(--color-brand-text)] text-[10px]"
                     >
                       {{ getInitials(instructor.name) }}
                     </div>
@@ -101,7 +101,7 @@ export interface TimeSlot {
                       >
                         <div>
                           <div
-                            class="font-bold text-[11px] text-[var(--color-primary)] leading-tight truncate"
+                            class="font-bold text-[11px] text-[var(--color-brand-text)] leading-tight truncate"
                           >
                             {{ session.groupName || session.courseTitle }}
                           </div>
@@ -114,7 +114,7 @@ export interface TimeSlot {
                         >
                           <span>📍 {{ session.location || 'Online' }}</span>
                           <span
-                            class="rounded px-1 bg-[var(--color-neutral-icon-bg)] text-[var(--color-primary)]"
+                            class="rounded px-1 bg-[var(--color-neutral-icon-bg)] text-[var(--color-brand-text)]"
                           >
                             {{ formatTime(session.startsAt) }}
                           </span>

@@ -60,7 +60,9 @@ import { NotificationService } from '../../core/services/notification.service';
             </div>
 
             @if (apiUrl !== currentSavedUrl()) {
-              <p class="text-xs text-[var(--color-warning)] mt-2 flex items-center gap-1.5">
+              <p
+                class="text-xs text-[var(--color-warning-foreground)] mt-2 flex items-center gap-1.5"
+              >
                 <i class="pi pi-exclamation-triangle"></i> Unsaved changes
               </p>
             }
@@ -138,7 +140,8 @@ import { NotificationService } from '../../core/services/notification.service';
                 @if (pinging()) {
                   <i class="pi pi-spinner pi-spin mr-2"></i> Testing…
                 } @else {
-                  <i class="pi pi-bolt mr-2 text-[var(--color-warning)]"></i> Test Connection
+                  <i class="pi pi-bolt mr-2 text-[var(--color-warning-foreground)]"></i> Test
+                  Connection
                 }
               </button>
             </div>

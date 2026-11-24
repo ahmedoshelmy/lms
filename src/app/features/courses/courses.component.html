@@ -120,14 +120,16 @@
                   Add Level
                 </button>
                 <button
+                  [attr.aria-label]="'Edit ' + topic.name"
                   type="button"
                   (click)="openEditTopicModal(topic); $event.stopPropagation()"
-                  class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                  class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                   title="Edit Topic"
                 >
-                  <i class="pi pi-pencil text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-pencil text-xs"></i>
                 </button>
                 <button
+                  [attr.aria-label]="'Delete ' + topic.name"
                   type="button"
                   (click)="
                     openDeleteModal({ type: 'topic', id: topic.id, name: topic.name });
@@ -136,7 +138,7 @@
                   class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                   title="Delete Topic"
                 >
-                  <i class="pi pi-trash text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-trash text-xs"></i>
                 </button>
               }
 
@@ -171,7 +173,7 @@
                   <div>
                     <div class="flex items-center justify-between gap-4 mb-3">
                       <span
-                        class="inline-flex px-2.5 py-0.5 rounded-md text-xs font-bold bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                        class="inline-flex px-2.5 py-0.5 rounded-md text-xs font-bold bg-[var(--color-primary)]/10 text-[var(--color-brand-text)]"
                       >
                         Level {{ level.level }}
                       </span>
@@ -208,14 +210,16 @@
                     @if (isAdmin()) {
                       <div class="flex items-center gap-1">
                         <button
+                          [attr.aria-label]="'Edit level ' + level.level + ', ' + level.title"
                           type="button"
                           (click)="openEditLevelModal(topic, level)"
-                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                          class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                           title="Edit Level"
                         >
-                          <i class="pi pi-pencil text-xs"></i>
+                          <i aria-hidden="true" class="pi pi-pencil text-xs"></i>
                         </button>
                         <button
+                          [attr.aria-label]="'Delete level ' + level.level + ', ' + level.title"
                           type="button"
                           (click)="
                             openDeleteModal({
@@ -228,7 +232,7 @@
                           class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                           title="Delete Level"
                         >
-                          <i class="pi pi-trash text-xs"></i>
+                          <i aria-hidden="true" class="pi pi-trash text-xs"></i>
                         </button>
                       </div>
                     }
@@ -271,10 +275,14 @@
     <div class="flex flex-col gap-4 py-2">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="col-span-1">
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          <label
+            for="courses-topic-code"
+            class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+          >
             Code *
           </label>
           <input
+            id="courses-topic-code"
             type="text"
             [ngModel]="topicCode()"
             (ngModelChange)="topicCode.set($event)"
@@ -283,10 +291,14 @@
           />
         </div>
         <div class="col-span-2">
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          <label
+            for="courses-topic-name"
+            class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+          >
             Topic Name *
           </label>
           <input
+            id="courses-topic-name"
             type="text"
             [ngModel]="topicName()"
             (ngModelChange)="topicName.set($event)"
@@ -297,10 +309,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="courses-topic-description"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           Description
         </label>
         <textarea
+          id="courses-topic-description"
           [ngModel]="topicDescription()"
           (ngModelChange)="topicDescription.set($event)"
           placeholder="General topic overview..."
@@ -346,10 +362,14 @@
     <div class="flex flex-col gap-4 py-2">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          <label
+            for="courses-level-number"
+            class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+          >
             Level Number (Integer) *
           </label>
           <input
+            id="courses-level-number"
             type="number"
             min="1"
             [ngModel]="levelNumber()"
@@ -359,10 +379,14 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+          <label
+            for="courses-level-session-count"
+            class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+          >
             Session Count *
           </label>
           <input
+            id="courses-level-session-count"
             type="number"
             min="1"
             [ngModel]="levelSessionCount()"
@@ -373,10 +397,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="courses-level-title"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           Level Title *
         </label>
         <input
+          id="courses-level-title"
           type="text"
           [ngModel]="levelTitle()"
           (ngModelChange)="levelTitle.set($event)"
@@ -386,10 +414,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="courses-level-description"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           Description *
         </label>
         <textarea
+          id="courses-level-description"
           [ngModel]="levelDescription()"
           (ngModelChange)="levelDescription.set($event)"
           placeholder="Syllabus and level objectives..."
@@ -435,7 +467,7 @@
     <div class="py-2">
       <p class="text-sm text-[var(--color-text-primary)]">
         Are you sure you want to delete this {{ deletingTarget()?.type }}:
-        <strong class="text-[var(--color-primary)]">{{ deletingTarget()?.name }}</strong
+        <strong class="text-[var(--color-brand-text)]">{{ deletingTarget()?.name }}</strong
         >? This action cannot be undone.
       </p>
     </div>
@@ -512,7 +544,8 @@
               <span class="syl-row__title">{{ session.title }}</span>
               @if (session.parentSummary) {
                 <span class="syl-row__flag" title="Has a parent summary">
-                  <i class="pi pi-users text-[9px]"></i>
+                  <i class="pi pi-users text-[9px]" aria-hidden="true"></i>
+                  <span class="sr-only">Has a parent summary</span>
                 </span>
               }
               <i

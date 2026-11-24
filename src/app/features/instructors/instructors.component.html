@@ -264,39 +264,43 @@
 
             <div class="flex items-center gap-1">
               <button
+                [attr.aria-label]="'View ' + instructor.name"
                 type="button"
                 (click)="viewInstructor(instructor)"
                 class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
                 title="View Details"
               >
-                <i class="pi pi-eye text-xs"></i>
+                <i aria-hidden="true" class="pi pi-eye text-xs"></i>
               </button>
               <button
+                [attr.aria-label]="'Edit ' + instructor.name"
                 type="button"
                 (click)="openEditModal(instructor)"
-                class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                 title="Edit Instructor"
               >
-                <i class="pi pi-pencil text-xs"></i>
+                <i aria-hidden="true" class="pi pi-pencil text-xs"></i>
               </button>
               @if (isDeactivated(instructor)) {
                 <button
+                  [attr.aria-label]="'Reactivate ' + instructor.name"
                   type="button"
                   (click)="reactivate(instructor)"
                   [disabled]="saving()"
-                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-success)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer disabled:opacity-40"
+                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-success-foreground)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer disabled:opacity-40"
                   title="Reactivate — let them sign in again"
                 >
-                  <i class="pi pi-replay text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-replay text-xs"></i>
                 </button>
               } @else {
                 <button
+                  [attr.aria-label]="'Remove ' + instructor.name"
                   type="button"
                   (click)="openDeleteModal(instructor)"
                   class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                   title="Remove — deactivate or delete"
                 >
-                  <i class="pi pi-trash text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-trash text-xs"></i>
                 </button>
               }
             </div>
@@ -399,39 +403,43 @@
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <button
+                    [attr.aria-label]="'View ' + instructor.name"
                     type="button"
                     (click)="viewInstructor(instructor)"
                     class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
                     title="View Details"
                   >
-                    <i class="pi pi-eye"></i>
+                    <i aria-hidden="true" class="pi pi-eye"></i>
                   </button>
                   <button
+                    [attr.aria-label]="'Edit ' + instructor.name"
                     type="button"
                     (click)="openEditModal(instructor)"
-                    class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                    class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                     title="Edit Instructor"
                   >
-                    <i class="pi pi-pencil"></i>
+                    <i aria-hidden="true" class="pi pi-pencil"></i>
                   </button>
                   @if (isDeactivated(instructor)) {
                     <button
+                      [attr.aria-label]="'Reactivate ' + instructor.name"
                       type="button"
                       (click)="reactivate(instructor)"
                       [disabled]="saving()"
-                      class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-success)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer disabled:opacity-40"
+                      class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-success-foreground)] hover:bg-[var(--color-success)]/10 transition-colors cursor-pointer disabled:opacity-40"
                       title="Reactivate — let them sign in again"
                     >
-                      <i class="pi pi-replay"></i>
+                      <i aria-hidden="true" class="pi pi-replay"></i>
                     </button>
                   } @else {
                     <button
+                      [attr.aria-label]="'Remove ' + instructor.name"
                       type="button"
                       (click)="openDeleteModal(instructor)"
                       class="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                       title="Remove — deactivate or delete"
                     >
-                      <i class="pi pi-trash"></i>
+                      <i aria-hidden="true" class="pi pi-trash"></i>
                     </button>
                   }
                 </div>
@@ -454,10 +462,13 @@
   >
     <div class="flex flex-col gap-4 py-2">
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="instructors-name"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Full Name *</label
         >
         <input
+          id="instructors-name"
           type="text"
           [ngModel]="formName()"
           (ngModelChange)="formName.set($event)"
@@ -467,10 +478,13 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="instructors-email"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Email Address *</label
         >
         <input
+          id="instructors-email"
           type="email"
           [ngModel]="formEmail()"
           (ngModelChange)="formEmail.set($event)"
@@ -480,10 +494,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="instructors-password"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           Password {{ editingInstructor() ? '(Leave blank to keep current)' : '*' }}
         </label>
         <input
+          id="instructors-password"
           type="password"
           [ngModel]="formPassword()"
           (ngModelChange)="formPassword.set($event)"
@@ -493,10 +511,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="instructors-weekly-hours"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           Weekly hours limit
         </label>
         <input
+          id="instructors-weekly-hours"
           type="number"
           min="0"
           max="168"

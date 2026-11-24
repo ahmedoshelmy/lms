@@ -26,7 +26,7 @@ import { busiestAndQuietest, summariseWeek } from '../../../../core/utils/week-s
             id="week-summary-title"
             class="text-lg font-bold text-[var(--color-text-primary)] flex items-center gap-2"
           >
-            <i class="pi pi-table text-[var(--color-primary)]" aria-hidden="true"></i>
+            <i class="pi pi-table text-[var(--color-brand-text)]" aria-hidden="true"></i>
             This week by day
           </h3>
           <p class="text-xs text-[var(--color-text-muted)]">
@@ -57,7 +57,7 @@ import { busiestAndQuietest, summariseWeek } from '../../../../core/utils/week-s
                       ({{ shortDate(day.date) }})
                     </span>
                   </th>
-                  <td class="px-4 py-3 text-center font-bold text-[var(--color-primary)]">
+                  <td class="px-4 py-3 text-center font-bold text-[var(--color-brand-text)]">
                     {{ day.classes }}
                   </td>
                   <td class="px-4 py-3 text-center text-[var(--color-text-secondary)]">
@@ -85,7 +85,7 @@ import { busiestAndQuietest, summariseWeek } from '../../../../core/utils/week-s
             id="week-chart-title"
             class="text-md font-bold text-[var(--color-text-primary)] flex items-center gap-2"
           >
-            <i class="pi pi-chart-bar text-[var(--color-primary)]" aria-hidden="true"></i>
+            <i class="pi pi-chart-bar text-[var(--color-brand-text)]" aria-hidden="true"></i>
             Classes per day
           </h3>
         </div>

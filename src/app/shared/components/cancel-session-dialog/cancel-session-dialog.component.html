@@ -13,15 +13,23 @@
     </p>
 
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-muted)] mb-2">
+      <span
+        id="cancel-session-cause"
+        class="block text-xs font-bold text-[var(--color-text-muted)] mb-2"
+      >
         Why is it not going ahead?
-      </label>
+      </span>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-3 gap-2"
+        role="group"
+        aria-labelledby="cancel-session-cause"
+      >
         @for (choice of choices; track choice.value) {
           <button
             type="button"
             (click)="choose(choice.value)"
+            [attr.aria-pressed]="cause() === choice.value"
             class="p-3 rounded-xl border text-left transition-colors cursor-pointer"
             [class.border-[var(--color-primary)]]="cause() === choice.value"
             [class.bg-[var(--color-primary)]/5]="cause() === choice.value"

@@ -98,7 +98,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-brand-text);
   font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
@@ -155,7 +155,7 @@
 }
 
 .row--unread .row__icon {
-  color: var(--color-primary);
+  color: var(--color-brand-text);
 }
 
 .row__text {

@@ -81,7 +81,7 @@ export interface CommandItem {
                   <div
                     class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                     [ngClass]="{
-                      'bg-[var(--color-primary)]/10 text-[var(--color-primary)]':
+                      'bg-[var(--color-primary)]/10 text-[var(--color-brand-text)]':
                         item.category === 'Navigation',
                       'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]':
                         item.category === 'Student',

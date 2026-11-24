@@ -182,7 +182,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--color-error);
+  background: var(--color-error-solid);
   color: white;
   display: flex;
   align-items: center;
@@ -250,7 +250,7 @@
 }
 .badge-cancelled {
   background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
-  color: var(--color-error);
+  color: var(--color-error-foreground);
   border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
 }
 

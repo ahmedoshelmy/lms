@@ -103,8 +103,13 @@
             <i class="pi pi-pencil"></i>
             <p class="edit-section__title">Edit Session</p>
           </div>
-          <button type="button" class="edit-section__close" (click)="cancelEditing()">
-            <i class="pi pi-times"></i>
+          <button
+            aria-label="Stop editing"
+            type="button"
+            class="edit-section__close"
+            (click)="cancelEditing()"
+          >
+            <i aria-hidden="true" class="pi pi-times"></i>
           </button>
         </div>
 
@@ -180,7 +185,7 @@
 
           <!-- Status / Cancel Toggle -->
           <div class="edit-field">
-            <label class="edit-label">Session Status</label>
+            <span class="edit-label">Session Status</span>
             @if (isEditCancelled()) {
               <div class="cancel-confirm-box">
                 <p class="cancel-confirm-note">
@@ -214,7 +219,7 @@
           <!-- Apply Forward Options -->
           <div class="edit-field border-t border-[var(--color-border)] pt-3 mt-3">
             <label
-              class="flex items-center gap-2 text-xs font-bold text-[var(--color-primary)] cursor-pointer"
+              class="flex items-center gap-2 text-xs font-bold text-[var(--color-brand-text)] cursor-pointer"
             >
               <input
                 type="checkbox"
@@ -553,6 +558,16 @@
                     </td>
                     <td class="roster-td roster-td--mark roster-td--task" data-label="Task">
                       <button
+                        [attr.aria-label]="
+                          'Task, ' +
+                          rec.studentName +
+                          ': ' +
+                          (rec.taskDone === true
+                            ? 'did it'
+                            : rec.taskDone === false
+                              ? 'did not'
+                              : 'not asked')
+                        "
                         type="button"
                         class="mark"
                         [class.mark--yes]="rec.taskDone === true"
@@ -568,6 +583,7 @@
                         "
                       >
                         <i
+                          aria-hidden="true"
                           class="pi"
                           [class.pi-check]="rec.taskDone === true"
                           [class.pi-times]="rec.taskDone === false"
@@ -580,6 +596,16 @@
                       data-label="Assignment"
                     >
                       <button
+                        [attr.aria-label]="
+                          'Assignment, ' +
+                          rec.studentName +
+                          ': ' +
+                          (rec.assignmentDone === true
+                            ? 'handed in'
+                            : rec.assignmentDone === false
+                              ? 'not handed in'
+                              : 'not asked')
+                        "
                         type="button"
                         class="mark"
                         [class.mark--yes]="rec.assignmentDone === true"
@@ -595,6 +621,7 @@
                         "
                       >
                         <i
+                          aria-hidden="true"
                           class="pi"
                           [class.pi-check]="rec.assignmentDone === true"
                           [class.pi-times]="rec.assignmentDone === false"
@@ -740,22 +767,26 @@
                     <td class="roster-td roster-td--actions">
                       <div class="status-btns">
                         <button
+                          [attr.aria-label]="candidate.name + ' came'"
+                          [attr.aria-pressed]="candidate.trialAttended === true"
                           type="button"
                           class="status-btn status-btn--present"
                           [class.status-btn--active]="candidate.trialAttended === true"
                           (click)="markTrial(candidate, true)"
                           title="Came"
                         >
-                          <i class="pi pi-check"></i>
+                          <i aria-hidden="true" class="pi pi-check"></i>
                         </button>
                         <button
+                          [attr.aria-label]="candidate.name + ' did not come'"
+                          [attr.aria-pressed]="candidate.trialAttended === false"
                           type="button"
                           class="status-btn status-btn--absent"
                           [class.status-btn--active]="candidate.trialAttended === false"
                           (click)="markTrial(candidate, false)"
                           title="Did not come"
                         >
-                          <i class="pi pi-times"></i>
+                          <i aria-hidden="true" class="pi pi-times"></i>
                         </button>
                       </div>
                     </td>

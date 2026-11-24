@@ -412,41 +412,46 @@
                   @if (candidate.trialStartsAt && candidate.trialAttended === null) {
                     <span class="person__ask">Came?</span>
                     <button
+                      [attr.aria-label]="candidate.name + ' attended the trial'"
                       type="button"
                       class="person__yes"
                       title="They attended the trial"
                       [disabled]="isBusy('candidate', candidate.id)"
                       (click)="recordTrialOutcome(candidate, true)"
                     >
-                      <i class="pi pi-check"></i>
+                      <i aria-hidden="true" class="pi pi-check"></i>
                     </button>
                     <button
+                      [attr.aria-label]="candidate.name + ' did not turn up'"
                       type="button"
                       class="person__no"
                       title="They did not turn up"
                       [disabled]="isBusy('candidate', candidate.id)"
                       (click)="recordTrialOutcome(candidate, false)"
                     >
-                      <i class="pi pi-times"></i>
+                      <i aria-hidden="true" class="pi pi-times"></i>
                     </button>
                   } @else if (candidate.trialAttended === true) {
                     <span class="person__flag person__flag--yes" title="Attended their trial">
-                      <i class="pi pi-check-circle"></i>
+                      <i class="pi pi-check-circle" aria-hidden="true"></i>
+                      <span class="sr-only">Attended their trial</span>
                     </span>
                   } @else if (candidate.trialAttended === false) {
                     <span class="person__flag person__flag--no" title="Did not turn up">
-                      <i class="pi pi-times-circle"></i>
+                      <i class="pi pi-times-circle" aria-hidden="true"></i>
+                      <span class="sr-only">Did not turn up</span>
                     </span>
                   }
 
                   @if (candidate.status !== 'Enrolled') {
                     <button
+                      [attr.aria-label]="'Book ' + candidate.name + ' a trial in this slot'"
                       type="button"
                       class="person__trial"
                       title="Book them into this slot for a trial"
                       (click)="openTrialDialog(hold, candidate)"
                     >
-                      <i class="pi pi-calendar-plus"></i>
+                      <i aria-hidden="true" class="pi pi-calendar-plus"></i>
                     </button>
                   }
                 </div>

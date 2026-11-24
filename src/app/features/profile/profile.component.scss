@@ -28,7 +28,7 @@
 }
 .badge-admin {
   background: color-mix(in srgb, var(--color-primary) 10%, transparent);
-  color: var(--color-primary);
+  color: var(--color-brand-text);
 }
 .badge-instructor {
   background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
@@ -36,7 +36,7 @@
 }
 .badge-student {
   background: color-mix(in srgb, var(--color-success) 10%, transparent);
-  color: var(--color-success);
+  color: var(--color-success-foreground);
 }
 
 .stat-chip {

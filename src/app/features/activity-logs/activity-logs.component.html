@@ -2,7 +2,7 @@
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-[var(--color-primary)] flex items-center gap-2">
+      <h1 class="text-2xl font-bold text-[var(--color-brand-text)] flex items-center gap-2">
         <i class="pi pi-chart-line text-[var(--color-secondary)]"></i>
         Activity Audit &amp; Analytics
       </h1>
@@ -57,7 +57,7 @@
             class="text-[var(--color-text-secondary)] text-xs font-semibold uppercase tracking-wider"
             >Most Frequent Actions</span
           >
-          <i class="pi pi-star text-warning"></i>
+          <i class="pi pi-star text-warning-foreground"></i>
         </div>
         <div class="space-y-2">
           @for (item of s.topActions.slice(0, 3); track item.action) {
@@ -70,7 +70,7 @@
                 item.action
               }}</span>
               <span
-                class="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-background-alt)] text-[var(--color-primary)]"
+                class="px-2 py-0.5 rounded-full text-xs font-bold bg-[var(--color-background-alt)] text-[var(--color-brand-text)]"
               >
                 {{ item.count }}
               </span>

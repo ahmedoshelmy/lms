@@ -24,11 +24,11 @@
 
 .status-running {
   background: color-mix(in srgb, var(--color-success) 12%, transparent);
-  color: var(--color-success);
+  color: var(--color-success-foreground);
 }
 .status-stopped {
   background: color-mix(in srgb, var(--color-warning) 12%, transparent);
-  color: var(--color-warning);
+  color: var(--color-warning-foreground);
 }
 .status-completed {
   background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
@@ -45,7 +45,7 @@
 }
 .level-2 {
   background: color-mix(in srgb, var(--color-success) 12%, transparent);
-  color: var(--color-success);
+  color: var(--color-success-foreground);
 }
 .level-default {
   background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);

@@ -46,9 +46,13 @@
             autocomplete="email"
             class="box-border w-full rounded-[10px] border-2 border-(--color-border) bg-(--color-surface) px-3.5 py-3 text-sm text-(--color-text-primary) transition-all duration-200 focus:border-(--color-secondary) focus:outline-none focus:ring-[3px] focus:ring-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]"
             [class.!border-(--color-error)]="emailControl.invalid && emailControl.touched"
+            [attr.aria-invalid]="emailControl.invalid && emailControl.touched"
+            [attr.aria-describedby]="
+              emailControl.invalid && emailControl.touched ? 'email-error' : null
+            "
           />
           @if (emailControl.invalid && emailControl.touched) {
-            <span class="mt-1.5 block text-xs text-(--color-error)"
+            <span id="email-error" class="mt-1.5 block text-xs text-(--color-error-foreground)"
               >Enter a valid email address.</span
             >
           }
@@ -69,15 +73,25 @@
             autocomplete="current-password"
             class="box-border w-full rounded-[10px] border-2 border-(--color-border) bg-(--color-surface) px-3.5 py-3 text-sm text-(--color-text-primary) transition-all duration-200 focus:border-(--color-secondary) focus:outline-none focus:ring-[3px] focus:ring-[color-mix(in_srgb,var(--color-secondary)_15%,transparent)]"
             [class.!border-(--color-error)]="passwordControl.invalid && passwordControl.touched"
+            [attr.aria-invalid]="passwordControl.invalid && passwordControl.touched"
+            [attr.aria-describedby]="
+              passwordControl.invalid && passwordControl.touched ? 'password-error' : null
+            "
           />
           @if (passwordControl.invalid && passwordControl.touched) {
-            <span class="mt-1.5 block text-xs text-(--color-error)">Password is required.</span>
+            <span id="password-error" class="mt-1.5 block text-xs text-(--color-error-foreground)"
+              >Password is required.</span
+            >
           }
         </div>
 
-        <!-- General Error -->
+        <!-- General Error: read out as it appears, not only shown in red. -->
         @if (error()) {
-          <span class="mt-1.5 block text-left text-xs text-(--color-error)">{{ error() }}</span>
+          <span
+            role="alert"
+            class="mt-1.5 block text-left text-xs text-(--color-error-foreground)"
+            >{{ error() }}</span
+          >
         }
 
         <!-- Submit Button -->

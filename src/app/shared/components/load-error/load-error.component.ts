@@ -37,7 +37,7 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
     }
     .load-error__icon {
       font-size: 28px;
-      color: var(--color-error);
+      color: var(--color-error-foreground);
     }
     .load-error__title {
       margin: 4px 0 0;

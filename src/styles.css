@@ -42,7 +42,7 @@
   /* Text & Borders */
   --color-text-primary: #111827;
   --color-text-secondary: #475467;
-  --color-text-muted: #6b7280;
+  --color-text-muted: #5f6673; /* 4.6:1 or better on every light background (was #6b7280: 3.9 on background-alt) */
   --color-border: #e5e7eb;
   --color-disabled: #d1d5dd;
 

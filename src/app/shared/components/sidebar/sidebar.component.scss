@@ -63,7 +63,7 @@
 
 .toggle-btn:hover {
   background: var(--color-surface-hover);
-  color: var(--color-primary);
+  color: var(--color-brand-text);
   transform: translateY(-50%) scale(1.08);
 }
 
@@ -253,7 +253,7 @@
   gap: 8px;
   background: transparent;
   border: none;
-  color: var(--color-error);
+  color: var(--color-error-foreground);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;

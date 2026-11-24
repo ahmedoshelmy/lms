@@ -60,7 +60,10 @@
         "
       ></i>
       <div>
-        <p class="summary-value" [class.text-[var(--color-error)]]="conflictSessionsCount() > 0">
+        <p
+          class="summary-value"
+          [class.text-[var(--color-error-foreground)]]="conflictSessionsCount() > 0"
+        >
           {{ conflictSessionsCount() }}
         </p>
         <p class="summary-label">Conflicts</p>
@@ -100,6 +103,9 @@
                 [class.text-[var(--color-text-primary)]]="!col.isToday"
               >
                 {{ col.formattedDate }}
+                @if (col.isToday) {
+                  <span class="sr-only">(today)</span>
+                }
               </p>
               @if (col.sessions.length > 0) {
                 <span class="text-[10px] font-bold text-[var(--color-text-muted)]"
@@ -123,7 +129,7 @@
                   <!-- Conflict indicator flag -->
                   @if (isConflict(session)) {
                     <div
-                      class="absolute right-2 top-2 text-error font-bold text-xs"
+                      class="absolute right-2 top-2 text-error-foreground font-bold text-xs"
                       title="Scheduling conflict detected"
                     >
                       <i class="pi pi-exclamation-circle"></i>
@@ -245,6 +251,9 @@
                   [class.text-[var(--color-text-primary)]]="!col.isToday"
                 >
                   {{ col.formattedDate }}
+                  @if (col.isToday) {
+                    <span class="sr-only">(today)</span>
+                  }
                 </p>
               </th>
             }
@@ -315,6 +324,9 @@
               [class.text-[var(--color-text-primary)]]="!col.isToday"
             >
               {{ col.dayName }}
+              @if (col.isToday) {
+                <span class="sr-only">(today)</span>
+              }
             </h3>
             <span
               class="text-[10px] font-bold text-[var(--color-text-muted)] bg-[var(--color-background)] px-1.5 py-0.5 rounded-full"
@@ -336,7 +348,7 @@
             >
               @if (isConflict(session)) {
                 <div
-                  class="absolute right-2 top-2 text-error font-bold text-xs"
+                  class="absolute right-2 top-2 text-error-foreground font-bold text-xs"
                   title="Scheduling conflict detected"
                 >
                   <i class="pi pi-exclamation-circle"></i>

@@ -16,15 +16,23 @@
 
     <!-- Session Type Selector -->
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-2">
+      <span
+        id="standalone-session-type"
+        class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-2"
+      >
         Session Type
-      </label>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+      </span>
+      <div
+        class="grid grid-cols-1 sm:grid-cols-3 gap-2"
+        role="group"
+        aria-labelledby="standalone-session-type"
+      >
         <button
           type="button"
           class="type-card"
           [class.type-card--active]="sessionType() === SessionTypeEnum.TrialSession"
           (click)="sessionType.set(SessionTypeEnum.TrialSession)"
+          [attr.aria-pressed]="sessionType() === SessionTypeEnum.TrialSession"
         >
           <span class="text-base">✨</span>
           <span class="font-bold text-xs">Trial</span>
@@ -35,6 +43,7 @@
           class="type-card"
           [class.type-card--active]="sessionType() === SessionTypeEnum.RecapSession"
           (click)="sessionType.set(SessionTypeEnum.RecapSession)"
+          [attr.aria-pressed]="sessionType() === SessionTypeEnum.RecapSession"
         >
           <span class="text-base">🔄</span>
           <span class="font-bold text-xs">Recap</span>
@@ -45,6 +54,7 @@
           class="type-card"
           [class.type-card--active]="sessionType() === SessionTypeEnum.MakeupSession"
           (click)="sessionType.set(SessionTypeEnum.MakeupSession)"
+          [attr.aria-pressed]="sessionType() === SessionTypeEnum.MakeupSession"
         >
           <span class="text-base">🛠️</span>
           <span class="font-bold text-xs">Makeup</span>
@@ -54,10 +64,14 @@
 
     <!-- Topic / Title -->
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
-        Topic / Title <span class="text-[var(--color-error)]">*</span>
+      <label
+        for="create-standalone-session-dialog-topic"
+        class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+      >
+        Topic / Title <span class="text-[var(--color-error-foreground)]">*</span>
       </label>
       <input
+        id="create-standalone-session-dialog-topic"
         type="text"
         class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-hidden focus:border-[var(--color-primary)]"
         placeholder="e.g. Python Placement Trial"
@@ -69,10 +83,14 @@
     <!-- Instructor & Location -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
-          Instructor <span class="text-[var(--color-error)]">*</span>
+        <label
+          for="create-standalone-session-dialog-instructor-id"
+          class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+        >
+          Instructor <span class="text-[var(--color-error-foreground)]">*</span>
         </label>
         <select
+          id="create-standalone-session-dialog-instructor-id"
           class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-hidden focus:border-[var(--color-primary)]"
           [ngModel]="instructorId()"
           (ngModelChange)="instructorId.set($event)"
@@ -85,10 +103,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
+        <label
+          for="create-standalone-session-dialog-location"
+          class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+        >
           Location
         </label>
         <input
+          id="create-standalone-session-dialog-location"
           type="text"
           class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-hidden focus:border-[var(--color-primary)]"
           placeholder="e.g. MOA or Online"
@@ -101,10 +123,14 @@
     <!-- Date, Time & Duration -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
-          Date <span class="text-[var(--color-error)]">*</span>
+        <label
+          for="create-standalone-session-dialog-session-date"
+          class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+        >
+          Date <span class="text-[var(--color-error-foreground)]">*</span>
         </label>
         <input
+          id="create-standalone-session-dialog-session-date"
           type="date"
           class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-hidden focus:border-[var(--color-primary)]"
           [ngModel]="sessionDate()"
@@ -113,10 +139,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
-          Start Time <span class="text-[var(--color-error)]">*</span>
+        <label
+          for="create-standalone-session-dialog-start-time"
+          class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+        >
+          Start Time <span class="text-[var(--color-error-foreground)]">*</span>
         </label>
         <input
+          id="create-standalone-session-dialog-start-time"
           type="time"
           class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-hidden focus:border-[var(--color-primary)]"
           [ngModel]="startTime()"
@@ -125,10 +155,14 @@
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
+        <label
+          for="create-standalone-session-dialog-duration-minutes"
+          class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+        >
           Duration (Min)
         </label>
         <select
+          id="create-standalone-session-dialog-duration-minutes"
           class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-primary)] focus:outline-hidden focus:border-[var(--color-primary)]"
           [ngModel]="durationMinutes()"
           (ngModelChange)="durationMinutes.set($event)"
@@ -144,10 +178,15 @@
 
     <!-- Assigned Students -->
     <div>
-      <label class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1">
+      <span
+        id="standalone-students"
+        class="block text-xs font-bold text-[var(--color-text-secondary)] uppercase mb-1"
+      >
         Assigned Students (Optional)
-      </label>
+      </span>
       <div
+        role="group"
+        aria-labelledby="standalone-students"
         class="max-h-36 overflow-y-auto border border-[var(--color-border)] rounded-xl p-2 bg-[var(--color-surface)] space-y-1"
       >
         @if (loadingStudents()) {
@@ -163,7 +202,7 @@
                 type="checkbox"
                 [checked]="selectedStudentIds().includes(student.id)"
                 (change)="toggleStudentSelection(student.id)"
-                class="rounded text-[var(--color-primary)]"
+                class="rounded text-[var(--color-brand-text)]"
               />
               <span class="font-medium text-[var(--color-text-primary)]">{{ student.name }}</span>
               <span class="text-[var(--color-text-muted)] text-[10px]">({{ student.email }})</span>

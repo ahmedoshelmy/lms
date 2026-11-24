@@ -5,7 +5,7 @@
       <h1
         class="text-2xl sm:text-3xl font-extrabold text-[var(--color-text-primary)] tracking-tight flex items-center gap-3"
       >
-        <i class="pi pi-graduation-cap text-[var(--color-primary)]"></i>
+        <i class="pi pi-graduation-cap text-[var(--color-brand-text)]"></i>
         Students
       </h1>
       <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
@@ -166,7 +166,7 @@
     <div
       class="flex items-center gap-3 text-[var(--color-text-muted)] text-xs py-20 justify-center"
     >
-      <i class="pi pi-spinner pi-spin text-2xl text-[var(--color-primary)]"></i>
+      <i class="pi pi-spinner pi-spin text-2xl text-[var(--color-brand-text)]"></i>
       <span>Loading students…</span>
     </div>
   } @else if (loadFailed()) {
@@ -211,7 +211,7 @@
             type="checkbox"
             [checked]="isAllVisibleSelected()"
             (change)="toggleSelectAllVisible()"
-            class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-0 cursor-pointer"
+            class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-brand-text)] focus:ring-0 cursor-pointer"
           />
           Select All Visible ({{ filteredStudents().length }})
         </label>
@@ -231,13 +231,13 @@
                   type="checkbox"
                   [checked]="isSelected(student.id)"
                   (change)="toggleSelection(student.id)"
-                  class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-0 cursor-pointer shrink-0 mt-0.5"
+                  class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-brand-text)] focus:ring-0 cursor-pointer shrink-0 mt-0.5"
                 />
                 <a
                   [routerLink]="['/students', student.id]"
                   tabindex="-1"
                   aria-hidden="true"
-                  class="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
+                  class="w-9 h-9 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-brand-text)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
                 >
                   {{ initials(student.name) }}
                 </a>
@@ -276,7 +276,9 @@
                         @if (place.renewalDue && !place.renewalHandled) {
                           <i class="pi pi-bell text-[10px]"></i>
                         } @else if (place.renewalDue) {
-                          <i class="pi pi-check text-[10px] text-[var(--color-success)]"></i>
+                          <i
+                            class="pi pi-check text-[10px] text-[var(--color-success-foreground)]"
+                          ></i>
                         }
                       </span>
                     }
@@ -293,6 +295,11 @@
               <div class="flex items-center gap-1">
                 @for (place of renewalPlaces(student); track place.groupId) {
                   <button
+                    [attr.aria-label]="
+                      (place.renewalHandled
+                        ? 'Put the renewal back on the list for '
+                        : 'Mark the renewal handled for ') + place.groupName
+                    "
                     type="button"
                     (click)="toggleRenewalHandled(student, place)"
                     [disabled]="savingRenewalFor() === student.id"
@@ -304,6 +311,7 @@
                     "
                   >
                     <i
+                      aria-hidden="true"
                       class="pi text-sm"
                       [class.pi-undo]="place.renewalHandled"
                       [class.pi-check-circle]="!place.renewalHandled"
@@ -311,28 +319,31 @@
                   </button>
                 }
                 <button
+                  [attr.aria-label]="'View ' + student.name"
                   type="button"
                   (click)="viewStudent(student)"
                   class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
                   title="View Student Details"
                 >
-                  <i class="pi pi-eye text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-eye text-xs"></i>
                 </button>
                 <button
+                  [attr.aria-label]="'Edit ' + student.name"
                   type="button"
                   (click)="openEditModal(student)"
-                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                  class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                   title="Edit Student"
                 >
-                  <i class="pi pi-pencil text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-pencil text-xs"></i>
                 </button>
                 <button
+                  [attr.aria-label]="'Delete ' + student.name"
                   type="button"
                   (click)="openDeleteModal(student)"
                   class="p-2 rounded-xl text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                   title="Delete Student"
                 >
-                  <i class="pi pi-trash text-xs"></i>
+                  <i aria-hidden="true" class="pi pi-trash text-xs"></i>
                 </button>
               </div>
             </div>
@@ -355,7 +366,7 @@
                 type="checkbox"
                 [checked]="isAllVisibleSelected()"
                 (change)="toggleSelectAllVisible()"
-                class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-0 cursor-pointer"
+                class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-brand-text)] focus:ring-0 cursor-pointer"
                 title="Select/Deselect All Visible"
               />
             </th>
@@ -415,7 +426,7 @@
                   type="checkbox"
                   [checked]="isSelected(student.id)"
                   (change)="toggleSelection(student.id)"
-                  class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-0 cursor-pointer"
+                  class="w-4 h-4 rounded border-[var(--color-border)] text-[var(--color-brand-text)] focus:ring-0 cursor-pointer"
                 />
               </td>
               <td class="px-4 py-3.5">
@@ -424,7 +435,7 @@
                     [routerLink]="['/students', student.id]"
                     tabindex="-1"
                     aria-hidden="true"
-                    class="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
+                    class="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-brand-text)] font-bold text-xs flex items-center justify-center border border-[var(--color-primary)]/20 shrink-0"
                   >
                     {{ initials(student.name) }}
                   </a>
@@ -457,7 +468,9 @@
                         @if (place.renewalDue && !place.renewalHandled) {
                           <i class="pi pi-bell text-[10px]"></i>
                         } @else if (place.renewalDue) {
-                          <i class="pi pi-check text-[10px] text-[var(--color-success)]"></i>
+                          <i
+                            class="pi pi-check text-[10px] text-[var(--color-success-foreground)]"
+                          ></i>
                         }
                       </span>
                     }
@@ -477,6 +490,11 @@
                 <div class="flex items-center justify-end gap-1">
                   @for (place of renewalPlaces(student); track place.groupId) {
                     <button
+                      [attr.aria-label]="
+                        (place.renewalHandled
+                          ? 'Put the renewal back on the list for '
+                          : 'Mark the renewal handled for ') + place.groupName
+                      "
                       type="button"
                       (click)="toggleRenewalHandled(student, place)"
                       [disabled]="savingRenewalFor() === student.id"
@@ -488,6 +506,7 @@
                       "
                     >
                       <i
+                        aria-hidden="true"
                         class="pi text-xs"
                         [class.pi-undo]="place.renewalHandled"
                         [class.pi-check-circle]="!place.renewalHandled"
@@ -495,28 +514,31 @@
                     </button>
                   }
                   <button
+                    [attr.aria-label]="'View ' + student.name"
                     type="button"
                     (click)="viewStudent(student)"
                     class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors cursor-pointer"
                     title="View Student Details"
                   >
-                    <i class="pi pi-eye text-xs"></i>
+                    <i aria-hidden="true" class="pi pi-eye text-xs"></i>
                   </button>
                   <button
+                    [attr.aria-label]="'Edit ' + student.name"
                     type="button"
                     (click)="openEditModal(student)"
-                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
+                    class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-brand-text)] hover:bg-[var(--color-primary)]/10 transition-colors cursor-pointer"
                     title="Edit Student"
                   >
-                    <i class="pi pi-pencil text-xs"></i>
+                    <i aria-hidden="true" class="pi pi-pencil text-xs"></i>
                   </button>
                   <button
+                    [attr.aria-label]="'Delete ' + student.name"
                     type="button"
                     (click)="openDeleteModal(student)"
                     class="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-error-foreground hover:bg-error-background transition-colors cursor-pointer"
                     title="Delete Student"
                   >
-                    <i class="pi pi-trash text-xs"></i>
+                    <i aria-hidden="true" class="pi pi-trash text-xs"></i>
                   </button>
                 </div>
               </td>
@@ -542,7 +564,9 @@
       >
         <p class="font-bold text-[var(--color-text-primary)]">
           Target Students:
-          <span class="text-[var(--color-primary)]">{{ selectedVisible().length }} student(s)</span>
+          <span class="text-[var(--color-brand-text)]"
+            >{{ selectedVisible().length }} student(s)</span
+          >
         </p>
         <p class="text-[var(--color-text-muted)] mt-1">
           Select the new group to assign all selected students. Choose "-- Unassign --" to remove
@@ -552,11 +576,13 @@
 
       <div>
         <label
+          for="students-bulk-target-group-id"
           class="block text-xs font-bold text-[var(--color-text-primary)] uppercase tracking-wider mb-1.5"
         >
           Select Target Group
         </label>
         <p-select
+          inputId="students-bulk-target-group-id"
           [options]="groupOptions()"
           [ngModel]="bulkTargetGroupId()"
           (ngModelChange)="bulkTargetGroupId.set($event)"
@@ -570,7 +596,9 @@
           styleClass="w-full"
         ></p-select>
         @if (roomWarning(bulkTargetGroupId(), selectedVisible().length); as warning) {
-          <p class="mt-1.5 text-[11px] font-semibold text-[var(--color-warning)]">{{ warning }}</p>
+          <p class="mt-1.5 text-[11px] font-semibold text-[var(--color-warning-foreground)]">
+            {{ warning }}
+          </p>
         }
       </div>
     </div>
@@ -610,10 +638,13 @@
   >
     <div class="flex flex-col gap-4 py-2">
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="students-name"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Full Name *</label
         >
         <input
+          id="students-name"
           type="text"
           [ngModel]="formName()"
           (ngModelChange)="formName.set($event)"
@@ -623,10 +654,13 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="students-email"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Email Address (optional)</label
         >
         <input
+          id="students-email"
           type="email"
           [ngModel]="formEmail()"
           (ngModelChange)="formEmail.set($event)"
@@ -655,10 +689,13 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        <label
+          for="students-phone"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
           >Phone Number (optional)</label
         >
         <input
+          id="students-phone"
           type="tel"
           [ngModel]="formPhone()"
           (ngModelChange)="formPhone.set($event)"
@@ -668,7 +705,10 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1">
+        <label
+          for="students-group-id"
+          class="block text-xs font-semibold text-[var(--color-text-primary)] mb-1"
+        >
           @if (editingStudent()) {
             Add to a group
           } @else {
@@ -686,6 +726,7 @@
           </p>
         }
         <p-select
+          inputId="students-group-id"
           [options]="groupOptions()"
           [ngModel]="formGroupId()"
           (ngModelChange)="formGroupId.set($event)"
@@ -699,7 +740,9 @@
           styleClass="w-full"
         ></p-select>
         @if (roomWarning(formGroupId(), editingStudent() ? 0 : 1); as warning) {
-          <p class="mt-1.5 text-[11px] font-semibold text-[var(--color-warning)]">{{ warning }}</p>
+          <p class="mt-1.5 text-[11px] font-semibold text-[var(--color-warning-foreground)]">
+            {{ warning }}
+          </p>
         }
       </div>
     </div>
@@ -740,7 +783,7 @@
     <div class="py-2">
       <p class="text-xs text-[var(--color-text-primary)]">
         Are you sure you want to delete
-        <strong class="text-[var(--color-primary)]">{{ deletingStudent()?.name }}</strong
+        <strong class="text-[var(--color-brand-text)]">{{ deletingStudent()?.name }}</strong
         >? This action cannot be undone.
       </p>
     </div>

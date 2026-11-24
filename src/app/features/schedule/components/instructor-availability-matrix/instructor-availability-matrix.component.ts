@@ -51,10 +51,14 @@ export interface TimeSlot {
         <!-- Instructor Filter Dropdown — Admin only -->
         @if (canPickInstructor()) {
           <div class="flex items-center gap-2">
-            <label class="text-xs font-semibold text-[var(--color-text-secondary)]">
+            <label
+              for="instructor-availability-matrix-selected-instructor-id"
+              class="text-xs font-semibold text-[var(--color-text-secondary)]"
+            >
               Select Instructor:
             </label>
             <p-select
+              inputId="instructor-availability-matrix-selected-instructor-id"
               [options]="instructorOptions()"
               [ngModel]="selectedInstructorId()"
               (ngModelChange)="onInstructorChange($event)"
@@ -90,7 +94,7 @@ export interface TimeSlot {
             <div
               class="text-center px-3 py-1 bg-[var(--color-surface)] rounded border border-[var(--color-border)]"
             >
-              <span class="block font-bold text-[var(--color-primary)] text-sm">{{
+              <span class="block font-bold text-[var(--color-brand-text)] text-sm">{{
                 weeklyBookedCount()
               }}</span>
               <span class="text-[10px] text-[var(--color-text-muted)]">Scheduled Sessions</span>
@@ -98,7 +102,7 @@ export interface TimeSlot {
             <div
               class="text-center px-3 py-1 bg-[var(--color-surface)] rounded border border-[var(--color-border)]"
             >
-              <span class="block font-bold text-[var(--color-success)] text-sm">{{
+              <span class="block font-bold text-[var(--color-success-foreground)] text-sm">{{
                 weeklyFreeCount()
               }}</span>
               <span class="text-[10px] text-[var(--color-text-muted)]">Available Slots</span>
@@ -188,7 +192,7 @@ export interface TimeSlot {
                         [routerLink]="['/sessions', cell.session.id]"
                         class="h-full rounded-md border border-[var(--color-secondary)] bg-[var(--color-info-background)] p-1.5 text-left cursor-pointer hover:shadow-xs transition-all flex flex-col justify-between"
                       >
-                        <div class="font-bold text-[10px] text-[var(--color-primary)] truncate">
+                        <div class="font-bold text-[10px] text-[var(--color-brand-text)] truncate">
                           {{ cell.session.groupName || cell.session.courseTitle }}
                         </div>
                         <div class="text-[9px] text-[var(--color-text-muted)] truncate">
