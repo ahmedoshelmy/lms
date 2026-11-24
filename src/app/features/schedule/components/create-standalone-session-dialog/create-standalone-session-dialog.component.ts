@@ -10,6 +10,7 @@ import { User } from '../../../../core/interfaces/User';
 import { Role, parseRole } from '../../../../core/interfaces/Role';
 import { SessionType } from '../../../../core/enums/SessionType';
 import { CreateStandaloneSessionPayload } from '../../../../core/interfaces/ScheduleSession';
+import { todayIsoDate } from '../../../../core/utils/date.utils';
 
 @Component({
   selector: 'app-create-standalone-session-dialog',
@@ -51,7 +52,7 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
   selectedStudentIds = signal<number[]>([]);
 
   // Date and Time
-  sessionDate = signal<string>(new Date().toISOString().split('T')[0]);
+  sessionDate = signal<string>(todayIsoDate());
   startTime = signal<string>('15:00');
   durationMinutes = signal<number>(45);
 

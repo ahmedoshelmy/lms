@@ -33,6 +33,7 @@ import {
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { Room } from '../../core/interfaces/Availability';
 import { catchError, of } from 'rxjs';
+import { toIsoDate } from '../../core/utils/date.utils';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -474,8 +475,8 @@ export class GroupsComponent implements OnInit {
     const today = new Date();
     const end = new Date();
     end.setMonth(end.getMonth() + 3);
-    this.formStartDate = today.toISOString().split('T')[0];
-    this.formEndDate = end.toISOString().split('T')[0];
+    this.formStartDate = toIsoDate(today);
+    this.formEndDate = toIsoDate(end);
 
     this.formInstructorId = this.instructors().length > 0 ? this.instructors()[0].id : 0;
     this.formStatus = 0;

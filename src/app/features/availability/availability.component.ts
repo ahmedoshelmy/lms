@@ -25,6 +25,7 @@ import {
 } from '../../core/interfaces/Availability';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { ClockFormatService } from '../../core/services/clock-format.service';
+import { toIsoMonth, todayIsoDate } from '../../core/utils/date.utils';
 
 /**
  * Half-hour marks from 08:00 to 22:30.
@@ -457,7 +458,7 @@ export class AvailabilityComponent implements OnInit {
   // ── Requests ─────────────────────────────────────────────────────────────
 
   openTimeOffDialog(): void {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayIsoDate();
     this.timeOffForm.set({
       fromDate: today,
       toDate: today,
@@ -505,7 +506,7 @@ export class AvailabilityComponent implements OnInit {
       startTime: '16:00',
       endTime: '17:30',
       roomId: null,
-      fromDate: new Date().toISOString().slice(0, 10),
+      fromDate: todayIsoDate(),
       reason: '',
     });
     this.showSlotDialog.set(true);
@@ -587,7 +588,7 @@ export class AvailabilityComponent implements OnInit {
   // ── Monthly leave report ─────────────────────────────────────────────────
 
   readonly summary = signal<LeaveSummary | null>(null);
-  readonly summaryMonth = signal(new Date().toISOString().slice(0, 7));
+  readonly summaryMonth = signal(toIsoMonth(new Date()));
   readonly loadingSummary = signal(false);
 
   loadSummary(): void {

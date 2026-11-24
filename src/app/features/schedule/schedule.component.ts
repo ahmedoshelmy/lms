@@ -24,6 +24,7 @@ import { User } from '../../core/interfaces/User';
 import { DialogModule } from 'primeng/dialog';
 
 import { CreateStandaloneSessionDialogComponent } from './components/create-standalone-session-dialog/create-standalone-session-dialog.component';
+import { toIsoDate } from '../../core/utils/date.utils';
 
 export type ExtendedViewMode =
   | 'weekly'
@@ -448,12 +449,10 @@ export class ScheduleComponent implements OnInit {
     const to = new Date();
     to.setDate(to.getDate() + 60);
 
-    this.lmsService
-      .getTimeOff(undefined, from.toISOString().slice(0, 10), to.toISOString().slice(0, 10))
-      .subscribe({
-        next: (off) => this.timeOff.set(off || []),
-        error: () => this.timeOff.set([]),
-      });
+    this.lmsService.getTimeOff(undefined, toIsoDate(from), toIsoDate(to)).subscribe({
+      next: (off) => this.timeOff.set(off || []),
+      error: () => this.timeOff.set([]),
+    });
   }
 
   loadInstructors(): void {

@@ -83,3 +83,24 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   `features/schedule/components/schedule-analytics/schedule-analytics.component.ts`;
   `features/schedule/schedule.component.html`.
 - **Validation:** 11 files / 93 tests pass (5 new); build passes; initial bundle 596.34 kB.
+
+## P0-05 — Calendar dates are local dates
+
+- **What changed:** new `core/utils/date.utils.ts` provides `toIsoDate`, `toIsoMonth`,
+  `todayIsoDate` and `fromIsoDate`. `toIsoDate` moved there from `availability.utils.ts`
+  (no other file imported it from the old place). Every `toISOString().slice/split`
+  used as a calendar date was replaced, 13 sites in all: Sales trial dates and search start,
+  availability defaults and summary month, group dates and the hold default, the standalone
+  session date, the time-off range, and both session edit forms. Those two forms also read
+  the date input as local midnight instead of UTC.
+- **Why:** finding C-07. East of UTC, local midnight is the previous UTC day. Confirmed on
+  this machine (Egypt Standard Time): before the fix, a Saturday hold offered
+  **Friday 2026-11-27** as its next trial date.
+- **Files:** `core/utils/date.utils.ts` (+ spec), `core/utils/availability.utils.ts`,
+  `features/sales/sales.component.ts` (+ new spec), and the availability, groups, group
+  detail, schedule, standalone-session dialog, session panel and session detail
+  components.
+- **Validation:** 13 files / 101 tests pass (8 new). The Sales test fails against the old
+  code with exactly that Friday. Build passes.
+- **Remaining:** the certificate dialog keeps its own correct helper (`localDateInputToIso`);
+  merging it is F-08 tidy-up.

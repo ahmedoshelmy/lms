@@ -38,6 +38,7 @@ import {
   progressPercent,
   sessionsTaught,
 } from '../../../core/utils/course-progress.utils';
+import { toIsoDate, todayIsoDate } from '../../../core/utils/date.utils';
 
 const STATUS_CONFIG: Record<string, { label: string; css: string; icon: string }> = {
   Running: { label: 'Running', css: 'status-running', icon: 'pi-play-circle' },
@@ -747,7 +748,7 @@ export class GroupDetailComponent implements OnInit {
     this.manageCourseCurrentSession.set(Math.max((course.currentSessionNumber || 0) - 1, 0));
     this.manageCourseTotalSessions.set(course.totalSessions || course.sessionCount || 12);
     this.manageCourseStatus.set(course.status || 'Active');
-    this.manageCourseCustomStartDate.set(new Date().toISOString().split('T')[0]);
+    this.manageCourseCustomStartDate.set(todayIsoDate());
     this.manageCourseCustomCount.set(null);
     this.manageCourseIncludeToday.set(true);
     this.showManageCourseModal.set(true);
@@ -1312,7 +1313,7 @@ export class GroupDetailComponent implements OnInit {
   openHoldModal(): void {
     const twoWeeksLater = new Date();
     twoWeeksLater.setDate(twoWeeksLater.getDate() + 14);
-    this.holdUntilDate.set(twoWeeksLater.toISOString().split('T')[0]);
+    this.holdUntilDate.set(toIsoDate(twoWeeksLater));
     this.holdMode.set('count');
     this.holdCount.set(1);
     this.holdReason.set('Holiday / Vacation Break');

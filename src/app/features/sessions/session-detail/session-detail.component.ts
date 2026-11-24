@@ -25,6 +25,7 @@ import { Candidate } from '../../../core/interfaces/Sales';
 import { SessionSyllabusComponent } from '../../../shared/components/session-syllabus/session-syllabus.component';
 import { CancelSessionDialogComponent } from '../../../shared/components/cancel-session-dialog/cancel-session-dialog.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
+import { fromIsoDate, toIsoDate } from '../../../core/utils/date.utils';
 
 export type StudentStatus = RegisterMark;
 
@@ -512,7 +513,7 @@ export class SessionDetailComponent implements OnInit {
 
     if (s.startsAt) {
       const d = new Date(s.startsAt);
-      this.editDate.set(d.toISOString().split('T')[0]);
+      this.editDate.set(toIsoDate(d));
       this.editStartTime.set(
         `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
       );
@@ -571,7 +572,7 @@ export class SessionDetailComponent implements OnInit {
 
     if (this.editDate() && s.startsAt) {
       const originalDate = new Date(s.startsAt);
-      const newDate = new Date(this.editDate());
+      const newDate = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
 
       if (!isSameWeek(originalDate, newDate) && newDate > originalDate) {
         this.showFutureWeekConfirmModal.set(true);
@@ -601,13 +602,13 @@ export class SessionDetailComponent implements OnInit {
 
     if (this.editDate() && this.editStartTime()) {
       const [sHours, sMins] = this.editStartTime().split(':').map(Number);
-      const startDateObj = new Date(this.editDate());
+      const startDateObj = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
       startDateObj.setHours(sHours || 0, sMins || 0, 0, 0);
       computedStartsAt = startDateObj.toISOString();
 
       if (this.editEndTime()) {
         const [eHours, eMins] = this.editEndTime().split(':').map(Number);
-        const endDateObj = new Date(this.editDate());
+        const endDateObj = fromIsoDate(this.editDate()) ?? new Date(this.editDate());
         endDateObj.setHours(eHours || 0, eMins || 0, 0, 0);
         computedEndsAt = endDateObj.toISOString();
 

@@ -20,6 +20,7 @@ import {
   SlotHold,
 } from '../../core/interfaces/Sales';
 import { ClockFormatService } from '../../core/services/clock-format.service';
+import { toIsoDate, todayIsoDate } from '../../core/utils/date.utils';
 
 type Tab = 'find' | 'holds' | 'pipeline';
 
@@ -84,7 +85,7 @@ export class SalesComponent implements OnInit {
   readonly search = signal({
     topicId: 0,
     courseLevelId: 0,
-    fromDate: new Date().toISOString().slice(0, 10),
+    fromDate: todayIsoDate(),
     instructorId: 0,
     days: [] as number[],
     roomId: 0,
@@ -401,7 +402,7 @@ export class SalesComponent implements OnInit {
     for (let i = 1; i <= 28; i++) {
       date.setDate(date.getDate() + 1);
       if (days.includes(date.getDay())) {
-        return date.toISOString().slice(0, 10);
+        return toIsoDate(date);
       }
     }
     return hold.proposedStartDate;
@@ -419,7 +420,7 @@ export class SalesComponent implements OnInit {
     for (let i = 1; i <= 42; i++) {
       date.setDate(date.getDate() + 1);
       if (days.includes(date.getDay())) {
-        out.push(date.toISOString().slice(0, 10));
+        out.push(toIsoDate(date));
       }
     }
     return out;

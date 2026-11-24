@@ -1,4 +1,5 @@
 import { InstructorAvailability, InstructorTimeOff, toDayNumber } from '../interfaces/Availability';
+import { toIsoDate } from './date.utils';
 
 /**
  * Whether an instructor has declared themselves available for a given hour.
@@ -44,15 +45,6 @@ export function isOnLeave(
     if (!t.startTime || !t.endTime) return true;
     return minutesOf(t.startTime) < (hour + 1) * 60 && minutesOf(t.endTime) > hour * 60;
   });
-}
-
-/** Local calendar date as "YYYY-MM-DD", matching how the API sends dates. */
-export function toIsoDate(date: Date): string {
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, '0'),
-    String(date.getDate()).padStart(2, '0'),
-  ].join('-');
 }
 
 function minutesOf(time: string): number {
