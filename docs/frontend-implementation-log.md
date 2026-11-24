@@ -549,3 +549,21 @@ Everything below was checked as unused before deletion.
 - **Validation:** 30 files / 163 tests pass (5 new for `SessionService`; the window test was
   updated); lint 0 errors; build clean at 597.10 kB. One run had test workers killed by
   low machine memory (environmental); the rerun was clean.
+
+## F-10 — `AGENTS.md` and README describe the project as it is
+
+- **`AGENTS.md`:**
+  - **Removed (wrong):** the `localStorage` fallbacks claim, the missing `progress` and
+    `resources` features, the `auth-layout`, "defaults to the OS preference" (it defaults
+    to light), the `@theme` claim, and a hex colour in the example that broke the
+    document's own rule.
+  - **Added:**
+    - the real folder layout, environments, ESLint and CI;
+    - the single permission table (deny by default) and `canAccess`, plus
+      `unsavedChangesGuard`;
+    - `HttpParams`, `latestRequest`, `app-load-error`, `ConfirmService`, `SessionService`;
+    - the date and school-week utilities;
+    - the commands `lint` and `test:ci`, and the Windows drive-letter note;
+    - a rule that the checks stay green and fixes come with a failing-first test.
+- **README:** replaced the CLI boilerplate with requirements, getting started, checks,
+  deployment and links to the docs.

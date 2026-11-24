@@ -11,48 +11,52 @@ The application is built using **Angular v21** and follows a modular feature-bas
 ```
 src/app/
 ├── core/                   # Singleton services, guards, interceptors, and models
-│   ├── config/             # Navigation and application configurations
-│   ├── guards/             # Route activation guards (e.g., auth.guard, role.guard)
-│   ├── interceptors/       # HTTP interceptors (auth token attachment, error handling)
-│   ├── interfaces/         # Type definitions (e.g., Role.ts)
-│   ├── models/             # App models (e.g., User.ts)
-│   └── services/           # Data services (e.g., auth.service.ts, lms.service.ts)
+│   ├── config/             # Route permissions (app-navigation.config.ts), API address (api-url.ts)
+│   ├── enums/              # API enums (AttendanceStatus, SessionStatus, SessionType)
+│   ├── errors/             # Global ErrorHandler
+│   ├── guards/             # authGuard, guestGuard, roleGuard, unsavedChangesGuard
+│   ├── interceptors/       # auth (token + refresh), error (toasts), SILENT_STATUSES token
+│   ├── interfaces/         # Type definitions (Role.ts, User.ts, Group.ts, ...)
+│   ├── services/           # lms.service.ts (API), auth, session, confirm, notification, ...
+│   └── utils/              # Pure, tested helpers (dates, school week, attendance, ...)
 │
-├── features/               # Feature modules (lazy-loaded pages/components)
-│   ├── attendance/         # Attendance tracking feature
-│   ├── auth/               # Authentication pages (login, register)
-│   ├── courses/            # Course catalog and course management
-│   ├── dashboard/          # Home / summary dashboard
-│   ├── profile/            # User profile settings
-│   ├── progress/           # Course progress tracker
-│   ├── resources/          # Reference resources and study material
-│   └── unauthorized/       # Unauthorized access fallback view
+├── features/               # Lazy-loaded pages: activity-logs, attendance, auth, availability,
+│                           # courses, dashboard, evaluations, groups, history, instructors,
+│                           # my-learning, operations, profile, sales, schedule,
+│                           # session-summaries, sessions, settings, students, unauthorized
 │
-├── shared/                 # Shared UI layouts and components
-│   ├── components/         # Reusable global components (e.g., sidebar)
-│   └── layouts/            # Global page shells (e.g., main-layout, auth-layout)
+├── shared/                 # Shared UI
+│   ├── components/         # sidebar, command palette, confirm-host, load-error, ...
+│   └── layouts/            # main-layout (the signed-in shell)
 │
 ├── app.component.ts        # Root component (holds <router-outlet>)
 ├── app.config.ts           # App providers (routes, PrimeNG config, HTTP interceptors)
 └── app.routes.ts           # Global route definitions
+
+src/environments/           # environment.ts (production) / environment.development.ts
 ```
+
+Progress and decisions are recorded in `docs/frontend-audit.md`, `docs/frontend-roadmap.md`
+and `docs/frontend-implementation-log.md`.
 
 ---
 
 ## 2. Technology Stack
 
 - **Framework:** Angular 21 (using Standalone Components, newer `inject()` API)
-- **Styling System:** Tailwind CSS v4.0 (configured using CSS `@theme` declarations)
+- **Styling System:** Tailwind CSS v4 plus per-component SCSS, with colour tokens as CSS custom properties in `src/styles.css`
 - **UI Component Library:** PrimeNG v21 (preset with Aura theme)
 - **Icons:** PrimeIcons
 - **Build/Test Runner:** Vite / Vitest 4.0 (instead of Karma/Jasmine)
-- **Code Formatting:** Prettier
+- **Code Formatting:** Prettier (LF line endings, enforced by `.gitattributes`)
+- **Linting:** ESLint 9 with `typescript-eslint` and `angular-eslint` (template and accessibility rules)
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs format check, lint, tests and a production build
 
 ---
 
 ## 3. Styling & Theme System
 
-The project uses **Tailwind CSS v4.0**. The theme is defined directly in `src/styles.css` using the `@theme` directive, generating Tailwind utilities dynamically:
+The project uses **Tailwind CSS v4**. Colours are CSS custom properties in `src/styles.css` (see §4.5), used from templates as `text-[var(--color-text-primary)]` and from SCSS as `var(--color-...)`:
 
 - **Primary Color:** `--color-primary` (`#1A2B4C`), hover state `--color-primary-hover` (`#254479`).
 - **Secondary Color:** `--color-secondary` (`#3e6db5`), hover state `--color-secondary-hover` (`#2d5594`).
@@ -69,7 +73,7 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
   ...
   styles: `
     :host ::ng-deep {
-      .p-select { border-radius: 10px; border-color: #cbd5e1; }
+      .p-select { border-radius: 10px; border-color: var(--color-border); }
       .p-button { border-radius: 10px; font-weight: 600; }
     }
   `
@@ -98,7 +102,11 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
 - Fetch data using `HttpClient` and RxJS Observables.
 - **Auth Interceptor:** Attaches the Bearer token automatically to every outgoing API request.
 - **Error Interceptor:** Intercepts failures globally, displays error notifications using `NotificationService`, and re-throws the error block.
-- **Local Storage Fallback:** If a backend endpoint does not exist yet (e.g., attendance records, course resources), `LmsService` implements client-side `localStorage` data management fallbacks. Check `LmsService` before creating mock variables inside components.
+- **API address:** comes from `src/environments/*` through `resolveApiUrl()` (`core/config/api-url.ts`). Only a development build may override it from Settings.
+- **No local fallbacks:** there are no `localStorage` stand-ins for missing endpoints, and a failed request must never be shown as if it succeeded. If an endpoint is missing, hide the feature and record it as a backend dependency.
+- **Query parameters:** pass them as `HttpParams` (see `query()` in `lms.service.ts`), never by string concatenation.
+- **Filter- or route-driven loads:** pipe them through a `latestRequest()` (`core/utils/latest-request.ts`) so an older response can never overwrite a newer one.
+- **Failed loads:** show `<app-load-error>` with a retry, not the page's empty state.
 
 ### Form Handling
 
@@ -123,7 +131,7 @@ All colors are centralized as CSS custom properties in `src/styles.css`:
 
 ### ThemeService
 
-- `ThemeService` toggles `data-theme="light" | "dark"` on `<html>`, persists the choice in `localStorage`, and defaults to the OS preference (`prefers-color-scheme`) on first load.
+- `ThemeService` toggles `data-theme="light" | "dark"` on `<html>`, persists the choice in `localStorage`, and defaults to **light** on first load.
 - Use `inject(ThemeService)` and call `toggleTheme()` / read `theme$` rather than manipulating `data-theme` manually.
 
 ---
@@ -136,7 +144,10 @@ Routes are configured in `src/app/app.routes.ts`.
 - Guards are assigned to protect routes:
   - `authGuard` prevents guest access.
   - `guestGuard` prevents authenticated users from viewing login/register views.
-  - `roleGuard` dynamically blocks users whose roles are not permitted to view the page.
+  - `roleGuard` blocks users whose roles are not permitted. Roles come from `ROUTE_PERMISSIONS` in `core/config/app-navigation.config.ts`, the single source for routes, the sidebar and the command palette. A route with no roles there is **denied**; `app-navigation.config.spec.ts` fails if a guarded route is missing from the table.
+  - `unsavedChangesGuard` asks before leaving a page whose component implements `HasUnsavedChanges`.
+- Before offering a link to another page, check `auth.canAccess('path')`, so nobody is sent to "Access denied".
+- Role checks are presentation only; the server enforces every permission.
 
 ### Example Route Definition
 
@@ -160,9 +171,15 @@ Verify configurations and run the development app using these commands from the 
 | :-------------------------- | :---------------------------- |
 | **Start Dev Server**        | `npm run start` or `ng serve` |
 | **Run Unit Tests (Vitest)** | `npm run test` or `ng test`   |
+| **Unit Tests, once (CI)**   | `npm run test:ci`             |
+| **Lint**                    | `npm run lint`                |
 | **Build for Production**    | `npm run build` or `ng build` |
 | **Format Files**            | `npm run format`              |
 | **Check Format**            | `npm run format:check`        |
+
+On Windows, run the tests from an upper-case drive path (`I:\lms`, not `i:\lms`): from the
+lower-case path Vitest loads its runner twice and every file fails with "failed to find the
+runner".
 
 ---
 
@@ -181,6 +198,12 @@ Verify configurations and run the development app using these commands from the 
 
 - > [!IMPORTANT]
   - **Duplicate Notifications:** Avoid triggering manual toast alerts for failed HTTP operations inside components. The global `errorInterceptor` automatically handles displaying error messages.
+- > [!IMPORTANT]
+  - **Dates:** never use `toISOString().slice(0, 10)` for a calendar date: east of UTC it gives the previous day. Use `toIsoDate` / `todayIsoDate` / `fromIsoDate` from `core/utils/date.utils.ts`. The school week (Saturday to Friday) is defined once in `core/utils/week.utils.ts`.
+- > [!IMPORTANT]
+  - **Destructive actions:** ask first with `ConfirmService.ask()`, which shows the shared dialog with the safe choice focused. Do not use `window.confirm` or `prompt`.
+- > [!NOTE]
+  - **Signing out:** use `SessionService.signOut()`. It clears everything a session left behind and keeps other tabs in step.
 - > [!NOTE]
   - **PrimeNG Element Positioning:** PrimeNG elements styled with absolute positioning (such as select elements and dialogs) may occasionally conflict with parent layouts. Ensure that deep overrides (`::ng-deep`) do not leak globally and are scoped to the host component.
 
@@ -188,10 +211,11 @@ Verify configurations and run the development app using these commands from the 
 
 ## 8. AI Agent Guidelines
 
-1. **Reuse Existing Abstractions:** Reuse existing services (`AuthService`, `LmsService`, `NotificationService`) and Tailwind v4 theme definitions instead of cooking up custom implementations.
+1. **Reuse Existing Abstractions:** Reuse existing services (`AuthService`, `LmsService`, `NotificationService`, `ConfirmService`, `SessionService`), utilities in `core/utils`, shared components (`app-load-error`, `app-confirm-host`) and the colour tokens instead of writing new ones.
 2. **Follow Project Patterns:** Build standalone components, use `inject()` for dependency resolution, configure routes via lazy-loading, and leverage PrimeNG widgets for interactive elements.
 3. **Keep Changes Minimal:** Apply changes in a highly localized manner. Do not refactor styles or layouts that are unrelated to your current task.
 4. **Avoid Unnecessary Dependencies:** Do not add third-party styling packages, icon packs, or HTTP wrappers. Stick to Tailwind CSS v4, PrimeNG, and native Angular features.
 5. **Preserve Compatibility:** Maintain backward compatibility for users, storage structures, and models. Always use platform checks when touching browser-specific APIs (SSR compliance).
 6. **Colors via Tokens Only:** Never hardcode hex/`rgb`/`rgba` colors in any component. Use the centralized `--color-*` tokens from `src/styles.css` (see §4.5). Add new tokens there instead of literals in components.
-7. **Keep Documentation Up-to-Date:** Update feature routing and type definitions if you add components, services, or pages.
+7. **Keep Documentation Up-to-Date:** Update feature routing and type definitions if you add components, services, or pages, and record notable changes in `docs/frontend-implementation-log.md`.
+8. **Leave the checks green:** `npm run format:check`, `npm run lint` (0 errors), `npm run test:ci` and `npm run build` must all pass. Bug fixes come with a test that fails without the fix.
