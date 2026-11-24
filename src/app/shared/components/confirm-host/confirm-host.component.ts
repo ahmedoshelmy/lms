@@ -33,6 +33,9 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 
         <ng-template #footer>
           <div class="confirm__actions">
+            <!-- Deliberate: a confirmation opens on its safe choice, as the
+                 WAI-ARIA dialog pattern advises. -->
+            <!-- eslint-disable @angular-eslint/template/no-autofocus -->
             <button
               type="button"
               class="confirm__btn confirm__btn--reject"
@@ -41,6 +44,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
             >
               {{ q.rejectLabel ?? 'Keep it' }}
             </button>
+            <!-- eslint-enable @angular-eslint/template/no-autofocus -->
             <button
               type="button"
               class="confirm__btn"

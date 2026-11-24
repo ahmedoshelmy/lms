@@ -12,7 +12,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Role, parseRole } from '../../../core/interfaces/Role';
 import {
   CancelUpcomingSessionsPayload,
-  CancelUpcomingSessionsResult,
   GROUP_STATUS,
   GROUP_STATUS_OPTIONS,
   GenerateCustomSessionsPayload,

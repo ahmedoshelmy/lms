@@ -16,7 +16,6 @@ import {
   Group,
   GroupScheduleSlot,
   STALLED_COPY,
-  StalledReason,
   UpdateGroupPayload,
   seatsOverBy,
 } from '../../core/interfaces/Group';

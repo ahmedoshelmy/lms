@@ -106,7 +106,11 @@ export class ScheduleComponent implements OnInit {
   toggleClockChoice(sessionId: number): void {
     this.clockChosen.update((chosen) => {
       const next = new Set(chosen);
-      next.has(sessionId) ? next.delete(sessionId) : next.add(sessionId);
+      if (next.has(sessionId)) {
+        next.delete(sessionId);
+      } else {
+        next.add(sessionId);
+      }
       return next;
     });
   }

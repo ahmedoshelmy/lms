@@ -525,7 +525,7 @@
 <app-create-standalone-session-dialog
   [visible]="showStandaloneSessionModal()"
   [instructors]="instructors()"
-  (close)="showStandaloneSessionModal.set(false)"
+  (closed)="showStandaloneSessionModal.set(false)"
   (sessionCreated)="loadSchedule()"
 />
 

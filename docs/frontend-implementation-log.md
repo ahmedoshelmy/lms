@@ -334,3 +334,32 @@ Baseline (2026-11-24, `fae4016`): build passes, initial bundle 598.33 kB; 7 test
   dev-only, and chosen by the CLI.
 - **Validation:** 21 files / 128 tests pass; production build clean; initial bundle
   596.93 kB.
+
+## F-06 — Line endings, linting and CI
+
+- **What changed:**
+  - **Line endings:** `.gitattributes` keeps text files LF in every checkout (repository
+    content was already LF). `prettier --check .` now passes across the whole repo; two
+    drifted source files were reformatted, and two generated docs artefacts are in
+    `.prettierignore`.
+  - **ESLint 9** (flat config, `eslint.config.js`): `@eslint/js` + `typescript-eslint` +
+    `angular-eslint` 21.4, with template and accessibility rules. **0 errors, 200
+    warnings.** Each warning rule is known debt tied to a task: `no-explicit-any` (F-08),
+    label association and keyboard support (A-03/A-04), old `*ngIf` (F-05). Each becomes an
+    error when its task is done.
+  - **Fixed to reach 0 errors:**
+    - 21 unused imports and variables;
+    - 3 ternaries used as statements;
+    - `NotificationService` constructor injection changed to `inject()`;
+    - an output named `close` (a DOM event name) renamed to `closed`;
+    - an empty interface changed to a type alias.
+  - **Deleted:** the dead `user-id.interceptor.ts` (moved forward from F-05).
+  - **Rule options:** `!= null` is allowed in templates (deliberate null-or-undefined
+    check). PrimeNG's `label` input counts as button content. The confirm dialog's
+    `autofocus` on the safe button is allowed explicitly, with the reason.
+  - **Scripts:** `lint` and `test:ci`.
+  - **CI** (`.github/workflows/ci.yml`): Node 22 → `npm ci` → format check → lint → tests →
+    production build, on every push and pull request.
+- **Validation:** the same steps run locally all pass: lint 0 errors; 21 files / 128 tests;
+  build clean at 596.89 kB.
+- **Not verified:** the workflow hasn't run on GitHub; it runs on the first push.

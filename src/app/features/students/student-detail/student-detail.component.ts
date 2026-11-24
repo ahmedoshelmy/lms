@@ -10,12 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { Group } from '../../../core/interfaces/Group';
-import { User } from '../../../core/interfaces/User';
-import {
-  StudentDetails,
-  StudentAttendanceRecord,
-  StudentUpcomingSession,
-} from '../../../core/interfaces/StudentDetails';
+import { StudentDetails } from '../../../core/interfaces/StudentDetails';
 import { CertificateCandidate, CertificateStudentRef } from '../../../core/interfaces/Certificate';
 import { CertificateService } from '../../../core/services/certificate.service';
 import { CertificateDialogComponent } from '../../../shared/components/certificate-dialog/certificate-dialog.component';

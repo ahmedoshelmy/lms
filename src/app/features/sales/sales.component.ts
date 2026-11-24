@@ -10,7 +10,7 @@ import { Role, parseRole } from '../../core/interfaces/Role';
 import { User } from '../../core/interfaces/User';
 import { Topic } from '../../core/interfaces/Topic';
 import { CourseLevel } from '../../core/interfaces/CourseLevel';
-import { Room, WEEKDAYS, shortTime, toDayNumber } from '../../core/interfaces/Availability';
+import { Room, WEEKDAYS, toDayNumber } from '../../core/interfaces/Availability';
 import {
   AvailableSlot,
   CANDIDATE_STATUSES,

@@ -10,7 +10,6 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
 import { InstructorDetails, InstructorStats } from '../../../core/interfaces/InstructorDetails';
-import { ScheduleSession } from '../../../core/interfaces/ScheduleSession';
 
 @Component({
   selector: 'app-instructor-detail',

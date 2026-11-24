@@ -18,4 +18,4 @@ export interface CreateCoursePayload {
   sessionCount: string;
 }
 
-export interface UpdateCoursePayload extends CreateCoursePayload {}
+export type UpdateCoursePayload = CreateCoursePayload;

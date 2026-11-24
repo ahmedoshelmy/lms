@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { SILENT_STATUSES } from '../interceptors/silent-statuses.token';
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
-import { Role } from '../interfaces/Role';
 import { AttendanceStatus } from '../enums/AttendanceStatus';
 import { LoginRequest, LoginResponse } from '../interfaces/Login';
 import { CreateUserPayload, UpdateUserPayload, User } from '../interfaces/User';
@@ -17,7 +16,7 @@ import {
 } from '../interfaces/Attendance';
 
 import { ClockCheck } from '../interfaces/ClockCheck';
-import { Course, CreateCoursePayload, UpdateCoursePayload } from '../interfaces/Course';
+import { Course } from '../interfaces/Course';
 import { Topic, CreateTopicPayload, UpdateTopicPayload } from '../interfaces/Topic';
 import {
   CourseLevel,
@@ -33,7 +32,7 @@ import {
   CancelUpcomingSessionsPayload,
   CancelUpcomingSessionsResult,
 } from '../interfaces/Group';
-import { GroupCourse, UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
+import { UpdateCurrentSessionNumberDto } from '../interfaces/GroupCourse';
 import { DashboardOverview } from '../interfaces/DashboardOverview';
 import {
   MonthlyEvaluation,

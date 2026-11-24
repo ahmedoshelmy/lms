@@ -9,7 +9,7 @@ import { LmsService } from '../../core/services/lms.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Role } from '../../core/interfaces/Role';
-import { GroupHistory, GroupCourseHistoryItem } from '../../core/interfaces/History';
+import { GroupHistory } from '../../core/interfaces/History';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { Course } from '../../core/interfaces/Course';
 import { ClockFormatService } from '../../core/services/clock-format.service';
@@ -65,7 +65,7 @@ export class HistoryComponent implements OnInit {
         this.groupsHistory.set(history);
         this.loading.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.notify.showError('Failed to load group history');
         this.loading.set(false);
       },

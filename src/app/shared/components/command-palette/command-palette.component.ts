@@ -14,9 +14,6 @@ import { Router } from '@angular/router';
 import { LmsService } from '../../../core/services/lms.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Role } from '../../../core/interfaces/Role';
-import { User } from '../../../core/interfaces/User';
-import { Group } from '../../../core/interfaces/Group';
-import { Course } from '../../../core/interfaces/Course';
 
 export interface CommandItem {
   id: string | number;

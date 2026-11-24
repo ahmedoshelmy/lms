@@ -30,7 +30,8 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
 
   visible = input<boolean>(false);
   instructors = input<User[]>([]);
-  close = output<void>();
+  /** Not "close", which is also a DOM event name. */
+  closed = output<void>();
   sessionCreated = output<void>();
 
   fetchedInstructors = signal<User[]>([]);
@@ -133,7 +134,7 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
         this.notify.showSuccess(`Standalone session "${created.topic}" created successfully.`);
         this.resetForm();
         this.sessionCreated.emit();
-        this.close.emit();
+        this.closed.emit();
       },
       error: (err) => {
         this.submitting.set(false);
@@ -154,6 +155,6 @@ export class CreateStandaloneSessionDialogComponent implements OnInit {
 
   onCancel(): void {
     this.resetForm();
-    this.close.emit();
+    this.closed.emit();
   }
 }

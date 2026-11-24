@@ -264,7 +264,11 @@ export class EvaluationsComponent implements OnInit {
   protected toggleGroup(groupName: string): void {
     this.collapsed.update((set) => {
       const next = new Set(set);
-      next.has(groupName) ? next.delete(groupName) : next.add(groupName);
+      if (next.has(groupName)) {
+        next.delete(groupName);
+      } else {
+        next.add(groupName);
+      }
       return next;
     });
   }

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SelectModule } from 'primeng/select';
@@ -10,7 +10,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { Role, parseRole } from '../../core/interfaces/Role';
 import { ScheduleSession } from '../../core/interfaces/ScheduleSession';
 import { User } from '../../core/interfaces/User';
-import { Group } from '../../core/interfaces/Group';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 
