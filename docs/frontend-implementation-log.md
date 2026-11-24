@@ -630,3 +630,26 @@ Everything below was checked as unused before deletion.
 - **Test:** `auth.service.spec.ts` checks login sends the same request (POST, cookies,
   body) and stores the user.
 - **Validation:** 32 files / 167 tests ✔; lint 0 errors; format ✔; build ✔.
+
+## D-02 — PrimeNG in the brand colours; off the deprecated theme package
+
+- **What changed:**
+  - **Preset:** new `core/config/prime-preset.ts` `LmsPreset`, i.e. Aura with:
+    - the primary button colours (`color`, `contrastColor`, `hoverColor`, `activeColor`)
+      bound to `var(--color-primary*)`, for light and dark;
+    - a primary 50–950 tint scale running through the brand's own values, used for focus
+      rings, selected rows and highlighted options.
+
+    Stock Aura's primary was emerald, so PrimeNG buttons, focus rings, selections and
+    checkboxes were green beside the navy brand.
+
+  - **Package:** `@primeng/themes` (deprecated) is replaced by `@primeuix/themes` 2.0.3. It's
+    the package `@primeng/themes` was wrapping, at the same version.
+  - **No `definePreset()`:** the preset is built with plain object spreads. The helper's
+    merge utilities cost 2.5 kB of startup code for three nested overrides.
+
+- **Cost:** the new package's Aura entry is about 1.35 kB larger than the wrapper's, plus
+  0.55 kB for the preset. That's why PF-05 was moved ahead.
+- **Not yet verified visually:** PrimeNG controls will look navy/blue instead of green.
+  It's checked in the Phase 2 audit.
+- **Validation:** 32 files / 167 tests ✔; lint 0 errors; build ✔ at 589.81 kB.

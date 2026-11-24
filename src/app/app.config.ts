@@ -9,7 +9,7 @@ import { routes } from './app.routes';
 import { errorInterceptor } from './core/interceptors/error-interceptor';
 
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
+import { LmsPreset } from './core/config/prime-preset';
 import { NotificationService } from './core/services/notification.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AppErrorHandler } from './core/errors/app-error-handler';
@@ -22,7 +22,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: AppErrorHandler },
     providePrimeNG({
       // Use data-theme="dark" so PrimeNG and the CSS token system stay in sync
-      theme: { preset: Aura, options: { darkModeSelector: '[data-theme="dark"]' } },
+      theme: { preset: LmsPreset, options: { darkModeSelector: '[data-theme="dark"]' } },
     }),
     provideHttpClient(withFetch(), withInterceptors([errorInterceptor, authInterceptor])),
   ],
