@@ -286,9 +286,15 @@ export class SessionDetailComponent implements OnInit {
 
   private loadSession(id: number): void {
     this.loading.set(true);
+    let failed = false;
     this.lms
       .getSessionDetails(id)
-      .pipe(catchError(() => of(null)))
+      .pipe(
+        catchError(() => {
+          failed = true;
+          return of(null);
+        })
+      )
       .subscribe({
         next: (detail) => {
           if (detail) {
@@ -296,6 +302,9 @@ export class SessionDetailComponent implements OnInit {
             this.buildRecords(detail);
             this.loadTrials(detail);
           } else {
+            // A failed request was already reported by the interceptor; an
+            // empty answer was not, and used to redirect without a word.
+            if (!failed) this.notify.showError('That class could not be found.');
             this.router.navigate(['/schedule']);
           }
           this.loading.set(false);

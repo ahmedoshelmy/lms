@@ -567,3 +567,29 @@ Everything below was checked as unused before deletion.
     - a rule that the checks stay green and fixes come with a failing-first test.
 - **README:** replaced the CLI boilerplate with requirements, getting started, checks,
   deployment and links to the docs.
+
+## Phase 1 audit
+
+- **Checks, from a clean tree:** format ✔; lint 0 errors (167 warnings, all tracked debt);
+  31 test files / 166 tests ✔; production build ✔ at 597.22 kB (budget 600); production
+  `npm audit` finds 0 vulnerabilities.
+- **Independent review** of the whole Phase 1 diff, by a reviewer given the code but not
+  my reasoning: **no High or Medium problems.** It checked all 35 toast removals against
+  the interceptor and `SILENT_STATUSES`, every deleted member, the control-flow migration,
+  all 16 query rewrites, every `latestRequest` site, the permission table, `SessionService`
+  and the week and id changes.
+- **Acted on:**
+  - the session page redirected silently when the API answered with an empty body; it now
+    says "That class could not be found";
+  - when a request never reaches the server (status 0) the interceptor now says "Could not
+    reach the server…" instead of "Something went wrong" (`errorMessage`, with tests).
+- **Accepted as intended:** Settings no longer appears in the production command palette,
+  matching the sidebar, which already hid it there.
+- **For the backend to confirm:** that `ScheduleSession.instructorId` is always set, since
+  filters now match by id.
+- **Environment note:** with low free memory, the full test run can lose workers to
+  out-of-memory. Running by folder (`ng test --include 'src/app/core/**/*.spec.ts'`, etc.)
+  works. CI on Linux is unaffected.
+- **Phase 1 held back, by design:** F-09 (break up large components) waits for Phase 7's
+  workflow tests. The token-in-memory part of F-01 waits for the backend's confirmation
+  of the refresh cookie.
