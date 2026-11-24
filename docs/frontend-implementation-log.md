@@ -1072,3 +1072,29 @@ Everything below was checked as unused before deletion.
   - Groups: status tabs filter;
   - Students: selection shows the toolbar;
   - the phone drawer opens and closes.
+
+## PF-03 — Matrices: cells from an index, and every booked hour counted
+
+- **New `core/utils/session-slots.utils.ts`** (tested): `hoursCovered`, `sessionEnd`,
+  `isCancelledSession`, `slotKey`, and `indexSessionsBySlot`. The index maps (instructor,
+  day, hour) to the class there. It is built once in a `computed` per change of the
+  sessions, instead of each cell searching every session on each render. The week matrix
+  searched 7 days × 13 hours per render, and did it twice more for its booked and free
+  counts.
+- **Booked hours were wrong**, in all three matrices:
+  - A class was matched only to the hour it starts in, so the second hour of a 90-minute
+    class showed as free in both availability views. That is the view Sales reads to find
+    a slot. Every hour a class overlaps is now booked: 10:00–11:30 takes 10 and 11.
+  - A cancelled class still booked its hour in both availability views, though the week's
+    hours total already left it out. It no longer books anything there.
+  - The schedule matrix still shows cancelled classes, since it is the timetable. The hours
+    a class runs on into show a "continues" button that opens it, where they showed "—"
+    like a free hour.
+- **Also:** the schedule matrix header counted the "All instructors" option ("3
+  Instructors" for two).
+- **Validation:** new `session-slots.utils.spec.ts` (5 tests), plus a matrix test for a
+  90-minute class and a cancelled one. Lint 0 errors, warnings unchanged at 167; the new
+  cell is a `<button>`. Checked in the browser with sample classes:
+  - 10:00–11:30 shows at 10 and continues at 11;
+  - a cancelled 15:00 class leaves 15:00 available;
+  - "7 Free · 2 Booked" per instructor.

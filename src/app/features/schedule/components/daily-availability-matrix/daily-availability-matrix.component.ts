@@ -6,6 +6,7 @@ import {
   InstructorTimeOff,
 } from '../../../../core/interfaces/Availability';
 import { isDeclaredAvailable, isOnLeave } from '../../../../core/utils/availability.utils';
+import { indexSessionsBySlot, slotKey } from '../../../../core/utils/session-slots.utils';
 
 export interface TimeSlot {
   label: string;
@@ -231,16 +232,19 @@ export class DailyAvailabilityMatrixComponent {
     return Array.from(map.values());
   });
 
-  getSlotAvailability(instructorId: number, hour: number): SlotAvailability {
-    const session = this.daySessions().find((s) => {
-      // By id; a name test matched "Ali" inside "Alia".
-      if (s.instructorId !== instructorId) return false;
-      const sHour = new Date(s.startsAt).getHours();
-      return sHour === hour;
-    });
+  /**
+   * The hours each instructor is teaching that day, worked out once. Every hour
+   * a class covers is booked -- the second hour of a 90-minute class used to
+   * show as available -- and a cancelled class books nothing.
+   */
+  private readonly booked = computed(() =>
+    indexSessionsBySlot(this.daySessions(), { skipCancelled: true })
+  );
 
-    if (session) {
-      return { state: 'booked', session };
+  getSlotAvailability(instructorId: number, hour: number): SlotAvailability {
+    const entry = this.booked().get(slotKey(instructorId, new Date(this.selectedDate()), hour));
+    if (entry) {
+      return { state: 'booked', session: entry.session };
     }
 
     // A booked hour shows as booked whatever the declared week says — the

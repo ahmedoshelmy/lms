@@ -17,6 +17,7 @@ import {
 } from '../../../../core/interfaces/Availability';
 import { isDeclaredAvailable, isOnLeave } from '../../../../core/utils/availability.utils';
 import { AuthService } from '../../../../core/services/auth.service';
+import { indexSessionsBySlot, slotKey } from '../../../../core/utils/session-slots.utils';
 
 export interface DayColumnMeta {
   dayName: string;
@@ -344,23 +345,17 @@ export class InstructorAvailabilityMatrixComponent {
     const onLeave = isOnLeave(this.timeOff(), inst.id, date, hour);
     const isWorkingHour = !onLeave && isDeclaredAvailable(this.availability(), inst.id, date, hour);
 
-    const session = this.sessions().find((s) => {
-      // By id; a name test matched "Ali" inside "Alia".
-      const isSameInst = s.instructorId === inst.id;
-      if (!isSameInst) return false;
-
-      const d = new Date(s.startsAt);
-      const sameDay =
-        d.getFullYear() === date.getFullYear() &&
-        d.getMonth() === date.getMonth() &&
-        d.getDate() === date.getDate();
-      if (!sameDay) return false;
-
-      return d.getHours() === hour;
-    });
+    // Every hour a class covers, from an index built once; cancelled ones book
+    // nothing. Each cell used to search every session, and only matched the
+    // hour a class started in.
+    const session = this.booked().get(slotKey(inst.id, date, hour))?.session;
 
     return { isWorkingHour, onLeave, session };
   }
+
+  private readonly booked = computed(() =>
+    indexSessionsBySlot(this.sessions(), { skipCancelled: true })
+  );
 
   readonly weeklyBookedCount = computed(() => {
     let count = 0;

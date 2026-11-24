@@ -2,6 +2,7 @@ import { inject, Component, input, output, computed, ChangeDetectionStrategy } f
 import { ScheduleSession } from '../../../../core/interfaces/ScheduleSession';
 import { User } from '../../../../core/interfaces/User';
 import { ClockFormatService } from '../../../../core/services/clock-format.service';
+import { indexSessionsBySlot, slotKey } from '../../../../core/utils/session-slots.utils';
 
 export interface TimeSlot {
   label: string; // e.g., "08:00"
@@ -31,7 +32,7 @@ export interface TimeSlot {
             class="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-surface-secondary)] px-2.5 py-1 font-medium text-[var(--color-text-muted)] border border-[var(--color-border)]"
           >
             <span class="h-2 w-2 rounded-full bg-[var(--color-primary)]"></span>
-            {{ instructors().length }} Instructors
+            {{ activeInstructors().length }} Instructors
           </span>
           <span
             class="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-surface-secondary)] px-2.5 py-1 font-medium text-[var(--color-text-muted)] border border-[var(--color-border)]"
@@ -90,7 +91,8 @@ export interface TimeSlot {
                   <td
                     class="h-16 border-r border-[var(--color-border)] p-1 text-center align-top relative"
                   >
-                    @let session = getSessionForSlot(instructor.id, slot.hour);
+                    @let entry = slotAt(instructor.id, slot.hour);
+                    @let session = entry && entry.starts ? entry.session : null;
                     @if (session) {
                       <div
                         (click)="sessionSelected.emit(session)"
@@ -117,6 +119,18 @@ export interface TimeSlot {
                           </span>
                         </div>
                       </div>
+                    } @else if (entry) {
+                      <!-- The class above runs on into this hour: taken, not free. -->
+                      <button
+                        type="button"
+                        (click)="sessionSelected.emit(entry.session)"
+                        class="h-full w-full cursor-pointer rounded-lg border border-dashed border-[var(--color-secondary)] bg-[var(--color-info-background)] opacity-70 flex items-center justify-center text-[10px] text-[var(--color-text-muted)]"
+                        [title]="
+                          (entry.session.groupName || entry.session.courseTitle) + ', continued'
+                        "
+                      >
+                        continues
+                      </button>
                     } @else {
                       <div
                         class="h-full w-full rounded border border-dashed border-[var(--color-border)] opacity-40 hover:opacity-100 flex items-center justify-center text-[10px] text-[var(--color-text-muted)]"
@@ -217,13 +231,15 @@ export class DailyScheduleMatrixComponent {
     return Array.from(map.values());
   });
 
-  getSessionForSlot(instructorId: number, hour: number): ScheduleSession | undefined {
-    return this.daySessions().find((s) => {
-      // By id; a name test matched "Ali" inside "Alia".
-      if (s.instructorId !== instructorId) return false;
-      const sHour = new Date(s.startsAt).getHours();
-      return sHour === hour;
-    });
+  /** Every cell's class, worked out once per change of the day's sessions. */
+  private readonly slots = computed(() => indexSessionsBySlot(this.daySessions()));
+
+  /**
+   * The class in a cell: one starting in that hour, or one running on into it
+   * (a 90-minute class takes two). By id; a name test matched "Ali" in "Alia".
+   */
+  slotAt(instructorId: number, hour: number) {
+    return this.slots().get(slotKey(instructorId, new Date(this.selectedDate()), hour));
   }
 
   getInitials(name: string): string {
