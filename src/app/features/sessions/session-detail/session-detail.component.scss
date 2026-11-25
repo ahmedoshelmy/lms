@@ -243,7 +243,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--color-secondary-content);
   font-size: 16px;
   flex-shrink: 0;
   &--total {
@@ -360,7 +360,7 @@
   }
   &--primary {
     background: var(--color-secondary);
-    color: white;
+    color: var(--color-secondary-content);
     &:hover:not(:disabled) {
       background: var(--color-secondary-hover);
       transform: translateY(-1px);
@@ -504,7 +504,7 @@
   }
   &--active {
     background: var(--color-secondary);
-    color: white;
+    color: var(--color-secondary-content);
     border-color: var(--color-secondary);
   }
   &.filter-pill--present.filter-pill--active {
@@ -659,7 +659,7 @@
     background: var(--color-primary);
   }
   &.record-status--pending {
-    background: var(--color-text-muted);
+    background: var(--color-muted-solid);
   }
 }
 
@@ -859,7 +859,7 @@
   transition: all 0.2s ease;
   &:hover {
     background: var(--color-secondary);
-    color: white;
+    color: var(--color-secondary-content);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
@@ -987,7 +987,7 @@
   height: 22px;
   border-radius: 6px;
   background: var(--color-secondary);
-  color: white;
+  color: var(--color-secondary-content);
   font-size: 10px;
   font-weight: 800;
   flex-shrink: 0;
@@ -1130,7 +1130,7 @@
   }
   &--primary {
     background: var(--color-secondary);
-    color: white;
+    color: var(--color-secondary-content);
     &:hover:not(:disabled) {
       background: var(--color-secondary-hover);
       transform: translateY(-1px);

@@ -58,7 +58,7 @@
 
   &.density-btn--active {
     background: var(--color-secondary);
-    color: var(--color-primary-content);
+    color: var(--color-secondary-content);
     border-color: var(--color-secondary);
     box-shadow: 0 4px 12px color-mix(in srgb, var(--color-secondary) 30%, transparent);
   }

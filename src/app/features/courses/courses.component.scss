@@ -38,7 +38,7 @@
   &.active {
     border-color: var(--color-secondary);
     background: var(--color-secondary);
-    color: white;
+    color: var(--color-secondary-content);
   }
 }
 

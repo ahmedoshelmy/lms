@@ -153,7 +153,7 @@
           type="button"
           (click)="setSessionStatusFilter('all')"
           [class.bg-[var(--color-secondary)]]="sessionStatusFilter() === 'all'"
-          [class.text-white]="sessionStatusFilter() === 'all'"
+          [class.text-[var(--color-secondary-content)]]="sessionStatusFilter() === 'all'"
           [class.text-[var(--color-text-secondary)]]="sessionStatusFilter() !== 'all'"
           class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
         >
@@ -249,7 +249,7 @@
           <div class="flex items-center gap-3 mb-3 pb-2 border-b border-[var(--color-border)]">
             @if (group.isToday) {
               <span
-                class="px-2.5 py-1 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-black tracking-wider uppercase shadow-xs"
+                class="px-2.5 py-1 rounded-xl bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-black tracking-wider uppercase shadow-xs"
               >
                 TODAY
               </span>

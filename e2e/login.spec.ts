@@ -1,11 +1,9 @@
-import { expect, test } from '@playwright/test';
 import { expectAccessible } from './support/a11y';
 import { mockApi } from './support/api';
-import { ROLES, failOnPageErrors } from './support/session';
+import { ROLES } from './support/session';
+import { expect, test } from './support/test';
 
 test.describe('Signing in', () => {
-  test.beforeEach(({ page }) => failOnPageErrors(page));
-
   test('the page passes axe', async ({ page }) => {
     await mockApi(page);
     await page.goto('/login');

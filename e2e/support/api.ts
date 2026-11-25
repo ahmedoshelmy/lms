@@ -6,16 +6,23 @@ export const API = 'https://mv-api.inite.tech/api';
 
 export type Answers = Record<string, unknown>;
 
+/** Calls each page made that no fixture answered; checked after every test (support/test.ts). */
+export const unanswered = new WeakMap<Page, string[]>();
+
 /**
  * Answers every API call from fixtures, keyed "GET /groups" (query ignored),
- * and refuses everything else that would leave the machine. An unknown
- * endpoint gets a 404, which pages show as their failure state.
+ * and refuses everything else that would leave the machine.
+ *
+ * An endpoint with no fixture gets a 404 and is recorded: the test then fails
+ * (support/test.ts), rather than checking a page that half failed to load.
  *
  * Returns the requests made, for asserting on what was sent.
  */
 export async function mockApi(page: Page, overrides: Answers = {}): Promise<Request[]> {
   const answers: Answers = { ...FIXTURES, ...overrides };
   const seen: Request[] = [];
+  const missing: string[] = [];
+  unanswered.set(page, missing);
 
   // Registered first, so matched last: anything not on localhost goes nowhere.
   await page.route(/^https?:\/\/(?!localhost[:/]|127\.0\.0\.1[:/])/, (route) => route.abort());
@@ -27,9 +34,8 @@ export async function mockApi(page: Page, overrides: Answers = {}): Promise<Requ
     const key = `${request.method()} ${path}`;
     if (key in answers) {
       await route.fulfill({ status: 200, json: answers[key] });
-    } else if (request.method() !== 'GET' && `${request.method()} *` in answers) {
-      await route.fulfill({ status: 200, json: answers[`${request.method()} *`] });
     } else {
+      missing.push(key);
       await route.fulfill({ status: 404, json: { message: `No fixture for ${key}` } });
     }
   });

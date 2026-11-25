@@ -74,7 +74,7 @@
 
 .tab--on {
   background: var(--color-secondary);
-  color: var(--color-primary-content);
+  color: var(--color-secondary-content);
 
   &:hover {
     background: var(--color-secondary);
@@ -878,7 +878,7 @@
 
 .btn--primary {
   background: var(--color-secondary);
-  color: var(--color-primary-content);
+  color: var(--color-secondary-content);
 }
 
 /* Mine / Everyone's: which records the holds and pipeline show. */

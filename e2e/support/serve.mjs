@@ -19,7 +19,7 @@ const TYPES = {
   '.ttf': 'font/ttf',
 };
 
-createServer(async (req, res) => {
+async function answer(req, res) {
   const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname));
   const file = join(root, path);
   // Nothing outside the build folder.
@@ -27,16 +27,28 @@ createServer(async (req, res) => {
     res.writeHead(403).end();
     return;
   }
-  try {
-    if (!extname(path)) throw new Error('a route');
-    res.writeHead(200, { 'Content-Type': TYPES[extname(path)] ?? 'application/octet-stream' });
-    res.end(await readFile(file));
-  } catch {
-    if (extname(path)) {
+  if (extname(path)) {
+    try {
+      const body = await readFile(file);
+      res.writeHead(200, { 'Content-Type': TYPES[extname(path)] ?? 'application/octet-stream' });
+      res.end(body);
+    } catch {
       res.writeHead(404).end();
-      return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(await readFile(join(root, 'index.html')));
+    return;
+  }
+  // A route: the app answers it.
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.end(await readFile(join(root, 'index.html')));
+}
+
+createServer(async (req, res) => {
+  // Whatever happens, an answer: an unhandled rejection would end the server,
+  // and every test after it, over one malformed address.
+  try {
+    await answer(req, res);
+  } catch {
+    if (!res.headersSent) res.writeHead(400);
+    res.end();
   }
 }).listen(port, '127.0.0.1', () => console.log(`serving ${root} on ${port}`));

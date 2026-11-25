@@ -72,6 +72,8 @@
   --color-success-solid: #047857;
   --color-warning-solid: #b45309;
   --color-info-solid: #2d5594;
+  /* White text on a neutral fill (a register's unmarked child). */
+  --color-muted-solid: #5f6673;
 
   /* Session type badges */
   --color-session-group: #8b5cf6;
@@ -147,7 +149,7 @@
   --color-primary-active: #1f3056;
   --color-primary-content: #ffffff;
 
-  --color-secondary: #5a8fd6;
+  --color-secondary: #6a9be0; /* 4.7:1 as text on its own tint (was #5a8fd6); fills carry --color-secondary-content */
   --color-brand-text: var(--color-text-primary);
   --color-secondary-hover: #6fa0e0;
   --color-secondary-content: #0b1220;
@@ -186,6 +188,7 @@
   --color-success-solid: #047857;
   --color-warning-solid: #b45309;
   --color-info-solid: #2d5594;
+  --color-muted-solid: #5f6673;
 
   /* Session type badges */
   --color-session-group: #a78bfa;
@@ -229,7 +232,7 @@
   --color-sidebar-user-email: #64748b;
   --color-sidebar-border: rgba(255, 255, 255, 0.08);
   --color-sidebar-item-hover: rgba(255, 255, 255, 0.06);
-  --color-sidebar-item-active: #3b82f6;
+  --color-sidebar-item-active: #2d63bb; /* white on it 5.8:1, as in light (was #3b82f6) */
   --color-role-badge-bg: rgba(255, 255, 255, 0.08);
   --color-role-badge-text: #94a3b8;
 

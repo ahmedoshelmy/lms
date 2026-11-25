@@ -1,31 +1,53 @@
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
+import { expect } from './test';
 
 export const ROLES = { Student: 1, Instructor: 2, Admin: 3, Sales: 4 } as const;
 export type RoleName = keyof typeof ROLES;
 
+/** The user each role signs in as; the instructor teaches the fixtures' classes. */
+export const USERS = {
+  Admin: { id: 1, name: 'Audit Admin' },
+  Instructor: { id: 3, name: 'Mona Adel' },
+  Student: { id: 20, name: 'Sara Ahmed' },
+  Sales: { id: 5, name: 'Nadia Sales' },
+} as const;
+
 /** Signed in before the app starts, as a returning user is: the stored session. */
-export async function signIn(page: Page, role: RoleName = 'Admin'): Promise<void> {
+export async function signIn(
+  page: Page,
+  role: RoleName = 'Admin',
+  theme: 'light' | 'dark' = 'light'
+): Promise<void> {
   const user = {
-    id: role === 'Instructor' ? 3 : 1,
-    name: role === 'Instructor' ? 'Mona Adel' : 'Audit Admin',
+    ...USERS[role],
     email: 'e2e@example.test',
     role: ROLES[role],
     accessToken: 'e2e-token',
   };
-  await page.addInitScript((stored) => {
-    localStorage.setItem('auth_user', stored);
-    localStorage.setItem('lms_theme', 'light');
-  }, JSON.stringify(user));
+  await page.addInitScript(
+    ([stored, chosen]) => {
+      localStorage.setItem('auth_user', stored);
+      localStorage.setItem('lms_theme', chosen);
+    },
+    [JSON.stringify(user), theme]
+  );
 }
 
-/** Fails the test on any uncaught error in the page. */
-export function failOnPageErrors(page: Page): void {
-  page.on('pageerror', (error) => {
-    throw new Error(`Uncaught in the page: ${error.message}`);
-  });
+/**
+ * The page has finished loading: no request in flight, and no error toast.
+ * Waiting for one word ("Loading") let pages with other spinners through.
+ */
+export async function expectSettled(page: Page): Promise<void> {
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('.p-toast-message-error')).toHaveCount(0);
 }
 
-/** The page's own heading is on screen: loaded, not still spinning. */
-export async function expectHeading(page: Page, name: string | RegExp): Promise<void> {
-  await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
+/** The local month, YYYY-MM, as the app works it out (not UTC's). */
+export function localMonth(date = new Date()): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** A time `hours` before now, as the API writes it. */
+export function hoursAgo(hours: number): string {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
 }

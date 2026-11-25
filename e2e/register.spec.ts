@@ -1,24 +1,26 @@
-import { expect, test } from '@playwright/test';
 import { mockApi } from './support/api';
 import { FIXTURES } from './support/fixtures';
-import { failOnPageErrors, signIn } from './support/session';
+import { USERS, hoursAgo, signIn } from './support/session';
+import { expect, test } from './support/test';
 
-/** The fixture's class, two hours ago, with nobody marked: inside the 24-hour window. */
+/**
+ * The fixture's class, two hours ago and taught by the instructor who signs
+ * in, with nobody marked: their own register, inside the 24-hour window.
+ */
 function classJustTaught() {
   const base = FIXTURES['GET /Schedule/sessions/7'] as {
     attendances: { studentId: number; studentName: string }[];
   };
-  const start = new Date(Date.now() - 2 * 60 * 60 * 1000);
   return {
     ...base,
-    startsAt: start.toISOString(),
-    endsAt: new Date(start.getTime() + 90 * 60 * 1000).toISOString(),
+    instructorId: USERS.Instructor.id,
+    startsAt: hoursAgo(2),
+    endsAt: hoursAgo(0.5),
     attendances: base.attendances.map((a) => ({ ...a, status: null })),
   };
 }
 
 test('an instructor takes the register and it reaches the server whole', async ({ page }) => {
-  failOnPageErrors(page);
   await signIn(page, 'Instructor');
   const session = classJustTaught();
   const requests = await mockApi(page, {

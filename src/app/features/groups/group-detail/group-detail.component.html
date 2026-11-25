@@ -46,7 +46,7 @@
 
         <button
           (click)="openCustomGenerateModal(group()!.courses[0] || null)"
-          class="px-4 py-1.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+          class="px-4 py-1.5 rounded-xl bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all shadow-md cursor-pointer flex items-center gap-1.5"
         >
           <i class="pi pi-bolt text-xs"></i>
           Generate Sessions
@@ -462,7 +462,7 @@
 
               <button
                 (click)="openCustomGenerateModal(group()!.courses[0] || null)"
-                class="w-full py-2.5 px-3.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all flex items-center justify-between cursor-pointer"
+                class="w-full py-2.5 px-3.5 rounded-xl bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all flex items-center justify-between cursor-pointer"
               >
                 <span>⚡ Generate Sessions</span>
                 <i class="pi pi-chevron-right text-xs"></i>
@@ -679,7 +679,7 @@
           @if (isAdmin() && group()?.courses?.length) {
             <button
               (click)="openCustomGenerateModal(group()!.courses[0])"
-              class="px-3.5 py-1.5 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs"
+              class="px-3.5 py-1.5 rounded-xl bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-bold hover:bg-[var(--color-secondary-hover)] transition-all cursor-pointer flex items-center gap-1.5 shrink-0 shadow-xs"
             >
               <i class="pi pi-bolt text-xs"></i> Generate Sessions
             </button>
@@ -1029,7 +1029,7 @@
           <button
             (click)="addCourseToUnifiedEdit()"
             [disabled]="!newCourseLevelToAdd()"
-            class="px-4 py-2 bg-[var(--color-secondary)] text-white text-xs font-bold rounded-xl hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 transition-all shadow-xs"
+            class="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-bold rounded-xl hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 transition-all shadow-xs"
           >
             <i class="pi pi-plus mr-1"></i> Add Course
           </button>
@@ -1291,7 +1291,7 @@
       <button
         (click)="confirmAddStudent()"
         [disabled]="!selectedStudentToAdd() || addingStudent()"
-        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-[var(--color-secondary-content)] text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
       >
         @if (addingStudent()) {
           <i class="pi pi-spinner pi-spin"></i>
@@ -1602,7 +1602,7 @@
       <button
         (click)="confirmAddCourse()"
         [disabled]="!selectedCourseIdToAdd() || addingCourse()"
-        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
+        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-hover)] text-[var(--color-secondary-content)] text-xs font-semibold disabled:opacity-50 cursor-pointer shadow"
       >
         @if (addingCourse()) {
           <i class="pi pi-spinner pi-spin"></i>
@@ -1756,7 +1756,7 @@
       <button
         (click)="submitCustomGenerate()"
         [disabled]="generatingCustom()"
-        class="px-4 py-2 rounded-xl bg-[var(--color-secondary)] text-white text-xs font-semibold hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 cursor-pointer shadow"
+        class="px-4 py-2 rounded-xl bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-semibold hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 cursor-pointer shadow"
       >
         @if (generatingCustom()) {
           <i class="pi pi-spinner pi-spin"></i>
@@ -2221,7 +2221,7 @@
           <button
             (click)="generateCustomSessionsFromManagedModal()"
             [disabled]="generatingCustom()"
-            class="px-4 py-2 bg-[var(--color-secondary)] text-white text-xs font-semibold hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 cursor-pointer shadow flex items-center gap-1.5 rounded-xl"
+            class="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-secondary-content)] text-xs font-semibold hover:bg-[var(--color-secondary-hover)] disabled:opacity-50 cursor-pointer shadow flex items-center gap-1.5 rounded-xl"
           >
             @if (generatingCustom()) {
               <i class="pi pi-spin pi-spinner text-xs"></i>

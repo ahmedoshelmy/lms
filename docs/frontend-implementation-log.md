@@ -1576,3 +1576,53 @@ Everything below was checked as unused before deletion.
   - end-to-end: 43 passed, 0 failed;
   - lint: 0 errors;
   - build: 590.17 kB initial.
+
+## Phase 7 audit (T-04, T-05)
+
+- **Independent review** of the Phase 7 diff found no high-severity problems. Six findings,
+  all fixed:
+  1. **An API call with no fixture did not fail an end-to-end test (Medium).** The page
+     showed an error toast and the test passed, so axe was checking pages that had half
+     failed to load. The toast-colour fix in T-05 had been measured on exactly those
+     toasts.
+     - `e2e/support/test.ts` now checks after every test: no uncaught page error, and no
+       unanswered API call.
+     - "Loaded" now means the network is idle and there is no error toast. Before, it
+       meant no "Loading" text, which other spinners got past.
+     - Nine missing fixtures added: the session syllabus, group history, availability,
+       time off, workload, register compliance, sales holds and candidates, and the
+       attendance summary.
+  2. **The register's end-to-end class belonged to another instructor.** It now belongs
+     to the one signed in, as in real use.
+  3. **Clock- and date-dependent tests:** the KPI month and the class's times are now
+     worked out when each test runs, not when the file loads or from fixed fixture
+     dates.
+  4. **The test server could die on a malformed address.** Every request now gets an
+     answer.
+  5. **Docs out of step:** AGENTS.md and PrimeNG's 500 shade now carry the new
+     secondary, #3a66aa.
+  6. **Dark mode was never checked by axe.** Every page now also runs in dark mode at
+     the desktop size. Fixed from that:
+     - The sidebar's active item in dark mode was white on #3b82f6 (3.7:1). It is now
+       #2d63bb, as in light.
+     - **White text on secondary fills** (active tabs, pills, toggles, buttons) was 3.3:1
+       in dark mode. It now uses `--color-secondary-content`, which the design already
+       had (white in light, dark ink in dark) but no component used. 25 places, plus two
+       filter buttons whose colour is bound.
+     - **Dark secondary as text** on its own tint was 4.1:1. It goes from #5a8fd6 to
+       #6a9be0 (4.7:1).
+     - **PrimeNG's outlined and text buttons** in dark mode drew their label in the
+       primary navy on near-black (1.8:1). The preset now gives those two variants
+       `--color-brand-text`.
+     - **The register's "not marked" avatar** was white on the muted grey (2.6:1). It now
+       uses the new `--color-muted-solid`.
+- **Validation:**
+  - end-to-end: 60 passed (15 of them dark), 0 failed;
+  - unit tests: all batches exit 0, 62 files / 297 tests;
+  - lint: 0 errors;
+  - build: 590.88 kB initial.
+- **The user's decisions, for the phases ahead:**
+  - Phase 8: design the app icon here.
+  - Phase 9: choose the monitoring setup here.
+  - PDFs: instructor and student names are always in English, so no Arabic font is
+    needed.

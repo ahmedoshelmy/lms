@@ -60,7 +60,7 @@ and `docs/frontend-implementation-log.md`.
 The project uses **Tailwind CSS v4**. Colours are CSS custom properties in `src/styles.css` (see §4.5), used from templates as `text-[var(--color-text-primary)]` and from SCSS as `var(--color-...)`:
 
 - **Primary Color:** `--color-primary` (`#1A2B4C`), hover state `--color-primary-hover` (`#254479`).
-- **Secondary Color:** `--color-secondary` (`#3e6db5`), hover state `--color-secondary-hover` (`#2d5594`).
+- **Secondary Color:** `--color-secondary` (`#3a66aa`), hover state `--color-secondary-hover` (`#2d5594`).
 - **Background Canvas:** `--color-background` (`#F7F4EF`), alternative `--color-background-alt` (`#EAE5D9`).
 - **Surfaces:** `--color-surface` (`#FFFFFF`), hover state `--color-surface-hover` (`#F9FAFB`).
 - **Semantic Colors:** `--color-success` (`#10B981`), `--color-warning` (`#F59E0B`), `--color-danger` (`#EF4444`).

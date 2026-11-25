@@ -1,9 +1,8 @@
-import { expect, test } from '@playwright/test';
 import { mockApi } from './support/api';
-import { failOnPageErrors, signIn } from './support/session';
+import { expectSettled, signIn } from './support/session';
+import { expect, test } from './support/test';
 
 test.beforeEach(async ({ page }) => {
-  failOnPageErrors(page);
   await signIn(page, 'Admin');
   await mockApi(page);
 });
@@ -40,6 +39,7 @@ for (const path of ['/dashboard', '/groups', '/students', '/sessions/7', '/sched
     test.skip(info.project.name !== 'phone', 'A phone-width check');
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await expectSettled(page);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth

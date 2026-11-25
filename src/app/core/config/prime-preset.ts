@@ -34,7 +34,7 @@ export const LmsPreset = {
       200: '#b6c9ea',
       300: '#8ba8db',
       400: '#5f85c8',
-      500: '#3e6db5',
+      500: '#3a66aa',
       600: '#2d5594',
       700: '#254479',
       800: '#1a2b4c',
@@ -45,6 +45,36 @@ export const LmsPreset = {
       ...Aura.semantic?.colorScheme,
       light: { ...Aura.semantic?.colorScheme?.light, primary: brandPrimary },
       dark: { ...Aura.semantic?.colorScheme?.dark, primary: brandPrimary },
+    },
+  },
+  components: {
+    ...Aura.components,
+    button: {
+      ...Aura.components?.button,
+      colorScheme: {
+        ...Aura.components?.button?.colorScheme,
+        dark: {
+          ...Aura.components?.button?.colorScheme?.dark,
+          // Outlined and text buttons draw their label in the primary colour,
+          // which in dark mode is navy on near-black (1.8:1). The brand's text
+          // colour reads there; its fill and hover tints stay as they are.
+          outlined: {
+            ...Aura.components?.button?.colorScheme?.dark?.outlined,
+            primary: {
+              ...Aura.components?.button?.colorScheme?.dark?.outlined?.primary,
+              color: 'var(--color-brand-text)',
+              borderColor: 'var(--color-border)',
+            },
+          },
+          text: {
+            ...Aura.components?.button?.colorScheme?.dark?.text,
+            primary: {
+              ...Aura.components?.button?.colorScheme?.dark?.text?.primary,
+              color: 'var(--color-brand-text)',
+            },
+          },
+        },
+      },
     },
   },
 };

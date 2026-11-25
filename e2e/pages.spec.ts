@@ -1,22 +1,8 @@
-import { expect, test } from '@playwright/test';
 import { expectAccessible } from './support/a11y';
 import { mockApi } from './support/api';
-import { RoleName, failOnPageErrors, signIn } from './support/session';
-
-/** The current month as the KPI page asks for it: the local one, not UTC's. */
-const now = new Date();
-const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-const kpiMonth = {
-  month: thisMonth,
-  status: 'Open',
-  settings: {
-    weights: { reports: 40, registers: 40, cancellations: 20 },
-    bands: { excellent: 90, good: 75 },
-    ownerEmail: null,
-  },
-  events: [],
-  instructors: [],
-};
+import { FIXTURES } from './support/fixtures';
+import { RoleName, USERS, expectSettled, hoursAgo, localMonth, signIn } from './support/session';
+import { expect, test } from './support/test';
 
 /** Every page each role uses most, with its own title. */
 const PAGES: { role: RoleName; path: string; title: string }[] = [
@@ -33,21 +19,54 @@ const PAGES: { role: RoleName; path: string; title: string }[] = [
   { role: 'Admin', path: '/sales', title: 'Sales' },
   { role: 'Admin', path: '/sessions/7', title: 'Session' },
   { role: 'Instructor', path: '/dashboard', title: 'Overview' },
+  { role: 'Instructor', path: '/sessions/7', title: 'Session' },
   { role: 'Instructor', path: '/my-kpis', title: 'My KPIs' },
 ];
 
-for (const { role, path, title } of PAGES) {
-  test(`${role} ${path}: named, loads, and passes axe`, async ({ page }) => {
-    failOnPageErrors(page);
-    await signIn(page, role);
-    await mockApi(page, { [`GET /kpis/months/${thisMonth}`]: kpiMonth, 'GET /kpis/me': [] });
+/**
+ * Answers that depend on today, worked out when each test runs: the month the
+ * KPI page asks for, and a class two hours ago (inside the register's window,
+ * whatever the date), taught by the instructor who signs in.
+ */
+function todaysAnswers() {
+  const month = localMonth();
+  const session = FIXTURES['GET /Schedule/sessions/7'] as Record<string, unknown>;
+  return {
+    [`GET /kpis/months/${month}`]: {
+      month,
+      status: 'Open',
+      settings: {
+        weights: { reports: 40, registers: 40, cancellations: 20 },
+        bands: { excellent: 90, good: 75 },
+        ownerEmail: null,
+      },
+      events: [],
+      instructors: [],
+    },
+    'GET /kpis/me': [],
+    'GET /Schedule/sessions/7': {
+      ...session,
+      instructorId: USERS.Instructor.id,
+      startsAt: hoursAgo(2),
+      endsAt: hoursAgo(0.5),
+    },
+  };
+}
 
-    await page.goto(path);
+for (const theme of ['light', 'dark'] as const) {
+  for (const { role, path, title } of PAGES) {
+    test(`${role} ${path} (${theme}): named, loads, and passes axe`, async ({ page }, info) => {
+      // Dark mode is checked once, at the desktop size.
+      test.skip(theme === 'dark' && info.project.name !== 'desktop', 'Dark is checked on desktop');
+      await signIn(page, role, theme);
+      await mockApi(page, todaysAnswers());
 
-    await expect(page).toHaveTitle(`${title} · Mindvalley`);
-    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
-    // Not still loading when it is checked.
-    await expect(page.getByText(/Loading/)).toHaveCount(0);
-    await expectAccessible(page);
-  });
+      await page.goto(path);
+
+      await expect(page).toHaveTitle(`${title} · Mindvalley`);
+      await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+      await expectSettled(page);
+      await expectAccessible(page);
+    });
+  }
 }
