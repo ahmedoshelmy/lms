@@ -112,6 +112,15 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
 - **Query parameters:** pass them as `HttpParams` (see `query()` in `lms.service.ts`), never by string concatenation.
 - **Filter- or route-driven loads:** pipe them through a `latestRequest()` (`core/utils/latest-request.ts`) so an older response can never overwrite a newer one.
 - **Failed loads:** show `<app-load-error>` with a retry, not the page's empty state.
+- **Content-Security-Policy:** production sends a strict policy (`nginx-security-headers.conf`,
+  mirrored in `vercel.json`): no inline script, no `eval`, requests to the site and the API only.
+  Never add an inline `<script>` or event-handler attribute to `index.html`. A new API host,
+  font or third-party script needs adding to both files. The end-to-end tests run under the
+  policy and fail on any refusal.
+- **Errors nobody caught** go through `AppErrorHandler` to `ErrorReporter`, which sends them
+  to the school's server once `environment.errorReportUrl` is set. Never put names, emails, ids
+  or typed text in a report.
+- **Deploying:** see `docs/deployment.md`.
 - **Service worker:** it caches the app's own files only (`ngsw-config.json`). Do not add a
   `dataGroups` entry: API data is about children and devices are shared. `PwaService` drives it
   with browser APIs, so `@angular/service-worker`'s client is not imported.

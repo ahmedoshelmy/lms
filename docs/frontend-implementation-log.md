@@ -1733,3 +1733,85 @@ Everything below was checked as unused before deletion.
     - end-to-end: 64 passed;
     - lint: 0 errors;
     - build: 595.15 kB initial.
+
+## R-01 — Security headers, caching and compression
+
+- **One header file** (`nginx-security-headers.conf`) is included in every nginx
+  `location`, because a location with an `add_header` of its own drops the server's. The
+  headers:
+  - **Content-Security-Policy:** no inline script, no `eval`, requests to the site and
+    the API only, no framing, no plugins. Styles may be inline, because PrimeNG sets them
+    at runtime.
+  - **HSTS**, `X-Frame-Options: DENY`, `nosniff`, `strict-origin-when-cross-origin`, and
+    a permissions policy that turns off the camera, microphone, location, payment and
+    USB.
+- **Production build:** it no longer inlines critical CSS. The loader for it was an
+  inline `onload` handler, which the policy refuses. The stylesheet now loads as an
+  ordinary link.
+- **Caching:**
+  - hashed files (`*-HASH.js|css`, `media/`) are kept a year, as immutable;
+  - icons and artwork a day;
+  - the shell and the service worker's files are never cached;
+  - gzip for text.
+- **Vercel** sends the same headers and caching.
+- **Dockerfile:**
+  - Node 22, as CI uses;
+  - no Playwright browser download;
+  - the header file copied in;
+  - the `index.csr.html` step left from the removed SSR is gone;
+  - a health check added.
+- **Proof:**
+  - **The end-to-end server now sends these headers,** so all 68 end-to-end tests run
+    under the production policy, and the test fixture fails on any refusal.
+  - **`e2e/deploy-config.spec.ts`** checks:
+    - Vercel's headers equal nginx's;
+    - `connect-src` names the production API host;
+    - pages are served with the policy.
+  - **A KPI PDF downloads under the policy** (`e2e/pdf.spec.ts`), so jsPDF needs no
+    `eval`.
+  - **The production build in Chrome under these headers:** seven pages with no
+    violations. A planted inline script was refused and reported, so the check catches
+    what it should.
+
+## R-02 — Error monitoring
+
+- **Choice (left to us by the user):** no third-party service and no new dependency.
+  Errors nobody caught go to the school's own server, to `POST /client-errors`
+  (`docs/client-errors.api.md`).
+- **Off by default:** `environment.errorReportUrl` is `null` until that endpoint exists.
+- **`ErrorReporter`** is called by `AppErrorHandler`.
+  - It skips failed requests: the server has those.
+  - `provideBrowserGlobalErrorListeners()` now sends errors outside Angular (failed
+    promises, script errors) to the handler too.
+- **A report holds** the message, a trimmed stack, the page path with ids masked and no
+  query, the build (from `main-HASH.js`), the role, the browser and the time.
+  - Nothing personal: no names, emails, ids or typed text.
+  - The same error is sent once a page load, at most 20 in all.
+  - It goes by `sendBeacon`, without credentials, falling back to `fetch` with
+    `keepalive`.
+- **6 new tests:**
+  - nothing is sent without an address;
+  - a report's content, with ids masked and the search text gone;
+  - the same error once, and the cap;
+  - a failed promise unwrapped;
+  - `maskIds`;
+  - the handler reports what nobody caught, but not failed requests.
+
+## R-04 — Deployment
+
+- **`docs/deployment.md`**, for whoever deploys:
+  - the two targets (Docker with nginx preferred, or Vercel);
+  - a checklist before a release;
+  - how to build and run;
+  - what to check after a release, including the headers and the update notice;
+  - rolling back, including retiring the service worker with Angular's
+    `safety-worker.js`;
+  - monitoring and uptime;
+  - the policy in short.
+- **Validation:**
+  - unit tests: all batches exit 0, 64 files / 309 tests;
+  - end-to-end: 68 passed, all under the policy;
+  - lint: 0 errors;
+  - build: 597.25 kB initial, 2.75 kB under the 600 kB budget, with the error reporter
+    and global listeners about 2 kB of that. The next change to the first download
+    should make room first.

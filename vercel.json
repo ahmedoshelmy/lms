@@ -2,6 +2,23 @@
   "version": 2,
   "routes": [
     {
+      "src": "/.*",
+      "headers": {
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://mv-api.inite.tech; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+      },
+      "continue": true
+    },
+    {
+      "src": "/(.*-[A-Z0-9]{8}\\.(js|css)|media/.*)",
+      "headers": { "Cache-Control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
       "src": "/(index\\.html|ngsw\\.json|ngsw-worker\\.js|manifest\\.webmanifest)",
       "headers": { "Cache-Control": "no-cache" },
       "continue": true

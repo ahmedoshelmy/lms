@@ -20,6 +20,13 @@ export const environment = {
    * Features built ahead of the server endpoints they need. Each stays off here
    * until its endpoints are live; nothing stands in for a missing one.
    */
+  /**
+   * Where the app reports errors nobody caught (docs/client-errors.api.md).
+   * Null: not reported until the endpoint exists. Its host has to be allowed by
+   * connect-src in nginx-security-headers.conf and vercel.json.
+   */
+  errorReportUrl: null as string | null,
+
   features: {
     /** docs/instructor-kpis.api.md */
     instructorKpis: false,

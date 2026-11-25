@@ -1,4 +1,4 @@
-import { ApplicationConfig, ErrorHandler } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, TitleStrategy } from '@angular/router';
 
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
@@ -23,6 +23,9 @@ export const appConfig: ApplicationConfig = {
     MessageService,
     NotificationService,
     { provide: ErrorHandler, useClass: AppErrorHandler },
+    // Errors outside Angular -- a failed promise, a script error -- reach the
+    // ErrorHandler too, so they are seen and reported like any other.
+    provideBrowserGlobalErrorListeners(),
     providePrimeNG({
       // Use data-theme="dark" so PrimeNG and the CSS token system stay in sync
       theme: { preset: LmsPreset, options: { darkModeSelector: '[data-theme="dark"]' } },

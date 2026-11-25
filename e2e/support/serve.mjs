@@ -3,9 +3,18 @@
 // rather than `ng serve`, so a test never meets the dev server mid-rebuild.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 
 const [root, port] = [resolve(process.argv[2]), Number(process.argv[3] ?? 4300)];
+
+// The production headers (nginx-security-headers.conf), when given: every
+// response carries them, so the tests run under the real Content-Security-Policy.
+const headers = process.argv[4]
+  ? [...readFileSync(process.argv[4], 'utf8').matchAll(/^add_header\s+(\S+)\s+"([^"]*)"/gm)].map(
+      ([, name, value]) => [name, value]
+    )
+  : [];
 const TYPES = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -20,6 +29,7 @@ const TYPES = {
 };
 
 async function answer(req, res) {
+  for (const [name, value] of headers) res.setHeader(name, value);
   const path = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname));
   const file = join(root, path);
   // Nothing outside the build folder.

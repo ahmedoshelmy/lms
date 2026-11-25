@@ -36,6 +36,15 @@ the implementation log.
 - **Phase 5:** PF-01 to PF-04 done and audited (PF-05 was done in Phase 2). All components are
   `OnPush`. The group page's session feed and Attendance's all-time list wait on backend
   queries (per group; paging).
+- **Phase 9:** R-01, R-02 and R-04 done (R-03 was done in Phase 1):
+  - security headers (a strict Content-Security-Policy and more), long caching for hashed
+    files, and gzip, in nginx and Vercel alike;
+  - error reports to the school's own server, switched off until its endpoint exists;
+  - `docs/deployment.md`.
+
+  The initial bundle is now 597 of 600 kB: the next feature to touch the first download
+  should make room first.
+
 - **Phase 8:** PWA-01 to PWA-03 done: the icon, the manifest, a service worker that keeps the
   app's own files only, the offline and update notices, and the install button. PWA-04 (an
   offline week for instructors) waits on a security sign-off.
@@ -55,6 +64,8 @@ Backend questions still open:
 
 - **Adding a student to a group** sends `PUT /users/{id}` with one `groupId`. A student can
   be in several groups: does that add the group, or replace the others?
+- **Client error reports:** `POST /client-errors` (`docs/client-errors.api.md`). Reporting
+  stays off (`environment.errorReportUrl`) until it exists.
 - **Instructor KPIs:** the endpoints in `docs/instructor-kpis.api.md`. The screens are built
   and tested against that contract, and switched off in production
   (`environment.features.instructorKpis`) until the endpoints exist.

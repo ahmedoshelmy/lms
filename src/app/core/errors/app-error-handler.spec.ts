@@ -3,17 +3,24 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NotificationService } from '../services/notification.service';
 import { AppErrorHandler } from './app-error-handler';
+import { ErrorReporter } from './error-reporter.service';
 
 describe('AppErrorHandler', () => {
   let showError: ReturnType<typeof vi.fn>;
+  let report: ReturnType<typeof vi.fn>;
   let handler: AppErrorHandler;
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     showError = vi.fn();
+    report = vi.fn();
     TestBed.configureTestingModule({
-      providers: [AppErrorHandler, { provide: NotificationService, useValue: { showError } }],
+      providers: [
+        AppErrorHandler,
+        { provide: NotificationService, useValue: { showError } },
+        { provide: ErrorReporter, useValue: { report } },
+      ],
     });
     handler = TestBed.inject(AppErrorHandler);
   });
@@ -44,5 +51,14 @@ describe('AppErrorHandler', () => {
     handler.handleError(new Error('boom'));
 
     expect(console.error).toHaveBeenCalled();
+  });
+
+  it('reports what nobody caught, but not failed requests, which the server has', () => {
+    const fault = new TypeError('x is undefined');
+    handler.handleError(fault);
+    handler.handleError(new HttpErrorResponse({ status: 500 }));
+
+    expect(report).toHaveBeenCalledTimes(1);
+    expect(report).toHaveBeenCalledWith(fault);
   });
 });

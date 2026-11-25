@@ -16,10 +16,17 @@ export const test = base.extend<{ pageChecks: void }>({
     async ({ page }, use) => {
       const errors: string[] = [];
       page.on('pageerror', (error) => errors.push(error.message));
+      // The served build carries the production Content-Security-Policy: a
+      // script, style, font or request it refuses fails the test.
+      const refused: string[] = [];
+      page.on('console', (message) => {
+        if (message.text().includes('Content Security Policy')) refused.push(message.text());
+      });
 
       await use();
 
       expect(errors, 'uncaught errors in the page').toEqual([]);
+      expect(refused, 'refused by the Content-Security-Policy').toEqual([]);
       expect(unanswered.get(page) ?? [], 'API calls with no fixture').toEqual([]);
     },
     { auto: true },

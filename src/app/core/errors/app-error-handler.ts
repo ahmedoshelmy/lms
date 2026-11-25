@@ -1,6 +1,7 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationService } from '../services/notification.service';
+import { ErrorReporter } from './error-reporter.service';
 
 /**
  * Where errors nobody caught end up.
@@ -11,13 +12,15 @@ import { NotificationService } from '../services/notification.service';
  * seconds, because one fault often throws on every change detection. A failed
  * request is not repeated here: the error interceptor has already said it.
  *
- * The place to send errors to a monitoring service when there is one (R-02).
+ * And it reports them to the school's server (ErrorReporter, R-02), when an
+ * address is set for that: failed requests aside, which the server logs itself.
  */
 @Injectable()
 export class AppErrorHandler implements ErrorHandler {
   private static readonly QuietMs = 5_000;
 
   private readonly notify = inject(NotificationService);
+  private readonly reporter = inject(ErrorReporter);
   private lastNotice = 0;
 
   handleError(error: unknown): void {
@@ -26,6 +29,8 @@ export class AppErrorHandler implements ErrorHandler {
     if (unwrap(error) instanceof HttpErrorResponse) {
       return;
     }
+
+    this.reporter.report(error);
 
     const now = Date.now();
     if (now - this.lastNotice < AppErrorHandler.QuietMs) {

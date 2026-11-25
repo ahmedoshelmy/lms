@@ -47,7 +47,7 @@ export default defineConfig({
     // files, so a test never meets a dev server mid-rebuild.
     command:
       'npx ng build --configuration development --output-path dist/e2e && ' +
-      `node e2e/support/serve.mjs dist/e2e/browser ${PORT}`,
+      `node e2e/support/serve.mjs dist/e2e/browser ${PORT} nginx-security-headers.conf`,
     url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: !process.env['CI'],
     timeout: 300_000,
