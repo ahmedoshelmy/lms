@@ -73,14 +73,16 @@ describe('GroupDetailComponent Manage Group dialog', () => {
     expect(component.editScheduleSlots().every((s) => s.location === '')).toBe(true);
   });
 
-  it('saves a group that has no end date yet', () => {
+  it('saves a group that has no end date yet, with its start date standing in', () => {
     const component = openManageGroup();
 
     component.saveGroup();
 
     expect(notify.showError).not.toHaveBeenCalled();
     expect(lms.updateGroup).toHaveBeenCalledTimes(1);
-    expect(lms.updateGroup.mock.calls[0][1].endDate).toBeNull();
+    // Not null: the server refuses it with a 400, and works the end date out
+    // from the group's classes itself.
+    expect(lms.updateGroup.mock.calls[0][1].endDate).toBe('2026-11-01');
   });
 
   it('sends a saved course to the removal dialog instead of dropping it', () => {

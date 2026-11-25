@@ -199,9 +199,10 @@ export class SessionDetailComponent implements OnInit, HasUnsavedChanges {
   });
 
   /**
-   * Registers close a day after the class. Past that an instructor is not
-   * writing down what they saw, they are reconstructing it, so the record is
-   * worth less than the discipline of taking it on the night.
+   * A day after the class, a register is late. That is a measurement, not a
+   * lock: the server takes a late register from the instructor who taught the
+   * class (AttendanceService.WhyCannotEditAsync has no time check) and records
+   * it as late.
    */
   readonly isPastWindow = computed(() => {
     const s = this.session();
@@ -211,18 +212,27 @@ export class SessionDetailComponent implements OnInit, HasUnsavedChanges {
   });
 
   /**
-   * Operations is the only way a missed register ever gets filled in, so the
-   * window does not apply to them. The server enforces the same rule; this
-   * only decides whether the buttons are worth showing.
+   * Who may take this register, as the server decides it: operations, or the
+   * instructor who taught the class, however late.
+   *
+   * It used to close to the instructor after a day, copying a lock the server
+   * had already dropped: a forgotten register could then only be filled in by
+   * operations, and when they did not get to it, nobody did.
    */
-  readonly isLocked = computed(() => this.isPastWindow() && !this.canEdit());
+  readonly canTakeRegister = computed(() => {
+    if (this.canEdit()) return true;
+    const s = this.session();
+    return !!s && this.isInstructor() && s.instructorId === this.auth.getUserId();
+  });
+
+  readonly isLocked = computed(() => !this.canTakeRegister());
 
   readonly isAttendanceDisabled = computed(() => {
     return this.isUpcoming() || this.isCancelled() || this.isLocked();
   });
 
-  /** True when an admin is filling in something the instructor did not. */
-  readonly isLateEntry = computed(() => this.isPastWindow() && this.canEdit());
+  /** A register taken after the window: allowed, and recorded as late. */
+  readonly isLateEntry = computed(() => this.isPastWindow() && this.canTakeRegister());
 
   readonly presentCount = computed(() => this.countByStatus('Present'));
   readonly absentCount = computed(() => this.countByStatus('Absent'));

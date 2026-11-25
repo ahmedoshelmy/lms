@@ -60,27 +60,10 @@ Latest validation (Phase 6 audit): format ✔, lint 0 errors (42 warnings, all
 `no-explicit-any`, F-08), 51 test files and 237 tests passing, production build ✔ with the
 initial bundle at 588 kB against the 600 kB budget.
 
-Backend questions still open:
-
-- **Adding a student to a group** sends `PUT /users/{id}` with one `groupId`. A student can
-  be in several groups: does that add the group, or replace the others?
-- **Client error reports:** `POST /client-errors` (`docs/client-errors.api.md`). Reporting
-  stays off (`environment.errorReportUrl`) until it exists.
-- **Instructor KPIs:** the endpoints in `docs/instructor-kpis.api.md`. The screens are built
-  and tested against that contract, and switched off in production
-  (`environment.features.instructorKpis`) until the endpoints exist.
-- Does `PUT /groups/{id}` accept `endDate: null`?
-- Does the server accept late registers from the instructor who taught the class? If so,
-  the session page's lock is stale.
-- Does the server refuse attendance writes from students, and limit what they can read?
-- Can students created with `pass2word` be forced to reset?
-- Endpoints for profile edits and password change.
-- Refresh-cookie flags, before the access token moves into memory.
-- Does `mineOnly` filter on the server for holds and candidates?
-- Bulk and per-group endpoints, instead of one request per student.
-- Recording issued certificates (W-07); `instructorId` always set on sessions.
-- A per-group session query; paging for the all-time session list; whether `GET /schedule`
-  with only `from` has a default end.
+Backend work and questions: `docs/backend-requests.md`. The backend session answered every
+question and check on 2026-11-25 from the backend source. Still to build: B-1 to B-9 (KPIs,
+error reports, certificate records, profile and password, per-group sessions, paging, bulk
+endpoints, patch semantics on `PUT /users/{id}`, and a forced reset for `pass2word` students).
 
 ## Task table
 

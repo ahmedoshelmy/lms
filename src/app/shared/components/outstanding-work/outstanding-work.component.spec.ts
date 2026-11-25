@@ -97,21 +97,14 @@ describe('OutstandingWorkComponent', () => {
     return { fixture, text, button };
   }
 
-  it('does not send an instructor to a late register they cannot take', () => {
+  it('sends an instructor to a late register too: the server takes it, as late', () => {
     const { text, button } = render([register(true)]);
 
-    expect(button('Mark the register')).toBeUndefined();
-    expect(text()).toContain('operations will fill it in');
+    expect(button('Mark the register')).toBeDefined();
     expect(button("It didn't happen")).toBeDefined();
-  });
-
-  it('lets them close it when nothing left is theirs to do', () => {
-    const { fixture, text, button } = render([register(true)]);
-
-    button('Close for now')!.click();
-    fixture.detectChanges();
-
-    expect(text()).not.toContain('has no register');
+    expect(text()).toContain('late');
+    // Still theirs to do, so it stays in the way.
+    expect(button('Close for now')).toBeUndefined();
   });
 
   it('stays in the way while there is a register they can take', () => {

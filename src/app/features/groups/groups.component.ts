@@ -700,7 +700,10 @@ export class GroupsComponent implements OnInit {
       const payload: UpdateGroupPayload = {
         name: this.formName,
         startDate: this.formStartDate,
-        endDate: this.formEndDate || null,
+        // A group with no classes yet has no end date. The server refuses null
+        // (a 400) and works the end out from the group's classes anyway, so the
+        // start date stands in until there are some.
+        endDate: this.formEndDate || this.formStartDate,
         defaultInstructorId: this.formInstructorId,
         status: this.formStatus,
         location: this.formLocation || undefined,

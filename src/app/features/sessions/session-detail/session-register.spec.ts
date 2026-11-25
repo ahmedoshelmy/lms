@@ -40,7 +40,9 @@ function session(hoursAgo: number): ScheduleSession {
  * The register: what an instructor does after every class. Driven through
  * the page's own buttons, as a person would.
  */
-function render(opts: { hoursAgo?: number; role?: Role; save?: () => unknown } = {}) {
+function render(
+  opts: { hoursAgo?: number; role?: Role; userId?: number; save?: () => unknown } = {}
+) {
   const role = opts.role ?? Role.Instructor;
   const saveBulkAttendance = vi.fn<(id: number, items: unknown[]) => unknown>(
     opts.save ?? (() => of({}))
@@ -64,7 +66,11 @@ function render(opts: { hoursAgo?: number; role?: Role; save?: () => unknown } =
         },
       },
       { provide: NotificationService, useValue: notify },
-      { provide: AuthService, useValue: { hasRole: (r: Role) => r === role, getUserId: () => 3 } },
+      {
+        provide: AuthService,
+        // The class (instructorId 3) is this instructor's unless told otherwise.
+        useValue: { hasRole: (r: Role) => r === role, getUserId: () => opts.userId ?? 3 },
+      },
     ],
   });
   const fixture = TestBed.createComponent(SessionDetailComponent);
@@ -148,8 +154,16 @@ describe('Taking the register', () => {
     expect(page.hasUnsavedChanges()).toBe(true);
   });
 
-  it('closes the register to the instructor a day after the class', () => {
-    const { page, button } = render({ hoursAgo: 30 });
+  it('stays open to the instructor who taught it after a day, as a late register', () => {
+    const { page, press } = render({ hoursAgo: 30 });
+
+    expect(page.isLateEntry()).toBe(true);
+    press('Mark Sara Ahmed present');
+    expect(page.records()[0].status).toBe('Present');
+  });
+
+  it('is not for an instructor who did not teach the class', () => {
+    const { page, button } = render({ userId: 9 });
 
     expect(button('Mark Sara Ahmed present')).toBeNull();
     page.setStatus(page.records()[0], 'Present');

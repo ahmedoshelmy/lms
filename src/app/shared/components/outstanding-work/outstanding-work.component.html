@@ -32,7 +32,9 @@
                   </div>
 
                   @if (session.late) {
-                    <span class="flag" title="Past the 24-hour window, so it will be recorded late"
+                    <span
+                      class="flag"
+                      title="Past the 24-hour window: still yours to take, recorded as late"
                       >late</span
                     >
                   }
@@ -66,23 +68,11 @@
                       </button>
                     </div>
                   </div>
-                } @else if (canMark(session)) {
+                } @else {
                   <div class="item__actions">
                     <button type="button" class="btn btn--primary" (click)="markRegister(session)">
                       Mark the register
                     </button>
-                    <button type="button" class="btn btn--quiet" (click)="startClaim(session)">
-                      It didn't happen
-                    </button>
-                  </div>
-                } @else {
-                  <!-- Past the window, the register page is closed to them. Not
-                       sent there to find a locked page. -->
-                  <p class="item__note">
-                    The register closed a day after the class, so operations will fill it in. If the
-                    class didn't happen, say so here.
-                  </p>
-                  <div class="item__actions">
                     <button type="button" class="btn btn--quiet" (click)="startClaim(session)">
                       It didn't happen
                     </button>

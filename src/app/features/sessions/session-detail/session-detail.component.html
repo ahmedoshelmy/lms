@@ -341,15 +341,15 @@
               } @else if (isUpcoming()) {
                 <span>Session not yet started</span>
               } @else {
-                <span>Registers closed 24h after the class — ask operations</span>
+                <span>Only the class's instructor or operations can take this register</span>
               }
             </div>
           } @else {
             <div class="attendance-actions">
               @if (isLateEntry()) {
-                <span class="attendance-late" title="The instructor did not take this one in time">
-                  <i class="pi pi-exclamation-triangle"></i>
-                  Past the window — recorded by operations
+                <span class="attendance-late" title="Taken more than a day after the class">
+                  <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+                  Late: it is recorded as a late register
                 </span>
               }
               @if (pendingCount() > 0) {

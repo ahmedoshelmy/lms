@@ -16,7 +16,6 @@ import { OperationsService } from '../../../core/services/operations.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SessionService } from '../../../core/services/session.service';
-import { Role } from '../../../core/interfaces/Role';
 import {
   CancellationCauseName,
   OutstandingSession,
@@ -94,26 +93,15 @@ export class OutstandingWorkComponent implements OnInit {
   protected readonly claims = computed(() => this.work()?.claimsToAnswer ?? []);
   protected readonly onMyDays = computed(() => this.work()?.registersOnMyDays ?? []);
 
-  private readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
-
   /**
-   * Whether this person can still take the register themselves.
+   * True when nothing left here is something this person can act on.
    *
-   * The session page closes a register to everybody but operations once the
-   * class is a day old. Sending an instructor there for a late one opened a
-   * locked page, and coming back put this window over them again -- the only
-   * way out was to say a class that happened did not.
+   * A late register is still theirs to take: the server accepts it from the
+   * instructor who taught the class however late, and records it as late. It
+   * used to count as not theirs, because the session page wrongly locked it.
    */
-  protected canMark(session: OutstandingSession): boolean {
-    return !session.late || this.isAdmin();
-  }
-
-  /** True when nothing left here is something this person can act on. */
   protected readonly canClose = computed(
-    () =>
-      this.mine().every((s) => !this.canMark(s)) &&
-      this.claims().length === 0 &&
-      this.onMyDays().length === 0
+    () => this.mine().length === 0 && this.claims().length === 0 && this.onMyDays().length === 0
   );
 
   protected closeForNow(): void {

@@ -1860,3 +1860,49 @@ Everything below was checked as unused before deletion.
     - end-to-end: 69 passed;
     - lint: 0 errors;
     - build: 597.48 kB initial.
+
+## Backend answers, and what changed because of them
+
+The backend session read the backend's source and answered the open questions
+(`docs/backend-requests.md` records every answer). Two meant the frontend was wrong.
+
+- **The register's 24-hour lock is gone (S-2).**
+  - **What the server does:** it lets the instructor who taught a class take its
+    register however late; `AttendanceService.WhyCannotEditAsync` has no time check.
+    The window is only measured, as "late", and the backend's own comments name the old
+    lock as the reason 112 classes had no register.
+  - **What the frontend did:** it still locked instructors out after a day. That copied
+    the lock the server had dropped, so late registers could only ever be filled in by
+    operations.
+  - **This reverses a Phase 0 decision,** taken when the server was believed to refuse
+    late registers. The outstanding-work window's way out ("It didn't happen") stays.
+  - **Session page:** the register is for operations, or the instructor who taught this
+    class, however late, as the server decides. After the window it is marked "Late: it
+    is recorded as a late register". Another instructor gets no buttons; the server
+    would refuse them.
+  - **Outstanding-work window:** a late register is the instructor's to take: "Mark the
+    register" as well as "It didn't happen". The window stays until it is done.
+  - **Tests:** the specs that asserted the lock now assert the opposite. A new one checks
+    an instructor who did not teach the class gets no buttons.
+- **A group with no end date yet could not be saved (Q-2).** The server refuses
+  `endDate: null` with a 400, since `EndDate` is a non-nullable `DateOnly`. The Phase 0
+  fix that sent null was wrong against the real server.
+  - Both group forms now send the start date when there is no end, as the backend
+    advised; it works the end out from the classes.
+  - The test now asserts the start date is sent.
+- **Recorded, not changed here:**
+  - **Q-6:** a blank email on `PUT /users/{id}` clears the stored one. Every frontend
+    caller already sends it back; the backend is raising a patch-semantics fix.
+  - **Q-5:** `GET /schedule?from=` alone is unbounded. The Groups list needs every
+    remaining class to count them, so the fix is server paging (B-6), not a cap.
+  - **S-3:** there is no forced-reset mechanism for `pass2word` students.
+  - **S-4:** the cookies are `SameSite=None`.
+- **Answered, nothing to do:**
+  - **Q-1:** a `groupId` on `PUT /users/{id}` adds a group, never replaces.
+  - **Q-3:** "Mine" is filtered on the server.
+  - **Q-4:** an instructor id of 0 is already treated as none.
+  - **S-1:** student writes are refused on the server.
+- **Validation:**
+  - unit tests: all batches exit 0, 64 files / 311 tests;
+  - end-to-end: 69 passed;
+  - lint: 0 errors.
