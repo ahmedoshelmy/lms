@@ -1692,3 +1692,44 @@ Everything below was checked as unused before deletion.
     - end-to-end: 64 passed;
     - lint: 0 errors;
     - build: 594.38 kB initial (budget 600).
+
+## Phase 8 audit
+
+- **Independent review** of the PWA commit, checked against Angular 21.2's
+  `ngsw-worker.js`. It confirmed:
+  - **The protocol:** `VERSION_READY` is posted once the new version is fully
+    downloaded, `CHECK_FOR_UPDATES` is the right request, and a plain reload starts
+    the new version (no `ACTIVATE_UPDATE` needed);
+  - **Caching:** nothing from the cross-origin API is cached;
+  - **Servers:** the nginx and Vercel headers work;
+  - **Manifest:** the maskable icon sits inside its safe zone.
+- **Four findings, all fixed:**
+  1. **The bars could cover a phone dialog's buttons (Medium).** At z-index 1500 they
+     sat over PrimeNG's dialogs (1100), which are bottom sheets on phones, and over the
+     drawer's footer. A teacher could find Save unreachable, with Reload, which drops the
+     dialog, the only way out.
+     - The bars now sit beneath the drawer and dialogs (990).
+     - The update bar has "Later".
+     - The code comment now says which pages actually guard typed work: the register and
+       the monthly report.
+  2. **The worker's "this version is broken" message (`UNRECOVERABLE_STATE`) was
+     ignored.** It now raises "The app needs a reload to keep working properly".
+  3. **The six-hourly check went nowhere in a tab opened with a hard reload.** Such a
+     tab has no controller, so the check now goes to the registered worker.
+  4. **The worker is never exercised in CI**, as the end-to-end tests use the
+     development build.
+     - Playwright now blocks service workers, so a production-build test could not slip
+       past the API fixtures.
+     - The worker itself stays checked by the unit tests and by hand on the production
+       build.
+- **Validation:**
+  - 2 more unit tests: a broken version asks for a reload; the update check goes to the
+    registered worker; Later.
+  - The production build checked again in Chrome: the worker takes control, the app
+    opens offline, 84 cached entries with none from the API, and a simulated release
+    shows the bar (now with Later) and Reload runs it.
+  - **Checks:**
+    - unit tests: all batches exit 0, 63 files / 303 tests;
+    - end-to-end: 64 passed;
+    - lint: 0 errors;
+    - build: 595.15 kB initial.

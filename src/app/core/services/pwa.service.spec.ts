@@ -6,9 +6,12 @@ import { PwaService, SERVICE_WORKER_ENABLED, UPDATE_CHECK_MS } from './pwa.servi
 /** A stand-in for navigator.serviceWorker, which jsdom does not have. */
 function fakeWorkers() {
   const listeners: ((event: MessageEvent) => void)[] = [];
+  const active = { postMessage: vi.fn() };
   const workers = {
-    register: vi.fn(() => Promise.resolve({})),
-    controller: { postMessage: vi.fn() },
+    active,
+    register: vi.fn(() => Promise.resolve({ active })),
+    // A page opened with a hard reload has no controller.
+    controller: null as { postMessage: () => void } | null,
     addEventListener: (_type: string, listener: (event: MessageEvent) => void) =>
       listeners.push(listener),
     send: (data: unknown) => listeners.forEach((l) => l(new MessageEvent('message', { data }))),
@@ -76,10 +79,24 @@ describe('PwaService', () => {
     workers.send({ type: 'VERSION_READY' });
     expect(pwa.updateReady()).toBe(true);
 
+    // Sent to the registered worker: this page has no controller.
     vi.advanceTimersByTime(UPDATE_CHECK_MS);
-    expect(workers.controller.postMessage).toHaveBeenCalledWith(
+    expect(workers.active.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'CHECK_FOR_UPDATES' })
     );
+
+    pwa.later();
+    expect(pwa.updateReady()).toBe(false);
+  });
+
+  it('asks for a reload when the worker finds this version broken', async () => {
+    const workers = fakeWorkers();
+    const pwa = start(true);
+    await vi.waitFor(() => expect(workers.register).toHaveBeenCalled());
+
+    workers.send({ type: 'UNRECOVERABLE_STATE', reason: 'hash mismatch' });
+
+    expect(pwa.needsReload()).toBe(true);
   });
 });
 
@@ -95,7 +112,7 @@ describe('PwaStatusComponent', () => {
     fixture.detectChanges();
 
     expect(el.querySelector('[role="status"]')?.textContent).toContain("You're offline");
-    el.querySelector<HTMLButtonElement>('button')!.click();
+    [...el.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Reload')!.click();
     expect(reload).toHaveBeenCalled();
   });
 });

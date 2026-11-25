@@ -42,11 +42,21 @@ export class PwaService {
   readonly online = signal(true);
   /** A new version has been downloaded; a reload starts it. */
   readonly updateReady = signal(false);
+  /**
+   * The worker found this version's files no longer match the server's
+   * (UNRECOVERABLE_STATE): a reload is the way back to a working app.
+   */
+  readonly needsReload = signal(false);
   /** The browser has offered to install the app, and it has not been taken up yet. */
   readonly canInstall = signal(false);
 
   private installOffer: InstallPromptEvent | null = null;
   private started = false;
+
+  /** Puts the update bar away until the next new version. */
+  later(): void {
+    this.updateReady.set(false);
+  }
 
   /** Called once, by the root component. */
   start(): void {
@@ -72,7 +82,11 @@ export class PwaService {
     if (this.workerEnabled && 'serviceWorker' in win.navigator) this.registerWorker(win);
   }
 
-  /** Starts the new version. Unsaved work is guarded by the page's own beforeunload. */
+  /**
+   * Starts the new version. The pages that hold typed work (the register, the
+   * monthly report) ask before it is lost, through beforeunload; the bar sits
+   * beneath dialogs, so Reload cannot be pressed while one is open.
+   */
   reload(): void {
     this.document.defaultView?.location.reload();
   }
@@ -89,7 +103,9 @@ export class PwaService {
   private registerWorker(win: Window): void {
     const workers = win.navigator.serviceWorker;
     workers.addEventListener('message', (event: MessageEvent) => {
-      if (event.data?.type === 'VERSION_READY') this.updateReady.set(true);
+      const type = event.data?.type;
+      if (type === 'VERSION_READY') this.updateReady.set(true);
+      if (type === 'UNRECOVERABLE_STATE') this.needsReload.set(true);
     });
 
     // After the page has loaded: the worker fetches the whole app, and that
@@ -97,10 +113,13 @@ export class PwaService {
     const register = () =>
       workers
         .register('ngsw-worker.js')
-        .then(() => {
+        .then((registration) => {
+          // To the registered worker, not navigator.serviceWorker.controller:
+          // a page opened with a hard reload has no controller, and its check
+          // would go nowhere for as long as the tab stayed open.
           win.setInterval(
             () =>
-              workers.controller?.postMessage({
+              (registration.active ?? workers.controller)?.postMessage({
                 action: 'CHECK_FOR_UPDATES',
                 nonce: Math.floor(Math.random() * 1e9),
               }),

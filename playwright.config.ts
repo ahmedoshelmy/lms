@@ -22,6 +22,10 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${PORT}`,
     channel: 'chrome',
     trace: 'retain-on-failure',
+    // A service worker would answer requests before page.route sees them, and
+    // the fixtures would stop applying. The development build registers none;
+    // this keeps it so if a production build is ever tested here.
+    serviceWorkers: 'block',
   },
   projects: [
     {

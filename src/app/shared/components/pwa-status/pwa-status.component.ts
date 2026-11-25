@@ -20,10 +20,17 @@ import { PwaService } from '../../../core/services/pwa.service';
           >
         </p>
       }
-      @if (pwa.updateReady()) {
+      @if (pwa.needsReload()) {
+        <p class="pwa-bar">
+          <i class="pi pi-refresh" aria-hidden="true"></i>
+          <span>The app needs a reload to keep working properly.</span>
+          <button type="button" class="pwa-bar__action" (click)="pwa.reload()">Reload</button>
+        </p>
+      } @else if (pwa.updateReady()) {
         <p class="pwa-bar">
           <i class="pi pi-refresh" aria-hidden="true"></i>
           <span>A new version of the app is ready.</span>
+          <button type="button" class="pwa-bar__quiet" (click)="pwa.later()">Later</button>
           <button type="button" class="pwa-bar__action" (click)="pwa.reload()">Reload</button>
         </p>
       }
@@ -35,7 +42,9 @@ import { PwaService } from '../../../core/services/pwa.service';
       left: 50%;
       bottom: calc(1rem + env(safe-area-inset-bottom));
       transform: translateX(-50%);
-      z-index: 1500;
+      /* Beneath the phone drawer (999) and PrimeNG's dialogs (1100): either
+         covers the bar rather than the bar covering their buttons. */
+      z-index: 990;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -71,6 +80,16 @@ import { PwaService } from '../../../core/services/pwa.service';
       font-weight: 700;
       cursor: pointer;
     }
+    .pwa-bar__quiet {
+      padding: 0.375rem 0.5rem;
+      border: none;
+      background: transparent;
+      color: var(--color-primary-content);
+      font-weight: 600;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .pwa-bar__quiet:focus-visible,
     .pwa-bar__action:focus-visible {
       outline: 2px solid var(--color-primary-content);
       outline-offset: 2px;
