@@ -1469,3 +1469,110 @@ Everything below was checked as unused before deletion.
   - That check fixed three things: an adjustment note overlapping the line above it in
     the PDF, the summary's band column overlapping Overall, and adjusting being offered
     before the 29th.
+
+## T-04 — Workflow tests around the busiest pages
+
+- **Coverage before:** the register, the monthly report, the group page and sales were the
+  most-used and the largest components. Their tests covered side issues, not the daily
+  job, or there were none (the report editor).
+- **New tests:**
+  - **The register** (`session-register.spec.ts`, 7 tests), through the page's own
+    buttons:
+    - the whole class goes in one request once everyone is marked;
+    - task marks are carried;
+    - a half-marked register is refused and filtered to who is left;
+    - a refused save keeps the marks and the unsaved state;
+    - the 24-hour window applies to instructors, not to operations;
+    - no register is taken before the class.
+  - **The monthly report** (7 tests):
+    - not sent to operations with a rating missing;
+    - a draft is saved as shown, with an emptied name falling back to the record's;
+    - clicking the same star takes it back;
+    - no release over unsaved edits;
+    - locked for instructors once released, open to operations.
+  - **The group page** (7 tests):
+    - only students are offered to add, and the chosen one is added to this group;
+    - removing a student;
+    - a week with no class is refused, and a blank location is left out;
+    - pausing by count (at least one), until a date, or with no end, which is not
+      reported as missing substitutes.
+  - **Sales** (8 tests):
+    - holding an hour;
+    - a full room keeps the dialog open with the server's reason;
+    - no hold without a course;
+    - turning a hold into a group requires a level;
+    - adding a family to the pipeline, with blanks sent as nothing;
+    - a name needs two letters;
+    - editing updates the one opened.
+- **Fixed with a test: a failed report load was a dead end.** The page said "could not be
+  opened" with no way to try again. It now shows `app-load-error` with a retry.
+- **Recorded, not changed:** adding a student sends `PUT /users/{id}` with one `groupId`,
+  but a student can be in several groups. Whether that adds a group or replaces the
+  others is the server's to answer; it is listed with the backend questions.
+
+## T-05 — End-to-end tests with Playwright and axe
+
+- **Dependencies (dev only, approved):** `@playwright/test` and `@axe-core/playwright`.
+  - Playwright drives the installed Chrome (`channel: 'chrome'`), so no browser is
+    downloaded. GitHub's Ubuntu runners have Chrome.
+  - Production `npm audit`: 0. The dev findings (20 moderate or low) all come from the
+    Angular CLI's tooling and were there before.
+- **Setup** (`playwright.config.ts`, `e2e/`):
+  - The development build is served as files by `e2e/support/serve.mjs`: localhost only,
+    nothing outside the build folder, every route answered with `index.html` as nginx
+    does. Not `ng serve`: a test once met the dev server mid-rebuild.
+  - **API:** every call to the API host is answered from `e2e/support/fixtures.ts`, an
+    unknown endpoint gets a 404, and any other request leaving the machine is aborted.
+  - **Signing in:** the stored session is put in place before the app starts.
+  - **Failures:** any uncaught page error fails the test.
+  - **axe** checks for WCAG 2.1 A and AA; a serious or critical finding fails the test.
+  - **Two projects:** desktop at 1366×900, and a phone (Pixel 7 size, touch).
+- **Tests** (43 run, 7 skipped as meant for the other size):
+  - 14 pages across Admin and Instructor: each has its own title, loads, and passes axe;
+  - signing in: the page passes axe, a correct sign-in lands on the overview with the
+    right request body, and a refused one is read out with the fields marked;
+  - the register taken end to end, with the request body checked;
+  - the skip link on desktop, the drawer on a phone, and no sideways scroll on five pages
+    at phone width.
+- **What axe found, all fixed:**
+  - **Visible text missing from the accessible name** (WCAG 2.5.3):
+    - **Sidebar profile link:** now named by screen-reader text, as the initials and
+      name it shows could not both go in an `aria-label`.
+    - **"Logout"** (named "Sign out"): it now says "Sign out", on the "Access denied"
+      page too.
+    - **The clock switch** ("24h", named "Switch to the 12-hour clock"): now "24h clock,
+      switch to 12h".
+    - **Schedule's Clocks changed, Notify Instructors and Add Session:** each name now
+      starts with its visible label.
+    - **Sales' day buttons** ("Sat", named "Saturday"): the full name is now
+      screen-reader text.
+  - **Selects with no name:** Attendance's group, instructor and sort filters; Students'
+    risk and renewal filters.
+  - **The instructor's Overview had no `<h1>`.** It has one now. Its Today / Week / Month
+    toggle has `aria-pressed`: the choice was shown by colour alone.
+  - **Contrast:**
+    - **Sidebar:** the active item was white on #3b82f6 (3.7:1) and is now #2d63bb
+      (5.8:1). The role badge text was 3.6:1 and is now 5:1.
+    - **Register:** the avatars and status buttons were white on light green, red and
+      amber (2.1–3.8:1) and now use the `*-solid` shades.
+    - **Toasts:** the text uses the `-foreground` shades. PrimeNG's error red was 4.4:1.
+    - **Sales:** a hint at 70% opacity was 3:1; it is now full strength.
+    - **Light-theme tokens darkened slightly:**
+      - secondary #3e6db5 to #3a66aa;
+      - success-foreground #027a48 to #027545;
+      - warning-foreground #b54708 to #ae4408.
+
+      This clears the 4.1–4.3:1 left over from A-04, as text on the tints and on
+      `background-alt`. The dark theme is unchanged.
+
+  - **Sign-in button:** it was disabled while the form was invalid, so pressing it did
+    nothing and said nothing. The focus-the-first-error added in A-04 could not be
+    reached. It is now disabled only while signing in.
+
+- **CI:** a second job, `e2e`, runs `npm run e2e` with the runner's Chrome and keeps the
+  traces of any failure.
+- **Validation:**
+  - unit tests: all batches exit 0, 62 files / 297 tests;
+  - end-to-end: 43 passed, 0 failed;
+  - lint: 0 errors;
+  - build: 590.17 kB initial.

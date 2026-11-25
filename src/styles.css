@@ -25,7 +25,7 @@
   --color-primary-content: #ffffff;
 
   /* Secondary */
-  --color-secondary: #3e6db5;
+  --color-secondary: #3a66aa; /* 4.5:1 as text on its own tint and on background-alt (was #3e6db5) */
   /* Brand-coloured text and icons. The primary navy itself is unreadable on the
      dark theme's surfaces, so dark mode swaps in the ordinary text colour. */
   --color-brand-text: var(--color-primary);
@@ -50,11 +50,11 @@
   --color-success: #10b981;
   --color-success-hover: #059669;
   --color-success-background: #ecfdf3;
-  --color-success-foreground: #027a48;
+  --color-success-foreground: #027545; /* 4.6:1 on background-alt (was #027a48) */
 
   --color-warning: #f59e0b;
   --color-warning-background: #fffaeb;
-  --color-warning-foreground: #b54708;
+  --color-warning-foreground: #ae4408; /* 4.6:1 on background-alt (was #b54708) */
 
   --color-error: #ef4444;
   --color-error-background: #fef3f2;
@@ -111,9 +111,9 @@
   --color-sidebar-user-email: #64748b;
   --color-sidebar-border: #e2e8f0;
   --color-sidebar-item-hover: rgba(0, 0, 0, 0.05);
-  --color-sidebar-item-active: #3b82f6;
+  --color-sidebar-item-active: #2d63bb; /* white on it 5.8:1 (was #3b82f6, 3.7:1) */
   --color-role-badge-bg: #e0f2fe;
-  --color-role-badge-text: #0284c7;
+  --color-role-badge-text: #026ca3; /* 5:1 on its badge (was #0284c7, 3.6:1) */
 
   /* Dims the page behind the mobile menu. */
   --color-scrim: rgba(15, 23, 42, 0.45);
@@ -344,4 +344,19 @@ html.drawer-open {
     left: 0.75rem;
     width: auto;
   }
+}
+
+/* Toast text in the darker shade of its colour: PrimeNG's own error red is
+   4.4:1 on the toast's tint. Measured by the end-to-end axe checks. */
+.p-toast .p-toast-message-error .p-toast-summary,
+.p-toast .p-toast-message-error .p-toast-detail {
+  color: var(--color-error-foreground);
+}
+.p-toast .p-toast-message-success .p-toast-summary,
+.p-toast .p-toast-message-success .p-toast-detail {
+  color: var(--color-success-foreground);
+}
+.p-toast .p-toast-message-warn .p-toast-summary,
+.p-toast .p-toast-message-warn .p-toast-detail {
+  color: var(--color-warning-foreground);
 }

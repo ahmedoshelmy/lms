@@ -97,7 +97,7 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          [disabled]="form.invalid || loading()"
+          [disabled]="loading()"
           class="mt-2 w-full rounded-[10px] border-none bg-linear-to-br from-(--color-primary) to-(--color-secondary) p-3.5 text-[15px] font-semibold text-(--color-primary-content) shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_30%,transparent)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_6px_20px_color-mix(in_srgb,var(--color-primary)_40%,transparent)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-[0_4px_12px_color-mix(in_srgb,var(--color-primary)_30%,transparent)]"
         >
           @if (loading()) {

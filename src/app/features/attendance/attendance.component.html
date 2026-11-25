@@ -93,6 +93,7 @@
       <!-- Group Filter -->
       <div [class.max-sm:hidden]="!filtersOpen()">
         <select
+          aria-label="Group"
           [ngModel]="selectedGroupFilter()"
           (ngModelChange)="setGroupFilter($event)"
           class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -108,6 +109,7 @@
       @if (isAdmin()) {
         <div [class.max-sm:hidden]="!filtersOpen()">
           <select
+            aria-label="Instructor"
             [ngModel]="selectedInstructorFilter()"
             (ngModelChange)="setInstructorFilter($any($event))"
             class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"
@@ -122,6 +124,7 @@
       <!-- Sort By Dropdown -->
       <div [class.max-sm:hidden]="!filtersOpen()">
         <select
+          aria-label="Sort by"
           [ngModel]="sortBy()"
           (ngModelChange)="sortBy.set($event)"
           class="w-full px-3 py-1.5 border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] text-xs text-[var(--color-text-primary)] font-semibold"

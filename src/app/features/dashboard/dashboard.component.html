@@ -6,6 +6,8 @@
   } @else if (isAdmin()) {
     <app-school-overview />
   } @else {
+    <!-- The page's heading: the toggle and figures below say what it covers. -->
+    <h1 class="sr-only">Overview</h1>
     <!-- View Toggle -->
     <div class="view-toggle-bar mb-6">
       <div class="view-toggle">
@@ -13,25 +15,28 @@
           type="button"
           class="view-toggle__btn"
           [class.view-toggle__btn--active]="activeView() === 'today'"
+          [attr.aria-pressed]="activeView() === 'today'"
           (click)="setView('today')"
         >
-          <i class="pi pi-sun"></i> Today
+          <i class="pi pi-sun" aria-hidden="true"></i> Today
         </button>
         <button
           type="button"
           class="view-toggle__btn"
           [class.view-toggle__btn--active]="activeView() === 'week'"
+          [attr.aria-pressed]="activeView() === 'week'"
           (click)="setView('week')"
         >
-          <i class="pi pi-calendar"></i> This Week
+          <i class="pi pi-calendar" aria-hidden="true"></i> This Week
         </button>
         <button
           type="button"
           class="view-toggle__btn"
           [class.view-toggle__btn--active]="activeView() === 'month'"
+          [attr.aria-pressed]="activeView() === 'month'"
           (click)="setView('month')"
         >
-          <i class="pi pi-calendar-clock"></i> This Month
+          <i class="pi pi-calendar-clock" aria-hidden="true"></i> This Month
         </button>
       </div>
       <div class="view-interval-label">

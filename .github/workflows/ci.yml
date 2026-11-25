@@ -36,3 +36,32 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  # The app in a real browser at desktop and phone sizes, every API call
+  # answered from fixtures, with an axe accessibility check on each page.
+  # Uses the runner's own Chrome (playwright.config.ts: channel 'chrome').
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: End-to-end tests
+        run: npm run e2e
+
+      - name: Keep the traces of failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

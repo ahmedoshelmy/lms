@@ -147,10 +147,11 @@
                 class="day"
                 [class.day--on]="isDayOn(day.value)"
                 [attr.aria-pressed]="isDayOn(day.value)"
-                [attr.aria-label]="day.name"
                 (click)="toggleDay(day.value)"
               >
-                {{ day.short }}
+                <!-- The short name on screen, the whole one read out. -->
+                <span aria-hidden="true">{{ day.short }}</span>
+                <span class="sr-only">{{ day.name }}</span>
               </button>
             }
           </div>

@@ -412,9 +412,9 @@
   &--present {
     color: var(--color-success-foreground);
     &:hover {
-      background: var(--color-success);
+      background: var(--color-success-solid);
       color: white;
-      border-color: var(--color-success);
+      border-color: var(--color-success-solid);
     }
   }
   &--absent {
@@ -428,9 +428,9 @@
   &--late {
     color: var(--color-warning-foreground);
     &:hover {
-      background: var(--color-warning);
+      background: var(--color-warning-solid);
       color: white;
-      border-color: var(--color-warning);
+      border-color: var(--color-warning-solid);
     }
   }
   &--excused {
@@ -647,13 +647,13 @@
   color: white;
   flex-shrink: 0;
   &.record-status--present {
-    background: var(--color-success);
+    background: var(--color-success-solid);
   }
   &.record-status--absent {
-    background: var(--color-danger);
+    background: var(--color-error-solid);
   }
   &.record-status--late {
-    background: var(--color-warning);
+    background: var(--color-warning-solid);
   }
   &.record-status--excused {
     background: var(--color-primary);
@@ -746,9 +746,9 @@
     color: var(--color-success-foreground);
     &:hover,
     &.status-btn--active {
-      background: var(--color-success);
+      background: var(--color-success-solid);
       color: white;
-      border-color: var(--color-success);
+      border-color: var(--color-success-solid);
     }
   }
   &--absent {
@@ -764,9 +764,9 @@
     color: var(--color-warning-foreground);
     &:hover,
     &.status-btn--active {
-      background: var(--color-warning);
+      background: var(--color-warning-solid);
       color: white;
-      border-color: var(--color-warning);
+      border-color: var(--color-warning-solid);
     }
   }
   &--excused {
@@ -1215,7 +1215,7 @@
   border-radius: 10px;
   font-size: 12px;
   font-weight: 700;
-  background: var(--color-warning);
+  background: var(--color-warning-solid);
   color: white;
   border: none;
   cursor: pointer;

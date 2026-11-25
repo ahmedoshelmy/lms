@@ -48,14 +48,17 @@
       routerLinkActive="active"
       ariaCurrentWhenActive="page"
       class="user-section"
-      aria-label="My Profile"
       [attr.title]="!isOpen() ? userProfile().name + ' (Profile)' : null"
       (click)="onMenuItemClick()"
     >
+      <!-- Named by the hidden line, not an aria-label: that would have to
+           repeat the initials and the name shown, and the name is hidden
+           when the sidebar is collapsed. -->
+      <span class="sr-only">{{ userProfile().name }}, your profile</span>
       <div class="avatar" aria-hidden="true">
         {{ userProfile().initials }}
       </div>
-      <div class="user-info">
+      <div class="user-info" aria-hidden="true">
         <h4>{{ userProfile().name }}</h4>
       </div>
     </a>
@@ -70,11 +73,11 @@
         type="button"
         class="logout-btn"
         aria-label="Sign out"
-        [attr.title]="!isOpen() ? 'Logout' : null"
+        [attr.title]="!isOpen() ? 'Sign out' : null"
         (click)="logout()"
       >
         <i class="pi pi-sign-out" aria-hidden="true"></i>
-        <span class="menu-label">Logout</span>
+        <span class="menu-label">Sign out</span>
       </button>
 
       <!-- How every time on the site reads. Here rather than on the settings
@@ -83,7 +86,7 @@
         type="button"
         class="theme-toggle-btn clock-toggle-btn"
         [attr.aria-label]="
-          clock.is12Hour() ? 'Switch to the 24-hour clock' : 'Switch to the 12-hour clock'
+          clock.is12Hour() ? '12h clock, switch to 24h' : '24h clock, switch to 12h'
         "
         [attr.title]="
           clock.is12Hour()

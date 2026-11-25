@@ -36,6 +36,10 @@ the implementation log.
 - **Phase 5:** PF-01 to PF-04 done and audited (PF-05 was done in Phase 2). All components are
   `OnPush`. The group page's session feed and Attendance's all-time list wait on backend
   queries (per group; paging).
+- **Phase 7:** T-01 to T-03 were in place. T-04 (workflow tests for the register, the
+  monthly report, the group page and sales) and T-05 (Playwright end to end, axe, desktop and
+  phone) are done, and CI runs both. F-09 (splitting the largest components) is next, now that
+  they have tests around them.
 - **Phase 6:** A-01 to A-04, done and audited. Page titles, skip link, page announcements,
   modal focus, links instead of clickable boxes, labelled fields and named buttons, and
   token-level contrast in both themes. The label and keyboard lint rules are errors again.
@@ -46,6 +50,8 @@ initial bundle at 588 kB against the 600 kB budget.
 
 Backend questions still open:
 
+- **Adding a student to a group** sends `PUT /users/{id}` with one `groupId`. A student can
+  be in several groups: does that add the group, or replace the others?
 - **Instructor KPIs:** the endpoints in `docs/instructor-kpis.api.md`. The screens are built
   and tested against that contract, and switched off in production
   (`environment.features.instructorKpis`) until the endpoints exist.

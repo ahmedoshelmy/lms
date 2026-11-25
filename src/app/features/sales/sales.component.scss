@@ -743,8 +743,8 @@
 }
 
 .field__hint {
+  /* Full strength: faded, it was 3:1 on white. */
   color: var(--color-text-muted);
-  opacity: 0.7;
 }
 
 .field__clear {

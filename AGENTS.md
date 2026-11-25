@@ -177,10 +177,16 @@ Verify configurations and run the development app using these commands from the 
 | **Start Dev Server**        | `npm run start` or `ng serve` |
 | **Run Unit Tests (Vitest)** | `npm run test` or `ng test`   |
 | **Unit Tests, once (CI)**   | `npm run test:ci`             |
+| **End-to-end tests**        | `npm run e2e`                 |
 | **Lint**                    | `npm run lint`                |
 | **Build for Production**    | `npm run build` or `ng build` |
 | **Format Files**            | `npm run format`              |
 | **Check Format**            | `npm run format:check`        |
+
+End-to-end tests (`e2e/`, Playwright) build the development bundle, serve it on port 4300 and
+drive the installed Chrome at a desktop and a phone size. Every API call is answered from
+`e2e/support/fixtures.ts` and anything else leaving the machine is refused. Each page is
+checked with axe for WCAG 2.1 A/AA, and a serious or critical finding fails the test.
 
 On Windows, run the tests from an upper-case drive path (`I:\lms`, not `i:\lms`): from the
 lower-case path Vitest loads its runner twice and every file fails with "failed to find the
