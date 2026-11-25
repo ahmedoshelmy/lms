@@ -126,3 +126,34 @@ describe('StudentsComponent table headers', () => {
     expect(link?.textContent?.trim()).toBe('Sara Ahmed');
   });
 });
+
+describe('StudentsComponent editing a student', () => {
+  it('clears an emptied phone with null: the server keeps a field left out', () => {
+    const updateUser = vi.fn(() => of({}));
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        {
+          provide: LmsService,
+          useValue: { updateUser, getStudents: () => of([]), getGroups: () => of([]) },
+        },
+        { provide: NotificationService, useValue: { showWarn: vi.fn(), showSuccess: vi.fn() } },
+      ],
+    });
+    const page = TestBed.createComponent(StudentsComponent).componentInstance;
+    page.openEditModal({
+      id: 4,
+      name: 'Sara Ahmed',
+      email: 'sara@example.test',
+      phone: '0100',
+      role: 1,
+    } as never);
+    page.formPhone.set('');
+
+    page.saveStudent();
+
+    const sent = (updateUser.mock.calls[0] as unknown[])[1] as Record<string, unknown>;
+    expect(sent['phone']).toBeNull();
+    expect(sent['email']).toBe('sara@example.test');
+  });
+});

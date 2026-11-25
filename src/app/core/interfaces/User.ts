@@ -67,10 +67,14 @@ export interface CreateUserPayload {
   weeklyCapacityMinutes?: number | null;
 }
 
+/**
+ * An edit. The server changes email, phone and the weekly limit only when they
+ * are sent: leave one out to keep it, send null to clear it.
+ */
 export interface UpdateUserPayload {
   name: string;
-  email?: string;
-  phone?: string;
+  email?: string | null;
+  phone?: string | null;
   password?: string;
   role: Role;
   /** Students only: a group to add them to. Leaving one is its own action. */

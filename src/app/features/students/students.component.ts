@@ -526,8 +526,10 @@ export class StudentsComponent implements OnInit {
       this.lms
         .updateUser(studentId, {
           name,
-          email: email || undefined,
-          phone: phone || undefined,
+          // Emptied on purpose: null clears it. Left out, the server keeps what
+          // it has ("" it refuses).
+          email: email || null,
+          phone: phone || null,
           role: Role.Student,
           password: password || undefined,
           groupId: groupId || undefined,
