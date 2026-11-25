@@ -41,8 +41,8 @@ The frontend hides what a role may not use, but only the server can refuse it.
 
 ## 4. For whoever deploys
 
-- **CORS** for the app's origin. For `POST /client-errors`, allow `Content-Type`; a
-  beacon sends no credentials.
+- **CORS** for the app's origin. For `POST /client-errors`, allow `Content-Type`, and do
+  not allow credentials: reports are sent without any.
 - **A new API host** has to go into the frontend's `connect-src`
   (`nginx-security-headers.conf` and `vercel.json`), or the browser refuses every
   request to it.
