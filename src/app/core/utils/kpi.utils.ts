@@ -28,9 +28,18 @@ export function kpiPhase(month: string, today: Date): KpiPhase {
   return today.getDate() >= KPI_REVIEW_DAY ? 'Review' : 'Live';
 }
 
-/** Approval waits for the month to end: the server refuses it earlier too. */
+/**
+ * When a month can be approved: the 2nd of the next month. Its last classes'
+ * registers can be taken for a day after it ends, and approving before then
+ * would freeze them as never taken. The server refuses it earlier too.
+ */
+export function approvalOpens(month: string): Date {
+  const [y, m] = month.split('-').map(Number);
+  return new Date(y, m, 2);
+}
+
 export function canApproveMonth(month: string, today: Date): boolean {
-  return kpiPhase(month, today) === 'Closed';
+  return kpiPhase(month, today) === 'Closed' && today >= approvalOpens(month);
 }
 
 /** `count` months, newest first, ending with the month `today` is in. */

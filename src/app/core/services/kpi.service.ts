@@ -12,8 +12,7 @@ import { LmsService, query } from './lms.service';
 
 /**
  * Instructor KPIs. The endpoints and the rules behind every figure are in
- * docs/instructor-kpis.api.md; the feature stays switched off
- * (environment.features.instructorKpis) until the server has them.
+ * docs/instructor-kpis.api.md (environment.features.instructorKpis).
  */
 @Injectable({ providedIn: 'root' })
 export class KpiService {

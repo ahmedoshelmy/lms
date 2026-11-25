@@ -91,8 +91,14 @@
         } @else if (phase() === 'Review') {
           <p class="font-bold text-warning-foreground">Review is open</p>
           <p>
-            Check the figures and adjust any that need it. Reports are due by the end of the month,
-            so approval opens on {{ approvalOpensOn() }}.
+            Check the figures and adjust any that need it. Reports are due by the end of the month
+            and registers a day later, so approval opens on {{ approvalOpensOn() }}.
+          </p>
+        } @else if (!canApprove()) {
+          <p class="font-bold text-warning-foreground">Last registers still open</p>
+          <p>
+            The month is over, but registers for its last classes can still be taken today, so
+            approval opens on {{ approvalOpensOn() }}.
           </p>
         } @else {
           <p class="font-bold text-[var(--color-text-primary)]">Ready to approve</p>

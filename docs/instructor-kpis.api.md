@@ -1,8 +1,8 @@
 # Instructor KPIs — API contract
 
-The frontend for instructor KPIs is built against this contract. It stays switched off
-(`features.instructorKpis` in `src/environments/`) until these endpoints exist. Nothing is
-stored in the browser instead.
+The frontend for instructor KPIs is built against this contract, and the backend implements
+it (`KpisController`, backend commit cc476e8). It is switched by `features.instructorKpis` in
+`src/environments/`. Nothing is stored in the browser.
 
 The server is the single source of every figure. It computes each indicator, the overall
 score and the band. The screens only display them, so a PDF, the CSV and the page can
@@ -23,8 +23,10 @@ never disagree.
 - **Phases** (shown by the frontend; the server enforces the adjusting and approval windows):
   - **Live:** from the 1st to the 28th.
   - **Review:** from the 29th to the last day. Overrides are allowed from here on, until the month is approved.
-  - **Closed:** from the 1st of the next month. Approval becomes possible; the server
-    refuses it any earlier.
+  - **Closed:** from the 1st of the next month.
+  - **Approval** opens on the **2nd** of the next month, at midnight in Cairo. The month's last
+    classes can have their registers taken for 24 hours after it ends, and approving earlier
+    would freeze those as never taken. The server refuses it any earlier.
 
 ## Calculation rules
 
@@ -186,3 +188,27 @@ Notes for the server:
   who did it.
 - **Optional:** on the 29th of each month, a notification to admins that the month's KPI
   review is open.
+
+## As built
+
+What the server does where the contract above left room:
+
+- **Registers** count only classes whose 24-hour window has closed. A class still inside
+  its window is neither on time nor missing yet. The register compliance report counts it
+  as never taken as soon as it starts, so the two can differ for the last day's classes
+  until the window closes.
+- **Reports:** a report counts as handed in once it is no longer a draft. It is on time when
+  `submittedAt` is before midnight at the end of the month in Cairo. Submitting it again
+  later moves `submittedAt`, so a report re-submitted after the month counts as late.
+- **Instructors listed:** every active instructor, plus anybody else with something counted
+  in the month (an instructor deactivated since, for example).
+- **February** has no review days in most years: corrections open on 1 March, when the month
+  is closed.
+- **Reopening** needs a reason that is not blank.
+- **`send`** checks that the file really is a PDF, from its first bytes. The file name the
+  screen gives is kept, reduced to plain characters.
+- **Audit:** every change is written to the activity log by the filter every request
+  passes, with who made it: "Corrected an instructor's reports figure for November 2026",
+  "Approved the instructor KPIs for October 2026", and so on. The reason for a correction
+  or a reopening is stored with it, and shown on the page.
+- **Not built:** the optional notification on the 29th.

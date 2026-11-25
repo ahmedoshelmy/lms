@@ -95,6 +95,17 @@ describe('InstructorKpisComponent', () => {
     expect(closed.buttons()).toContain('Approve the month');
   });
 
+  it('waits for the last registers on the 1st, and says when approval opens', async () => {
+    // 1 December: November is over, but its last evening's registers are still open.
+    const { fixture, el, page, buttons } = render(kpiMonth(), new Date(2026, 11, 1, 10));
+    page.setMonth('2026-11');
+    await fixture.whenStable();
+
+    expect(el.textContent).toContain('Last registers still open');
+    expect(el.textContent).toContain('approval opens on 2 December');
+    expect(buttons()).not.toContain('Approve the month');
+  });
+
   it('opens adjusting with the review on the 29th, not before', async () => {
     const live = render(kpiMonth(), new Date(2026, 10, 28, 10));
     await live.fixture.whenStable();

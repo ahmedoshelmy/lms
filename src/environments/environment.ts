@@ -28,7 +28,7 @@ export const environment = {
   errorReportUrl: null as string | null,
 
   features: {
-    /** docs/instructor-kpis.api.md */
-    instructorKpis: false,
+    /** docs/instructor-kpis.api.md; the server has had it since backend cc476e8. */
+    instructorKpis: true,
   },
 };

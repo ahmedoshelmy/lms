@@ -22,6 +22,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { latestRequest } from '../../core/utils/latest-request';
 import {
   KPI_REVIEW_DAY,
+  approvalOpens,
   canApproveMonth,
   formatPercent,
   indicatorBasis,
@@ -98,11 +99,10 @@ export class InstructorKpisComponent implements OnInit {
     [...(this.data()?.events ?? [])].reverse().find((e) => e.action === 'Approved')
   );
 
-  /** When approval opens: the 1st of the next month. */
-  protected readonly approvalOpensOn = computed(() => {
-    const [y, m] = this.month().split('-').map(Number);
-    return new Date(y, m, 1).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
-  });
+  /** When approval opens: the 2nd of the next month (see approvalOpens). */
+  protected readonly approvalOpensOn = computed(() =>
+    approvalOpens(this.month()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+  );
 
   protected readonly reviewDay = KPI_REVIEW_DAY;
 

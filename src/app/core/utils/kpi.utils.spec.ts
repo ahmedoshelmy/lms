@@ -25,9 +25,11 @@ describe('kpiPhase', () => {
     expect(kpiPhase('2027-02', day(2027, 3, 1))).toBe('Closed');
   });
 
-  it('allows approval only once the month has ended: reports are due on its last day', () => {
+  it('allows approval a day after the month ends, once its last registers have closed', () => {
     expect(canApproveMonth('2026-11', day(2026, 11, 30))).toBe(false);
-    expect(canApproveMonth('2026-11', day(2026, 12, 1))).toBe(true);
+    expect(canApproveMonth('2026-11', day(2026, 12, 1))).toBe(false);
+    expect(canApproveMonth('2026-11', new Date(2026, 11, 2, 0, 0))).toBe(true);
+    expect(canApproveMonth('2026-12', day(2027, 1, 2))).toBe(true);
   });
 });
 

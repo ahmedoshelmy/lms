@@ -1974,3 +1974,26 @@ The backend session read the backend's source and answered the open questions
     both sizes. 71 passed.
   - lint: 0 errors.
   - build: 597.49 kB of the 600 kB budget.
+
+## Instructor KPIs on the server (B-1), and switched on
+
+- **Backend** (branch `feat/instructor-kpis`, cc476e8): the ten endpoints of
+  `docs/instructor-kpis.api.md`.
+  - The figures reuse the rules already in use: `ReportingMonth` for who is owed a report,
+    and the register compliance query for registers. The KPI page and those pages count
+    the same things.
+  - Four new tables, from an additive migration.
+  - 73 new tests: the rules, what may happen when, and the activity log lines. 366 backend
+    tests pass.
+  - Every query was checked to translate to SQL. There is no database here, so the
+    endpoints have not been run against one.
+- **Found while building it:** counted as the compliance report counts it, a class still
+  inside its 24-hour register window was "never taken". Approved on the 1st, a month would
+  have frozen its last evening's classes that way for good. Now:
+  - registers count only once their window has closed;
+  - approval opens on the 2nd. The page says so, and says why on the 1st ("Last registers
+    still open").
+- **Switched on** in production (`environment.ts`), on its own branch, to merge only once
+  the backend is live.
+- The "As built" section of the contract records what the server decided where the
+  contract left room.
