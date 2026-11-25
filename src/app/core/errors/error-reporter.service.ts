@@ -61,16 +61,18 @@ export class ErrorReporter {
       at: new Date().toISOString(),
     };
 
-    // A beacon outlives the page, and needs no answer. No credentials go with
-    // it: the endpoint takes reports from anybody, and rate-limits them.
-    const body = new Blob([JSON.stringify(report)], { type: 'application/json' });
-    try {
-      if (win.navigator.sendBeacon?.(this.url, body)) return;
-    } catch {
-      // Falls through to fetch.
-    }
+    // fetch with keepalive, which outlives the page as a beacon would, and
+    // without credentials: sendBeacon always sends the API's cookies, which
+    // would tie a report to a person. The endpoint takes reports from anybody,
+    // and rate-limits them.
     win
-      .fetch(this.url, { method: 'POST', body, keepalive: true, credentials: 'omit' })
+      .fetch(this.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(report),
+        keepalive: true,
+        credentials: 'omit',
+      })
       .catch(() => undefined);
   }
 

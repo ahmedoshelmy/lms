@@ -93,4 +93,11 @@ people on a bad version:
 - **The site may not be framed.**
 
 Adding a third-party script, font or API means adding its host to both header files.
+
+What the tests cover: the end-to-end tests serve the **development** build with these
+headers, so the policy applies to every page they open. The production-only differences
+are each checked another way. `e2e/deploy-config.spec.ts` checks that critical-CSS
+inlining stays off and that the Vercel headers equal nginx's. `nginx.conf` itself (its
+locations and the `include`) is not run by any test: build the Docker image and use
+`curl -I` after a change to it.
 The end-to-end tests run under this policy and fail on any refusal.

@@ -12,8 +12,10 @@ import {
 } from './error-reporter.service';
 
 function reporter(url: string | null) {
-  const beacon = vi.fn<(url: string, body: Blob) => boolean>(() => true);
-  Object.defineProperty(navigator, 'sendBeacon', { value: beacon, configurable: true });
+  const beacon = vi.fn<(url: string, init: RequestInit) => Promise<Response>>(() =>
+    Promise.resolve(new Response(null, { status: 204 }))
+  );
+  vi.stubGlobal('fetch', beacon);
   TestBed.configureTestingModule({
     providers: [
       { provide: ERROR_REPORT_URL, useValue: url },
@@ -23,16 +25,16 @@ function reporter(url: string | null) {
   return { reporter: TestBed.inject(ErrorReporter), beacon };
 }
 
-/** The report a beacon carried. */
+/** The report a request carried. */
 async function sent(
-  beacon: { mock: { calls: [string, Blob][] } },
+  beacon: { mock: { calls: [string, RequestInit][] } },
   call = 0
 ): Promise<ClientErrorReport> {
-  return JSON.parse(await beacon.mock.calls[call][1].text());
+  return JSON.parse(beacon.mock.calls[call][1].body as string);
 }
 
 describe('ErrorReporter', () => {
-  afterEach(() => Reflect.deleteProperty(navigator, 'sendBeacon'));
+  afterEach(() => vi.unstubAllGlobals());
 
   it('sends nothing until an address is set', () => {
     const { reporter: r, beacon } = reporter(null);
@@ -47,6 +49,8 @@ describe('ErrorReporter', () => {
     r.report(new TypeError('x is undefined'));
 
     expect(beacon.mock.calls[0][0]).toBe('https://api.test/client-errors');
+    // No cookies: they would tie the report to a person.
+    expect(beacon.mock.calls[0][1]).toMatchObject({ credentials: 'omit', keepalive: true });
     const report = await sent(beacon);
     expect(report.message).toBe('x is undefined');
     expect(report.path).toBe('/students/:id');

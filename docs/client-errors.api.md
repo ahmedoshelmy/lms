@@ -8,13 +8,14 @@ known before somebody rings about it. It is switched off until this endpoint exi
 
 `POST /client-errors`, on the API host, for example `https://mv-api.inite.tech/api/client-errors`.
 
-- **No authentication.** Reports are sent with `navigator.sendBeacon`, which cannot add
-  an `Authorization` header and outlives the page. A report can come from the sign-in
+- **No authentication.** Reports are sent with `fetch` and `keepalive` (they outlive the
+  page) and `credentials: 'omit'`: no cookie and no `Authorization` header goes with them. A report can come from the sign-in
   page, before anybody is signed in.
 - **Body:** `Content-Type: application/json`, at most about 6 kB.
 - **Answer:** `204 No Content`. Nobody reads it.
-- **CORS:** allow the app's origin, with `POST` and the `Content-Type` header. A beacon
-  sends no credentials.
+- **CORS:** allow the app's origin, with `POST` and the `Content-Type` header (the
+  browser sends a preflight `OPTIONS` first). Do not set
+  `Access-Control-Allow-Credentials`: reports carry none.
 
 ```ts
 interface ClientErrorReport {

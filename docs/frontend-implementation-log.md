@@ -1815,3 +1815,48 @@ Everything below was checked as unused before deletion.
   - build: 597.25 kB initial, 2.75 kB under the 600 kB budget, with the error reporter
     and global listeners about 2 kB of that. The next change to the first download
     should make room first.
+
+## Phase 9 audit
+
+- **Independent review** of the Phase 9 commit. It confirmed:
+  - **nginx:** location precedence against the real build's file names, the `include`
+    path, and that the fallback route gets the headers and `no-cache`;
+  - **The policy:** nothing in the app needs what it forbids (jsPDF has no `eval`,
+    PDF assets come from the same origin, downloads are blob links).
+- **Six findings, all fixed:**
+  1. **Errors outside Angular no longer failed end-to-end tests.** The global listeners
+     mark them handled, so Playwright's `pageerror` never fires; they only reach
+     `AppErrorHandler`, which logs them.
+     - The fixture now fails on any console error, except the browser's own note of a
+       failed request.
+     - All 69 tests still pass, so no page was logging errors behind a toast.
+  2. **Errors the app did not cause** reached the person and would be reported: a
+     browser extension's script ("Script error."), the ResizeObserver loop notice, and
+     error events with no error behind them. They are now logged as warnings only.
+  3. **`sendBeacon` sends credentials.** It always does, despite the comment. Reports
+     would have carried the API's cookies, tying them to a person. In Firefox and
+     Safari a report could also be lost without trace: the browser makes a credentialed
+     preflight, which the documented CORS settings refuse, and the beacon has already
+     answered "sent".
+     - Reports now go by `fetch` with `keepalive` and `credentials: 'omit'`.
+     - The contract says so, and that the server must not allow credentials.
+  4. **The policy check was weaker than claimed.** The end-to-end tests use the
+     development build, which never inlines critical CSS, and the header check reads
+     the same file the test server sends.
+     - `deploy-config.spec.ts` now checks that production keeps critical-CSS inlining
+       off.
+     - `docs/deployment.md` says exactly what the tests cover. nginx itself is not run
+       by any test: check it with `curl -I` after a change.
+  5. **The Docker health check** used `localhost`, which can resolve to `::1` first,
+     while nginx listens on IPv4 only. It now uses `127.0.0.1`.
+  6. **A failure inside the reporter cost the person the error message.** Reporting is
+     now guarded.
+- **Also:** `favicon.ico` now gets the one-day caching rule.
+- **Validation:**
+  - 3 new or changed tests: errors not ours are quiet; the message survives a reporter
+    failure; reports go without credentials.
+  - **Checks:**
+    - unit tests: all batches exit 0, 64 files / 311 tests;
+    - end-to-end: 69 passed;
+    - lint: 0 errors;
+    - build: 597.48 kB initial.

@@ -35,6 +35,16 @@ test.describe('Deployment configuration', () => {
     expect(csp).toContain("frame-ancestors 'none'");
   });
 
+  test('the production build keeps inline script out of index.html', () => {
+    once();
+    // The end-to-end tests use the development build, which never inlines
+    // critical CSS; this is the check that production does not either. Its
+    // loader is an inline onload handler, which the policy refuses.
+    const angular = JSON.parse(readFileSync('angular.json', 'utf8'));
+    const production = angular.projects['lms-platform'].architect.build.configurations.production;
+    expect(production.optimization.styles.inlineCritical).toBe(false);
+  });
+
   test('pages are served under the policy', async ({ page }) => {
     once();
     const response = await page.request.get('/login');

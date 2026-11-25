@@ -19,14 +19,24 @@ export const test = base.extend<{ pageChecks: void }>({
       // The served build carries the production Content-Security-Policy: a
       // script, style, font or request it refuses fails the test.
       const refused: string[] = [];
+      // Errors outside Angular never reach 'pageerror': the global listeners
+      // mark them handled and pass them to AppErrorHandler, which logs them.
+      // So any console error fails the test too -- except the browser's own
+      // note of a failed request, which tests answer on purpose.
+      const logged: string[] = [];
       page.on('console', (message) => {
-        if (message.text().includes('Content Security Policy')) refused.push(message.text());
+        const text = message.text();
+        if (text.includes('Content Security Policy')) refused.push(text);
+        else if (message.type() === 'error' && !text.startsWith('Failed to load resource')) {
+          logged.push(text);
+        }
       });
 
       await use();
 
       expect(errors, 'uncaught errors in the page').toEqual([]);
       expect(refused, 'refused by the Content-Security-Policy').toEqual([]);
+      expect(logged, 'errors logged by the page').toEqual([]);
       expect(unanswered.get(page) ?? [], 'API calls with no fixture').toEqual([]);
     },
     { auto: true },

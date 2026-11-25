@@ -61,4 +61,25 @@ describe('AppErrorHandler', () => {
     expect(report).toHaveBeenCalledTimes(1);
     expect(report).toHaveBeenCalledWith(fault);
   });
+
+  it('stays quiet about errors the app did not cause', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    // A browser extension's script, as the page sees it.
+    handler.handleError(new Error('Script error.'));
+    handler.handleError(new Error('ResizeObserver loop completed with undelivered notifications.'));
+    handler.handleError(new Error('x', { cause: new ErrorEvent('error', { message: 'x' }) }));
+
+    expect(showError).not.toHaveBeenCalled();
+    expect(report).not.toHaveBeenCalled();
+  });
+
+  it('still tells the person when reporting fails', () => {
+    report.mockImplementation(() => {
+      throw new TypeError('cannot describe it');
+    });
+
+    handler.handleError(new Error('the real fault'));
+
+    expect(showError).toHaveBeenCalledTimes(1);
+  });
 });

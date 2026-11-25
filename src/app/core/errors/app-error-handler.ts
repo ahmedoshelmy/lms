@@ -24,13 +24,25 @@ export class AppErrorHandler implements ErrorHandler {
   private lastNotice = 0;
 
   handleError(error: unknown): void {
+    if (isNotOurs(error)) {
+      // A browser extension's script, or the browser's own notice: logged, and
+      // nothing said to the person, who could do nothing about it.
+      console.warn(error);
+      return;
+    }
+
     console.error(error);
 
     if (unwrap(error) instanceof HttpErrorResponse) {
       return;
     }
 
-    this.reporter.report(error);
+    // Reporting must not cost the person the message below.
+    try {
+      this.reporter.report(error);
+    } catch {
+      // Nothing to be done about it here.
+    }
 
     const now = Date.now();
     if (now - this.lastNotice < AppErrorHandler.QuietMs) {
@@ -42,6 +54,23 @@ export class AppErrorHandler implements ErrorHandler {
       'Something went wrong on this page. If it keeps happening, reload the page.'
     );
   }
+}
+
+/**
+ * Errors the app did not cause, which reach the handler since the global
+ * listeners were switched on:
+ * - "Script error.": a script from another origin, a browser extension's for
+ *   one, whose details the browser hides;
+ * - an error event with no error object behind it;
+ * - the browser saying a ResizeObserver could not deliver every notice in one
+ *   frame, which is not an error in any page.
+ */
+function isNotOurs(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  if (/^Script error\.?$/.test(message)) return true;
+  if (/ResizeObserver loop/.test(message)) return true;
+  const cause = error instanceof Error ? error.cause : undefined;
+  return typeof ErrorEvent !== 'undefined' && cause instanceof ErrorEvent && !cause.error;
 }
 
 /** Errors thrown inside a promise arrive wrapped in `rejection`. */

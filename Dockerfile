@@ -19,7 +19,8 @@ COPY --from=build /app/dist/lms-platform/browser /usr/share/nginx/html
 
 EXPOSE 80
 
-# Up when nginx answers with the app.
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -q -O /dev/null http://localhost/index.html || exit 1
+# Up when nginx answers with the app. 127.0.0.1, not localhost: that can
+# resolve to ::1 first, where nginx (listen 80) is not listening.
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -q -O /dev/null http://127.0.0.1/index.html || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
