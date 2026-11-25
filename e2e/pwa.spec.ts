@@ -1,4 +1,5 @@
 import { mockApi } from './support/api';
+import { expectSettled } from './support/session';
 import { expect, test } from './support/test';
 
 test.describe('The installable app', () => {
@@ -27,6 +28,9 @@ test.describe('The installable app', () => {
   test('says so when the connection goes, and when it comes back', async ({ page, context }) => {
     await mockApi(page);
     await page.goto('/login');
+    // Everything loaded first: the development build has no service worker, so
+    // a chunk still on its way when the connection drops would fail to load.
+    await expectSettled(page);
     const notice = page.getByText("You're offline");
 
     await context.setOffline(true);

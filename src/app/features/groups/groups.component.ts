@@ -191,7 +191,6 @@ export class GroupsComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.loadGroups();
-        this.loadSchedule();
         this.notify.showSuccess(
           `${group.name}: ${group.overdueSessions} moved to the next free slots.`
         );
@@ -227,7 +226,6 @@ export class GroupsComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.loadGroups();
-        this.loadSchedule();
         this.notify.showSuccess(`${group.name} is now at session ${shouldBe}.`);
       },
       error: () => this.saving.set(false),
@@ -254,7 +252,6 @@ export class GroupsComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.loadGroups();
-        this.loadSchedule();
         this.notify.showSuccess(`${group.name} is back on the schedule.`);
       },
       error: () => this.saving.set(false),
@@ -431,7 +428,6 @@ export class GroupsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGroups();
-    this.loadSchedule();
     if (this.isAdmin()) {
       this.loadInstructors();
       this.loadTopics();
@@ -457,6 +453,9 @@ export class GroupsComponent implements OnInit {
       next: (data) => {
         this.groups.set(data || []);
         this.loading.set(false);
+        // The server counts each group's classes still to come. An older one
+        // does not, and then the timetable is fetched to count them here.
+        if ((data || []).some((g) => g.upcomingSessions === undefined)) this.loadSchedule();
       },
       error: () => {
         this.loading.set(false);
@@ -465,6 +464,7 @@ export class GroupsComponent implements OnInit {
     });
   }
 
+  /** Only for a backend that does not count upcoming classes itself (see loadGroups). */
   loadSchedule(): void {
     // Only classes still to come are counted (getRemainingSessions), so only
     // those are asked for. It used to download every class ever scheduled.
@@ -591,6 +591,11 @@ export class GroupsComponent implements OnInit {
 
   getRemainingSessions(group: Group | null): number {
     if (!group) return 0;
+    // Counted by the server, from scheduled classes still to come.
+    if (group.upcomingSessions !== undefined) {
+      if (group.upcomingSessions > 0) return group.upcomingSessions;
+      return (group.courses || []).reduce((sum, c) => sum + sessionsRemaining(c), 0);
+    }
     const groupSchedule = this.scheduleSessions().filter(
       (s) => s.groupId === group.id || s.groupName === group.name
     );
@@ -715,7 +720,6 @@ export class GroupsComponent implements OnInit {
           this.saving.set(false);
           this.showModal.set(false);
           this.loadGroups();
-          this.loadSchedule();
         },
         error: () => {
           this.saving.set(false);

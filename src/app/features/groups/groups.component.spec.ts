@@ -31,3 +31,46 @@ describe('GroupsComponent creating a group', () => {
     expect(page.formStatus).toBe(GROUP_STATUS['Running']);
   });
 });
+
+describe('GroupsComponent counting what each group has left', () => {
+  function render(groups: unknown[]) {
+    const getSchedule = vi.fn(() => of([]));
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([]),
+        {
+          provide: LmsService,
+          useValue: new Proxy(
+            { getGroups: () => of(groups), getSchedule },
+            {
+              get: (target, key) =>
+                (target as Record<string | symbol, unknown>)[key] ?? (() => of([])),
+            }
+          ),
+        },
+        { provide: NotificationService, useValue: { showWarn: vi.fn(), showSuccess: vi.fn() } },
+        {
+          provide: AuthService,
+          useValue: { currentUser: signal({ id: 1, role: Role.Admin }), hasRole: () => true },
+        },
+      ],
+    });
+    const page = TestBed.createComponent(GroupsComponent).componentInstance;
+    page.loadGroups();
+    return { page, getSchedule };
+  }
+
+  it("takes the server's count, without downloading the timetable", () => {
+    const group = { id: 3, name: 'G', courses: [], upcomingSessions: 7 };
+    const { page, getSchedule } = render([group]);
+
+    expect(getSchedule).not.toHaveBeenCalled();
+    expect(page.getRemainingSessions(group as never)).toBe(7);
+  });
+
+  it('counts from the timetable when an older server does not send the count', () => {
+    const { getSchedule } = render([{ id: 3, name: 'G', courses: [] }]);
+
+    expect(getSchedule).toHaveBeenCalledTimes(1);
+  });
+});

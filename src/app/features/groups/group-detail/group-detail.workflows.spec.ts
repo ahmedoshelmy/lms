@@ -47,6 +47,7 @@ describe('GroupDetailComponent workflows', () => {
       updateUser: vi.fn(() => of({})),
       getStudentDetails: vi.fn(() => of({ id: 21, phone: '+20 100 000 0021' })),
       getGroups: vi.fn(() => of([])),
+      getSchedule: vi.fn(() => of([])),
       removeStudentFromGroup: vi.fn(() => of({})),
       updateGroupSchedule: vi.fn(() => of({})),
       cancelUpcomingGroupSessions: vi.fn(() =>
@@ -111,6 +112,16 @@ describe('GroupDetailComponent workflows', () => {
       21,
       expect.objectContaining({ name: 'Sara A. Ahmed', phone: '+20 100 000 0021' })
     );
+  });
+
+  it("asks for this group's classes only, not the whole timetable", () => {
+    // The real loader, not the stub the other tests use.
+    const fresh = TestBed.createComponent(GroupDetailComponent).componentInstance;
+    fresh.groupId.set(GROUP.id);
+
+    fresh.loadScheduleSessions();
+
+    expect(lms['getSchedule']).toHaveBeenCalledWith(undefined, undefined, 5);
   });
 
   it('removes a student only from this group, and shows the group again', () => {

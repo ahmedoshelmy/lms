@@ -1925,3 +1925,26 @@ The backend session read the backend's source and answered the open questions
 - **Validation:** 2 tests, both failing without the change:
   - "add student" sends the phone;
   - "edit student" reads the student and sends the phone back.
+
+## One group's classes, and the Groups list's count (B-5)
+
+- **Backend** (branch `feat/schedule-bounds-and-group-filter`, not merged yet):
+  - `GET /schedule` takes an optional `groupId`. It narrows what the user may see and never
+    widens it: the role scoping still applies.
+  - Each group carries `upcomingSessions`: its scheduled classes from now on. Cancelled and
+    completed ones are not counted, nor past ones still marked scheduled.
+- **Group page:** asks for its own classes only. It still filters the answer, so an older
+  server that ignores `groupId` gives the same result.
+- **Groups list:** used to download every future class of every group, on every load, to
+  count what each group had left. It now uses `upcomingSessions`, and fetches the
+  timetable only when a group lacks it (an older server). A group with nothing scheduled
+  still shows what its courses have left, as before.
+- **End-to-end:** the offline test now waits for the page to finish loading before the
+  connection drops. A lazy chunk still on its way failed to load and failed the test about
+  one run in six; 20 runs in a row now pass.
+- **Validation:**
+  - unit tests: 2 for the Groups list (server count with no timetable fetch; the fallback
+    fetch) and 1 for the group page (`groupId` sent);
+  - end-to-end: 69 passed;
+  - lint: 0 errors; build 597.48 kB of the 600 kB budget;
+  - backend: 293 tests pass, 2 new for the count.

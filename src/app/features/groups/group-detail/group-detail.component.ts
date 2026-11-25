@@ -570,7 +570,9 @@ export class GroupDetailComponent implements OnInit {
   }
 
   loadScheduleSessions(): void {
-    this.lmsService.getSchedule().subscribe({
+    // This group's classes only. The list is still filtered here as well, for
+    // a backend that does not know groupId yet and answers with everything.
+    this.lmsService.getSchedule(undefined, undefined, this.groupId() || undefined).subscribe({
       next: (data) => this.sessions.set(data || []),
       error: () => {},
     });

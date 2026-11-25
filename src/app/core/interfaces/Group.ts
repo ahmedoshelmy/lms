@@ -100,6 +100,11 @@ export interface Group {
   /** Past their date and still marked scheduled. Counted on every group. */
   overdueSessions?: number;
   /**
+   * Classes still to come (scheduled, from now on), counted by the server.
+   * Missing from an older backend, which is why it is optional.
+   */
+  upcomingSessions?: number;
+  /**
    * Where the group's progress should be, read off the sessions it has
    * actually taught, when that disagrees with what it records. Absent when
    * they agree, which is the normal case.

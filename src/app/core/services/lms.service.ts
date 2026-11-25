@@ -492,9 +492,10 @@ export class LmsService {
 
   // ─── Schedule & Sessions ──────────────────────────────────────────────────
 
-  getSchedule(from?: Date, to?: Date): Observable<ScheduleSession[]> {
+  /** The timetable the user may see; optionally between two dates, and for one group only. */
+  getSchedule(from?: Date, to?: Date, groupId?: number): Observable<ScheduleSession[]> {
     return this.http.get<ScheduleSession[]>(`${this.getApiUrl()}/schedule`, {
-      params: query({ from: from?.toISOString(), to: to?.toISOString() }),
+      params: query({ from: from?.toISOString(), to: to?.toISOString(), groupId }),
     });
   }
 
