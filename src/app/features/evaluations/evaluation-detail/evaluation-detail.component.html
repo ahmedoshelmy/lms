@@ -3,6 +3,10 @@
     <i class="pi pi-spinner pi-spin"></i>
     <span>Reading the month&hellip;</span>
   </div>
+} @else if (loadFailed()) {
+  <div class="state">
+    <app-load-error title="This report could not be loaded" (retry)="load()" />
+  </div>
 } @else if (report(); as report) {
   <div class="page">
     <!-- ── Who, and which month ───────────────────────────────────────────── -->

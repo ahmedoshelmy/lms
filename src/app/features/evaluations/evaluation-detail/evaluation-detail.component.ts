@@ -23,6 +23,7 @@ import {
   MonthlyEvaluation,
   RECOMMENDATION_SUGGESTIONS,
 } from '../../../core/interfaces/MonthlyEvaluation';
+import { LoadErrorComponent } from '../../../shared/components/load-error/load-error.component';
 
 /**
  * One child's month, filled in as far as the school can fill it.
@@ -36,7 +37,7 @@ import {
   selector: 'app-evaluation-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, LoadErrorComponent],
   templateUrl: './evaluation-detail.component.html',
   styleUrl: './evaluation-detail.component.scss',
 })
@@ -55,6 +56,7 @@ export class EvaluationDetailComponent implements OnInit, HasUnsavedChanges {
   protected readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
 
   protected loading = signal(true);
+  protected loadFailed = signal(false);
   protected saving = signal(false);
   protected downloading = signal(false);
   protected report = signal<MonthlyEvaluation | null>(null);
@@ -196,16 +198,26 @@ export class EvaluationDetailComponent implements OnInit, HasUnsavedChanges {
   });
 
   ngOnInit(): void {
+    this.load();
+  }
+
+  protected load(): void {
     const studentId = Number(this.route.snapshot.paramMap.get('studentId'));
     const groupId = Number(this.route.snapshot.paramMap.get('groupId'));
     const month = this.route.snapshot.queryParamMap.get('month') ?? firstOfLastMonth();
 
+    this.loading.set(true);
+    this.loadFailed.set(false);
     this.lms.getEvaluation(studentId, groupId, month).subscribe({
       next: (report) => {
         this.apply(report);
         this.loading.set(false);
       },
-      error: () => this.loading.set(false),
+      // A failure used to end at "could not be opened", with no way to try again.
+      error: () => {
+        this.loading.set(false);
+        this.loadFailed.set(true);
+      },
     });
   }
 
