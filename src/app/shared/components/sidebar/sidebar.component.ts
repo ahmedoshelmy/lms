@@ -16,6 +16,7 @@ import { getMenuItemsForRole } from '../../../core/config/app-navigation.config'
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { ClockFormatService } from '../../../core/services/clock-format.service';
 import { SessionService } from '../../../core/services/session.service';
+import { PwaService } from '../../../core/services/pwa.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -28,6 +29,7 @@ import { SessionService } from '../../../core/services/session.service';
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
   private readonly session = inject(SessionService);
+  protected readonly pwa = inject(PwaService);
   private readonly themeService = inject(ThemeService);
   /** Public: the template toggles it directly. */
   protected readonly clock = inject(ClockFormatService);

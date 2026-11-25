@@ -36,10 +36,13 @@ the implementation log.
 - **Phase 5:** PF-01 to PF-04 done and audited (PF-05 was done in Phase 2). All components are
   `OnPush`. The group page's session feed and Attendance's all-time list wait on backend
   queries (per group; paging).
+- **Phase 8:** PWA-01 to PWA-03 done: the icon, the manifest, a service worker that keeps the
+  app's own files only, the offline and update notices, and the install button. PWA-04 (an
+  offline week for instructors) waits on a security sign-off.
 - **Phase 7:** T-01 to T-03 were in place. T-04 (workflow tests for the register, the
   monthly report, the group page and sales) and T-05 (Playwright end to end, axe, desktop and
-  phone) are done, and CI runs both. F-09 (splitting the largest components) is next, now that
-  they have tests around them.
+  phone) are done, and CI runs both. F-09 (splitting the largest components) is put off at the
+  user's request.
 - **Phase 6:** A-01 to A-04, done and audited. Page titles, skip link, page announcements,
   modal focus, links instead of clickable boxes, labelled fields and named buttons, and
   token-level contrast in both themes. The label and keyboard lint rules are errors again.

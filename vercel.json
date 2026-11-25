@@ -2,10 +2,16 @@
   "version": 2,
   "routes": [
     {
+      "src": "/(index\\.html|ngsw\\.json|ngsw-worker\\.js|manifest\\.webmanifest)",
+      "headers": { "Cache-Control": "no-cache" },
+      "continue": true
+    },
+    {
       "handle": "filesystem"
     },
     {
       "src": "/.*",
+      "headers": { "Cache-Control": "no-cache" },
       "dest": "/index.html"
     }
   ]

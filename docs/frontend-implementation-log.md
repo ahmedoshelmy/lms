@@ -1626,3 +1626,69 @@ Everything below was checked as unused before deletion.
   - Phase 9: choose the monitoring setup here.
   - PDFs: instructor and student names are always in English, so no Arabic font is
     needed.
+
+## PWA-01 to PWA-03 — An installable app
+
+- **F-09 is skipped for now**, at the user's request. The split stays on the roadmap.
+- **The app icon** (`public/icons/icon.svg`), designed here at the user's request. It is an
+  original mark:
+  - a navy tile in the app's primary colour;
+  - a bold white "M" drawn as two peaks and a valley ("Mind Valley");
+  - a green and a purple leaf sprouting in the valley, a nod to the school's own colours
+    without copying its logo.
+- **Rendered with the installed Chrome:**
+  - 192 and 512 px;
+  - a 512 maskable one (full-bleed tile, the drawing inside the central 80%);
+  - a 180 px Apple touch icon;
+  - a 32 px favicon, also wrapped as `favicon.ico`.
+
+  The sign-in card and the sidebar now show this icon instead of a stock
+  graduation-cap glyph.
+
+- **Manifest** (`public/manifest.webmanifest`): name, short name, standalone display,
+  start URL, theme and background colours, and the icons. `index.html` links it, along
+  with the SVG icon, the Apple icon, a theme colour and a description.
+- **Service worker:** Angular's (`@angular/service-worker`, pinned to the core version;
+  production `npm audit` 0), configured in `ngsw-config.json`.
+  - **It keeps the app's own files only:** the shell prefetched, images and fonts on
+    first use. There is no `dataGroups`, so nothing from the API is ever cached: the data
+    is about children and devices are shared.
+  - **Registration:** production builds only, after the page has loaded.
+  - **No client library:** `PwaService` drives the worker with the browser's own APIs: a
+    message listener for `VERSION_READY`, and a `CHECK_FOR_UPDATES` message every six
+    hours for tabs left open all day. Angular's client would have added to the first
+    download.
+- **Notices** (`app-pwa-status`, over every page, the sign-in page included, in a polite
+  live region):
+  - **offline:** "nothing can be saved until you're back";
+  - **a new version is ready**, with a Reload button. Unsaved work is still guarded by the
+    page's own `beforeunload`.
+- **Install:** the browser's install offer is held back, and an "Install app" button
+  shows in the sidebar footer while it lasts.
+- **Servers:** `index.html`, `ngsw.json`, `ngsw-worker.js` and the manifest are sent with
+  `Cache-Control: no-cache` in `nginx.conf` and `vercel.json`. Otherwise the worker could
+  not see a new release. `nginx.conf` also drops the `index.csr.html` fallback left from
+  the removed SSR.
+- **PWA-04** (a read-only offline week for instructors) is not done. It would mean
+  keeping children's data on devices, and needs a security sign-off first.
+- **Validation:**
+  - **5 new unit tests:**
+    - offline and online;
+    - the install offer is kept and used once;
+    - no worker in a development build;
+    - the worker is registered, `VERSION_READY` raises the notice, and the six-hourly
+      check is sent;
+    - the status bar.
+  - **2 new end-to-end tests:** the manifest and all its icons load; the offline notice
+    comes and goes.
+  - **The production build in Chrome:**
+    - the worker takes control;
+    - with the network cut, the app still opens and says it is offline;
+    - 86 cached entries, none from the API;
+    - a simulated release (`index.html` and its hash in `ngsw.json` changed) raises the
+      update bar, and Reload runs the new release.
+  - **Checks:**
+    - unit tests: all batches exit 0, 63 files / 302 tests;
+    - end-to-end: 64 passed;
+    - lint: 0 errors;
+    - build: 594.38 kB initial (budget 600).

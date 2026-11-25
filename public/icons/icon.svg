@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>Mindvalley</title>
+  <!-- Navy tile, the app's primary colour. -->
+  <rect width="512" height="512" rx="112" fill="#1a2b4c"/>
+  <!-- An M drawn as two peaks and a valley. -->
+  <path d="M136 340V140l120 128 120-128v200" fill="none" stroke="#ffffff" stroke-width="52"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Something growing in the valley: a green and a purple leaf, as in the school's mark. -->
+  <path d="M256 420V368" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M252 370c-10-32-38-48-72-42 6 32 36 48 72 42z" fill="#8cc63f"/>
+  <path d="M260 370c10-32 38-48 72-42-6 32-36 48-72 42z" fill="#a35cc4"/>
+</svg>

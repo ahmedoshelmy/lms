@@ -12,9 +12,7 @@
   </button>
 
   <div class="logo-section">
-    <div class="logo-icon">
-      <i class="pi pi-graduation-cap" aria-hidden="true"></i>
-    </div>
+    <img class="logo-icon" src="icons/icon.svg" alt="" width="40" height="40" />
     <div class="logo-text">
       <h3>Mindvalley</h3>
       <span>MANAGEMENT</span>
@@ -67,6 +65,20 @@
          in the sidebar that changes on its own, and it should not sit next to
          a button that ends the session. -->
     <app-notification-bell [compact]="!isOpen()" />
+
+    <!-- Only while the browser offers it: an installed app opens like any
+         other, without the browser's bars. -->
+    @if (pwa.canInstall()) {
+      <button
+        type="button"
+        class="logout-btn install-btn"
+        [attr.title]="!isOpen() ? 'Install app' : null"
+        (click)="pwa.install()"
+      >
+        <i class="pi pi-download" aria-hidden="true"></i>
+        <span class="menu-label">Install app</span>
+      </button>
+    }
 
     <div class="footer-actions">
       <button

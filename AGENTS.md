@@ -112,6 +112,9 @@ When writing CSS overrides for PrimeNG or custom layouts in components, write th
 - **Query parameters:** pass them as `HttpParams` (see `query()` in `lms.service.ts`), never by string concatenation.
 - **Filter- or route-driven loads:** pipe them through a `latestRequest()` (`core/utils/latest-request.ts`) so an older response can never overwrite a newer one.
 - **Failed loads:** show `<app-load-error>` with a retry, not the page's empty state.
+- **Service worker:** it caches the app's own files only (`ngsw-config.json`). Do not add a
+  `dataGroups` entry: API data is about children and devices are shared. `PwaService` drives it
+  with browser APIs, so `@angular/service-worker`'s client is not imported.
 
 ### Form Handling
 
