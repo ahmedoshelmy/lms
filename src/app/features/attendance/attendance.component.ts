@@ -21,10 +21,39 @@ import { User } from '../../core/interfaces/User';
 import { getSessionCode, getSessionDisplayTopic } from '../../core/utils/session-code.utils';
 import { ClockFormatService } from '../../core/services/clock-format.service';
 import { startOfSchoolWeek } from '../../core/utils/week.utils';
+import { latestRequest } from '../../core/utils/latest-request';
 import { LoadErrorComponent } from '../../shared/components/load-error/load-error.component';
 
 export type SessionStatusFilter = 'all' | 'scheduled' | 'completed' | 'cancelled';
-export type DateRangeFilter = 'all' | 'today' | 'week' | 'month';
+export type DateRangeFilter = 'today' | 'week' | 'month';
+
+/** The first day of the month `date` falls in, at local midnight. */
+export function firstOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/**
+ * The dates on show, from `from` up to (not including) `to`, in local time.
+ * "Month" is the month `month` falls in, which the reader steps through.
+ */
+export function attendanceRange(
+  filter: DateRangeFilter,
+  month: Date,
+  now: Date
+): { from: Date; to: Date } {
+  if (filter === 'today') {
+    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return { from, to: new Date(from.getFullYear(), from.getMonth(), from.getDate() + 1) };
+  }
+  if (filter === 'week') {
+    const from = startOfSchoolWeek(now);
+    return { from, to: new Date(from.getFullYear(), from.getMonth(), from.getDate() + 7) };
+  }
+  return {
+    from: new Date(month.getFullYear(), month.getMonth(), 1),
+    to: new Date(month.getFullYear(), month.getMonth() + 1, 1),
+  };
+}
 
 export interface DateSessionGroup {
   key: string;
@@ -70,7 +99,21 @@ export class AttendanceComponent implements OnInit {
   searchQuery = signal('');
   sessionStatusFilter = signal<SessionStatusFilter>('all');
   selectedGroupFilter = signal<string>('all');
-  dateRangeFilter = signal<DateRangeFilter>('all');
+  // Opens on this school week. "All time" used to download every class the
+  // school had ever had and filter it here, a list that grew every week.
+  dateRangeFilter = signal<DateRangeFilter>('week');
+  /** Under "Month": the month shown (its first day). */
+  readonly monthShown = signal(firstOfMonth(new Date()));
+  /** "November 2026", for the month stepper. */
+  readonly monthLabel = computed(() =>
+    this.monthShown().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  );
+  private readonly scheduleRequest = latestRequest();
+  readonly dateRanges: readonly { value: DateRangeFilter; label: string }[] = [
+    { value: 'today', label: 'Today' },
+    { value: 'week', label: 'This week' },
+    { value: 'month', label: 'Month' },
+  ];
   instructors = signal<User[]>([]);
   selectedInstructorFilter = signal<number>(0);
   sortBy = signal<'time' | 'topic' | 'group' | 'status'>('time');
@@ -87,7 +130,7 @@ export class AttendanceComponent implements OnInit {
     return (
       this.sessionStatusFilter() !== 'all' ||
       this.selectedGroupFilter() !== 'all' ||
-      this.dateRangeFilter() !== 'all' ||
+      this.dateRangeFilter() !== 'week' ||
       this.selectedInstructorFilter() !== 0 ||
       this.searchQuery().trim() !== ''
     );
@@ -101,16 +144,7 @@ export class AttendanceComponent implements OnInit {
     const query = this.searchQuery().toLowerCase().trim();
     const all = this.sessions();
 
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const todayEnd = todayStart + 24 * 60 * 60 * 1000;
-
-    const weekStart = startOfSchoolWeek(now);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 7);
-
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).getTime();
+    const { from, to } = attendanceRange(dateFilter, this.monthShown(), new Date());
 
     return all.filter((s) => {
       if (instFilter !== 0) {
@@ -125,13 +159,9 @@ export class AttendanceComponent implements OnInit {
 
       if (groupFilter !== 'all' && s.groupName !== groupFilter) return false;
 
-      if (dateFilter !== 'all') {
-        const time = new Date(s.startsAt).getTime();
-        if (dateFilter === 'today' && (time < todayStart || time >= todayEnd)) return false;
-        if (dateFilter === 'week' && (time < weekStart.getTime() || time >= weekEnd.getTime()))
-          return false;
-        if (dateFilter === 'month' && (time < monthStart || time > monthEnd)) return false;
-      }
+      // The server's end is inclusive; a class at midnight belongs to the next day.
+      const time = new Date(s.startsAt).getTime();
+      if (time < from.getTime() || time >= to.getTime()) return false;
 
       if (query) {
         const searchable =
@@ -245,22 +275,27 @@ export class AttendanceComponent implements OnInit {
   /** The list could not be loaded; said, rather than shown as empty. */
   readonly loadFailed = signal(false);
 
+  /** Loads the classes in the dates on show, and only those. */
   loadData(): void {
     this.loading.set(true);
     this.loadFailed.set(false);
-    this.lms.getSchedule().subscribe({
-      next: (sessions) => {
-        const sorted = (sessions || []).sort(
-          (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
-        );
-        this.sessions.set(sorted);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.loadFailed.set(true);
-      },
-    });
+    const { from, to } = attendanceRange(this.dateRangeFilter(), this.monthShown(), new Date());
+    this.lms
+      .getSchedule(from, to)
+      .pipe(this.scheduleRequest.latest())
+      .subscribe({
+        next: (sessions) => {
+          const sorted = (sessions || []).sort(
+            (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()
+          );
+          this.sessions.set(sorted);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.loadFailed.set(true);
+        },
+      });
   }
 
   getSessionCode(s: any): string {
@@ -280,7 +315,16 @@ export class AttendanceComponent implements OnInit {
   }
 
   setDateRangeFilter(filter: DateRangeFilter): void {
+    if (filter === this.dateRangeFilter()) return;
     this.dateRangeFilter.set(filter);
+    this.loadData();
+  }
+
+  /** Under "Month": the month before (-1) or after (+1). */
+  stepMonth(delta: number): void {
+    const shown = this.monthShown();
+    this.monthShown.set(new Date(shown.getFullYear(), shown.getMonth() + delta, 1));
+    this.loadData();
   }
 
   setInstructorFilter(instId: number): void {
@@ -290,10 +334,15 @@ export class AttendanceComponent implements OnInit {
   resetFilters(): void {
     this.sessionStatusFilter.set('all');
     this.selectedGroupFilter.set('all');
-    this.dateRangeFilter.set('all');
     this.selectedInstructorFilter.set(0);
     this.searchQuery.set('');
     this.sortBy.set('time');
+    const thisMonth = firstOfMonth(new Date());
+    if (this.dateRangeFilter() !== 'week' || this.monthShown().getTime() !== thisMonth.getTime()) {
+      this.dateRangeFilter.set('week');
+      this.monthShown.set(thisMonth);
+      this.loadData();
+    }
   }
 
   formatTime(iso?: string): string {

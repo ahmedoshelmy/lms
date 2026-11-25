@@ -197,17 +197,44 @@
           class="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-wider mr-1"
           >Date:</span
         >
-        @for (range of ['all', 'today', 'week', 'month']; track range) {
+        @for (range of dateRanges; track range.value) {
           <button
             type="button"
-            (click)="setDateRangeFilter($any(range))"
-            [class.bg-[var(--color-primary)]]="dateRangeFilter() === range"
-            [class.text-white]="dateRangeFilter() === range"
-            [class.text-[var(--color-text-secondary)]]="dateRangeFilter() !== range"
-            class="px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer border border-transparent"
+            (click)="setDateRangeFilter(range.value)"
+            [attr.aria-pressed]="dateRangeFilter() === range.value"
+            [class.bg-[var(--color-primary)]]="dateRangeFilter() === range.value"
+            [class.text-white]="dateRangeFilter() === range.value"
+            [class.text-[var(--color-text-secondary)]]="dateRangeFilter() !== range.value"
+            class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer border border-transparent"
           >
-            {{ range === 'all' ? 'All Time' : range }}
+            {{ range.label }}
           </button>
+        }
+
+        @if (dateRangeFilter() === 'month') {
+          <div class="flex items-center gap-1 ml-1">
+            <button
+              type="button"
+              (click)="stepMonth(-1)"
+              aria-label="Previous month"
+              class="w-7 h-7 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+            >
+              <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+            </button>
+            <span
+              class="text-xs font-bold text-[var(--color-text-primary)] min-w-28 text-center"
+              aria-live="polite"
+              >{{ monthLabel() }}</span
+            >
+            <button
+              type="button"
+              (click)="stepMonth(1)"
+              aria-label="Next month"
+              class="w-7 h-7 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+            >
+              <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
         }
 
         @if (hasActiveFilters()) {

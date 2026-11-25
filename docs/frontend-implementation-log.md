@@ -1948,3 +1948,29 @@ The backend session read the backend's source and answered the open questions
   - end-to-end: 69 passed;
   - lint: 0 errors; build 597.48 kB of the 600 kB budget;
   - backend: 293 tests pass, 2 new for the count.
+
+## The Sessions page, a week or a month at a time (B-6)
+
+- **Before:** the Sessions (attendance) page opened on "All Time". It downloaded every
+  class the school had ever had and filtered them in the browser, a list that grew every
+  week.
+- **Now** (the user's choice of three options):
+  - it opens on **this school week** (Saturday to Friday);
+  - **Today** and **This week** are as before;
+  - **Month** shows a stepper (previous month, its name, next month) and asks for that
+    month only;
+  - "All Time" is gone.
+  - Filters, counts and search work as before, within the dates on show.
+  - Each view asks the server for its own dates, through `latestRequest()`, so a quick
+    step through months cannot show an older answer.
+  - **Reset Filters** goes back to this week.
+- **No backend change:** `GET /schedule` already takes `from` and `to`.
+- **Validation:**
+  - unit tests: 6 new. The range for today, a school week, and a month across a year
+    end. The page asks for this week and steps back a month, and 2 of them fail with the
+    old unbounded request. Classes outside the dates on show are left out. 65 files /
+    322 tests pass.
+  - end-to-end: a new test checks the request is bounded, the month stepper, and axe on
+    both sizes. 71 passed.
+  - lint: 0 errors.
+  - build: 597.49 kB of the 600 kB budget.
