@@ -1906,3 +1906,22 @@ The backend session read the backend's source and answered the open questions
   - unit tests: all batches exit 0, 64 files / 311 tests;
   - end-to-end: 69 passed;
   - lint: 0 errors.
+
+## Phone numbers kept on the group page (Q-6, follow-up)
+
+- **What the backend confirmed:** `PUT /users/{id}` clears every field it is not sent:
+  email, phone, and an instructor's weekly capacity. The phone is the one way to reach a
+  family.
+- **Where phones were being wiped:** the group page's two calls sent no phone, so adding
+  a student to a group, or editing one from it, cleared the family's number.
+  - **"Add student"** now sends the phone from the student list.
+  - **"Edit student"** first reads the student's details, since the group's list carries
+    no phone, and sends the stored phone back.
+- **Checked, already safe:** the other callers already round-trip the fields: the
+  students page edit and bulk assign, the student page edit, and the instructor form
+  (with its weekly capacity).
+- **The real fix is the server's:** patch semantics, B-8 in `docs/backend-requests.md`.
+  Until then, any new caller of `updateUser` must send every stored field back.
+- **Validation:** 2 tests, both failing without the change:
+  - "add student" sends the phone;
+  - "edit student" reads the student and sends the phone back.

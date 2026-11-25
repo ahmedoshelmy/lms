@@ -8,6 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -904,6 +905,9 @@ export class GroupDetailComponent implements OnInit {
       .updateUser(student.id, {
         name: student.name,
         email: student.email,
+        // Sent back unchanged: the server replaces the whole record, and a
+        // phone left out is cleared -- the one way to reach the family.
+        phone: student.phone || undefined,
         role: Role.Student,
         groupId: grp.id,
       })
@@ -958,13 +962,22 @@ export class GroupDetailComponent implements OnInit {
     }
 
     this.savingStudent.set(true);
+    // The group's list does not carry the phone, and the server clears a phone
+    // left out of an update, so it is read first and sent back unchanged.
+    // One request more, until the server only changes what it is sent (B-8).
     this.lmsService
-      .updateUser(s.studentId, {
-        name,
-        email,
-        role: Role.Student,
-        groupId,
-      })
+      .getStudentDetails(s.studentId)
+      .pipe(
+        switchMap((stored) =>
+          this.lmsService.updateUser(s.studentId, {
+            name,
+            email,
+            phone: stored.phone || undefined,
+            role: Role.Student,
+            groupId,
+          })
+        )
+      )
       .subscribe({
         next: () => {
           this.notify.showSuccess(`Student ${name} updated.`);

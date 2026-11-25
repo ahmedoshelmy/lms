@@ -23,7 +23,13 @@ const GROUP = {
   courses: [],
 } as unknown as Group;
 
-const SARA = { id: 21, name: 'Sara Ahmed', email: 'sara@example.test', role: Role.Student } as User;
+const SARA = {
+  id: 21,
+  name: 'Sara Ahmed',
+  email: 'sara@example.test',
+  phone: '+20 100 000 0021',
+  role: Role.Student,
+} as User;
 
 /**
  * The group page's everyday jobs, ahead of splitting the component (F-09):
@@ -39,6 +45,8 @@ describe('GroupDetailComponent workflows', () => {
     lms = {
       getStudents: vi.fn(() => of([SARA, { ...SARA, id: 3, name: 'Mona', role: Role.Instructor }])),
       updateUser: vi.fn(() => of({})),
+      getStudentDetails: vi.fn(() => of({ id: 21, phone: '+20 100 000 0021' })),
+      getGroups: vi.fn(() => of([])),
       removeStudentFromGroup: vi.fn(() => of({})),
       updateGroupSchedule: vi.fn(() => of({})),
       cancelUpcomingGroupSessions: vi.fn(() =>
@@ -78,11 +86,31 @@ describe('GroupDetailComponent workflows', () => {
     expect(lms['updateUser']).toHaveBeenCalledWith(21, {
       name: 'Sara Ahmed',
       email: 'sara@example.test',
+      // The server clears a phone left out of an update.
+      phone: '+20 100 000 0021',
       role: Role.Student,
       groupId: 5,
     });
     expect(page.showAddStudentModal()).toBe(false);
     expect(reloads).toBe(1);
+  });
+
+  it("keeps the family's phone when a student is edited from the group page", () => {
+    page.openEditStudentModal({
+      studentId: 21,
+      studentName: 'Sara Ahmed',
+      studentEmail: 'sara@example.test',
+    } as GroupStudent);
+    page.editFormName.set('Sara A. Ahmed');
+
+    page.saveStudentChanges();
+
+    // Read first: the group's list does not carry the phone.
+    expect(lms['getStudentDetails']).toHaveBeenCalledWith(21);
+    expect(lms['updateUser']).toHaveBeenCalledWith(
+      21,
+      expect.objectContaining({ name: 'Sara A. Ahmed', phone: '+20 100 000 0021' })
+    );
   });
 
   it('removes a student only from this group, and shows the group again', () => {
