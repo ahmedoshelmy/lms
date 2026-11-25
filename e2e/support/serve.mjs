@@ -11,9 +11,11 @@ const [root, port] = [resolve(process.argv[2]), Number(process.argv[3] ?? 4300)]
 // The production headers (nginx-security-headers.conf), when given: every
 // response carries them, so the tests run under the real Content-Security-Policy.
 const headers = process.argv[4]
-  ? [...readFileSync(process.argv[4], 'utf8').matchAll(/^add_header\s+(\S+)\s+"([^"]*)"/gm)].map(
-      ([, name, value]) => [name, value]
-    )
+  ? [
+      ...readFileSync(process.argv[4], 'utf8').matchAll(
+        /^add_header\s+(\S+)\s+(?:"([^"]*)"|'([^']*)')/gm
+      ),
+    ].map(([, name, double, single]) => [name, double ?? single])
   : [];
 const TYPES = {
   '.html': 'text/html',

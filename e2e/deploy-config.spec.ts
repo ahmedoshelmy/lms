@@ -9,7 +9,9 @@ const once = () =>
 function nginxHeaders(): Record<string, string> {
   const text = readFileSync('nginx-security-headers.conf', 'utf8');
   return Object.fromEntries(
-    [...text.matchAll(/^add_header\s+(\S+)\s+"([^"]*)"/gm)].map(([, name, value]) => [name, value])
+    [...text.matchAll(/^add_header\s+(\S+)\s+(?:"([^"]*)"|'([^']*)')/gm)].map(
+      ([, name, double, single]) => [name, double ?? single]
+    )
   );
 }
 
@@ -33,6 +35,18 @@ test.describe('Deployment configuration', () => {
     expect(csp).toContain(`connect-src 'self' ${api}`);
     expect(csp).toContain("script-src 'self';");
     expect(csp).toContain("frame-ancestors 'none'");
+  });
+
+  test('refusals are reported to the API, to the address the policy names', () => {
+    once();
+    const headers = nginxHeaders();
+    const environment = readFileSync('src/environments/environment.ts', 'utf8');
+    const api = /apiUrl:\s*'([^']+)'/.exec(environment)![1];
+    const endpoint = `${api}/client-errors/csp`;
+
+    expect(headers['Content-Security-Policy']).toContain(`report-uri ${endpoint}; report-to csp`);
+    expect(headers['Reporting-Endpoints']).toBe(`csp="${endpoint}"`);
+    expect(environment).toContain(`errorReportUrl: '${api}/client-errors'`);
   });
 
   test('the production build keeps inline script out of index.html', () => {

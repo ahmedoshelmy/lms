@@ -22,10 +22,10 @@ export const environment = {
    */
   /**
    * Where the app reports errors nobody caught (docs/client-errors.api.md).
-   * Null: not reported until the endpoint exists. Its host has to be allowed by
-   * connect-src in nginx-security-headers.conf and vercel.json.
+   * Null switches reporting off. Its host has to be allowed by connect-src in
+   * nginx-security-headers.conf and vercel.json.
    */
-  errorReportUrl: null as string | null,
+  errorReportUrl: 'https://mv-api.inite.tech/api/client-errors' as string | null,
 
   features: {
     /** docs/instructor-kpis.api.md; the server has had it since backend cc476e8. */

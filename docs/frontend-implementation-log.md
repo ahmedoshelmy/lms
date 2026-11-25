@@ -1997,3 +1997,26 @@ The backend session read the backend's source and answered the open questions
   the backend is live.
 - The "As built" section of the contract records what the server decided where the
   contract left room.
+
+## Error reports reach the school's server (B-2)
+
+- **Backend** (branch `feat/client-errors`):
+  - `POST /client-errors`, as the contract says, and `POST /client-errors/csp` for what
+    the browser refuses under the policy, in both shapes browsers send.
+  - Everything is cleaned again on arrival (query strings, email addresses, ids in
+    paths), and neither the user nor the address is stored.
+  - Rate-limited for each address. Kept 90 days.
+  - One in-app note to the admins on evenings with new errors.
+  - 13 new tests; 379 backend tests pass. The queries were checked to translate to SQL.
+    There is no database here to run them against.
+- **Frontend** (branch `feat/client-errors-on`):
+  - `errorReportUrl` is set in production. The development build stays `null`, so
+    developers' errors stay out.
+  - The policy reports refusals: `report-to` with `Reporting-Endpoints`, and
+    `report-uri`. Both are in `nginx-security-headers.conf` and `vercel.json`.
+  - The `Reporting-Endpoints` value has double quotes in it, so nginx takes it in single
+    quotes. `e2e/deploy-config.spec.ts` and `e2e/support/serve.mjs` now read either
+    quote. A new check makes sure the policy, the header and `errorReportUrl` name the
+    same API.
+  - The notification list knows the new "ClientErrors" kind. It also knows the two
+    session-claim kinds the server already sent, which had no icon.

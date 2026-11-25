@@ -1,8 +1,10 @@
 # Client error reports — API contract
 
 The frontend reports errors nobody caught to the school's own server, so a fault is
-known before somebody rings about it. It is switched off until this endpoint exists:
-`errorReportUrl` is `null` in `src/environments/environment.ts`.
+known before somebody rings about it. The backend has the endpoint (`ClientErrorsController`,
+backend commit `feat(client-errors)`), and `errorReportUrl` in
+`src/environments/environment.ts` points at it. The development build keeps it `null`, so
+errors from a developer's machine stay out of the school's records.
 
 ## Endpoint
 
@@ -46,14 +48,18 @@ interface ClientErrorReport {
   Do not add anything that would change that, such as the user id or the IP address in
   the stored record.
 
-## Later: Content-Security-Policy reports
+## Content-Security-Policy reports
 
-Requests or files the browser refuses under the frontend's policy are silent today:
-the policy has no `report-uri` or `report-to`. Once this endpoint exists, add a
-`report-to` group pointing at it, or a separate `POST /csp-reports` taking the
-browser's `application/reports+json`. Then a blocked host shows up as a report, not a
-support call. That means a change to `nginx-security-headers.conf` and `vercel.json`
-together.
+What the browser refuses under the frontend's policy is reported too, by the browser
+itself, to `POST /client-errors/csp`:
+
+- `report-to csp` in the policy, with `Reporting-Endpoints: csp="…/client-errors/csp"`;
+- `report-uri …/client-errors/csp` for browsers without the Reporting API.
+
+Both are in `nginx-security-headers.conf` and `vercel.json`, and
+`e2e/deploy-config.spec.ts` checks they name the same address. The server keeps only
+what was refused (its host, or the browser's word such as `inline`), under which rule,
+and the page path with ids masked.
 
 ## Switching it on
 
@@ -64,3 +70,25 @@ together.
    the two agree.
 4. Release. Then check that a report arrives, for example by running
    `throw new Error('report test')` from the browser console on the live site.
+
+## As built
+
+What the server does where the contract above left room:
+
+- **Too large:** a body over 8 kB is refused with `413` (the server's own limit), not
+  `400`.
+- **Cleaned again on arrival.** Whatever the browser sent, the server takes out query
+  strings, fragments and email addresses, and masks ids in the path. It stores neither
+  the user nor the address.
+- **Rate limit:** 60 a minute for each address. The address is the last one the proxy adds
+  to `X-Forwarded-For`, and is used for counting only.
+- **Grouping:** reports are grouped by a fingerprint of the kind, the message, the first
+  stack line below it and the release.
+- **Alerts:** one in-app note to the admins each evening, only on days with errors not seen
+  before, listing the most frequent. It is one a day, not one per error, because anybody
+  can post to the endpoint: a stranger can fill the table, but not the admins'
+  notifications.
+- **Reading them:** `GET /client-errors?days=7` (admin only) gives the recent errors,
+  counted, most frequent first. There is no page for it yet.
+- **Kept 90 days**, then removed by the nightly job.
+- **Activity log:** the reports are left out of it.

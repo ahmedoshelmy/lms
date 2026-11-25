@@ -20,8 +20,9 @@ it is still used.
       host the policy does not list is refused by the browser.
 - [ ] **Features waiting on the backend** (`environment.features`) are on only if
       their endpoints are live. See `docs/instructor-kpis.api.md`.
-- [ ] **Error reports** (`errorReportUrl`): set if `docs/client-errors.api.md` is
-      live, otherwise `null`.
+- [ ] **Error reports** (`errorReportUrl`): the API's `/client-errors`
+      (`docs/client-errors.api.md`). It is on the API host, so `connect-src` needs nothing
+      more. The policy's `report-uri` and `Reporting-Endpoints` name the same API.
 
 ## Building and running
 
@@ -76,9 +77,9 @@ people on a bad version:
 
 ## Monitoring
 
-- **Front-end errors** go to the school's own server once `errorReportUrl` is set
-  (`docs/client-errors.api.md`): no third-party service, and no personal data in a
-  report.
+- **Front-end errors**, and anything the Content-Security-Policy refuses, go to the
+  school's own server (`docs/client-errors.api.md`). There is no third-party service, and
+  no personal data in a report. Admins get one note on evenings with new errors.
 - **Server-side errors** are logged by the API itself; the frontend does not report
   failed requests again.
 - **Uptime:** point an uptime check at `https://<site>/index.html`. The Docker image's

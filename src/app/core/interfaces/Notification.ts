@@ -15,7 +15,10 @@ export type NotificationKind =
   | 'ScheduleDigest'
   | 'AttendanceOutstanding'
   | 'ComplianceReport'
-  | 'GroupAssigned';
+  | 'GroupAssigned'
+  | 'SessionClaimRaised'
+  | 'SessionClaimDecided'
+  | 'ClientErrors';
 
 export interface AppNotification {
   id: number;
@@ -51,6 +54,9 @@ export const NOTIFICATION_ICONS: Record<NotificationKind, string> = {
   AttendanceOutstanding: 'pi pi-exclamation-circle',
   ComplianceReport: 'pi pi-chart-bar',
   GroupAssigned: 'pi pi-sitemap',
+  SessionClaimRaised: 'pi pi-flag',
+  SessionClaimDecided: 'pi pi-flag-fill',
+  ClientErrors: 'pi pi-exclamation-triangle',
 };
 
 /**
