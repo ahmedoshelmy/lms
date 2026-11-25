@@ -46,6 +46,15 @@ interface ClientErrorReport {
   Do not add anything that would change that, such as the user id or the IP address in
   the stored record.
 
+## Later: Content-Security-Policy reports
+
+Requests or files the browser refuses under the frontend's policy are silent today:
+the policy has no `report-uri` or `report-to`. Once this endpoint exists, add a
+`report-to` group pointing at it, or a separate `POST /csp-reports` taking the
+browser's `application/reports+json`. Then a blocked host shows up as a report, not a
+support call. That means a change to `nginx-security-headers.conf` and `vercel.json`
+together.
+
 ## Switching it on
 
 1. Deploy the endpoint.
